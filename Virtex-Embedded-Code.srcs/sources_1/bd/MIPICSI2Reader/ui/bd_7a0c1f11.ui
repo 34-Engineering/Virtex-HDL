@@ -1,0 +1,49 @@
+{
+   "ActiveEmotionalView":"Default View",
+   "Default View_ScaleFactor":"0.809082",
+   "Default View_TopLeft":"-117,-108",
+   "ExpandedHierarchyInLayout":"",
+   "guistr":"# # String gsaved with Nlview 7.0r6  2020-01-29 bk=1.5227 VDI=41 GEI=36 GUI=JA:10.0 non-TLS
+#  -string -flagsOSRD
+preplace port RESET -pg 1 -lvl 0 -x 0 -y 250 -defaultsOSRD
+preplace port ENABLED -pg 1 -lvl 0 -x 0 -y 270 -defaultsOSRD
+preplace port OUT_DATA -pg 1 -lvl 3 -x 770 -y 280 -defaultsOSRD
+preplace port OUT_ACTIVE_VIDEO -pg 1 -lvl 3 -x 770 -y 260 -defaultsOSRD
+preplace port OUT_HBLANK -pg 1 -lvl 3 -x 770 -y 320 -defaultsOSRD
+preplace port OUT_HSYNC -pg 1 -lvl 3 -x 770 -y 340 -defaultsOSRD
+preplace port OUT_VBLANK -pg 1 -lvl 3 -x 770 -y 360 -defaultsOSRD
+preplace port OUT_VSYNC -pg 1 -lvl 3 -x 770 -y 380 -defaultsOSRD
+preplace port OUT_OVERFLOW -pg 1 -lvl 3 -x 770 -y 440 -defaultsOSRD
+preplace port OUT_UNDERFLOW -pg 1 -lvl 3 -x 770 -y 460 -defaultsOSRD
+preplace port MCLK_N -pg 1 -lvl 0 -x 0 -y 380 -defaultsOSRD
+preplace port MCLK_P -pg 1 -lvl 0 -x 0 -y 400 -defaultsOSRD
+preplace port FID -pg 1 -lvl 0 -x 0 -y 500 -defaultsOSRD
+preplace port CLK -pg 1 -lvl 0 -x 0 -y 70 -defaultsOSRD
+preplace portBus MD_N -pg 1 -lvl 0 -x 0 -y 460 -defaultsOSRD
+preplace portBus MD_P -pg 1 -lvl 0 -x 0 -y 480 -defaultsOSRD
+preplace inst mipi_csi2_rx_subsyst_0 -pg 1 -lvl 1 -x 250 -y 440 -defaultsOSRD
+preplace inst v_axi4s_vid_out_0 -pg 1 -lvl 2 -x 610 -y 380 -defaultsOSRD
+preplace inst clk_wiz_0 -pg 1 -lvl 1 -x 250 -y 70 -defaultsOSRD
+preplace netloc ENABLED_1 1 0 2 30 240 450
+preplace netloc RESET_1 1 0 2 20 250 460
+preplace netloc v_axi4s_vid_out_0_vid_data 1 2 1 N 280
+preplace netloc v_axi4s_vid_out_0_vid_active_video 1 2 1 N 260
+preplace netloc v_axi4s_vid_out_0_vid_hsync 1 2 1 N 340
+preplace netloc v_axi4s_vid_out_0_vid_vblank 1 2 1 N 360
+preplace netloc v_axi4s_vid_out_0_vid_hblank 1 2 1 N 320
+preplace netloc v_axi4s_vid_out_0_vid_vsync 1 2 1 N 380
+preplace netloc v_axi4s_vid_out_0_underflow 1 2 1 N 460
+preplace netloc v_axi4s_vid_out_0_overflow 1 2 1 N 440
+preplace netloc MCLK_N_1 1 0 1 N 380
+preplace netloc MCLK_P_1 1 0 1 N 400
+preplace netloc MD_N_1 1 0 1 N 460
+preplace netloc MD_P_1 1 0 1 N 480
+preplace netloc FID_1 1 0 2 40J 260 440
+preplace netloc CLK_1 1 0 2 50 230 470
+preplace netloc clk_wiz_0_clk_out1 1 0 2 60 130 470
+preplace netloc mipi_csi2_rx_subsyst_0_video_out 1 1 1 N 320
+levelinfo -pg 1 0 250 610 770
+pagesize -pg 1 -db -bbox -sgen -120 0 970 620
+"
+}
+

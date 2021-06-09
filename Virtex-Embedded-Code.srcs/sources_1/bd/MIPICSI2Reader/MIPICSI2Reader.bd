@@ -1,0 +1,290 @@
+{
+  "design": {
+    "design_info": {
+      "boundary_crc": "0x0",
+      "device": "xc7a50tcpg236-1",
+      "gen_directory": "../../../../Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader",
+      "name": "MIPICSI2Reader",
+      "rev_ctrl_bd_flag": "RevCtrlBdOff",
+      "synth_flow_mode": "Hierarchical",
+      "tool_version": "2020.2"
+    },
+    "design_tree": {
+      "mipi_csi2_rx_subsyst_0": "",
+      "v_axi4s_vid_out_0": "",
+      "clk_wiz_0": ""
+    },
+    "ports": {
+      "RESET": {
+        "type": "rst",
+        "direction": "I",
+        "parameters": {
+          "POLARITY": {
+            "value": "ACTIVE_HIGH"
+          }
+        }
+      },
+      "ENABLED": {
+        "type": "data",
+        "direction": "I"
+      },
+      "OUT_DATA": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_ACTIVE_VIDEO": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_HBLANK": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_HSYNC": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_VBLANK": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_VSYNC": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_OVERFLOW": {
+        "type": "data",
+        "direction": "O"
+      },
+      "OUT_UNDERFLOW": {
+        "type": "data",
+        "direction": "O"
+      },
+      "MCLK_N": {
+        "type": "data",
+        "direction": "I"
+      },
+      "MCLK_P": {
+        "type": "data",
+        "direction": "I"
+      },
+      "MD_N": {
+        "type": "data",
+        "direction": "I",
+        "left": "1",
+        "right": "0"
+      },
+      "MD_P": {
+        "type": "data",
+        "direction": "I",
+        "left": "1",
+        "right": "0"
+      },
+      "FID": {
+        "type": "data",
+        "direction": "I"
+      },
+      "CLK": {
+        "type": "clk",
+        "direction": "I",
+        "parameters": {
+          "FREQ_HZ": {
+            "value": "100000000"
+          }
+        }
+      }
+    },
+    "components": {
+      "mipi_csi2_rx_subsyst_0": {
+        "vlnv": "xilinx.com:ip:mipi_csi2_rx_subsystem:5.1",
+        "xci_name": "MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0",
+        "xci_path": "ip\\MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0\\MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.xci",
+        "inst_hier_path": "mipi_csi2_rx_subsyst_0",
+        "parameters": {
+          "CMN_INC_VFB": {
+            "value": "false"
+          },
+          "CMN_NUM_LANES": {
+            "value": "2"
+          },
+          "CSI_CONTROLLER_REG_IF": {
+            "value": "false"
+          },
+          "C_CAL_MODE": {
+            "value": "NONE"
+          },
+          "C_DPHY_LANES": {
+            "value": "2"
+          },
+          "C_EN_CSI_V2_0": {
+            "value": "true"
+          }
+        },
+        "interface_ports": {
+          "mipi_phy_if": {
+            "mode": "Slave",
+            "vlnv": "xilinx.com:interface:mipi_phy_rtl:1.0"
+          },
+          "video_out": {
+            "mode": "Master",
+            "vlnv": "xilinx.com:interface:axis_rtl:1.0"
+          }
+        }
+      },
+      "v_axi4s_vid_out_0": {
+        "vlnv": "xilinx.com:ip:v_axi4s_vid_out:4.0",
+        "xci_name": "MIPICSI2Reader_v_axi4s_vid_out_0_0",
+        "xci_path": "ip\\MIPICSI2Reader_v_axi4s_vid_out_0_0\\MIPICSI2Reader_v_axi4s_vid_out_0_0.xci",
+        "inst_hier_path": "v_axi4s_vid_out_0",
+        "parameters": {
+          "C_S_AXIS_VIDEO_DATA_WIDTH": {
+            "value": "8"
+          },
+          "C_S_AXIS_VIDEO_FORMAT": {
+            "value": "12"
+          }
+        }
+      },
+      "clk_wiz_0": {
+        "vlnv": "xilinx.com:ip:clk_wiz:6.0",
+        "xci_name": "MIPICSI2Reader_clk_wiz_0_0",
+        "xci_path": "ip\\MIPICSI2Reader_clk_wiz_0_0\\MIPICSI2Reader_clk_wiz_0_0.xci",
+        "inst_hier_path": "clk_wiz_0",
+        "parameters": {
+          "CLKOUT1_JITTER": {
+            "value": "114.829"
+          },
+          "CLKOUT1_REQUESTED_OUT_FREQ": {
+            "value": "200"
+          },
+          "MMCM_CLKOUT0_DIVIDE_F": {
+            "value": "5.000"
+          },
+          "USE_LOCKED": {
+            "value": "false"
+          },
+          "USE_RESET": {
+            "value": "false"
+          }
+        }
+      }
+    },
+    "interface_nets": {
+      "mipi_csi2_rx_subsyst_0_video_out": {
+        "interface_ports": [
+          "mipi_csi2_rx_subsyst_0/video_out",
+          "v_axi4s_vid_out_0/video_in"
+        ]
+      }
+    },
+    "nets": {
+      "ENABLED_1": {
+        "ports": [
+          "ENABLED",
+          "mipi_csi2_rx_subsyst_0/ctrl_core_en",
+          "v_axi4s_vid_out_0/vid_io_out_ce",
+          "v_axi4s_vid_out_0/aclken"
+        ]
+      },
+      "RESET_1": {
+        "ports": [
+          "RESET",
+          "mipi_csi2_rx_subsyst_0/video_aresetn",
+          "v_axi4s_vid_out_0/aresetn"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_data": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_data",
+          "OUT_DATA"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_active_video": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_active_video",
+          "OUT_ACTIVE_VIDEO"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_hsync": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_hsync",
+          "OUT_HSYNC"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_vblank": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_vblank",
+          "OUT_VBLANK"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_hblank": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_hblank",
+          "OUT_HBLANK"
+        ]
+      },
+      "v_axi4s_vid_out_0_vid_vsync": {
+        "ports": [
+          "v_axi4s_vid_out_0/vid_vsync",
+          "OUT_VSYNC"
+        ]
+      },
+      "v_axi4s_vid_out_0_underflow": {
+        "ports": [
+          "v_axi4s_vid_out_0/underflow",
+          "OUT_UNDERFLOW"
+        ]
+      },
+      "v_axi4s_vid_out_0_overflow": {
+        "ports": [
+          "v_axi4s_vid_out_0/overflow",
+          "OUT_OVERFLOW"
+        ]
+      },
+      "MCLK_N_1": {
+        "ports": [
+          "MCLK_N",
+          "mipi_csi2_rx_subsyst_0/mipi_phy_if_clk_lp_n"
+        ]
+      },
+      "MCLK_P_1": {
+        "ports": [
+          "MCLK_P",
+          "mipi_csi2_rx_subsyst_0/mipi_phy_if_clk_lp_p"
+        ]
+      },
+      "MD_N_1": {
+        "ports": [
+          "MD_N",
+          "mipi_csi2_rx_subsyst_0/mipi_phy_if_data_lp_n"
+        ]
+      },
+      "MD_P_1": {
+        "ports": [
+          "MD_P",
+          "mipi_csi2_rx_subsyst_0/mipi_phy_if_data_lp_p"
+        ]
+      },
+      "FID_1": {
+        "ports": [
+          "FID",
+          "v_axi4s_vid_out_0/fid"
+        ]
+      },
+      "CLK_1": {
+        "ports": [
+          "CLK",
+          "clk_wiz_0/clk_in1",
+          "mipi_csi2_rx_subsyst_0/video_aclk",
+          "v_axi4s_vid_out_0/aclk"
+        ]
+      },
+      "clk_wiz_0_clk_out1": {
+        "ports": [
+          "clk_wiz_0/clk_out1",
+          "mipi_csi2_rx_subsyst_0/dphy_clk_200M"
+        ]
+      }
+    }
+  }
+}

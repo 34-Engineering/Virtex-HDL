@@ -1,0 +1,18 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 34 Engineering
+// Engineer: Liam Snow
+// 
+// Create Date: 06/08/2021 11:14:59 AM
+// Module Name: USBManager
+// Project Name: Virtex
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module USBManager(
+    input CLK,
+    inout [7:0] BDBUS,
+    inout [7:0] BCBUS
+    );
+endmodule
