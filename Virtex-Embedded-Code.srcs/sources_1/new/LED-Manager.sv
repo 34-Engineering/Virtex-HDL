@@ -20,13 +20,12 @@ module LEDManager(
     );
 
     reg [26:0] enabledCounter;
-    reg powerFlip;
+    reg powerPWM;
 
     assign PWR = V12 ? 1 : powerPWM;
     assign TAR = Top.hasTarget;
     assign IR = Top.enabled;
     assign EN = Top.enabled && enabledCounter > 50000000;
-
 
     //100mHz
     always @(posedge CLK) begin

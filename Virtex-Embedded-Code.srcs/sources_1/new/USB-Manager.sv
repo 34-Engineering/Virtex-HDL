@@ -9,10 +9,17 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/* Data:
+<- video stream
+<- processed data
+<-> get parameters
+-> set parameters */
 module USBManager(
     input CLK,
-    inout [7:0] BDBUS,
-    inout [7:0] BCBUS
+    inout TX,
+    inout RX
     );
+
+    
+
 endmodule

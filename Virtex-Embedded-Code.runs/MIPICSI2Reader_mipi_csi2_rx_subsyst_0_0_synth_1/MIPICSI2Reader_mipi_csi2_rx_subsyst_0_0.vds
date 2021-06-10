@@ -1,0 +1,273 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Wed Jun  9 13:47:14 2021
+# Process ID: 31728
+# Current directory: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1
+# Command line: vivado.exe -log MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.tcl
+# Log file: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.vds
+# Journal file: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1\vivado.jou
+#-----------------------------------------------------------
+source MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.tcl -notrace
+Command: synth_design -top MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0 -part xc7a50tcpg236-1 -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a50t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a50t'
+INFO: [Device 21-403] Loading part xc7a50tcpg236-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 32580
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1207.727 ; gain = 45.762
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/synth/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.v:61]
+INFO: [Synth 8-6157] synthesizing module 'bd_e616' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:10]
+INFO: [Synth 8-6157] synthesizing module 'bd_e616_phy_0' [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_phy_0_stub.v:5]
+INFO: [Synth 8-6155] done synthesizing module 'bd_e616_phy_0' (1#1) [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_phy_0_stub.v:5]
+WARNING: [Synth 8-7071] port 'init_done' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'cl_rxclkactivehs' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'cl_ulpsactivenot' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_ulpsactivenot' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_rxclkesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_rxlpdtesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_rxtriggeresc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_rxdataesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_rxvalidesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl0_errsyncesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_ulpsactivenot' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_rxclkesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_rxlpdtesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_rxtriggeresc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_rxdataesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_rxvalidesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7071] port 'dl1_errsyncesc' of module 'bd_e616_phy_0' is unconnected for instance 'phy' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+WARNING: [Synth 8-7023] instance 'phy' of module 'bd_e616_phy_0' has 56 connections declared, but only 39 given [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:170]
+INFO: [Synth 8-6157] synthesizing module 'bd_e616_r_sync_0' [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_r_sync_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'bd_e616_r_sync_0' (2#1) [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_r_sync_0_stub.v:6]
+WARNING: [Synth 8-7071] port 'mb_reset' of module 'bd_e616_r_sync_0' is unconnected for instance 'r_sync' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:210]
+WARNING: [Synth 8-7071] port 'bus_struct_reset' of module 'bd_e616_r_sync_0' is unconnected for instance 'r_sync' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:210]
+WARNING: [Synth 8-7071] port 'interconnect_aresetn' of module 'bd_e616_r_sync_0' is unconnected for instance 'r_sync' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:210]
+WARNING: [Synth 8-7071] port 'peripheral_aresetn' of module 'bd_e616_r_sync_0' is unconnected for instance 'r_sync' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:210]
+WARNING: [Synth 8-7023] instance 'r_sync' of module 'bd_e616_r_sync_0' has 10 connections declared, but only 6 given [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:210]
+INFO: [Synth 8-6157] synthesizing module 'bd_e616_rx_0' [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_rx_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'bd_e616_rx_0' (3#1) [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_rx_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'bd_e616_vfb_0_0' [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_vfb_0_0_stub.v:5]
+INFO: [Synth 8-6155] done synthesizing module 'bd_e616_vfb_0_0' (4#1) [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/.Xil/Vivado-31728-liams-desktop/realtime/bd_e616_vfb_0_0_stub.v:5]
+WARNING: [Synth 8-7071] port 'mdt_tv' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7071] port 'mdt_tr' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7071] port 'sdt_tv' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7071] port 'sdt_tr' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7071] port 'vfb_tv' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7071] port 'vfb_tr' of module 'bd_e616_vfb_0_0' is unconnected for instance 'vfb_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+WARNING: [Synth 8-7023] instance 'vfb_0' of module 'bd_e616_vfb_0_0' has 27 connections declared, but only 21 given [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:270]
+INFO: [Synth 8-6155] done synthesizing module 'bd_e616' (5#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/synth/bd_e616.v:10]
+INFO: [Synth 8-6155] done synthesizing module 'MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0' (6#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/synth/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.v:61]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1265.172 ; gain = 103.207
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1283.086 ; gain = 121.121
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1283.086 ; gain = 121.121
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 1283.086 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_0/bd_e616_r_sync_0/bd_e616_r_sync_0_in_context.xdc] for cell 'inst/r_sync'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_0/bd_e616_r_sync_0/bd_e616_r_sync_0_in_context.xdc] for cell 'inst/r_sync'
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_1/bd_e616_rx_0/bd_e616_rx_0_in_context.xdc] for cell 'inst/rx'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_1/bd_e616_rx_0/bd_e616_rx_0_in_context.xdc] for cell 'inst/rx'
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc] for cell 'inst/phy'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc] for cell 'inst/phy'
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_3/bd_e616_vfb_0_0/bd_e616_vfb_0_0_in_context.xdc] for cell 'inst/vfb_0'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_3/bd_e616_vfb_0_0/bd_e616_vfb_0_0_in_context.xdc] for cell 'inst/vfb_0'
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_fixed_ooc.xdc] for cell 'inst'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_fixed_ooc.xdc] for cell 'inst'
+Parsing XDC File [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/dont_touch.xdc]
+Finished Parsing XDC File [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/dont_touch.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1315.621 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.014 . Memory (MB): peak = 1318.617 ; gain = 2.996
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 1318.617 ; gain = 156.652
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a50tcpg236-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 1318.617 ; gain = 156.652
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_clk_hs_n. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 3).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_clk_hs_n. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 4).
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_clk_hs_p. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 5).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_clk_hs_p. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 6).
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_n[0]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 7).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_n[0]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 8).
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_n[1]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 9).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_n[1]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 10).
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_p[0]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 11).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_p[0]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 12).
+Applied set_property IO_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_p[1]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 13).
+Applied set_property CLOCK_BUFFER_TYPE = NONE for mipi_phy_if_data_hs_p[1]. (constraint file  c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0/bd_e616_phy_0_in_context.xdc, line 14).
+Applied set_property KEEP_HIERARCHY = SOFT for inst. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for inst/r_sync. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for inst/rx. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for inst/phy. (constraint file  auto generated constraint).
+Applied set_property KEEP_HIERARCHY = SOFT for inst/vfb_0. (constraint file  auto generated constraint).
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 1318.617 ; gain = 156.652
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 1318.617 ; gain = 156.652
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 120 (col length:60)
+BRAMs: 150 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 1318.617 ; gain = 156.652
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 1343.355 ; gain = 181.391
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 1343.430 ; gain = 181.465
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 1362.531 ; gain = 200.566
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++------+-----------------+----------+
+|      |BlackBox name    |Instances |
++------+-----------------+----------+
+|1     |bd_e616_phy_0    |         1|
+|2     |bd_e616_r_sync_0 |         1|
+|3     |bd_e616_rx_0     |         1|
+|4     |bd_e616_vfb_0_0  |         1|
++------+-----------------+----------+
+
+Report Cell Usage: 
++------+---------------+------+
+|      |Cell           |Count |
++------+---------------+------+
+|1     |bd_e616_phy    |     1|
+|2     |bd_e616_r_sync |     1|
+|3     |bd_e616_rx     |     1|
+|4     |bd_e616_vfb_0  |     1|
++------+---------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 0 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:11 ; elapsed = 00:00:16 . Memory (MB): peak = 1368.336 ; gain = 170.840
+Synthesis Optimization Complete : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 1368.336 ; gain = 206.371
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 1368.336 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1384.980 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+24 Infos, 30 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:22 ; elapsed = 00:00:23 . Memory (MB): peak = 1388.996 ; gain = 227.031
+INFO: [Common 17-1381] The checkpoint 'C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.dcp' has been generated.
+WARNING: [Common 17-576] 'use_project_ipc' is deprecated. This option is deprecated and no longer used.
+INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0, cache-ID = 127479a465ea7585
+INFO: [Coretcl 2-1174] Renamed 5 cell refs.
+INFO: [Common 17-1381] The checkpoint 'C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_synth_1/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_utilization_synth.rpt -pb MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Wed Jun  9 13:47:43 2021...

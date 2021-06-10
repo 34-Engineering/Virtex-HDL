@@ -9,7 +9,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+/* Data:
+<- processed data
+-> set parameters */
 module UARTManager(
     input CLK,
     output TX,
@@ -17,4 +19,5 @@ module UARTManager(
     );
 
     
+
 endmodule

@@ -13,8 +13,8 @@
 module Top(
     input CLK,
 
-    inout [7:0] USB_BDBUS,
-    inout [7:0] USB_BCBUS,
+    inout USB_TX,
+    inout USB_RX,
 
     output UART_TX,
     input UART_RX,
@@ -35,33 +35,11 @@ module Top(
     output CAM_XSHDN
     );
 
-    reg enabled = 0;
-    reg hasTarget = 0;
-    reg [1:0] streamMode = 2'b00; //0: 2b 60fps, 1: 4b 30fps, 2: 8b 15fps
-
-    //Vision Config
-    reg dualObjectMode = 0;
-    reg [3:0] wantedData = 4'b0000; //1: bounding rect xywh, 2: bounding vertexes, 3: inner rect xywhs, 4: inner vertexes
-    reg [1:0] orientation = 2'b00; //0: normal, 1: 90 clock, 2: 180, 3: 270 clock
-    reg [6:0] exposure = 0; //????
-    reg [7:0] threshold = 8'b00001111;
-    reg [9:0] minBlobBoundingWidth = 0;
-    reg [9:0] maxBlobBoundingWidth = 10'b1111111111;
-    reg [9:0] minBlobBoundingHeight = 0;
-    reg [9:0] maxBlobBoundingHeight = 10'b1111111111;
-    reg [6:0] minFullness = 0;
-    reg [6:0] maxFullness = 7'b1111111;
-    reg [8:0] minAngle = 0;
-    reg [8:0] maxAngle = 8'b11111111;
-    reg [8:0] minAngleDiff = 0;
-    reg [8:0] maxAngleDiff = 8'b11111111;
-    reg [9:0] finalSelectionCoordX = 10'b100011000;
-    reg [9:0] finalSelectionCoordY = 10'b100011000;
-    
+    //Sub-Components
     USBManager USBManager(
         .CLK(CLK),
-        .BDBUS(BDBUS),
-        .BCBUS(BCBUS)
+        .TX(USB_TX),
+        .RX(USB_RX)
     );
 
     UARTManager UARTManager(
@@ -90,4 +68,25 @@ module Top(
         .GPIO(CAM_GPIO),
         .XSHDN(CAM_XSHDN)
     );
+
+    //Process Vars
+    reg enabled = 0;
+    reg hasTarget = 0;
+
+    //Config
+    typedef struct { reg [9:0] x; reg [9:0] y; } vertex;
+    typedef struct { reg [9:0] min; reg [9:0] max; } rangedConst;
+    enum { Fast, Med, Slow } streamMode; //60fps@2bit, 30fps@4bit, 15fps@2bit
+    enum { OFF, ON_AIN, ON_AOUT } dualObjectMode;
+    enum { C0, C90, C180, C270 } orientation;
+    rangedConst boundingWidth = '{0, 10'b1111111111};
+    rangedConst boundingHeight = '{0, 10'b1111111111};
+    rangedConst fullness = '{0, 10'b1111111111};
+    rangedConst angleDiff = '{0, 10'b1111111111};
+    rangedConst angle = '{0, 10'b1111111111};
+    vertex nearstCoord = '{280, 280};
+    reg [7:0] threshold = 8'b00001111;
+    reg [7:0] exposure = 8'b00000000; //????
+    reg [3:0] wantedData = 4'b0000; //0: bou. xywh, 1: bou. vert., 2: inn. xywha, 3: inn. vert.
+
 endmodule

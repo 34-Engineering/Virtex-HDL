@@ -57,16 +57,14 @@ module CameraManager(
     reg [7:0] touching;
     reg [7:0] blobIndex = 0;
     reg [9:0] blobs [99:0][12:0]; //bx1, by1, bx2, by2, c{1-4}x1, c{1-4}y1, c{1-4}x2, c{1-4}y2 (1-4 order clockwise starting at top-left)
-    reg lastVSYNC;
-    reg lastHSYNC;
-    let min(a,b) = a < b ? a : b;
-    let max(a,b) = a > b ? a : b;
+    reg lastVsync;
+    reg lastHsync;
 
     //100mHz
     always @(posedge CLK && active_video) begin
         //pixel
         if (vsync && hsync) begin
-            //TODO: send pixel over USB
+            //TODO: send pixel to USB
             
             pixel <= data > Top.threshold;
             
@@ -150,19 +148,13 @@ module CameraManager(
         end
 
         //next line
-        if (~HSYNC && lastHSYNC) begin
-            countX <= 0;
-            countY <= countY + 1;
-
+        if (~hsync && lastHsync) begin
             x <= 0;
             y <= y + 1;
         end
 
         //next frame
-        if (~VSYNC && lastVSYNC) begin
-            countX <= 0;
-            countY <= 0;
-
+        if (~vsync && lastVsync) begin
             //TODO: pick final blob and send to USB & UART
 
             x <= 0;
@@ -170,8 +162,11 @@ module CameraManager(
         end
 
         //save ref values
-        lastVSYNC <= VSYNC;
-        lastHSYNC <= HSYNC;
+        lastVsync <= vsync;
+        lastHsync <= hsync;
     end
 
 endmodule
+
+let min(a,b) = a < b ? a : b;
+let max(a,b) = a > b ? a : b;
