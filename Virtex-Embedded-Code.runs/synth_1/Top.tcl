@@ -71,7 +71,7 @@ proc create_report { reportName command } {
 }
 OPTRACE "synth_1" START { ROLLUP_AUTO }
 OPTRACE "Creating in-memory project" START { }
-create_project -in_memory -part xc7a50tcpg236-1
+create_project -in_memory -part xc7a35tftg256-1
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
@@ -87,32 +87,33 @@ set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_verilog -library xil_defaultlib -sv {
-  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/Camera-Manager.sv
-  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/LED-Manager.sv
-  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/UART-Manager.sv
-  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/USB-Manager.sv
   C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/Top.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/USBManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/LEDManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/CameraManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/RoboRIOManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/CameraConfigManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/ConfigManager.sv
+  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/new/BlobProcessor.sv
 }
 add_files C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/sources_1/bd/MIPICSI2Reader/MIPICSI2Reader.bd
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_0/bd_e616_r_sync_0_board.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_0/bd_e616_r_sync_0.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_0/bd_e616_r_sync_0_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_1/bd_e616_rx_0.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_1/bd_e616_rx_0_fixed_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_1/bd_e616_rx_0_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0_clocks.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_2/bd_e616_phy_0_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/ip/ip_3/bd_e616_vfb_0_0_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/bd_0/bd_e616_ooc.xdc]
-set_property used_in_synthesis false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_impl.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_impl.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0_fixed_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_v_axi4s_vid_out_0_0/MIPICSI2Reader_v_axi4s_vid_out_0_0_clocks.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_v_axi4s_vid_out_0_0/MIPICSI2Reader_v_axi4s_vid_out_0_0_ooc.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_0/MIPICSI2Reader_clk_wiz_0_0_board.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_0/MIPICSI2Reader_clk_wiz_0_0.xdc]
-set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_0/MIPICSI2Reader_clk_wiz_0_0_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_0/bd_2647_r_sync_0_board.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_0/bd_2647_r_sync_0.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_0/bd_2647_r_sync_0_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_1/bd_2647_rx_0.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_1/bd_2647_rx_0_fixed_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_1/bd_2647_rx_0_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_clocks.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_3/bd_2647_vfb_0_0_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/bd_2647_ooc.xdc]
+set_property used_in_synthesis false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0_impl.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0_impl.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0_fixed_ooc.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_1_1/MIPICSI2Reader_clk_wiz_0_1_board.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_1_1/MIPICSI2Reader_clk_wiz_0_1.xdc]
+set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_clk_wiz_0_1_1/MIPICSI2Reader_clk_wiz_0_1_ooc.xdc]
 set_property used_in_implementation false [get_files -all c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/MIPICSI2Reader_ooc.xdc]
 
 OPTRACE "Adding files" END { }
@@ -124,13 +125,16 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
+read_xdc C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Main.xdc
+set_property used_in_implementation false [get_files C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Main.xdc]
+
 read_xdc dont_touch.xdc
 set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
-synth_design -top Top -part xc7a50tcpg236-1
+synth_design -top Top -part xc7a35tftg256-1
 OPTRACE "synth_design" END { }
 if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
  send_msg_id runtcl-6 info "Synthesis results are not added to the cache due to CRITICAL_WARNING"

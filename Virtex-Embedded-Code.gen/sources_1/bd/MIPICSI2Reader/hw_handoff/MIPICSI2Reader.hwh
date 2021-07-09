@@ -1,92 +1,93 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Wed Jun  9 14:33:34 2021" VIVADOVERSION="2020.2">
+<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Mon Jun 28 22:33:34 2021" VIVADOVERSION="2020.2">
 
-  <SYSTEMINFO ARCH="artix7" DEVICE="7a50t" NAME="MIPICSI2Reader" PACKAGE="cpg236" SPEEDGRADE="-1"/>
+  <SYSTEMINFO ARCH="artix7" DEVICE="7a35t" NAME="MIPICSI2Reader" PACKAGE="ftg256" SPEEDGRADE="-1"/>
 
   <EXTERNALPORTS>
     <PORT DIR="I" NAME="RESET" POLARITY="ACTIVE_LOW" SIGIS="rst" SIGNAME="External_Ports_RESET">
       <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_aresetn"/>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="aresetn"/>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_aresetn"/>
       </CONNECTIONS>
     </PORT>
     <PORT DIR="I" NAME="ENABLED" SIGIS="data" SIGNAME="External_Ports_ENABLED">
       <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="ctrl_core_en"/>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_io_out_ce"/>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="aclken"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" LEFT="7" NAME="OUT_DATA" RIGHT="0" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_data">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_data"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_ACTIVE_VIDEO" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_active_video">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_active_video"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_HBLANK" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_hblank">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_hblank"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_HSYNC" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_hsync">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_hsync"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_VBLANK" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_vblank">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_vblank"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_VSYNC" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_vid_vsync">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="vid_vsync"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_OVERFLOW" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_overflow">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="overflow"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="OUT_UNDERFLOW" SIGIS="data" SIGNAME="v_axi4s_vid_out_0_underflow">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="underflow"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="MCLK_N" SIGIS="data" SIGNAME="External_Ports_MCLK_N">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="mipi_phy_if_clk_lp_n"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="MCLK_P" SIGIS="data" SIGNAME="External_Ports_MCLK_P">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="mipi_phy_if_clk_lp_p"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" LEFT="1" NAME="MD_N" RIGHT="0" SIGIS="data" SIGNAME="External_Ports_MD_N">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="mipi_phy_if_data_lp_n"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" LEFT="1" NAME="MD_P" RIGHT="0" SIGIS="data" SIGNAME="External_Ports_MD_P">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="mipi_phy_if_data_lp_p"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="FID" SIGIS="data" SIGNAME="External_Ports_FID">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="fid"/>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="ctrl_core_en"/>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tready"/>
       </CONNECTIONS>
     </PORT>
     <PORT CLKFREQUENCY="100000000" DIR="I" NAME="CLK" SIGIS="clk" SIGNAME="External_Ports_CLK">
       <CONNECTIONS>
         <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_in1"/>
-        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_aclk"/>
-        <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="aclk"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" LEFT="1" NAME="MD_HSP" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_HSP">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_data_hs_p"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" LEFT="1" NAME="MD_HSN" RIGHT="0" SIGIS="data" SIGNAME="External_Ports_MD_HSN">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_data_hs_n"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" LEFT="1" NAME="MD_LPN" RIGHT="0" SIGIS="data" SIGNAME="External_Ports_MD_LPN">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_data_lp_n"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" LEFT="1" NAME="MD_LPP" RIGHT="0" SIGIS="data" SIGNAME="External_Ports_MD_LPP">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_data_lp_p"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="800000000" DIR="I" NAME="MC_HSN" SIGIS="clk" SIGNAME="External_Ports_MC_HSN">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_clk_hs_n"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="800000000" DIR="I" NAME="MC_HSP" SIGIS="clk" SIGNAME="External_Ports_MC_HSP">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_clk_hs_p"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="800000000" DIR="I" NAME="MC_LPN" SIGIS="clk" SIGNAME="External_Ports_MC_LPN">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_clk_lp_n"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="800000000" DIR="I" NAME="MC_LPP" SIGIS="clk" SIGNAME="External_Ports_MC_LPP">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="mipi_phy_if_clk_lp_p"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" NAME="TVALID" SIGIS="data" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tvalid">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tvalid"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" NAME="TLAST" SIGIS="data" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tlast">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tlast"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" LEFT="7" NAME="TDATA" RIGHT="0" SIGIS="data" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tdata">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tdata"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" LEFT="9" NAME="TDEST" RIGHT="0" SIGIS="data" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tdest">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tdest"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="200000000" DIR="O" NAME="CLK200" SIGIS="clk" SIGNAME="clk_wiz_0_clk_out1">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_out1"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" LEFT="63" NAME="TUSER" RIGHT="0" SIGIS="data" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tuser">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_out_tuser"/>
       </CONNECTIONS>
     </PORT>
   </EXTERNALPORTS>
@@ -123,7 +124,7 @@
         <PARAMETER NAME="C_USE_CLKOUT2_BAR" VALUE="0"/>
         <PARAMETER NAME="C_USE_CLKOUT3_BAR" VALUE="0"/>
         <PARAMETER NAME="C_USE_CLKOUT4_BAR" VALUE="0"/>
-        <PARAMETER NAME="c_component_name" VALUE="MIPICSI2Reader_clk_wiz_0_0"/>
+        <PARAMETER NAME="c_component_name" VALUE="MIPICSI2Reader_clk_wiz_0_1"/>
         <PARAMETER NAME="C_PLATFORM" VALUE="UNKNOWN"/>
         <PARAMETER NAME="C_USE_FREQ_SYNTH" VALUE="1"/>
         <PARAMETER NAME="C_USE_PHASE_ALIGNMENT" VALUE="1"/>
@@ -414,7 +415,7 @@
         <PARAMETER NAME="C_O_MIN" VALUE="1.000"/>
         <PARAMETER NAME="C_VCO_MIN" VALUE="600.000"/>
         <PARAMETER NAME="C_VCO_MAX" VALUE="1200.000"/>
-        <PARAMETER NAME="Component_Name" VALUE="MIPICSI2Reader_clk_wiz_0_0"/>
+        <PARAMETER NAME="Component_Name" VALUE="MIPICSI2Reader_clk_wiz_0_1"/>
         <PARAMETER NAME="USER_CLK_FREQ0" VALUE="100.0"/>
         <PARAMETER NAME="USER_CLK_FREQ1" VALUE="100.0"/>
         <PARAMETER NAME="USER_CLK_FREQ2" VALUE="100.0"/>
@@ -679,13 +680,15 @@
         </PORT>
         <PORT CLKFREQUENCY="200000000" DIR="O" NAME="clk_out1" SIGIS="clk" SIGNAME="clk_wiz_0_clk_out1">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="dphy_clk_200M"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="CLK200"/>
+            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="video_aclk"/>
+            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_1" PORT="dphy_clk_200M"/>
           </CONNECTIONS>
         </PORT>
       </PORTS>
       <BUSINTERFACES/>
     </MODULE>
-    <MODULE BD="MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0" BDTYPE="SBD" COREREVISION="0" DRIVERMODE="MIXED" FULLNAME="/mipi_csi2_rx_subsyst_0" HWVERSION="5.1" INSTANCE="mipi_csi2_rx_subsyst_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="mipi_csi2_rx_subsystem" SIM_BD="MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0" VLNV="xilinx.com:ip:mipi_csi2_rx_subsystem:5.1">
+    <MODULE BD="MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0" BDTYPE="SBD" COREREVISION="0" DRIVERMODE="MIXED" FULLNAME="/mipi_csi2_rx_subsyst_1" HWVERSION="5.1" INSTANCE="mipi_csi2_rx_subsyst_1" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="mipi_csi2_rx_subsystem" SIM_BD="MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0" VLNV="xilinx.com:ip:mipi_csi2_rx_subsystem:5.1">
       <DOCUMENTS>
         <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=mipi_csi2_rx_subsystem;v=v5_1;d=pg232-mipi-csi2-rx.pdf"/>
       </DOCUMENTS>
@@ -704,17 +707,17 @@
         <PARAMETER NAME="C_DL1_LP_IO_SWAP" VALUE="false"/>
         <PARAMETER NAME="C_DL2_LP_IO_SWAP" VALUE="false"/>
         <PARAMETER NAME="C_DL3_LP_IO_SWAP" VALUE="false"/>
-        <PARAMETER NAME="VFB_TU_WIDTH" VALUE="1"/>
+        <PARAMETER NAME="VFB_TU_WIDTH" VALUE="64"/>
         <PARAMETER NAME="C_IDLY_GROUP_NAME" VALUE="mipi_csi2rx_idly_group"/>
         <PARAMETER NAME="C_EN_EXDESIGNS" VALUE="false"/>
-        <PARAMETER NAME="C_EXDES_BOARD" VALUE="SP701"/>
+        <PARAMETER NAME="C_EXDES_BOARD" VALUE="VCK190"/>
         <PARAMETER NAME="C_EXDES_FMC" VALUE="LI-IMX274MIPI-FMC V1.0 Single Sensor"/>
         <PARAMETER NAME="C_EXDES_CONFIG" VALUE="MIPI_Video_Pipe_Camera_to_Display"/>
         <PARAMETER NAME="C_CSI2RX_DBG" VALUE="0"/>
         <PARAMETER NAME="C_MIPI_SLV_INT" VALUE="0"/>
         <PARAMETER NAME="C_CSI_OPT1_REGS" VALUE="false"/>
         <PARAMETER NAME="C_CSI_EN_CRC" VALUE="true"/>
-        <PARAMETER NAME="C_CSI_EN_ACTIVELANES" VALUE="false"/>
+        <PARAMETER NAME="C_CSI_EN_ACTIVELANES" VALUE="true"/>
         <PARAMETER NAME="DPHY_PRESET" VALUE="CSI2RX_XLNX"/>
         <PARAMETER NAME="C_STRETCH_LINE_RATE" VALUE="3500"/>
         <PARAMETER NAME="C_DPHY_MODE" VALUE="SLAVE"/>
@@ -788,7 +791,7 @@
         <PARAMETER NAME="USE_BOARD_FLOW" VALUE="false"/>
         <PARAMETER NAME="DPHYRX_BOARD_INTERFACE" VALUE="Custom"/>
         <PARAMETER NAME="CSI_CONTROLLER_REG_IF" VALUE="false"/>
-        <PARAMETER NAME="Component_Name" VALUE="MIPICSI2Reader_mipi_csi2_rx_subsyst_0_0"/>
+        <PARAMETER NAME="Component_Name" VALUE="MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0"/>
         <PARAMETER NAME="EDK_IPTYPE" VALUE="PERIPHERAL"/>
       </PARAMETERS>
       <PORTS>
@@ -799,9 +802,9 @@
         </PORT>
         <PORT CLKFREQUENCY="100000000.0" DIR="O" NAME="rxbyteclkhs" SIGIS="clk"/>
         <PORT DIR="O" NAME="system_rst_out" POLARITY="ACTIVE_LOW" SIGIS="rst"/>
-        <PORT CLKFREQUENCY="100000000" DIR="I" NAME="video_aclk" SIGIS="clk" SIGNAME="External_Ports_CLK">
+        <PORT CLKFREQUENCY="200000000" DIR="I" NAME="video_aclk" SIGIS="clk" SIGNAME="clk_wiz_0_clk_out1">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="CLK"/>
+            <CONNECTION INSTANCE="clk_wiz_0" PORT="clk_out1"/>
           </CONNECTIONS>
         </PORT>
         <PORT DIR="I" NAME="video_aresetn" POLARITY="ACTIVE_LOW" SIGIS="rst" SIGNAME="External_Ports_RESET">
@@ -809,54 +812,74 @@
             <CONNECTION INSTANCE="External_Ports" PORT="RESET"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="O" LEFT="7" NAME="video_out_tdata" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tdata">
+        <PORT DIR="O" LEFT="7" NAME="video_out_tdata" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tdata">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="s_axis_video_tdata"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="TDATA"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="O" LEFT="9" NAME="video_out_tdest" RIGHT="0" SIGIS="undef"/>
-        <PORT DIR="O" NAME="video_out_tlast" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tlast">
+        <PORT DIR="O" LEFT="9" NAME="video_out_tdest" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tdest">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="s_axis_video_tlast"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="TDEST"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" NAME="video_out_tready" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tready">
+        <PORT DIR="O" NAME="video_out_tlast" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tlast">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="s_axis_video_tready"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="TLAST"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="O" LEFT="0" NAME="video_out_tuser" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tuser">
+        <PORT DIR="I" NAME="video_out_tready" SIGIS="undef" SIGNAME="External_Ports_ENABLED">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="s_axis_video_tuser"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="ENABLED"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="O" NAME="video_out_tvalid" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tvalid">
+        <PORT DIR="O" LEFT="63" NAME="video_out_tuser" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tuser">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="v_axi4s_vid_out_0" PORT="s_axis_video_tvalid"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="TUSER"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" NAME="mipi_phy_if_clk_hs_n" SIGIS="undef"/>
-        <PORT DIR="I" NAME="mipi_phy_if_clk_hs_p" SIGIS="undef"/>
-        <PORT DIR="I" NAME="mipi_phy_if_clk_lp_n" SIGIS="undef" SIGNAME="External_Ports_MCLK_N">
+        <PORT DIR="O" NAME="video_out_tvalid" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_1_video_out_tvalid">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="MCLK_N"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="TVALID"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" NAME="mipi_phy_if_clk_lp_p" SIGIS="undef" SIGNAME="External_Ports_MCLK_P">
+        <PORT DIR="I" NAME="mipi_phy_if_clk_hs_n" SIGIS="undef" SIGNAME="External_Ports_MC_HSN">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="MCLK_P"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="MC_HSN"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_hs_n" RIGHT="0" SIGIS="undef"/>
-        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_hs_p" RIGHT="0" SIGIS="undef"/>
-        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_lp_n" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_N">
+        <PORT DIR="I" NAME="mipi_phy_if_clk_hs_p" SIGIS="undef" SIGNAME="External_Ports_MC_HSP">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="MD_N"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="MC_HSP"/>
           </CONNECTIONS>
         </PORT>
-        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_lp_p" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_P">
+        <PORT DIR="I" NAME="mipi_phy_if_clk_lp_n" SIGIS="undef" SIGNAME="External_Ports_MC_LPN">
           <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="MD_P"/>
+            <CONNECTION INSTANCE="External_Ports" PORT="MC_LPN"/>
+          </CONNECTIONS>
+        </PORT>
+        <PORT DIR="I" NAME="mipi_phy_if_clk_lp_p" SIGIS="undef" SIGNAME="External_Ports_MC_LPP">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="External_Ports" PORT="MC_LPP"/>
+          </CONNECTIONS>
+        </PORT>
+        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_hs_n" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_HSN">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="External_Ports" PORT="MD_HSN"/>
+          </CONNECTIONS>
+        </PORT>
+        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_hs_p" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_HSP">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="External_Ports" PORT="MD_HSP"/>
+          </CONNECTIONS>
+        </PORT>
+        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_lp_n" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_LPN">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="External_Ports" PORT="MD_LPN"/>
+          </CONNECTIONS>
+        </PORT>
+        <PORT DIR="I" LEFT="1" NAME="mipi_phy_if_data_lp_p" RIGHT="0" SIGIS="undef" SIGNAME="External_Ports_MD_LPP">
+          <CONNECTIONS>
+            <CONNECTION INSTANCE="External_Ports" PORT="MD_LPP"/>
           </CONNECTIONS>
         </PORT>
         <PORT DIR="I" NAME="ctrl_core_en" SIGIS="undef" SIGNAME="External_Ports_ENABLED">
@@ -869,11 +892,11 @@
         <PORT DIR="O" NAME="errsoths_intr" SIGIS="undef"/>
         <PORT DIR="O" NAME="cl_stopstate_intr" SIGIS="undef"/>
         <PORT DIR="O" NAME="dl0_stopstate_intr" SIGIS="undef"/>
+        <PORT DIR="O" NAME="dl1_stopstate_intr" SIGIS="undef"/>
         <PORT DIR="O" NAME="crc_status_intr" SIGIS="undef"/>
         <PORT DIR="O" LEFT="1" NAME="ecc_status_intr" RIGHT="0" SIGIS="undef"/>
         <PORT DIR="O" NAME="linebuffer_full" SIGIS="undef"/>
         <PORT DIR="O" NAME="frame_rcvd_pulse_out" SIGIS="undef"/>
-        <PORT DIR="O" NAME="dl1_stopstate_intr" SIGIS="undef"/>
       </PORTS>
       <BUSINTERFACES>
         <BUSINTERFACE BUSNAME="__NOC__" NAME="mipi_phy_if" TYPE="TARGET" VLNV="xilinx.com:interface:mipi_phy:1.0">
@@ -888,18 +911,18 @@
             <PORTMAP LOGICAL="DATA_LP_P" PHYSICAL="mipi_phy_if_data_lp_p"/>
           </PORTMAPS>
         </BUSINTERFACE>
-        <BUSINTERFACE BUSNAME="mipi_csi2_rx_subsyst_0_video_out" NAME="video_out" TYPE="INITIATOR" VLNV="xilinx.com:interface:axis:1.0">
+        <BUSINTERFACE BUSNAME="__NOC__" NAME="video_out" TYPE="INITIATOR" VLNV="xilinx.com:interface:axis:1.0">
           <PARAMETER NAME="TDATA_NUM_BYTES" VALUE="1"/>
           <PARAMETER NAME="TDEST_WIDTH" VALUE="10"/>
           <PARAMETER NAME="TID_WIDTH" VALUE="0"/>
-          <PARAMETER NAME="TUSER_WIDTH" VALUE="1"/>
+          <PARAMETER NAME="TUSER_WIDTH" VALUE="64"/>
           <PARAMETER NAME="HAS_TREADY" VALUE="1"/>
           <PARAMETER NAME="HAS_TSTRB" VALUE="0"/>
           <PARAMETER NAME="HAS_TKEEP" VALUE="0"/>
           <PARAMETER NAME="HAS_TLAST" VALUE="1"/>
-          <PARAMETER NAME="FREQ_HZ" VALUE="100000000"/>
-          <PARAMETER NAME="PHASE" VALUE="0.000"/>
-          <PARAMETER NAME="CLK_DOMAIN" VALUE="MIPICSI2Reader_CLK"/>
+          <PARAMETER NAME="FREQ_HZ" VALUE="200000000"/>
+          <PARAMETER NAME="PHASE" VALUE="0.0"/>
+          <PARAMETER NAME="CLK_DOMAIN" VALUE="/clk_wiz_0_clk_out1"/>
           <PARAMETER NAME="LAYERED_METADATA" VALUE="undef"/>
           <PARAMETER NAME="INSERT_VIP" VALUE="0"/>
           <PORTMAPS>
@@ -909,181 +932,6 @@
             <PORTMAP LOGICAL="TREADY" PHYSICAL="video_out_tready"/>
             <PORTMAP LOGICAL="TUSER" PHYSICAL="video_out_tuser"/>
             <PORTMAP LOGICAL="TVALID" PHYSICAL="video_out_tvalid"/>
-          </PORTMAPS>
-        </BUSINTERFACE>
-      </BUSINTERFACES>
-    </MODULE>
-    <MODULE COREREVISION="11" FULLNAME="/v_axi4s_vid_out_0" HWVERSION="4.0" INSTANCE="v_axi4s_vid_out_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="v_axi4s_vid_out" VLNV="xilinx.com:ip:v_axi4s_vid_out:4.0">
-      <DOCUMENTS>
-        <DOCUMENT SOURCE="http://www.xilinx.com/cgi-bin/docs/ipdoc?c=v_axi4s_vid_out;v=v4_0;d=pg044_v_axis_vid_out.pdf"/>
-      </DOCUMENTS>
-      <PARAMETERS>
-        <PARAMETER NAME="C_FAMILY" VALUE="artix7"/>
-        <PARAMETER NAME="C_PIXELS_PER_CLOCK" VALUE="1"/>
-        <PARAMETER NAME="C_COMPONENTS_PER_PIXEL" VALUE="1"/>
-        <PARAMETER NAME="C_S_AXIS_COMPONENT_WIDTH" VALUE="8"/>
-        <PARAMETER NAME="C_NATIVE_COMPONENT_WIDTH" VALUE="8"/>
-        <PARAMETER NAME="C_NATIVE_DATA_WIDTH" VALUE="8"/>
-        <PARAMETER NAME="C_S_AXIS_TDATA_WIDTH" VALUE="8"/>
-        <PARAMETER NAME="C_HAS_ASYNC_CLK" VALUE="0"/>
-        <PARAMETER NAME="C_ADDR_WIDTH" VALUE="10"/>
-        <PARAMETER NAME="C_VTG_MASTER_SLAVE" VALUE="0"/>
-        <PARAMETER NAME="C_HYSTERESIS_LEVEL" VALUE="12"/>
-        <PARAMETER NAME="C_SYNC_LOCK_THRESHOLD" VALUE="4"/>
-        <PARAMETER NAME="C_INCLUDE_PIXEL_REPEAT" VALUE="0"/>
-        <PARAMETER NAME="C_INCLUDE_PIXEL_REMAP_420" VALUE="0"/>
-        <PARAMETER NAME="C_ADDR_WIDTH_PIXEL_REMAP_420" VALUE="10"/>
-        <PARAMETER NAME="Component_Name" VALUE="MIPICSI2Reader_v_axi4s_vid_out_0_0"/>
-        <PARAMETER NAME="C_S_AXIS_VIDEO_FORMAT" VALUE="12"/>
-        <PARAMETER NAME="C_S_AXIS_VIDEO_DATA_WIDTH" VALUE="8"/>
-        <PARAMETER NAME="EDK_IPTYPE" VALUE="PERIPHERAL"/>
-      </PARAMETERS>
-      <PORTS>
-        <PORT CLKFREQUENCY="100000000" DIR="I" NAME="aclk" SIGIS="clk" SIGNAME="External_Ports_CLK">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="CLK"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="aclken" POLARITY="ACTIVE_HIGH" SIGIS="ce" SIGNAME="External_Ports_ENABLED">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="ENABLED"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="aresetn" POLARITY="ACTIVE_LOW" SIGIS="rst" SIGNAME="External_Ports_RESET">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="RESET"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" LEFT="7" NAME="s_axis_video_tdata" RIGHT="0" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tdata">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_out_tdata"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="s_axis_video_tvalid" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tvalid">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_out_tvalid"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="s_axis_video_tready" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tready">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_out_tready"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="s_axis_video_tuser" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tuser">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_out_tuser"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="s_axis_video_tlast" SIGIS="undef" SIGNAME="mipi_csi2_rx_subsyst_0_video_out_tlast">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="mipi_csi2_rx_subsyst_0" PORT="video_out_tlast"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="fid" SIGIS="undef" SIGNAME="External_Ports_FID">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="FID"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="vid_io_out_ce" POLARITY="ACTIVE_HIGH" SIGIS="ce" SIGNAME="External_Ports_ENABLED">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="ENABLED"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_active_video" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_active_video">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_ACTIVE_VIDEO"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_vsync" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_vsync">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_VSYNC"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_hsync" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_hsync">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_HSYNC"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_vblank" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_vblank">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_VBLANK"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_hblank" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_hblank">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_HBLANK"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="vid_field_id" SIGIS="undef"/>
-        <PORT DIR="O" LEFT="7" NAME="vid_data" RIGHT="0" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_vid_data">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_DATA"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="I" NAME="vtg_vsync" SIGIS="undef"/>
-        <PORT DIR="I" NAME="vtg_hsync" SIGIS="undef"/>
-        <PORT DIR="I" NAME="vtg_vblank" SIGIS="undef"/>
-        <PORT DIR="I" NAME="vtg_hblank" SIGIS="undef"/>
-        <PORT DIR="I" NAME="vtg_active_video" SIGIS="undef"/>
-        <PORT DIR="I" NAME="vtg_field_id" SIGIS="undef"/>
-        <PORT DIR="O" NAME="vtg_ce" SIGIS="undef"/>
-        <PORT DIR="O" NAME="locked" SIGIS="undef"/>
-        <PORT DIR="O" NAME="overflow" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_overflow">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_OVERFLOW"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" NAME="underflow" SIGIS="undef" SIGNAME="v_axi4s_vid_out_0_underflow">
-          <CONNECTIONS>
-            <CONNECTION INSTANCE="External_Ports" PORT="OUT_UNDERFLOW"/>
-          </CONNECTIONS>
-        </PORT>
-        <PORT DIR="O" LEFT="10" NAME="fifo_read_level" RIGHT="0" SIGIS="undef"/>
-        <PORT DIR="O" LEFT="31" NAME="status" RIGHT="0" SIGIS="undef"/>
-        <PORT DIR="O" NAME="sof_state_out" SIGIS="undef"/>
-      </PORTS>
-      <BUSINTERFACES>
-        <BUSINTERFACE BUSNAME="mipi_csi2_rx_subsyst_0_video_out" NAME="video_in" TYPE="TARGET" VLNV="xilinx.com:interface:axis:1.0">
-          <PARAMETER NAME="TDATA_NUM_BYTES" VALUE="1"/>
-          <PARAMETER NAME="TDEST_WIDTH" VALUE="0"/>
-          <PARAMETER NAME="TID_WIDTH" VALUE="0"/>
-          <PARAMETER NAME="TUSER_WIDTH" VALUE="1"/>
-          <PARAMETER NAME="HAS_TREADY" VALUE="1"/>
-          <PARAMETER NAME="HAS_TSTRB" VALUE="0"/>
-          <PARAMETER NAME="HAS_TKEEP" VALUE="0"/>
-          <PARAMETER NAME="HAS_TLAST" VALUE="1"/>
-          <PARAMETER NAME="FREQ_HZ" VALUE="100000000"/>
-          <PARAMETER NAME="PHASE" VALUE="0.000"/>
-          <PARAMETER NAME="CLK_DOMAIN" VALUE="MIPICSI2Reader_CLK"/>
-          <PARAMETER NAME="LAYERED_METADATA" VALUE="undef"/>
-          <PARAMETER NAME="INSERT_VIP" VALUE="0"/>
-          <PORTMAPS>
-            <PORTMAP LOGICAL="TDATA" PHYSICAL="s_axis_video_tdata"/>
-            <PORTMAP LOGICAL="TLAST" PHYSICAL="s_axis_video_tlast"/>
-            <PORTMAP LOGICAL="TREADY" PHYSICAL="s_axis_video_tready"/>
-            <PORTMAP LOGICAL="TUSER" PHYSICAL="s_axis_video_tuser"/>
-            <PORTMAP LOGICAL="TVALID" PHYSICAL="s_axis_video_tvalid"/>
-          </PORTMAPS>
-        </BUSINTERFACE>
-        <BUSINTERFACE BUSNAME="__NOC__" NAME="vtiming_in" TYPE="TARGET" VLNV="xilinx.com:interface:video_timing:2.0">
-          <PORTMAPS>
-            <PORTMAP LOGICAL="ACTIVE_VIDEO" PHYSICAL="vtg_active_video"/>
-            <PORTMAP LOGICAL="FIELD" PHYSICAL="vtg_field_id"/>
-            <PORTMAP LOGICAL="HBLANK" PHYSICAL="vtg_hblank"/>
-            <PORTMAP LOGICAL="HSYNC" PHYSICAL="vtg_hsync"/>
-            <PORTMAP LOGICAL="VBLANK" PHYSICAL="vtg_vblank"/>
-            <PORTMAP LOGICAL="VSYNC" PHYSICAL="vtg_vsync"/>
-          </PORTMAPS>
-        </BUSINTERFACE>
-        <BUSINTERFACE BUSNAME="__NOC__" NAME="vid_io_out" TYPE="INITIATOR" VLNV="xilinx.com:interface:vid_io:1.0">
-          <PORTMAPS>
-            <PORTMAP LOGICAL="ACTIVE_VIDEO" PHYSICAL="vid_active_video"/>
-            <PORTMAP LOGICAL="DATA" PHYSICAL="vid_data"/>
-            <PORTMAP LOGICAL="FIELD" PHYSICAL="vid_field_id"/>
-            <PORTMAP LOGICAL="HBLANK" PHYSICAL="vid_hblank"/>
-            <PORTMAP LOGICAL="HSYNC" PHYSICAL="vid_hsync"/>
-            <PORTMAP LOGICAL="VBLANK" PHYSICAL="vid_vblank"/>
-            <PORTMAP LOGICAL="VSYNC" PHYSICAL="vid_vsync"/>
           </PORTMAPS>
         </BUSINTERFACE>
       </BUSINTERFACES>

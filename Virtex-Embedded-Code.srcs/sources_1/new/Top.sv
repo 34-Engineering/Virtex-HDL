@@ -13,40 +13,77 @@
 module Top(
     input CLK,
 
-    inout USB_TX,
-    inout USB_RX,
+    inout [3:0] USB_BD,
+    output USB_PWRSAV,
+    output USB_PWREN,
+    output USB_SUS,
 
-    output UART_TX,
-    input UART_RX,
+    input RIO_SCL,
+    inout RIO_SDA,
+
+    output CONF_CS,
+    output CONF_WP,
+    output CONF_HOLD,
+    output CONF_CLK,
+    output CONF_MOSI,
+    input CONF_MISO,
 
     output LED_IR,
-    output LED_PWR,
-    output LED_EN,
-    output LED_TAR,
-    input LED_V12,
+    output [2:0] LED_PWR,
+    output [2:0] LED_EN,
+    output [2:0] LED_TAR,
+    output [2:0] LED_COM,
+    
+    input PWR_V1_UV,
+    input PWR_V2UV,
+    input PWR_V2ON,
 
-    input CAM_MCLK_N,
-    input CAM_MCLK_P,
-    input CAM_MD1_N,
-    input CAM_MD1_P,
-    input CAM_MD2_N,
-    input CAM_MD2_P,
+    input CAM_MC_LPP,
+    input CAM_MC_LPN,
+    input CAM_MC_HSP,
+    input CAM_MC_HSN,
+    input [1:0] CAM_MD_LPP,
+    input [1:0] CAM_MD_LPN,
+    input [1:0] CAM_MD_HSP,
+    input [1:0] CAM_MD_HSN,
     inout [3:0] CAM_GPIO,
-    output CAM_XSHDN
+    output CAM_SHDN,
+    output CAM_SCL,
+    inout CAM_SDA
     );
+
+    //Process Vars
+    reg enabled = 0; /* synthesis keep */
+    reg targetBlobValid = 0; /* synthesis keep */
+    reg [9:0] targetBlob [12:0]; /* synthesis keep */
 
     //Sub-Components
     USBManager USBManager(
         .CLK(CLK),
-        .TX(USB_TX),
-        .RX(USB_RX)
-    );
+        .FSDI(USB_BD[0]),
+        .FSCLK(USB_BD[1]),
+        .FSDO(USB_BD[2]),
+        .FSCTS(USB_BD[3]),
+        .PWRSAV(USB_PWRSAV),
+        .PWREN(USB_PWREN),
+        .SUS(USB_SUS)
+    ); /* synthesis keep */
 
-    UARTManager UARTManager(
+    RoboRIOManager RoboRIOManager(
         .CLK(CLK),
-        .TX(UART_TX),
-        .RX(UART_RX)
-    );
+        .SCL(RIO_SCL),
+        .SDA(RIO_SDA)
+    ); /* synthesis keep */
+
+    ConfigManager ConfigManager(
+        .CLK(CLK),
+        .CS(CONF_CS),
+        .WP(CONF_WP),
+        .HOLD(CONF_HOLD),
+        .OCLK(CONF_CLK),
+        .MOSI(CONF_MOSI),
+        .MISO(CONF_MISO)
+    ); /* synthesis keep */
 
     LEDManager LEDManager(
         .CLK(CLK),
@@ -54,39 +91,24 @@ module Top(
         .PWR(LED_PWR),
         .EN(LED_EN),
         .TAR(LED_TAR),
-        .V12(LED_V12)
-    );
+        .COM(LED_COM),
+        .PWR_V2ON(PWR_V2ON)
+    ); /* synthesis keep */
 
     CameraManager CameraManager(
         .CLK(CLK),
-        .MCLK_N(CAM_MCLK_N),
-        .MCLK_P(CAM_MCLK_P),
-        .MD1_N(CAM_MD1_N),
-        .MD1_P(CAM_MD1_P),
-        .MD2_N(CAM_MD2_N),
-        .MD2_P(CAM_MD2_P),
+        .MC_LPP(CAM_MC_LPP),
+        .MC_LPN(CAM_MC_LPN),
+        .MC_HSP(CAM_MC_HSP),
+        .MC_HSN(CAM_MC_HSN),
+        .MD_LPP(CAM_MD_LPP),
+        .MD_LPN(CAM_MD_LPN),
+        .MD_HSP(CAM_MD_HSP),
+        .MD_HSN(CAM_MD_HSN),
         .GPIO(CAM_GPIO),
-        .XSHDN(CAM_XSHDN)
-    );
-
-    //Process Vars
-    reg enabled = 0;
-    reg hasTarget = 0;
-
-    //Config
-    typedef struct { reg [9:0] x; reg [9:0] y; } vertex;
-    typedef struct { reg [9:0] min; reg [9:0] max; } rangedConst;
-    enum { Fast, Med, Slow } streamMode; //60fps@2bit, 30fps@4bit, 15fps@2bit
-    enum { OFF, ON_AIN, ON_AOUT } dualObjectMode;
-    enum { C0, C90, C180, C270 } orientation;
-    rangedConst boundingWidth = '{0, 10'b1111111111};
-    rangedConst boundingHeight = '{0, 10'b1111111111};
-    rangedConst fullness = '{0, 10'b1111111111};
-    rangedConst angleDiff = '{0, 10'b1111111111};
-    rangedConst angle = '{0, 10'b1111111111};
-    vertex nearstCoord = '{280, 280};
-    reg [7:0] threshold = 8'b00001111;
-    reg [7:0] exposure = 8'b00000000; //????
-    reg [3:0] wantedData = 4'b0000; //0: bou. xywh, 1: bou. vert., 2: inn. xywha, 3: inn. vert.
+        .SHDN(CAM_SHDN),
+        .SCL(CAM_SCL),
+        .SDA(CAM_SDA)
+    ); /* synthesis keep */
 
 endmodule

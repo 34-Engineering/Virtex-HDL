@@ -1,0 +1,515 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Mon Jun 28 22:33:40 2021
+# Process ID: 25160
+# Current directory: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1
+# Command line: vivado.exe -log bd_2647_phy_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source bd_2647_phy_0.tcl
+# Log file: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/bd_2647_phy_0.vds
+# Journal file: C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1\vivado.jou
+#-----------------------------------------------------------
+source bd_2647_phy_0.tcl -notrace
+Command: synth_design -top bd_2647_phy_0 -part xc7a35tftg256-1 -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a35t'
+INFO: [Device 21-403] Loading part xc7a35tftg256-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 1984
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_ppm_fifo with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:3713]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5238]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5239]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5240]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5241]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5242]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5243]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5244]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_calib_cntrl with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:5245]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_tx_rst_logic with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:10852]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_rst_logic with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:11366]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_tx_support_rst_logic with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:12101]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_support_rst_logic with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:12476]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_data_lane with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:14913]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_data_lane with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:14914]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_fab_top with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:27490]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_fab_top with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:27491]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_fab_top with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:27492]
+WARNING: [Synth 8-2507] parameter declaration becomes local in mipi_dphy_v4_3_0_rx_fab_top with formal parameter declaration list [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ipshared/543b/hdl/mipi_dphy_v4_3_vl_rfs.sv:27526]
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1193.508 ; gain = 31.090
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'bd_2647_phy_0' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0.v:91]
+	Parameter C_DPHY_MODE bound to: SLAVE - type: string 
+	Parameter C_DPHY_LANES bound to: 2 - type: integer 
+	Parameter C_HS_LINE_RATE bound to: 800 - type: integer 
+	Parameter C_XMIT_FIRST_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_XMIT_PERIODIC_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_SKEWCAL_FIRST_TIME bound to: 4096 - type: integer 
+	Parameter C_SKEWCAL_PERIODIC_TIME bound to: 128 - type: integer 
+	Parameter C_RCVE_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_LPX_PERIOD bound to: 50 - type: integer 
+	Parameter C_STABLE_CLK_PERIOD bound to: 5.000000 - type: double 
+	Parameter C_ESC_CLK_PERIOD bound to: 50.000000 - type: double 
+	Parameter C_WAKEUP bound to: 1000000 - type: integer 
+	Parameter C_HS_TIMEOUT bound to: 65541 - type: integer 
+	Parameter C_ESC_TIMEOUT bound to: 25600 - type: integer 
+	Parameter MTBF_SYNC_STAGES bound to: 3 - type: integer 
+	Parameter C_EN_TIMEOUT_REGS bound to: 0 - type: integer 
+	Parameter DPHY_PRESET bound to: CSI2RX_XLNX - type: string 
+	Parameter SUPPORT_LEVEL bound to: 1 - type: integer 
+	Parameter C_EN_REG_IF bound to: 0 - type: integer 
+	Parameter C_EN_DEBUG_REGS bound to: 0 - type: integer 
+	Parameter C_EXAMPLE_SIMULATION bound to: false - type: string 
+	Parameter C_TXPLL_CLKIN_PERIOD bound to: 8.000000 - type: double 
+	Parameter C_DIV4_CLK_PERIOD bound to: 10.000000 - type: double 
+	Parameter C_CAL_MODE bound to: FIXED - type: string 
+	Parameter C_EN_EXT_TAP bound to: 0 - type: string 
+	Parameter C_EN_SSC bound to: 0 - type: string 
+	Parameter C_EN_DEBUG_TX_CALIB bound to: 0 - type: string 
+	Parameter C_IDLY_TAP bound to: 0 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'bd_2647_phy_0_core' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_core.v:93]
+	Parameter C_DPHY_MODE bound to: SLAVE - type: string 
+	Parameter C_DPHY_LANES bound to: 2 - type: integer 
+	Parameter C_HS_LINE_RATE bound to: 800 - type: integer 
+	Parameter C_XMIT_FIRST_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_XMIT_PERIODIC_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_SKEWCAL_FIRST_TIME bound to: 4096 - type: integer 
+	Parameter C_SKEWCAL_PERIODIC_TIME bound to: 128 - type: integer 
+	Parameter C_RCVE_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_LPX_PERIOD bound to: 50 - type: integer 
+	Parameter C_STABLE_CLK_PERIOD bound to: 5.000000 - type: double 
+	Parameter C_ESC_CLK_PERIOD bound to: 50.000000 - type: double 
+	Parameter C_WAKEUP bound to: 1000000 - type: integer 
+	Parameter C_HS_TIMEOUT bound to: 65541 - type: integer 
+	Parameter C_ESC_TIMEOUT bound to: 25600 - type: integer 
+	Parameter MTBF_SYNC_STAGES bound to: 3 - type: integer 
+	Parameter C_EN_TIMEOUT_REGS bound to: 0 - type: integer 
+	Parameter DPHY_PRESET bound to: CSI2RX_XLNX - type: string 
+	Parameter SUPPORT_LEVEL bound to: 1 - type: integer 
+	Parameter C_EN_REG_IF bound to: 0 - type: integer 
+	Parameter C_EN_DEBUG_REGS bound to: 0 - type: integer 
+	Parameter C_EXAMPLE_SIMULATION bound to: false - type: string 
+	Parameter C_TXPLL_CLKIN_PERIOD bound to: 8.000000 - type: double 
+	Parameter C_DIV4_CLK_PERIOD bound to: 10.000000 - type: double 
+	Parameter C_CAL_MODE bound to: FIXED - type: string 
+	Parameter C_EN_EXT_TAP bound to: 0 - type: string 
+	Parameter C_EN_SSC bound to: 0 - type: string 
+	Parameter C_IDLY_TAP bound to: 0 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'bd_2647_phy_0_c1' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_c1.v:100]
+	Parameter C_IS_7SERIES bound to: TRUE - type: string 
+	Parameter C_LPRX_DISABLE_EXTPORT bound to: 0 - type: integer 
+	Parameter C_DPHY_MODE bound to: SLAVE - type: string 
+	Parameter C_DPHY_LANES bound to: 2 - type: integer 
+	Parameter C_HS_LINE_RATE bound to: 800 - type: integer 
+	Parameter C_XMIT_FIRST_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_XMIT_PERIODIC_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_SKEWCAL_FIRST_TIME bound to: 4096 - type: integer 
+	Parameter C_SKEWCAL_PERIODIC_TIME bound to: 128 - type: integer 
+	Parameter C_XMIT_ALT_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_RCVE_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_RCVE_ALT_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_LPX_PERIOD bound to: 50 - type: integer 
+	Parameter C_STABLE_CLK_PERIOD bound to: 5.000000 - type: double 
+	Parameter C_ESC_CLK_PERIOD bound to: 50.000000 - type: double 
+	Parameter C_INIT bound to: 100000 - type: integer 
+	Parameter C_WAKEUP bound to: 1000000 - type: integer 
+	Parameter C_EN_ULPS_WAKEUP_CNT bound to: FALSE - type: string 
+	Parameter C_EN_HS_OBUFTDS bound to: FALSE - type: string 
+	Parameter C_USE_LANE0_TXREADYHS bound to: FALSE - type: string 
+	Parameter C_HS_SETTLE_NS bound to: 147 - type: integer 
+	Parameter C_HS_TIMEOUT bound to: 65541 - type: integer 
+	Parameter C_ESC_TIMEOUT bound to: 25600 - type: integer 
+	Parameter MTBF_SYNC_STAGES bound to: 3 - type: integer 
+	Parameter C_EN_TIMEOUT_REGS bound to: 0 - type: integer 
+	Parameter DPHY_PRESET bound to: CSI2RX_XLNX - type: string 
+	Parameter SUPPORT_LEVEL bound to: 1 - type: integer 
+	Parameter C_EN_REG_IF bound to: 0 - type: integer 
+	Parameter C_EN_DEBUG_REGS bound to: 0 - type: integer 
+	Parameter C_EXAMPLE_SIMULATION bound to: false - type: string 
+	Parameter C_TXPLL_CLKIN_PERIOD bound to: 8.000000 - type: double 
+	Parameter C_DIV4_CLK_PERIOD bound to: 10.000000 - type: double 
+	Parameter C_EN_SSC bound to: 0 - type: string 
+	Parameter C_CAL_MODE bound to: FIXED - type: string 
+	Parameter C_EN_EXT_TAP bound to: 0 - type: string 
+	Parameter C_IDLY_TAP bound to: 0 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'bd_2647_phy_0_support' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:103]
+	Parameter C_IS_7SERIES bound to: TRUE - type: string 
+	Parameter C_SHARE_IDLYCTRL bound to: false - type: string 
+	Parameter C_DL0_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL1_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL2_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL3_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL4_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL5_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL6_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_DL7_IO_SWAP bound to: 0 - type: integer 
+	Parameter C_EN_CLK300M bound to: FALSE - type: string 
+	Parameter C_LPRX_DISABLE_EXTPORT bound to: 0 - type: integer 
+	Parameter C_DPHY_MODE bound to: SLAVE - type: string 
+	Parameter C_DPHY_LANES bound to: 2 - type: integer 
+	Parameter C_HS_LINE_RATE bound to: 800 - type: integer 
+	Parameter C_XMIT_FIRST_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_XMIT_PERIODIC_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_SKEWCAL_FIRST_TIME bound to: 4096 - type: integer 
+	Parameter C_SKEWCAL_PERIODIC_TIME bound to: 128 - type: integer 
+	Parameter C_XMIT_ALT_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_RCVE_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_RCVE_ALT_DESKEW_SEQ bound to: false - type: string 
+	Parameter C_LPX_PERIOD bound to: 50 - type: integer 
+	Parameter C_STABLE_CLK_PERIOD bound to: 5.000000 - type: double 
+	Parameter C_ESC_CLK_PERIOD bound to: 50.000000 - type: double 
+	Parameter C_INIT bound to: 100000 - type: integer 
+	Parameter C_WAKEUP bound to: 1000000 - type: integer 
+	Parameter C_EN_ULPS_WAKEUP_CNT bound to: FALSE - type: string 
+	Parameter C_EN_HS_OBUFTDS bound to: FALSE - type: string 
+	Parameter C_USE_LANE0_TXREADYHS bound to: FALSE - type: string 
+	Parameter C_HS_SETTLE_NS bound to: 147 - type: integer 
+	Parameter C_HS_TIMEOUT bound to: 65541 - type: integer 
+	Parameter C_ESC_TIMEOUT bound to: 25600 - type: integer 
+	Parameter MTBF_SYNC_STAGES bound to: 3 - type: integer 
+	Parameter C_EN_TIMEOUT_REGS bound to: 0 - type: integer 
+	Parameter C_EN_EXT_TAP bound to: 0 - type: integer 
+	Parameter DPHY_PRESET bound to: CSI2RX_XLNX - type: string 
+	Parameter SUPPORT_LEVEL bound to: 1 - type: integer 
+	Parameter C_EN_REG_IF bound to: 0 - type: integer 
+	Parameter C_EN_DEBUG_REGS bound to: 0 - type: integer 
+	Parameter C_EXAMPLE_SIMULATION bound to: false - type: string 
+	Parameter C_TXPLL_CLKIN_PERIOD bound to: 8.000000 - type: double 
+	Parameter C_DIV4_CLK_PERIOD bound to: 10.000000 - type: double 
+	Parameter C_CAL_MODE bound to: FIXED - type: string 
+	Parameter C_EN_SSC bound to: 0 - type: string 
+	Parameter C_IDLY_TAP bound to: 0 - type: integer 
+WARNING: [Synth 8-7071] port 'lane0_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane1_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane2_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane3_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane4_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane5_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane6_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'lane7_tap' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'alt_skew_calb' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'init_periodic_skew_calb' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_valid_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_rd_data_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_addr_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_data_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_en_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_nibble_sel_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'calib_status_l0' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_valid_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_rd_data_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_addr_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_data_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_en_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_nibble_sel_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'calib_status_l1' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_valid_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_rd_data_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_addr_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_data_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_en_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_nibble_sel_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'calib_status_l2' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_valid_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_rd_data_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_addr_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_data_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_wr_en_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'riu_nibble_sel_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7071] port 'calib_status_l3' of module 'mipi_dphy_v4_3_0_rx_fab_top' is unconnected for instance 'dphy_rx_fab_top' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+WARNING: [Synth 8-7023] instance 'dphy_rx_fab_top' of module 'mipi_dphy_v4_3_0_rx_fab_top' has 320 connections declared, but only 282 given [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:699]
+INFO: [Synth 8-6157] synthesizing module 'IBUFDS' [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:32998]
+INFO: [Synth 8-6155] done synthesizing module 'IBUFDS' (10#1) [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:32998]
+INFO: [Synth 8-6157] synthesizing module 'ISERDESE2' [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:38620]
+INFO: [Synth 8-6155] done synthesizing module 'ISERDESE2' (11#1) [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:38620]
+INFO: [Synth 8-6157] synthesizing module 'BUFIO' [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:1344]
+INFO: [Synth 8-6155] done synthesizing module 'BUFIO' (12#1) [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:1344]
+INFO: [Synth 8-6157] synthesizing module 'BUFR' [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:1410]
+INFO: [Synth 8-6155] done synthesizing module 'BUFR' (13#1) [C:/Xilinx/Vivado/2020.2/scripts/rt/data/unisim_comp.v:1410]
+WARNING: [Synth 8-7071] port 'dlyctrl_rdy_in' of module 'mipi_dphy_v4_3_0_rx_ioi_7series' is unconnected for instance 'bd_2647_phy_0_rx_ioi_i' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:1147]
+WARNING: [Synth 8-7071] port 'idelay_tap_dyn_val_out' of module 'mipi_dphy_v4_3_0_rx_ioi_7series' is unconnected for instance 'bd_2647_phy_0_rx_ioi_i' [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:1147]
+WARNING: [Synth 8-7023] instance 'bd_2647_phy_0_rx_ioi_i' of module 'mipi_dphy_v4_3_0_rx_ioi_7series' has 20 connections declared, but only 18 given [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:1147]
+INFO: [Synth 8-6155] done synthesizing module 'bd_2647_phy_0_support' (15#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0/support/bd_2647_phy_0_support.v:103]
+INFO: [Synth 8-6155] done synthesizing module 'bd_2647_phy_0_c1' (16#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_c1.v:100]
+INFO: [Synth 8-6155] done synthesizing module 'bd_2647_phy_0_core' (17#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_core.v:93]
+INFO: [Synth 8-6155] done synthesizing module 'bd_2647_phy_0' (18#1) [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0.v:91]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1278.090 ; gain = 115.672
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1296.023 ; gain = 133.605
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1296.023 ; gain = 133.605
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.030 . Memory (MB): peak = 1308.059 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 6 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_ooc.xdc] for cell 'inst'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_ooc.xdc] for cell 'inst'
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0.xdc] for cell 'inst'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0.xdc] for cell 'inst'
+Parsing XDC File [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/dont_touch.xdc]
+Finished Parsing XDC File [C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/dont_touch.xdc]
+Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_clocks.xdc] for cell 'inst'
+Finished Parsing XDC File [c:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/bd/MIPICSI2Reader/ip/MIPICSI2Reader_mipi_csi2_rx_subsyst_1_0/bd_0/ip/ip_2/bd_2647_phy_0_clocks.xdc] for cell 'inst'
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 1401.102 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Timing 38-2] Deriving generated clocks
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.049 . Memory (MB): peak = 1401.102 ; gain = 0.000
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a35tftg256-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+Applied set_property KEEP_HIERARCHY = SOFT for inst. (constraint file  C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/dont_touch.xdc, line 6).
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'rst_blk_state_reg' in module 'mipi_dphy_v4_3_0_rx_rst_logic_7series'
+INFO: [Synth 8-802] inferred FSM for state register 'dl_rx_state_reg' in module 'mipi_dphy_v4_3_0_csi_rx_data_lane_sm'
+INFO: [Synth 8-802] inferred FSM for state register 'gen_hs_high_rates_spec_v1_1.dl_state_reg' in module 'mipi_dphy_v4_3_0_rx_data_lane'
+INFO: [Synth 8-802] inferred FSM for state register 'rst_blk_state_reg' in module 'mipi_dphy_v4_3_0_rx_support_rst_logic'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               RST_BEGIN |                               00 |                               00
+          RESET_FSM_DONE |                               01 |                               10
+         WAIT_FOR_ENABLE |                               10 |                               01
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'rst_blk_state_reg' using encoding 'sequential' in module 'mipi_dphy_v4_3_0_rx_rst_logic_7series'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+             DL_RX_BEGIN |                             0000 |                             0000
+        DL_WO_INIT_LP_11 |                             0001 |                             0001
+                  iSTATE |                             0010 |                             1111
+*
+         DL_RX_INIT_DONE |                             0011 |                             0010
+              DL_RX_STOP |                             0100 |                             0011
+           DL_RX_HS_RQST |                             0101 |                             0100
+           DL_RX_HS_TERM |                             0110 |                             0101
+           DL_RX_HS_SYNC |                             0111 |                             0110
+            DL_RX_HS_RUN |                             1000 |                             0111
+          DL_RX_HS_ABORT |                             1001 |                             1000
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'dl_rx_state_reg' using encoding 'sequential' in module 'mipi_dphy_v4_3_0_csi_rx_data_lane_sm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                DL_START |                               00 |                               00
+                 DL_STOP |                               01 |                               01
+               DL_ACTIVE |                               10 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'gen_hs_high_rates_spec_v1_1.dl_state_reg' using encoding 'sequential' in module 'mipi_dphy_v4_3_0_rx_data_lane'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               RST_BEGIN |                              000 |                              000
+       ASSERT_ALL_RESETS |                              001 |                              001
+       RELEASE_PHY_RESET |                              010 |                              010
+          RESET_FSM_DONE |                              011 |                              100
+              CHECK_SRST |                              100 |                              011
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'rst_blk_state_reg' using encoding 'sequential' in module 'mipi_dphy_v4_3_0_rx_support_rst_logic'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:12 ; elapsed = 00:00:13 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   16 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 4     
+	   2 Input    5 Bit       Adders := 5     
+	   2 Input    4 Bit       Adders := 2     
++---Registers : 
+	               32 Bit    Registers := 4     
+	               16 Bit    Registers := 3     
+	                8 Bit    Registers := 10    
+	                5 Bit    Registers := 6     
+	                4 Bit    Registers := 4     
+	                3 Bit    Registers := 3     
+	                2 Bit    Registers := 5     
+	                1 Bit    Registers := 216   
++---Muxes : 
+	   2 Input   32 Bit        Muxes := 4     
+	   2 Input   16 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 8     
+	  18 Input    4 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 3     
+	  10 Input    3 Bit        Muxes := 1     
+	   6 Input    3 Bit        Muxes := 2     
+	  12 Input    3 Bit        Muxes := 1     
+	   3 Input    2 Bit        Muxes := 3     
+	   2 Input    2 Bit        Muxes := 8     
+	   3 Input    1 Bit        Muxes := 15    
+	   2 Input    1 Bit        Muxes := 114   
+	   9 Input    1 Bit        Muxes := 1     
+	   8 Input    1 Bit        Muxes := 5     
+	   5 Input    1 Bit        Muxes := 55    
+	  10 Input    1 Bit        Muxes := 22    
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 90 (col length:60)
+BRAMs: 100 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:21 ; elapsed = 00:00:22 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:22 ; elapsed = 00:00:22 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:22 ; elapsed = 00:00:23 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:25 ; elapsed = 00:00:25 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:25 ; elapsed = 00:00:25 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+----------+------+
+|      |Cell      |Count |
++------+----------+------+
+|1     |BUFIO     |     1|
+|2     |BUFR      |     1|
+|3     |CARRY4    |    16|
+|4     |ISERDESE2 |     2|
+|5     |LUT1      |   391|
+|6     |LUT2      |    55|
+|7     |LUT3      |    58|
+|8     |LUT4      |    46|
+|9     |LUT5      |    96|
+|10    |LUT6      |   198|
+|11    |FDCE      |    37|
+|12    |FDPE      |     5|
+|13    |FDRE      |   392|
+|14    |IBUFDS    |     3|
++------+----------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 0 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:17 ; elapsed = 00:00:24 . Memory (MB): peak = 1401.102 ; gain = 133.605
+Synthesis Optimization Complete : Time (s): cpu = 00:00:25 ; elapsed = 00:00:26 . Memory (MB): peak = 1401.102 ; gain = 238.684
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 1401.102 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 22 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 1 inverter(s) to 2 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1406.344 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+41 Infos, 61 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:30 ; elapsed = 00:00:31 . Memory (MB): peak = 1406.344 ; gain = 243.926
+INFO: [Common 17-1381] The checkpoint 'C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/bd_2647_phy_0.dcp' has been generated.
+WARNING: [Common 17-576] 'use_project_ipc' is deprecated. This option is deprecated and no longer used.
+INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP bd_2647_phy_0, cache-ID = 042e8f76056234fe
+INFO: [Coretcl 2-1174] Renamed 38 cell refs.
+INFO: [Common 17-1381] The checkpoint 'C:/Users/liamsnow/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/bd_2647_phy_0_synth_1/bd_2647_phy_0.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file bd_2647_phy_0_utilization_synth.rpt -pb bd_2647_phy_0_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Mon Jun 28 22:34:19 2021...

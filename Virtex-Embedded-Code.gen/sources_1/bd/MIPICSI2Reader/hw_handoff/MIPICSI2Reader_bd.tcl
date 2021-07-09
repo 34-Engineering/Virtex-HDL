@@ -43,7 +43,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7a50tcpg236-1
+   create_project project_1 myproj -part xc7a35tftg256-1
 }
 
 
@@ -158,24 +158,25 @@ proc create_root_design { parentCell } {
 
   # Create ports
   set CLK [ create_bd_port -dir I -type clk -freq_hz 100000000 CLK ]
+  set CLK200 [ create_bd_port -dir O -type clk CLK200 ]
   set ENABLED [ create_bd_port -dir I -type data ENABLED ]
-  set FID [ create_bd_port -dir I -type data FID ]
-  set MCLK_N [ create_bd_port -dir I -type data MCLK_N ]
-  set MCLK_P [ create_bd_port -dir I -type data MCLK_P ]
-  set MD_N [ create_bd_port -dir I -from 1 -to 0 -type data MD_N ]
-  set MD_P [ create_bd_port -dir I -from 1 -to 0 -type data MD_P ]
-  set OUT_ACTIVE_VIDEO [ create_bd_port -dir O -type data OUT_ACTIVE_VIDEO ]
-  set OUT_DATA [ create_bd_port -dir O -from 7 -to 0 -type data OUT_DATA ]
-  set OUT_HBLANK [ create_bd_port -dir O -type data OUT_HBLANK ]
-  set OUT_HSYNC [ create_bd_port -dir O -type data OUT_HSYNC ]
-  set OUT_OVERFLOW [ create_bd_port -dir O -type data OUT_OVERFLOW ]
-  set OUT_UNDERFLOW [ create_bd_port -dir O -type data OUT_UNDERFLOW ]
-  set OUT_VBLANK [ create_bd_port -dir O -type data OUT_VBLANK ]
-  set OUT_VSYNC [ create_bd_port -dir O -type data OUT_VSYNC ]
+  set MC_HSN [ create_bd_port -dir I -type clk -freq_hz 800000000 MC_HSN ]
+  set MC_HSP [ create_bd_port -dir I -type clk -freq_hz 800000000 MC_HSP ]
+  set MC_LPN [ create_bd_port -dir I -type clk -freq_hz 800000000 MC_LPN ]
+  set MC_LPP [ create_bd_port -dir I -type clk -freq_hz 800000000 MC_LPP ]
+  set MD_HSN [ create_bd_port -dir I -from 1 -to 0 -type data MD_HSN ]
+  set MD_HSP [ create_bd_port -dir I -from 1 -to 0 MD_HSP ]
+  set MD_LPN [ create_bd_port -dir I -from 1 -to 0 -type data MD_LPN ]
+  set MD_LPP [ create_bd_port -dir I -from 1 -to 0 -type data MD_LPP ]
   set RESET [ create_bd_port -dir I -type rst RESET ]
   set_property -dict [ list \
    CONFIG.POLARITY {ACTIVE_LOW} \
  ] $RESET
+  set TDATA [ create_bd_port -dir O -from 7 -to 0 -type data TDATA ]
+  set TDEST [ create_bd_port -dir O -from 9 -to 0 -type data TDEST ]
+  set TLAST [ create_bd_port -dir O -type data TLAST ]
+  set TUSER [ create_bd_port -dir O -from 63 -to 0 -type data TUSER ]
+  set TVALID [ create_bd_port -dir O -type data TVALID ]
 
   # Create instance: clk_wiz_0, and set properties
   set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0 ]
@@ -187,46 +188,39 @@ proc create_root_design { parentCell } {
    CONFIG.USE_RESET {false} \
  ] $clk_wiz_0
 
-  # Create instance: mipi_csi2_rx_subsyst_0, and set properties
-  set mipi_csi2_rx_subsyst_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mipi_csi2_rx_subsystem:5.1 mipi_csi2_rx_subsyst_0 ]
+  # Create instance: mipi_csi2_rx_subsyst_1, and set properties
+  set mipi_csi2_rx_subsyst_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mipi_csi2_rx_subsystem:5.1 mipi_csi2_rx_subsyst_1 ]
   set_property -dict [ list \
-   CONFIG.CMN_INC_VFB {true} \
    CONFIG.CMN_NUM_LANES {2} \
-   CONFIG.CMN_PXL_FORMAT {RAW8} \
    CONFIG.CSI_CONTROLLER_REG_IF {false} \
-   CONFIG.C_CAL_MODE {NONE} \
+   CONFIG.CSI_EMB_NON_IMG {false} \
+   CONFIG.C_CSI_EN_ACTIVELANES {true} \
    CONFIG.C_DPHY_LANES {2} \
+   CONFIG.C_EN_7S_LINERATE_CHECK {false} \
    CONFIG.C_EN_CSI_V2_0 {true} \
- ] $mipi_csi2_rx_subsyst_0
-
-  # Create instance: v_axi4s_vid_out_0, and set properties
-  set v_axi4s_vid_out_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:v_axi4s_vid_out:4.0 v_axi4s_vid_out_0 ]
-  set_property -dict [ list \
-   CONFIG.C_S_AXIS_VIDEO_DATA_WIDTH {8} \
-   CONFIG.C_S_AXIS_VIDEO_FORMAT {12} \
- ] $v_axi4s_vid_out_0
-
-  # Create interface connections
-  connect_bd_intf_net -intf_net mipi_csi2_rx_subsyst_0_video_out [get_bd_intf_pins mipi_csi2_rx_subsyst_0/video_out] [get_bd_intf_pins v_axi4s_vid_out_0/video_in]
+   CONFIG.C_EXDES_BOARD {VCK190} \
+   CONFIG.DPY_EN_REG_IF {false} \
+   CONFIG.VFB_TU_WIDTH {64} \
+ ] $mipi_csi2_rx_subsyst_1
 
   # Create port connections
-  connect_bd_net -net CLK_1 [get_bd_ports CLK] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins mipi_csi2_rx_subsyst_0/video_aclk] [get_bd_pins v_axi4s_vid_out_0/aclk]
-  connect_bd_net -net ENABLED_1 [get_bd_ports ENABLED] [get_bd_pins mipi_csi2_rx_subsyst_0/ctrl_core_en] [get_bd_pins v_axi4s_vid_out_0/aclken] [get_bd_pins v_axi4s_vid_out_0/vid_io_out_ce]
-  connect_bd_net -net FID_1 [get_bd_ports FID] [get_bd_pins v_axi4s_vid_out_0/fid]
-  connect_bd_net -net MCLK_N_1 [get_bd_ports MCLK_N] [get_bd_pins mipi_csi2_rx_subsyst_0/mipi_phy_if_clk_lp_n]
-  connect_bd_net -net MCLK_P_1 [get_bd_ports MCLK_P] [get_bd_pins mipi_csi2_rx_subsyst_0/mipi_phy_if_clk_lp_p]
-  connect_bd_net -net MD_N_1 [get_bd_ports MD_N] [get_bd_pins mipi_csi2_rx_subsyst_0/mipi_phy_if_data_lp_n]
-  connect_bd_net -net MD_P_1 [get_bd_ports MD_P] [get_bd_pins mipi_csi2_rx_subsyst_0/mipi_phy_if_data_lp_p]
-  connect_bd_net -net RESET_1 [get_bd_ports RESET] [get_bd_pins mipi_csi2_rx_subsyst_0/video_aresetn] [get_bd_pins v_axi4s_vid_out_0/aresetn]
-  connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins mipi_csi2_rx_subsyst_0/dphy_clk_200M]
-  connect_bd_net -net v_axi4s_vid_out_0_overflow [get_bd_ports OUT_OVERFLOW] [get_bd_pins v_axi4s_vid_out_0/overflow]
-  connect_bd_net -net v_axi4s_vid_out_0_underflow [get_bd_ports OUT_UNDERFLOW] [get_bd_pins v_axi4s_vid_out_0/underflow]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_active_video [get_bd_ports OUT_ACTIVE_VIDEO] [get_bd_pins v_axi4s_vid_out_0/vid_active_video]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_data [get_bd_ports OUT_DATA] [get_bd_pins v_axi4s_vid_out_0/vid_data]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_hblank [get_bd_ports OUT_HBLANK] [get_bd_pins v_axi4s_vid_out_0/vid_hblank]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_hsync [get_bd_ports OUT_HSYNC] [get_bd_pins v_axi4s_vid_out_0/vid_hsync]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_vblank [get_bd_ports OUT_VBLANK] [get_bd_pins v_axi4s_vid_out_0/vid_vblank]
-  connect_bd_net -net v_axi4s_vid_out_0_vid_vsync [get_bd_ports OUT_VSYNC] [get_bd_pins v_axi4s_vid_out_0/vid_vsync]
+  connect_bd_net -net CLK_1 [get_bd_ports CLK] [get_bd_pins clk_wiz_0/clk_in1]
+  connect_bd_net -net ENABLED_1 [get_bd_ports ENABLED] [get_bd_pins mipi_csi2_rx_subsyst_1/ctrl_core_en] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tready]
+  connect_bd_net -net MC_HSN_1 [get_bd_ports MC_HSN] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_clk_hs_n]
+  connect_bd_net -net MC_HSP_1 [get_bd_ports MC_HSP] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_clk_hs_p]
+  connect_bd_net -net MC_LPN_1 [get_bd_ports MC_LPN] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_clk_lp_n]
+  connect_bd_net -net MC_LPP_1 [get_bd_ports MC_LPP] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_clk_lp_p]
+  connect_bd_net -net MD_HSN_1 [get_bd_ports MD_HSN] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_data_hs_n]
+  connect_bd_net -net MD_HSP_1 [get_bd_ports MD_HSP] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_data_hs_p]
+  connect_bd_net -net MD_LPN_1 [get_bd_ports MD_LPN] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_data_lp_n]
+  connect_bd_net -net MD_LPP_1 [get_bd_ports MD_LPP] [get_bd_pins mipi_csi2_rx_subsyst_1/mipi_phy_if_data_lp_p]
+  connect_bd_net -net RESET_1 [get_bd_ports RESET] [get_bd_pins mipi_csi2_rx_subsyst_1/video_aresetn]
+  connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_ports CLK200] [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins mipi_csi2_rx_subsyst_1/dphy_clk_200M] [get_bd_pins mipi_csi2_rx_subsyst_1/video_aclk]
+  connect_bd_net -net mipi_csi2_rx_subsyst_1_video_out_tdata [get_bd_ports TDATA] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tdata]
+  connect_bd_net -net mipi_csi2_rx_subsyst_1_video_out_tdest [get_bd_ports TDEST] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tdest]
+  connect_bd_net -net mipi_csi2_rx_subsyst_1_video_out_tlast [get_bd_ports TLAST] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tlast]
+  connect_bd_net -net mipi_csi2_rx_subsyst_1_video_out_tuser [get_bd_ports TUSER] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tuser]
+  connect_bd_net -net mipi_csi2_rx_subsyst_1_video_out_tvalid [get_bd_ports TVALID] [get_bd_pins mipi_csi2_rx_subsyst_1/video_out_tvalid]
 
   # Create address segments
 

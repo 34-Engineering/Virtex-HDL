@@ -1,7 +1,7 @@
 //Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-//Date        : Wed Jun  9 14:33:34 2021
+//Date        : Mon Jun 28 22:33:31 2021
 //Host        : liams-desktop running 64-bit major release  (build 9200)
 //Command     : generate_target MIPICSI2Reader_wrapper.bd
 //Design      : MIPICSI2Reader_wrapper
@@ -11,70 +11,74 @@
 
 module MIPICSI2Reader_wrapper
    (CLK,
+    CLK200,
     ENABLED,
-    FID,
-    MCLK_N,
-    MCLK_P,
-    MD_N,
-    MD_P,
-    OUT_ACTIVE_VIDEO,
-    OUT_DATA,
-    OUT_HBLANK,
-    OUT_HSYNC,
-    OUT_OVERFLOW,
-    OUT_UNDERFLOW,
-    OUT_VBLANK,
-    OUT_VSYNC,
-    RESET);
+    MC_HSN,
+    MC_HSP,
+    MC_LPN,
+    MC_LPP,
+    MD_HSN,
+    MD_HSP,
+    MD_LPN,
+    MD_LPP,
+    RESET,
+    TDATA,
+    TDEST,
+    TLAST,
+    TUSER,
+    TVALID);
   input CLK;
+  output CLK200;
   input ENABLED;
-  input FID;
-  input MCLK_N;
-  input MCLK_P;
-  input [1:0]MD_N;
-  input [1:0]MD_P;
-  output OUT_ACTIVE_VIDEO;
-  output [7:0]OUT_DATA;
-  output OUT_HBLANK;
-  output OUT_HSYNC;
-  output OUT_OVERFLOW;
-  output OUT_UNDERFLOW;
-  output OUT_VBLANK;
-  output OUT_VSYNC;
+  input MC_HSN;
+  input MC_HSP;
+  input MC_LPN;
+  input MC_LPP;
+  input [1:0]MD_HSN;
+  input [1:0]MD_HSP;
+  input [1:0]MD_LPN;
+  input [1:0]MD_LPP;
   input RESET;
+  output [7:0]TDATA;
+  output [9:0]TDEST;
+  output TLAST;
+  output [63:0]TUSER;
+  output TVALID;
 
   wire CLK;
+  wire CLK200;
   wire ENABLED;
-  wire FID;
-  wire MCLK_N;
-  wire MCLK_P;
-  wire [1:0]MD_N;
-  wire [1:0]MD_P;
-  wire OUT_ACTIVE_VIDEO;
-  wire [7:0]OUT_DATA;
-  wire OUT_HBLANK;
-  wire OUT_HSYNC;
-  wire OUT_OVERFLOW;
-  wire OUT_UNDERFLOW;
-  wire OUT_VBLANK;
-  wire OUT_VSYNC;
+  wire MC_HSN;
+  wire MC_HSP;
+  wire MC_LPN;
+  wire MC_LPP;
+  wire [1:0]MD_HSN;
+  wire [1:0]MD_HSP;
+  wire [1:0]MD_LPN;
+  wire [1:0]MD_LPP;
   wire RESET;
+  wire [7:0]TDATA;
+  wire [9:0]TDEST;
+  wire TLAST;
+  wire [63:0]TUSER;
+  wire TVALID;
 
   MIPICSI2Reader MIPICSI2Reader_i
        (.CLK(CLK),
+        .CLK200(CLK200),
         .ENABLED(ENABLED),
-        .FID(FID),
-        .MCLK_N(MCLK_N),
-        .MCLK_P(MCLK_P),
-        .MD_N(MD_N),
-        .MD_P(MD_P),
-        .OUT_ACTIVE_VIDEO(OUT_ACTIVE_VIDEO),
-        .OUT_DATA(OUT_DATA),
-        .OUT_HBLANK(OUT_HBLANK),
-        .OUT_HSYNC(OUT_HSYNC),
-        .OUT_OVERFLOW(OUT_OVERFLOW),
-        .OUT_UNDERFLOW(OUT_UNDERFLOW),
-        .OUT_VBLANK(OUT_VBLANK),
-        .OUT_VSYNC(OUT_VSYNC),
-        .RESET(RESET));
+        .MC_HSN(MC_HSN),
+        .MC_HSP(MC_HSP),
+        .MC_LPN(MC_LPN),
+        .MC_LPP(MC_LPP),
+        .MD_HSN(MD_HSN),
+        .MD_HSP(MD_HSP),
+        .MD_LPN(MD_LPN),
+        .MD_LPP(MD_LPP),
+        .RESET(RESET),
+        .TDATA(TDATA),
+        .TDEST(TDEST),
+        .TLAST(TLAST),
+        .TUSER(TUSER),
+        .TVALID(TVALID));
 endmodule

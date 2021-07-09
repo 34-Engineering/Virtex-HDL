@@ -3,30 +3,6 @@
 	"modules": {
 		"MIPICSI2Reader": {
 			"proto_instances": {
-				"/mipi_csi2_rx_subsyst_0/video_out": {
-					"interface": "xilinx.com:interface:axis:1.0",
-					"ports": {
-						"ACLK": { "actual": "video_aclk"},
-						"ARESETN": { "actual": "video_aresetn"},
-						"TDATA": { "actual": "video_out_tdata"},
-						"TDEST": { "actual": "video_out_tdest"},
-						"TLAST": { "actual": "video_out_tlast"},
-						"TREADY": { "actual": "video_out_tready"},
-						"TUSER": { "actual": "video_out_tuser"},
-						"TVALID": { "actual": "video_out_tvalid"}
-					}
-				},
-				"/v_axi4s_vid_out_0/video_in": {
-					"interface": "xilinx.com:interface:axis:1.0",
-					"ports": {
-						"ACLK": { "actual": "aclk"},
-						"TDATA": { "actual": "s_axis_video_tdata"},
-						"TLAST": { "actual": "s_axis_video_tlast"},
-						"TREADY": { "actual": "s_axis_video_tready"},
-						"TUSER": { "actual": "s_axis_video_tuser"},
-						"TVALID": { "actual": "s_axis_video_tvalid"}
-					}
-				}
 			}
 		}
 	}
