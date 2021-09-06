@@ -14,17 +14,13 @@
     Saves config on event trigger */
 module ConfigManager(
     input CLK,
-    output CS,
-    output WP,
-    output HOLD,
-    output OCLK,
-    output MOSI,
-    input MISO
+    output SPI_CS,
+    output SPI_WP,
+    output SPI_HOLD,
+    output SPI_CLK,
+    output SPI_MOSI,
+    input SPI_MISO
     );
-
-    //Config Types
-    typedef struct { reg [15:0] x; reg [15:0] y; } vertex;
-    typedef struct { reg [15:0] min; reg [15:0] max; } rangedConst;
 
     //Config Parameters
     wire [15:0] configVars [15:0];
@@ -64,6 +60,6 @@ module ConfigManager(
     wire exposure           = configVars[15]; //8 bit
 
     //EEPROM
-    assign CS = 1;
+    assign SPI_CS = 1;
 
 endmodule

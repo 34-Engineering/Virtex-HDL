@@ -9,17 +9,20 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-/* CameraConfigManager - I2C Master to the ARX3A0
-    Sets all camera config & boot */
+/* CameraConfigManager - manages boot & config; SPI master to python 300
+    Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing */
 module CameraConfigManager(
     input CLK,
-    inout [3:0] GPIO,
-    output SHDN,
-    output SCL,
-    inout SDA
+    output SPI_CS, //active low
+    output SPI_MOSI,
+    input SPI_MISO,
+    output SPI_CLK,
+    output TRIGGER,
+    input MONITOR,
+    output RESET //active low
     );
 
-    assign XSHDN = 0;
-    assign GPIO = 4'b0000;
+    assign RESET = 1;
+    assign SPI_CS = 1;
 
 endmodule

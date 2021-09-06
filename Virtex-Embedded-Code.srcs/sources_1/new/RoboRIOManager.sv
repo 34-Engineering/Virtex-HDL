@@ -14,8 +14,8 @@
     Sends config or processed data on request */
 module RoboRIOManager(
     input CLK,
-    input SCL,
-    inout SDA
+    input I2C_SCL,
+    inout I2C_SDA
     );
 
     parameter ADDR = 7'h34;
@@ -29,22 +29,22 @@ module RoboRIOManager(
     reg [7:0] location = 0;
     reg [31:0] data = 0;
 
-    always @(posedge SCL) begin
+    always @(posedge I2C_SCL) begin
         if (inSequence) begin
             
             if (sectionCount == 0) begin
                 if (sectionInd == 7) begin
-                    rwMode <= SDA ? READ : WRITE;
+                    rwMode <= I2C_SDA ? READ : WRITE;
                 end
                 else begin
-                    addr[sectionInd] <= SDA;
+                    addr[sectionInd] <= I2C_SDA;
                 end
             end
             else if (sectionCount == 1) begin
-                location[sectionInd] <= SDA;
+                location[sectionInd] <= I2C_SDA;
             end
             else begin
-                data[sectionInd * (sectionCount - 1)] <= SDA;
+                data[sectionInd * (sectionCount - 1)] <= I2C_SDA;
             end
 
             if (sectionInd == 7) begin
@@ -58,7 +58,7 @@ module RoboRIOManager(
             sectionInd++;
         end
         else begin
-            if (SDA == 0) begin
+            if (I2C_SDA == 0) begin
                 inSequence <= 1;
                 sectionCount <= 0;
                 sectionInd <= 0;

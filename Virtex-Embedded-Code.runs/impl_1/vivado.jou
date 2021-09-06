@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Sun Sep  5 19:24:15 2021
+# Process ID: 13972
+# Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1
+# Command line: vivado.exe -log Top.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source Top.tcl -notrace
+# Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/Top.vdi
+# Journal file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1\vivado.jou
+#-----------------------------------------------------------
+source Top.tcl -notrace
