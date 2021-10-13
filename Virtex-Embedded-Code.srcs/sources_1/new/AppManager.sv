@@ -11,12 +11,14 @@
 
 /* AppManager - Manages Communication with Virtex App 
     Streams video & processed blobs to FT2232H
-    Reads & writes camera configurations */
+    Reads & writes camera configurations 
+    Fast Serial: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
+    Virtex Fast Serial Protocol: https://docs.google.com/document/d/1n1cTdPgI_MZJplnfnsV4Gh2vK2MCvT35MewmOGstzLg/edit*/
 module AppManager(
     input CLK,
-    output FS_DI, //input to FT2232H
-    output FS_CLK, //driven by fpga, 100MHz
-    input FS_DO, //output from FT2232H
+    output FS_MISO, //FSDI input to PC, output from FPGA
+    output FS_CLK, //driven by fpga, 50MHz
+    input FS_MOSI, //FSDO output from PC, input to FPGA
     input FS_CTS, //clear to send (on FSDO), active low
     output USB_PWRSAV,
     output USB_PWREN,
@@ -32,19 +34,5 @@ module AppManager(
     always @(posedge CLK) begin
         
     end
-
-    /* Fast Serial Interface Cheat Sheet
-        Start bit is 0
-        LSB first
-        Stop bit is 1 (for channel B)
-
-        FSDI Sequence (rel to FPGA):
-         1) Send a start bit (only if FSCTS is high) --> FT2232H will drop FSCTS on the next positive clock edge
-         2) Send a byte of data followed by a stop bit
-
-        FSDO Sequence (rel to FPGA):
-         1) Recieve a start bit (FT2232H cannot do this if it is recieving data on FSDI)
-         2) Recieve a byte of data followed by a stop bit
-    */
 
 endmodule
