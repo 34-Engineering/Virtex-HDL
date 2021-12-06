@@ -3,8 +3,8 @@
 // Company: 34 Engineering
 // Engineer: Liam Snow
 // 
-// Create Date: 06/08/2021 11:14:59 AM
-// Module Name: UARTManager
+// Create Date: 06/08/2021
+// Module Name: RoboRIOManager
 // Project Name: Virtex
 // 
 //////////////////////////////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
     Sets config on request
     Sends config or processed data on request */
 module RoboRIOManager(
-    input CLK,
-    input I2C_SCL,
-    inout I2C_SDA
+    input wire CLK,
+    input wire I2C_SCL,
+    inout wire I2C_SDA
     );
 
     parameter ADDR = 7'h34;

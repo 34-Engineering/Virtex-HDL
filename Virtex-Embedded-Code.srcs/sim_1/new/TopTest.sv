@@ -1,0 +1,26 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 34 Engineering
+// Engineer: Liam Snow
+// 
+// Create Date: 12/6/2021
+// Module Name: TopTest
+// Project Name: Virtex
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+module TopTest;
+
+  wire CLK;
+  wire LED_USER;
+
+  top uut(
+    .CLK(CLK),
+    .LED_USER(LED_USER)
+  );
+
+  
+
+
+
+endmodule

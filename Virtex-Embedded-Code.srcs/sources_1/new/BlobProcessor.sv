@@ -3,7 +3,7 @@
 // Company: 34 Engineering
 // Engineer: Liam Snow
 // 
-// Create Date: 06/28/2021 09:54:34 PM
+// Create Date: 06/28/2021
 // Module Name: BlobProcessor
 // Project Name: Virtex
 // 
@@ -12,10 +12,10 @@
 /* BlobProcessor -  
    Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing*/
 module BlobProcessor(
-    input CLK200,
-    input LVDS_CLK,
-    input LVDS_SYNC,
-    input [3:0] LVDS_DOUT
+    input wire CLK200,
+    input wire LVDS_CLK,
+    input wire LVDS_SYNC,
+    input wire [3:0] LVDS_DOUT
     );
 
     

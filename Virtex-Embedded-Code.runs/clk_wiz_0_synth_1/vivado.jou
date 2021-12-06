@@ -2,8 +2,8 @@
 # Vivado v2021.1 (64-bit)
 # SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
 # IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
-# Start of session at: Sat Sep  4 18:40:57 2021
-# Process ID: 22100
+# Start of session at: Mon Dec  6 12:37:16 2021
+# Process ID: 25932
 # Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_0_synth_1
 # Command line: vivado.exe -log clk_wiz_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source clk_wiz_0.tcl
 # Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_0_synth_1/clk_wiz_0.vds

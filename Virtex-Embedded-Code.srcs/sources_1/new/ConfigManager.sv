@@ -3,7 +3,7 @@
 // Company: 34 Engineering
 // Engineer: Liam Snow
 // 
-// Create Date: 06/28/2021 07:51:17 PM
+// Create Date: 06/28/2021
 // Module Name: ConfigManager
 // Project Name: Virtex
 // 
@@ -13,13 +13,13 @@
     Reads in config at boot
     Saves config on event trigger */
 module ConfigManager(
-    input CLK,
-    output SPI_CS,
-    output SPI_WP,
-    output SPI_HOLD,
-    output SPI_CLK,
-    output SPI_MOSI,
-    input SPI_MISO
+    input wire CLK,
+    output wire SPI_CS,
+    output wire SPI_WP,
+    output wire SPI_HOLD,
+    output wire SPI_CLK,
+    output wire SPI_MOSI,
+    input wire SPI_MISO
     );
 
     //Config Parameters

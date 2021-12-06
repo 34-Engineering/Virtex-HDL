@@ -1,9 +1,0 @@
-{
-	"version": "1.0",
-	"modules": {
-		"MIPICSI2Reader": {
-			"proto_instances": {
-			}
-		}
-	}
-}

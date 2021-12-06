@@ -3,23 +3,23 @@
 // Company: 34 Engineering
 // Engineer: Liam Snow
 // 
-// Create Date: 06/08/2021 11:14:59 AM
+// Create Date: 06/08/2021
 // Module Name: FlashManager
 // Project Name: Virtex
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 module FlashManager(
-    input CLK,
-    output SPI_CLK,
-    output SPI_CS,
-    output [3:0] SPI_Q,
-    input TMS,
-    input TCK,
-    output TDO,
-    input TDI
+    input wire CLK,
+    output wire SPI_CLK,
+    output wire SPI_CS,
+    output wire [3:0] SPI_Q,
+    input wire TMS,
+    input wire TCK,
+    output wire TDO,
+    input wire TDI
     );
 
-    
+    assign SPI_CS = 1;
 
 endmodule
