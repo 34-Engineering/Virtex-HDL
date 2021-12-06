@@ -9,10 +9,10 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-/* AppManager - Manages Communication with Virtex App 
+/* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
     Streams video & processed blobs to FT2232H
     Reads & writes camera configurations 
-    Fast Serial: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
+    Fast Serial Notes: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
     Virtex Fast Serial Protocol: https://docs.google.com/document/d/1n1cTdPgI_MZJplnfnsV4Gh2vK2MCvT35MewmOGstzLg/edit
     */
 module AppManager(
@@ -21,14 +21,10 @@ module AppManager(
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //USB->FPGA
     input wire FSCTS, //FPGA clear to send, active low
-    output wire USB_ON,
-    output wire USB_PWREN,
-    output wire USB_SUS
+    input wire USB_ON,
+    input wire USB_PWREN,
+    input wire USB_SUS
     );
-
-    assign USB_ON = 0;
-    assign USB_PWREN = 1;
-    assign USB_SUS = 0;
 
     wire CLK48;
     clk_wiz_1 clk_wiz_1(
@@ -39,7 +35,7 @@ module AppManager(
     wire send;
     assign send = USB_ON;
 
-    reg [7:0] logic_input = 0'b10010110;
+    reg [7:0] logic_input = 8'b10010110;
 
     wire [10:0] output_frame;
     assign output_frame[0] = 1; // FSDI=1 (idle state)
@@ -49,7 +45,7 @@ module AppManager(
 
     reg [3:0] current_bit = 0;
 
-    assign FSCLK = clk48;
+    assign FSCLK = CLK48;
 
     always @(posedge CLK48) begin
         if (((send & FSCTS) | current_bit > 0) & current_bit < 10) begin

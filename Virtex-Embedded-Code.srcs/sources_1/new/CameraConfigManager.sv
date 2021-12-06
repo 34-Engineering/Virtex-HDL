@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /* CameraConfigManager - manages boot & config; SPI master to python 300
+    Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
     Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing */
 module CameraConfigManager(
     input wire CLK,

@@ -20,7 +20,7 @@ module RoboRIOManager(
 
     parameter ADDR = 7'h34;
 
-    reg hasComs = 0;
+    reg hasComms = 0;
     reg inSequence = 0;
     enum { WRITE, READ } rwMode = READ;
     reg [2:0] sectionCount = 0; //which section we are in in the sequence

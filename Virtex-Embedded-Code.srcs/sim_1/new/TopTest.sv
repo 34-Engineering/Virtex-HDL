@@ -11,16 +11,17 @@
 
 module TopTest;
 
-  wire CLK;
-  wire LED_USER;
-
-  top uut(
-    .CLK(CLK),
-    .LED_USER(LED_USER)
-  );
-
+  //100MHz clock
+  reg CLK = 0;
+  always begin
+    #5 CLK = !CLK;
+  end
   
-
-
-
+  AppManagerTest AppManagerTest(CLK);
+  RoboRIOManagerTest RoboRIOManagerTest(CLK);
+  ConfigManagerTest ConfigManagerTest(CLK);
+  FlashManagerTest FlashManagerTest(CLK);
+  LEDManagerTest LEDManagerTest(CLK);
+  CameraManagerTest CameraManagerTest(CLK);
+  
 endmodule

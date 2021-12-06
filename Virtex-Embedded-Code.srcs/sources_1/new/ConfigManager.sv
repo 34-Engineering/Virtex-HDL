@@ -23,23 +23,25 @@ module ConfigManager(
     );
 
     //Config Parameters
-    wire [15:0] configVars [15:0];
-    assign configVars[ 0] = 0;
-    assign configVars[ 1] = 0;
-    assign configVars[ 2] = 0;
-    assign configVars[ 3] = 16'hffff;
-    assign configVars[ 4] = 0;
-    assign configVars[ 5] = 16'hffff;
-    assign configVars[ 6] = 0;
-    assign configVars[ 7] = 16'hffff;
-    assign configVars[ 8] = 0;
-    assign configVars[ 9] = 16'hffff;
-    assign configVars[10] = 0;
-    assign configVars[11] = 16'hffff;
-    assign configVars[12] = 16'd280;
-    assign configVars[13] = 16'd280;
-    assign configVars[14] = 8'h0f;
-    assign configVars[15] = 8'h0f;
+    reg [15:0] configVars [15:0];
+    initial begin
+        configVars[ 0] <= 0;
+        configVars[ 1] <= 0;
+        configVars[ 2] <= 0;
+        configVars[ 3] <= 16'hffff;
+        configVars[ 4] <= 0;
+        configVars[ 5] <= 16'hffff;
+        configVars[ 6] <= 0;
+        configVars[ 7] <= 16'hffff;
+        configVars[ 8] <= 0;
+        configVars[ 9] <= 16'hffff;
+        configVars[10] <= 0;
+        configVars[11] <= 16'hffff;
+        configVars[12] <= 16'd280;
+        configVars[13] <= 16'd280;
+        configVars[14] <= 8'h0f;
+        configVars[15] <= 8'h0f;
+    end
 
     //Config Wires
     wire dualObjectMode     = configVars[0]; //OFF, ON_AIN, ON_AOUT

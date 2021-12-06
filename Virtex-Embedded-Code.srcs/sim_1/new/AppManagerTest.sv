@@ -9,7 +9,17 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module AppManagerTest(
+module AppManagerTest(input wire CLK);
 
+    AppManager uut(
+        .CLK(CLK),
+        .FSDI(FSDI),
+        .FSCLK(FSCLK),
+        .FSDO(FSDO),
+        .FSCTS(FSCTS),
+        .USB_ON(USB_ON),
+        .USB_PWREN(USB_PWREN),
+        .USB_SUS(USB_SUS)
     );
+
 endmodule

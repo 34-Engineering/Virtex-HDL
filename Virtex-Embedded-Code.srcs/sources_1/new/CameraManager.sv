@@ -9,8 +9,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-/* CameraManager - 
-   Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing*/
+/* CameraManager - Manages the Python 300 Image Sensor
+    Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
+    Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing*/
 module CameraManager(
     input wire CLK,
     input wire LVDS_CLK_P,

@@ -19,7 +19,9 @@ module LEDManager(
     output wire [2:0] LS_TAR,
     output wire [2:0] LS_COM,
     input wire LED_FAULT,
-    input wire USB_ON
+    input wire USB_ON,
+    input wire targetBlobValid,
+    input wire hasComms
     );
 
     //LS_IR: on when enabled
@@ -30,10 +32,10 @@ module LEDManager(
     assign LS_PWR[1] = 1;
 
     //TAR: blue when target valid
-    assign LS_TAR[0] = Top.targetBlobValid; 
+    assign LS_TAR[0] = targetBlobValid; 
 
     //COM: green when has coms
-    assign LS_COM[1] = Top.RoboRIOManager.hasComs;
+    assign LS_COM[1] = hasComms;
 
     //EN: flashes orange (255,165,0) when enabled
     reg [26:0] enabledToggleCounter;
