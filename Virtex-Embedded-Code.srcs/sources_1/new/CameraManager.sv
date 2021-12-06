@@ -28,27 +28,9 @@ module CameraManager(
     output wire RESET
     );
 
-    //Sub-Components
-    BlobProcessor BlobProcessor(
-        .CLK200(CLK200),
-        .LVDS_CLK(LVDS_CLK),
-        .LVDS_SYNC(LVDS_SYNC),
-        .LVDS_DOUT(LVDS_DOUT)
-    ); /* synthesis preserve */
-
-    CameraConfigManager CameraConfigManager(
-        .CLK(CLK),
-        .SPI_CS(SPI_CS),
-        .SPI_MOSI(SPI_MOSI),
-        .SPI_MISO(SPI_MISO),
-        .SPI_CLK(SPI_CLK),
-        .TRIGGER(TRIGGER),
-        .MONITOR(MONITOR),
-        .RESET(RESET)
-    ); /* synthesis preserve */
-
+    //Generate 200MHz clock
     wire CLK200;
-    clk_wiz_0 clk_wiz_0(
+    clk_wiz_2 clk_wiz_2(
         .clk_in1(CLK),
         .clk_out1(CLK200)
     );
@@ -69,5 +51,24 @@ module CameraManager(
     LVDS_DOUT2_IBUF (.O(LVDS_DOUT[2]),.I(LVDS_DOUT_P[2]),.IB(LVDS_DOUT_N[2]));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
+
+    //Sub-Components
+    BlobProcessor BlobProcessor(
+        .CLK200(CLK200),
+        .LVDS_CLK(LVDS_CLK),
+        .LVDS_SYNC(LVDS_SYNC),
+        .LVDS_DOUT(LVDS_DOUT)
+    ); /* synthesis preserve */
+
+    CameraConfigManager CameraConfigManager(
+        .CLK(CLK),
+        .SPI_CS(SPI_CS),
+        .SPI_MOSI(SPI_MOSI),
+        .SPI_MISO(SPI_MISO),
+        .SPI_CLK(SPI_CLK),
+        .TRIGGER(TRIGGER),
+        .MONITOR(MONITOR),
+        .RESET(RESET)
+    ); /* synthesis preserve */
 
 endmodule
