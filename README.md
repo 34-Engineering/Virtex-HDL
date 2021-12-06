@@ -4,7 +4,7 @@ This repository contains the Xilinx Vivado project for the Artix-7 (XC7A35T-1FTG
 
 ## Description
 
-The FPGA handles a multitude of tasks.
+The FPGA handles the following tasks:
 
  1) Reading data from the [Python 300 Image Sensor](https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf) through the Onsemi LVDS protocol
  2) Processing Blobs from image sensor data
