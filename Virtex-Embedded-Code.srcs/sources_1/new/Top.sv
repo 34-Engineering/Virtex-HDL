@@ -14,64 +14,62 @@ module Top(
     input CLK,
 
     //USB
-    inout wire [3:0] USB_BD,
-    input wire USB_ON,
-    input wire USB_PWREN,
-    input wire USB_SUS,
+    // inout wire [3:0] USB_BD,
+    // input wire USB_ON,
+    // input wire USB_PWREN,
+    // input wire USB_SUS,
 
     //RoboRIO
-    input wire RIO_SCL,
-    inout wire RIO_SDA,
+    // input wire RIO_SCL,
+    // inout wire RIO_SDA,
 
     //Config EEPROM
-    output wire CONF_CS,
-    output wire CONF_WP,
-    output wire CONF_HOLD,
-    output wire CONF_CLK,
-    output wire CONF_MOSI,
-    input wire CONF_MISO,
+    // output wire CONF_CS,
+    // output wire CONF_WP,
+    // output wire CONF_HOLD,
+    // output wire CONF_CLK,
+    // output wire CONF_MOSI,
+    // input wire CONF_MISO,
 
     //Flash Memory
-    output wire FLASH_CLK,
-    output wire FLASH_CS,
-    output wire [3:0] FLASH_SIO,
+    // output wire FLASH_CLK,
+    // output wire FLASH_CS,
+    // output wire [3:0] FLASH_SIO,
 
     //JTAG
-    input wire TMS,
-    input wire TCK,
-    output wire TDO,
-    input wire TDI,
+    // input wire TMS,
+    // input wire TCK,
+    // output wire TDO,
+    // input wire TDI,
 
     //LEDs
-    output wire LED_IR,
-    output wire [2:0] LED_PWR,
-    output wire [2:0] LED_EN,
-    output wire [2:0] LED_TAR,
-    output wire [2:0] LED_COM,
-    output reg LED_USER,
-    input wire LED_FAULT,
+    // output wire LED_IR,
+    // output wire [2:0] LED_PWR,
+    // output wire [2:0] LED_EN,
+    // output wire [2:0] LED_TAR,
+    // output wire [2:0] LED_COM,
+    output reg LED_USER
+    // input wire LED_FAULT,
     
     //Power Data
-    input wire PWR_V1UV,
-    input wire PWR_V2UV,
-    input wire PWR_V2ON,
+    // input wire PWR_12V_EN,
 
     //Camera/Image Sensor LVDS
-    input wire CAM_CLK_P,
-    input wire CAM_CLK_N,
-    input wire CAM_SYNC_P,
-    input wire CAM_SYNC_N,
-    input wire [3:0] CAM_DOUT_P,
-    input wire [3:0] CAM_DOUT_N,
+    // input wire CAM_CLK_P,
+    // input wire CAM_CLK_N,
+    // input wire CAM_SYNC_P,
+    // input wire CAM_SYNC_N,
+    // input wire [3:0] CAM_DOUT_P,
+    // input wire [3:0] CAM_DOUT_N,
 
     //Camera/Image Sensor IO
-    output wire CAM_SPI_CS,
-    output wire CAM_SPI_MOSI,
-    input wire CAM_SPI_MISO,
-    output wire CAM_SPI_CLK,
-    output wire [2:0] CAM_TRIG,
-    input wire [1:0] CAM_MON,
-    output wire CAM_RESET
+    // output wire CAM_SPI_CS,
+    // output wire CAM_SPI_MOSI,
+    // input wire CAM_SPI_MISO,
+    // output wire CAM_SPI_CLK,
+    // output wire [2:0] CAM_TRIG,
+    // input wire [1:0] CAM_MON,
+    // output wire CAM_RESET
     );
 
     //Blink LED at 1hz
@@ -140,6 +138,7 @@ module Top(
     //     .LS_COM(LED_COM),
     //     .LED_FAULT(LED_FAULT),
     //     .USB_ON(USB_ON),
+    //     .PWR_12V_EN(PWR_12V_EN),
         //    .targetBlobValid(targetBlobValid),
         //    .hasComms(RoboRIOManager.hasComms)
     // ); /* synthesis keep */

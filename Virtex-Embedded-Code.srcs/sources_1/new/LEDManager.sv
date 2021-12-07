@@ -20,6 +20,7 @@ module LEDManager(
     output wire [2:0] LS_COM,
     input wire LED_FAULT,
     input wire USB_ON,
+    input wire PWR_12V_EN,
     input wire targetBlobValid,
     input wire hasComms
     );

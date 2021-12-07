@@ -1,0 +1,3 @@
+selectio_wiz_0_selectio_wiz.v,verilog,xil_defaultlib,../../../../Virtex-Embedded-Code.gen/sources_1/ip/selectio_wiz_0/selectio_wiz_0_selectio_wiz.v,
+selectio_wiz_0.v,verilog,xil_defaultlib,../../../../Virtex-Embedded-Code.gen/sources_1/ip/selectio_wiz_0/selectio_wiz_0.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

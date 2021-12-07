@@ -111,9 +111,13 @@ set_property PACKAGE_PIN L3 [get_ports {CAM_DOUT_P[1]}]
 set_property PACKAGE_PIN L2 [get_ports {CAM_DOUT_N[1]}]
 set_property PACKAGE_PIN K3 [get_ports {CAM_DOUT_P[0]}]
 set_property PACKAGE_PIN K2 [get_ports {CAM_DOUT_N[0]}]
+set_property DIFF_TERM TRUE [get_ports {CAM_CLK_*}];
+set_property DIFF_TERM TRUE [get_ports {CAM_SYNC_*}];
+set_property DIFF_TERM TRUE [get_ports {CAM_DOUT_*}];
 set_property IOSTANDARD LVDS_25 [get_ports {CAM_CLK_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {CAM_SYNC_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {CAM_DOUT_*}]
+create_clock -add -name CAM_CLK_P -period 2.7777777777778 [get_ports CAM_CLK_P]
 
 # Camera/Image Sensor IO
 set_property PACKAGE_PIN T10 [get_ports {CAM_SPI_CS}]
