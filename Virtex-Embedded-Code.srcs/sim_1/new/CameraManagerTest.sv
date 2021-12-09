@@ -1,14 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 12/6/2021
-// Module Name: CameraManagerTest
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+/* CameraManagerTest - 
+
+  */
 module CameraManagerTest(input wire CLK);
 
 endmodule

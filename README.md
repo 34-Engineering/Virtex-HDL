@@ -15,6 +15,16 @@ The FPGA handles the following tasks:
  7) Reading and saving configurations to EEPROM memory with SPI
  8) Writing bit file sent over JTAG to flash memory with SPI 
 
+## Source
+
+Source Files: `Virtex-Embedded-Code.srcs/sources_1/new`
+
+Test Files: `Virtex-Embedded-Code.srcs/sim_1/new`
+
+## Testing & Building
+
+All testing, synthesis, implementation, and bitstream generation is done through Vivado 2021.
+
 ## IDE Setup
 
  1) Install VSCode, add it to PATH (ex  `C:\Users\liams\AppData\Local\Programs\Microsoft VS Code\bin`), and ensure `code .` works in the command line

@@ -1,13 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 06/28/2021
-// Module Name: CameraConfigManager
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 /* CameraConfigManager - manages boot & config; SPI master to python 300
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf

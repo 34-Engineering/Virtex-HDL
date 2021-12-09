@@ -1,14 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 12/6/2021
-// Module Name: AppManagerTest
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+/* AppManagerTest - 
+
+    */
 module AppManagerTest(input wire CLK);
     wire USB_ON = 1;
     wire USB_PWREN = 0;

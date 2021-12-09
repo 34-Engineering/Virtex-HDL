@@ -1,23 +1,14 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 06/08/2021
-// Module Name: LEDManager
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-/* LEDManager - Manages the 3x LS_IR LEDs & 4x RGB Signal LEDs */
+/* LEDManager - Manages the 8 LS_IR LEDs & 4 RGB Signal LEDs */
 module LEDManager(
     input wire CLK,
     output wire LS_IR,
-    output wire [2:0] LS_PWR,
+    output wire [2:0] LS_PWR, //0 = red, 1 = green, 2 = blue
     output wire [2:0] LS_EN,
     output wire [2:0] LS_TAR,
     output wire [2:0] LS_COM,
-    input wire LED_FAULT,
+    input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON,
     input wire PWR_12V_EN,
     input wire enabled,
@@ -25,8 +16,8 @@ module LEDManager(
     input wire hasComms
     );
 
-    //LS_IR: on when enabled
-    assign LS_IR = enabled;
+    //LS_IR: on when enabled, no fault, and 12V power
+    assign LS_IR = enabled & LED_FAULT & PWR_12V_EN;
 
     //PWR: green for 12V power & yellow for USB power
     assign LS_PWR[1] = 1;

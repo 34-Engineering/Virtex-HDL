@@ -1,31 +1,14 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 06/28/2021
-// Module Name: BlobProcessor
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
+`include "Util.sv"
+import Util::*;
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
    Virtex Algorithm: https://docs.google.com/document/d/1bz1e-nRzw2SLFKddVVZY3nFoIvRZqutlnkVuUk7gstA/edit
    */
 module BlobProcessor();
-    typedef struct {
-        reg [9:0] x1, y1;
-    } Vector;
-
-    typedef struct {
-        Vector boundingTopLeft, boundingBottomRight;
-        Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft;
-        reg valid;
-    } Blob;
-
-    parameter numBlobs = 99;
-    Blob blobs[0:numBlobs];
-    reg [7:0] blobIndex = 0;
+    parameter blobsSize = 100 - 1;
+    Blob blobs[0:blobsSize];
+    reg [7:0] blobPointer = 0;
 
     reg [7:0] joined = 255; //the index of of the blob is last joined
     task processPixel(input Vector pos);
@@ -101,7 +84,7 @@ module BlobProcessor();
 
         //didnt join any blobs --> make new blob
         if (joined == 255) begin
-            blobs[blobIndex] = '{
+            blobs[blobPointer] = '{
                 '{pos.x, pos.y},
                 '{pos.x + 1, pos.y + 1},
                 '{pos.x, pos.y},
@@ -110,7 +93,7 @@ module BlobProcessor();
                 '{pos.x, pos.y}, //y+1?
                 1
             };
-            blobIndex++;
+            blobPointer++;
             fixBlobIndex();
         end
     endtask
@@ -122,7 +105,7 @@ module BlobProcessor();
         end
 
         //reset counter
-        blobIndex = 0;
+        blobPointer = 0;
     endtask
 
     function Blob chooseBlob();
@@ -139,14 +122,14 @@ module BlobProcessor();
 
     task fixBlobIndex();
         //out of bounds
-        if (blobIndex > numBlobs) begin
-            blobIndex = 0;
+        if (blobPointer > blobsSize) begin
+            blobPointer = 0;
             fixBlobIndex();
         end
 
         //on top of existing blob
-        else if (blobs[blobIndex].valid == 1) begin
-            blobIndex++;
+        else if (blobs[blobPointer].valid == 1) begin
+            blobPointer++;
             fixBlobIndex();
         end
 

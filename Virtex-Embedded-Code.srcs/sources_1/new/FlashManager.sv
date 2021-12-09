@@ -1,14 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 06/08/2021
-// Module Name: FlashManager
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+/* FlashManager - 
+
+    */
 module FlashManager(
     input wire CLK,
     output wire SPI_CLK,

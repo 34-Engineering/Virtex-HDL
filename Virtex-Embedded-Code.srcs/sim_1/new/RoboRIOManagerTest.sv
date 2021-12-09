@@ -1,14 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 12/6/2021
-// Module Name: RoboRIOManagerTest
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+/* RoboRIOManagerTest - 
+    
+    */
 module RoboRIOManagerTest(input wire CLK);
 
 endmodule

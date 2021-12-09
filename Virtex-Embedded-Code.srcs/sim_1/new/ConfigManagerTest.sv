@@ -1,14 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 12/6/2021
-// Module Name: ConfigManagerTest
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
+/* ConfigManagerTest - 
+
+  */
 module ConfigManagerTest(input wire CLK);
 
 endmodule

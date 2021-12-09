@@ -1,13 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 34 Engineering
-// Engineer: Liam Snow
-// 
-// Create Date: 06/08/2021
-// Module Name: AppManager
-// Project Name: Virtex
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 /* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
      1) Streams video & processed blobs to FT2232H
