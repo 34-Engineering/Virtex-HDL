@@ -86,9 +86,9 @@ module Top(
     end
 
     //Process Vars
-    // reg enabled = 0; /* synthesis keep */
-    // reg targetBlobValid = 0; /* synthesis keep */
-    // reg [9:0] targetBlob [12:0]; /* synthesis keep */
+    // reg enabled = 0;
+    // reg targetBlobValid = 0;
+    // reg [9:0] targetBlob [12:0];
 
     //Sub-Components
     // AppManager AppManager(
@@ -100,13 +100,13 @@ module Top(
     //     .USB_ON(USB_ON),
     //     .USB_PWREN(USB_PWREN),
     //     .USB_SUS(USB_SUS)
-    // ); /* synthesis keep */
+    // );
 
     // RoboRIOManager RoboRIOManager(
     //     .CLK(CLK),
     //     .I2C_SCL(RIO_SCL),
     //     .I2C_SDA(RIO_SDA)
-    // ); /* synthesis keep */
+    // );
 
     // ConfigManager ConfigManager(
     //     .CLK(CLK),
@@ -116,7 +116,7 @@ module Top(
     //     .SPI_CLK(CONF_CLK),
     //     .SPI_MOSI(CONF_MOSI),
     //     .SPI_MISO(CONF_MISO)
-    // ); /* synthesis keep */
+    // );
 
     // FlashManager FlashManager(
     //     .CLK(CLK),
@@ -127,7 +127,7 @@ module Top(
     //     .TCK(TCK),
     //     .TDO(TDO),
     //     .TDI(TDI)
-    // ); /* synthesis keep */
+    // );
 
     // LEDManager LEDManager(
     //     .CLK(CLK),
@@ -139,9 +139,10 @@ module Top(
     //     .LED_FAULT(LED_FAULT),
     //     .USB_ON(USB_ON),
     //     .PWR_12V_EN(PWR_12V_EN),
-        //    .targetBlobValid(targetBlobValid),
-        //    .hasComms(RoboRIOManager.hasComms)
-    // ); /* synthesis keep */
+    //     .enabled(enabled),
+    //     .targetBlobValid(targetBlobValid),
+    //     .hasComms(RoboRIOManager.hasComms)
+    // );
 
     // CameraManager CameraManager(
     //     .CLK(CLK),
@@ -158,6 +159,6 @@ module Top(
     //     .TRIGGER(CAM_TRIG),
     //     .MONITOR(CAM_MON),
     //     .RESET(CAM_RESET)
-    // ); /* synthesis keep */
+    // );
 
 endmodule
