@@ -49,6 +49,6 @@ module AppManager(
 
     //On Data
     task onData(reg [0:7] data);
-        $display ("got %d", data);
+        $display ("read %b", data);
     endtask
 endmodule

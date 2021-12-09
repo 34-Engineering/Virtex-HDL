@@ -30,27 +30,40 @@ module AppManagerTest(input wire CLK);
     );
 
     //Fast Serial
-    FastSerialTest FastSerial(
+    FastSerialTest FastSerialTest(
         .FSDI(FSDI),
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS)
     );
     task write(reg [0:7] data);
-        FastSerial.write(data);
+        FastSerialTest.write(data);
     endtask
     task clearWriteQueue();
-        FastSerial.clearWriteQueue();
+        FastSerialTest.clearWriteQueue();
     endtask
 
     //On Data
     task onData(reg [0:7] data);
-        $display ("got %b", data);
+        $display ("test read %b", data);
     endtask
 
     //Test
     initial begin
-        // AppManager.write({AppManager.GET_CONFIG_CODE, 12});
-        write('{uut.GET_CONFIG_CODE, 12});
+        write(8'b11111111);
+        write(8'b00000000);
+        write(8'b11110000);
+        write(8'b00001111);
+        write(8'b10101010);
+        write(8'b01010101);
+
+        #1000 begin
+            AppManager.write(8'b11111111);
+            AppManager.write(8'b00000000);
+            AppManager.write(8'b11110000);
+            AppManager.write(8'b00001111);
+            AppManager.write(8'b10101010);
+            AppManager.write(8'b01010101);
+        end
     end
 endmodule

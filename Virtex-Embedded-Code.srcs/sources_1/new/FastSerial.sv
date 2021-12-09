@@ -39,26 +39,40 @@ module FastSerial(
     always @(posedge CLK48) begin
         //reading
         if (isReading & enabled) begin
-            
+            if (readPos == 8) begin
+                // $display ("done reading");
+                readPos <= 0;
+                isReading <= 0;
+                onData(readData);
+            end
+            else begin
+                // $display ("read %p = %b", readPos, FSDO);
+                readData[readPos] = FSDO;
+                readPos <= readPos + 1;
+            end
+            FSDI <= 1;
         end
 
         //start reading
         else if (!FSDO & enabled) begin
-            
+            // $display ("start reading");
+            readPos <= 0;
+            isReading <= 1;
+            FSDI <= 1;
         end
 
         //writing
         else if (writeQueue.size() > 0 & enabled) begin
             //bit 0
             if (writePos == 0) begin
-                // $display ("sent 0 = 0");
+                // $display ("wrote 0 = 0");
                 FSDI = 0;
                 writePos <= 1;
             end
 
             //bit 9
             else if (writePos == 9 & !FSCTS) begin
-                // $display ("sent 9 = 1");
+                // $display ("wrote 9 = 1");
                 //send destination bit
                 FSDI = 1;
 
@@ -69,7 +83,7 @@ module FastSerial(
 
             //bit 1-8
             else if (!FSCTS) begin
-                // $display ("sent %p = %d", writePos, writeQueue[0][writePos - 1]);
+                // $display ("wrote %p = %b", writePos, writeQueue[0][writePos - 1]);
                 FSDI = writeQueue[0][writePos - 1];
                 writePos <= writePos + 1;
             end

@@ -23,26 +23,67 @@ module FastSerialTest(
 
     //Loop
     always @(negedge FSCLK) begin
-        //writing
-        if (writeQueue.size() > 0) begin
-            
-        end
-
-        if (!FSDI & FSCTS) begin
-            // $display ("got 0 = 0");
-            FSCTS <= 0;
-            readPos <= 1;
-        end
-        else if (readPos > 0 & !FSCTS) begin
-            if (readPos == 9) begin
+        //reading
+        if (isReading) begin
+            if (readPos == 8) begin
+                // $display ("test done reading");
                 FSCTS <= 1;
                 readPos <= 0;
+                isReading <= 0;
                 onData(readData);
             end
             else begin
-                readData[readPos - 1] = FSDI;
+                // $display ("test read %p = %b", readPos, FSDO);
+                readData[readPos] = FSDI;
                 readPos <= readPos + 1;
             end
+            FSCTS <= 0;
+            FSDO <= 1;
+        end
+
+        //writing
+        else if (writeQueue.size() > 0) begin
+            //bit 0
+            if (writePos == 0) begin
+                // $display ("test wrote 0 = 0");
+                FSDO = 0;
+                writePos <= 1;
+            end
+
+            //bit 9
+            else if (writePos == 9) begin
+                // $display ("test wrote 9 = 1");
+                //send destination bit
+                FSDO = 1;
+
+                //prepare for next byte
+                writeQueue.pop_front();
+                writePos <= 0;
+            end
+
+            //bit 1-8
+            else begin
+                // $display ("test wrote %p = %b", writePos, writeQueue[0][writePos - 1]);
+                FSDO = writeQueue[0][writePos - 1];
+                writePos <= writePos + 1;
+            end
+
+            FSCTS <= 1;
+        end
+
+        //start reading
+        else if (!FSDI & FSCTS) begin
+            // $display ("test start reading");
+            readPos <= 0;
+            isReading <= 1;
+            FSCTS <= 0;
+            FSDO <= 1;
+        end
+
+        //idle
+        else begin
+            FSDO <= 1;
+            FSCTS <= 1;
         end
     end
 endmodule
