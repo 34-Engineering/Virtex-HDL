@@ -11,7 +11,8 @@
 
 /* ConfigManager - SPI Master to the EEPROM
     Reads in config at boot
-    Saves config on event trigger */
+    Saves config on event trigger
+    Max 32 configurations */
 module ConfigManager(
     input wire CLK,
     output wire SPI_CS,

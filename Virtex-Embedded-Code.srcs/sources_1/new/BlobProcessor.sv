@@ -28,7 +28,7 @@ module BlobProcessor();
     reg [7:0] blobIndex = 0;
 
     reg [7:0] joined = 255; //the index of of the blob is last joined
-    function void processPixel(input Vector pos);
+    task processPixel(input Vector pos);
         //try to join pixel into an existing blob
         foreach (blobs[i]) begin
             //if point inside blob bounding box
@@ -113,9 +113,9 @@ module BlobProcessor();
             blobIndex++;
             fixBlobIndex();
         end
-    endfunction
+    endtask
 
-    function void reset();
+    task reset();
         //invalidate all blobs
         foreach (blobs[i]) begin
             blobs[i].valid = 0;
@@ -123,7 +123,7 @@ module BlobProcessor();
 
         //reset counter
         blobIndex = 0;
-    endfunction
+    endtask
 
     function Blob chooseBlob();
         foreach (blobs[i]) begin
@@ -137,7 +137,7 @@ module BlobProcessor();
         return $atan((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
     endfunction
 
-    function void fixBlobIndex();
+    task fixBlobIndex();
         //out of bounds
         if (blobIndex > numBlobs) begin
             blobIndex = 0;
@@ -154,5 +154,5 @@ module BlobProcessor();
         else begin
             return;
         end
-    endfunction
+    endtask
 endmodule

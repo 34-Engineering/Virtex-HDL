@@ -28,33 +28,55 @@ module AppManager(
     input wire USB_SUS //usb in suspend mode, active low
     );
 
-    //48MHz clock
+    //Fast Serial Generic
     wire CLK48;
     clk_wiz_1 clk_wiz_1(
         .clk_in1(CLK),
         .clk_out1(CLK48)
     );
     assign FSCLK = CLK48;
-
-    //USB
     wire usbWorking = USB_ON & !USB_PWREN & USB_SUS;
-
-    //Send Queue 
-    reg [7:0] dataQueue [$] = { 8'b01100110, 8'b11110000 };
+    reg isReading = 0;
+    reg [0:7] dataQueue [$] = {};
     reg [3:0] dataPos = 0;
+    task write(reg [0:7] data);
+        dataQueue.push_back(data);
+    endtask
+    task clearQueue();
+        dataQueue.delete();
+    endtask
 
+    //Virtex Specific
+    parameter GET_FRAME_CODE = 'b000;
+    parameter GET_CONFIG_CODE = 'b001;
+    parameter SET_CONFIG_CODE = 'b100;
+    enum {NONE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = NONE;
+    reg stateStep = 0; //which byte num we are on in the state
+    task onData(reg [0:7] data);
+        
+    endtask
+
+    //Fast Serial Generic
     always @(posedge CLK48) begin
-        if (usbWorking & dataQueue.size() > 0) begin
+        //reading
+        if (usbWorking & isReading) begin
+            
+        end
+
+        //writing
+        else if (usbWorking & dataQueue.size() > 0) begin
             //bit 0
             if (dataPos == 0) begin
-                FSDI <= 0;
+                // $display ("sent 0 = 0");
+                FSDI = 0;
                 dataPos <= 1;
             end
 
             //bit 9
             else if (dataPos == 9 & !FSCTS) begin
+                // $display ("sent 9 = 1");
                 //send destination bit
-                FSDI <= 1;
+                FSDI = 1;
 
                 //prepare for next byte
                 dataQueue.pop_front();
@@ -63,17 +85,17 @@ module AppManager(
 
             //bit 1-8
             else if (!FSCTS) begin
-                FSDI <= dataQueue[0][dataPos - 1];
+                // $display ("sent %p = %d", dataPos, dataQueue[0][dataPos - 1]);
+                FSDI = dataQueue[0][dataPos - 1];
                 dataPos <= dataPos + 1;
             end
+
+            //else waiting for FSCTS or interrupted (and reset?)
         end
+
+        //idle
         else begin
-            //idle
             FSDI <= 1;
         end
     end
-
-    // function void send(reg [7:0] data);
-    //     dataQueue.push_back(data);
-    // endfunction
 endmodule

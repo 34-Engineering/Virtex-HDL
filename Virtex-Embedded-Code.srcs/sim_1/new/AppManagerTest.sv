@@ -29,24 +29,40 @@ module AppManagerTest(input wire CLK);
         .USB_SUS(USB_SUS)
     );
 
-    reg [9:0] readData;
+    reg [0:9] readData;
     reg [3:0] dataPos = 0;
-    always @(posedge FSCLK) begin
-        if (FSCTS) begin
-            //wants to send data
-            if (!FSDI) begin
-                //so let it
-                FSCTS <= 0;
-                dataPos <= 0;
-            end
+
+    always @(negedge FSCLK) begin
+        if (!FSDI & FSCTS) begin
+            // $display ("got 0 = 0");
+            FSCTS <= 0;
+            readData[0] <= 0;
+            dataPos <= 1;
         end
-        else begin
-            readData[dataPos] <= FSDI;
-            dataPos <= dataPos + 1;
-            if (dataPos == 10) begin
+        else if (dataPos > 0 & !FSCTS) begin
+            // $display ("got %p = %b", dataPos, FSDI);
+            readData[dataPos] = FSDI;
+
+            if (dataPos == 9) begin
                 FSCTS <= 1;
-                $display ("got %p", readData);
+                dataPos <= 0;
+                onData(readData[1:8]);
+            end
+            else begin
+                dataPos <= dataPos + 1;
             end
         end
+    end
+
+    task onData(reg [0:7] data);
+        $display ("got %b", data);
+    endtask
+
+    task write(reg [0:7] data);
+        
+    endtask
+
+    initial begin
+        uut.write({uut.GET_CONFIG_CODE, 12});
     end
 endmodule

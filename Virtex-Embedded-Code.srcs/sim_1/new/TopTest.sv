@@ -13,9 +13,7 @@ module TopTest;
 
   //100MHz clock
   reg CLK = 0;
-  always begin
-    #5 CLK = !CLK;
-  end
+  always #5 CLK <= !CLK;
   
   AppManagerTest AppManagerTest(CLK);
   RoboRIOManagerTest RoboRIOManagerTest(CLK);
