@@ -45,7 +45,6 @@ module FastSerial(
     endtask
     
     bit isReading = 0;
-    // bit [0:7] readData = 0;
     bit [3:0] readPointer = 0;
 
     //Loop

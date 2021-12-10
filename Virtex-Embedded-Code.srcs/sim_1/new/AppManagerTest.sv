@@ -24,11 +24,16 @@ module AppManagerTest(input wire CLK);
     );
 
     //Fast Serial
+    wire [7:0] readData;
+    wire readDataValid;
     FastSerialTest FastSerialTest(
         .FSDI(FSDI),
         .FSCLK(FSCLK),
         .FSDO(FSDO),
-        .FSCTS(FSCTS)
+        .FSCTS(FSCTS),
+        .enabled(1),
+        .readData(readData),
+        .readDataValid(readDataValid)
     );
     task write(bit [0:7] data);
         FastSerialTest.write(data);
@@ -38,9 +43,9 @@ module AppManagerTest(input wire CLK);
     endtask
 
     //On Data
-    task onData(bit [0:7] data);
-        $display ("test read %b", data);
-    endtask
+    always @(posedge readDataValid) begin
+        $display ("test read %b", readData);
+    end
 
     //Test
     initial begin

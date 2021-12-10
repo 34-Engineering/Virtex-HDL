@@ -10,50 +10,28 @@ module I2CSlave #(parameter ADDR = 'h34) (
     output bit readDataValid
     );
 
-    bit inSequence = 0;
-    enum { WRITE, READ } rwMode = READ;
-    bit [2:0] sectionCount = 0; //which section we are in in the sequence
-    bit [2:0] sectionInd = 0; //where we are in the section
-    bit [6:0] addr = 0; //saved data from the section
-    bit [7:0] location = 0;
-    bit [31:0] data = 0;
+    parameter writeQueueSize = 10 - 1;
+    bit [0:7] writeQueue[0:writeQueueSize];
+    bit [9:0] writeQueueReadPointer = 0;
+    bit [9:0] writeQueueWritePointer = 0;
+    bit [3:0] writePointer = 0;
 
-    //TODO Check this
-    always @(posedge SCL) begin
-        if (inSequence) begin
-            if (sectionCount == 0) begin
-                if (sectionInd == 7) begin
-                    rwMode <= SDA ? READ : WRITE;
-                end
-                else begin
-                    addr[sectionInd] <= SDA;
-                end
-            end
-            else if (sectionCount == 1) begin
-                location[sectionInd] <= SDA;
-            end
-            else begin
-                data[sectionInd * (sectionCount - 1)] <= SDA;
-            end
-
-            if (sectionInd == 7) begin
-                //last data section
-                if (sectionCount == 5 && addr == ADDR) begin
-                    
-                end
-
-                sectionCount++;
-            end
-            sectionInd++;
+    task write(bit [0:7] data);
+        writeQueue[writeQueueWritePointer] = data;
+        if (writeQueueWritePointer >= writeQueueSize) begin
+            writeQueueWritePointer = 0;
         end
         else begin
-            if (SDA == 0) begin
-                inSequence <= 1;
-                sectionCount <= 0;
-                sectionInd <= 0;
-            end
+            writeQueueWritePointer = writeQueueWritePointer + 1;
         end
-    end
+    endtask
+    task clearWriteQueue();
+        writeQueueReadPointer = 0;
+        writeQueueWritePointer = 0;
+    endtask
+
+    bit isReading = 0;
+    bit [3:0] readPointer = 0;
 
     /*
         I2C Slave Cheat Sheet
