@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
 import Util::*;
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
@@ -8,9 +7,9 @@ import Util::*;
 module BlobProcessor();
     parameter blobsSize = 100 - 1;
     Blob blobs[0:blobsSize];
-    reg [7:0] blobPointer = 0;
+    bit [7:0] blobPointer = 0;
 
-    reg [7:0] joined = 255; //the index of of the blob is last joined
+    bit [7:0] joined = 255; //the index of of the blob is last joined
     task processPixel(input Vector pos);
         //try to join pixel into an existing blob
         foreach (blobs[i]) begin
@@ -26,10 +25,10 @@ module BlobProcessor();
                     blobs[joined].valid = 0;
 
                     //make new bounding box
-                    blobs[i].boundingTopLeft.x = $min(blobs[i].boundingTopLeft.x, blobs[joined].boundingTopLeft.x);
-                    blobs[i].boundingTopLeft.y = $min(blobs[i].boundingTopLeft.y, blobs[joined].boundingTopLeft.y);
-                    blobs[i].boundBottomRight.x = $max(blobs[i].boundBottomRight.x, blobs[joined].boundBottomRight.x);
-                    blobs[i].boundBottomRight.y = $max(blobs[i].boundBottomRight.y, blobs[joined].boundBottomRight.y);
+                    blobs[i].boundingTopLeft.x = min(blobs[i].boundingTopLeft.x, blobs[joined].boundingTopLeft.x);
+                    blobs[i].boundingTopLeft.y = min(blobs[i].boundingTopLeft.y, blobs[joined].boundingTopLeft.y);
+                    blobs[i].boundBottomRight.x = max(blobs[i].boundBottomRight.x, blobs[joined].boundBottomRight.x);
+                    blobs[i].boundBottomRight.y = max(blobs[i].boundBottomRight.y, blobs[joined].boundBottomRight.y);
                                         
                     //make new corners
                     if (blobs[joined].cornerTopLeft.x+blobs[joined].cornerTopLeft.y < blobs[i].cornerTopLeft.x+blobs[i].cornerTopLeft.y) begin
@@ -116,8 +115,13 @@ module BlobProcessor();
         end
     endfunction
 
-    function real calculateTheta(Blob blob);
-        return $atan((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
+    function real calculateSlope(Blob blob);
+        //calculates slope of bottom line of the quad
+        //instead of calculating the angle on the fpga with atand we do it on the roborio
+        //before setting the config setting
+        //bounded between -1 and 1
+        //todo handle different angles (the bottom line changes)
+        return atand((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
     endfunction
 
     task fixBlobIndex();

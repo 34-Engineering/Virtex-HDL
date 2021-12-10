@@ -14,26 +14,25 @@ module ConfigManager(
     input wire SPI_MISO
     );
 
-    //Config Parameters
-    reg [15:0] configVars [15:0];
-    initial begin
-        configVars[ 0] <= 0;
-        configVars[ 1] <= 0;
-        configVars[ 2] <= 0;
-        configVars[ 3] <= 16'hffff;
-        configVars[ 4] <= 0;
-        configVars[ 5] <= 16'hffff;
-        configVars[ 6] <= 0;
-        configVars[ 7] <= 16'hffff;
-        configVars[ 8] <= 0;
-        configVars[ 9] <= 16'hffff;
-        configVars[10] <= 0;
-        configVars[11] <= 16'hffff;
-        configVars[12] <= 16'd280;
-        configVars[13] <= 16'd280;
-        configVars[14] <= 8'h0f;
-        configVars[15] <= 8'h0f;
-    end
+    //Config Parameters (init with default config)
+    bit [15:0] configVars [15:0] = {
+        0,
+        0,
+        0,
+        16'hffff,
+        0,
+        16'hffff,
+        0,
+        16'hffff,
+        0,
+        16'hffff,
+        0,
+        16'hffff,
+        16'd320,
+        16'd240,
+        8'h0f,
+        8'h0f
+    };
 
     //Config Wires
     wire dualObjectMode     = configVars[0]; //OFF, ON_AIN, ON_AOUT
@@ -44,10 +43,10 @@ module ConfigManager(
     wire boundingHeightMax  = configVars[5];
     wire fullnessMin        = configVars[6];
     wire fullnessMax        = configVars[7];
-    wire angleDiffMin       = configVars[8];
-    wire angleDiffMax       = configVars[9];
-    wire angleMin           = configVars[10];
-    wire angleMax           = configVars[11];
+    wire slopeDiffMin       = configVars[8];
+    wire slopeDiffMax       = configVars[9];
+    wire slopeMin           = configVars[10];
+    wire slopeMax           = configVars[11];
     wire nearestCoordX      = configVars[12];
     wire nearestCoordY      = configVars[13];
     wire threshold          = configVars[14]; //8 bit
@@ -55,5 +54,7 @@ module ConfigManager(
 
     //EEPROM
     assign SPI_CS = 1;
+
+    //TODO SPI MASTER
 
 endmodule

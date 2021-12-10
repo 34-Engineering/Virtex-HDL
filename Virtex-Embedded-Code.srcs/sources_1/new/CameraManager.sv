@@ -20,19 +20,14 @@ module CameraManager(
     output wire RESET
     );
 
-    //SERDES
+    //TODO SERDES
     // width of the data for the system
     parameter SYS_W = 4;
     // width of the data for the device
     parameter DEV_W = 8;
 
     //Sub-Components
-    BlobProcessor BlobProcessor(
-        .CLK200(CLK200),
-        .LVDS_CLK(LVDS_CLK),
-        .LVDS_SYNC(LVDS_SYNC),
-        .LVDS_DOUT(LVDS_DOUT)
-    ); /* synthesis preserve */
+    BlobProcessor BlobProcessor();
 
     CameraConfigManager CameraConfigManager(
         .CLK(CLK),
@@ -43,6 +38,5 @@ module CameraManager(
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
         .RESET(RESET)
-    ); /* synthesis preserve */
-
+    );
 endmodule

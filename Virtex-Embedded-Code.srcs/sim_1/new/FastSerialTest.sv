@@ -5,23 +5,23 @@
 module FastSerialTest(
     input wire FSDI,
     input wire FSCLK,
-    output reg FSDO,
-    output reg FSCTS
+    output bit FSDO,
+    output bit FSCTS
     );
 
-    reg [0:7] writeQueue [$] = {};
-    reg [3:0] writePointer = 0;
+    bit [0:7] writeQueue [$] = {};
+    bit [3:0] writePointer = 0;
     
-    task write(reg [0:7] data);
+    task write(bit [0:7] data);
         writeQueue.push_back(data);
     endtask
     task clearWriteQueue();
         writeQueue.delete();
     endtask
     
-    reg isReading = 0;
-    reg [0:7] readData;
-    reg [3:0] readPointer = 0;
+    bit isReading = 0;
+    bit [0:7] readData = 0;
+    bit [3:0] readPointer = 0;
 
     //Loop
     always @(negedge FSCLK) begin

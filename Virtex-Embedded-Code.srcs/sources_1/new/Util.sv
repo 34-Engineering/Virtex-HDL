@@ -4,17 +4,23 @@
 
     */
 package Util;
+    //Structs
     typedef struct {
-        reg [9:0] x1, y1;
+        bit [9:0] x1, y1;
     } Vector;
 
     typedef struct {
         Vector boundingTopLeft, boundingBottomRight;
         Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft;
-        reg valid;
+        bit valid = 0;
     } Blob;
 
-    //function min
-    //function max
-    //function atan2
+    //Range
+    function bit [9:0] min(input bit [9:0] num1, num2);
+        return num1 < num2 ? num1 : num2;
+    endfunction
+
+    function bit [9:0] max(input bit [9:0] num1, num2);
+        return num1 > num2 ? num1 : num2;
+    endfunction
 endpackage

@@ -17,4 +17,5 @@ module CameraConfigManager(
     assign RESET = 1;
     assign SPI_CS = 1;
 
+    //TODO SPI MASTER
 endmodule

@@ -7,7 +7,7 @@
     */
 module FastSerial(
     input wire CLK,
-    output reg FSDI, //FPGA->PC
+    output bit FSDI, //FPGA->PC
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
@@ -23,12 +23,12 @@ module FastSerial(
     assign FSCLK = CLK48;
 
     parameter writeQueueSize = 320 - 1;
-    reg [0:7] writeQueue[0:writeQueueSize];
-    reg [9:0] writeQueueReadPointer = 0;
-    reg [9:0] writeQueueWritePointer = 0;
-    reg [3:0] writePointer = 0;
+    bit [0:7] writeQueue[0:writeQueueSize];
+    bit [9:0] writeQueueReadPointer = 0;
+    bit [9:0] writeQueueWritePointer = 0;
+    bit [3:0] writePointer = 0;
     
-    task write(reg [0:7] data);
+    task write(bit [0:7] data);
         writeQueue[writeQueueWritePointer] = data;
         if (writeQueueWritePointer >= writeQueueSize) begin
             writeQueueWritePointer = 0;
@@ -42,19 +42,19 @@ module FastSerial(
         writeQueueWritePointer = 0;
     endtask
     
-    reg isReading = 0;
-    reg [0:7] readData;
-    reg [3:0] readPointer = 0;
+    bit isReading = 0;
+    bit [0:7] readData = 0;
+    bit [3:0] readPointer = 0;
 
     //Loop
-    always @(posedge CLK48) begin
+    always @(negedge FSCLK) begin
         //reading
         if (isReading & enabled) begin
             if (readPointer == 8) begin
                 // $display ("done reading");
                 readPointer = 0;
                 isReading = 0;
-                onData(readData);
+                // Top.AppManager.onData(readData);
             end
             else begin
                 // $display ("read %p = %b", readPointer, FSDO);

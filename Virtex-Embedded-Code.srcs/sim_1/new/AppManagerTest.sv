@@ -9,8 +9,8 @@ module AppManagerTest(input wire CLK);
     wire USB_SUS = 1;
     wire FSDI;
     wire FSCLK;
-    reg FSDO = 1; //active low
-    reg FSCTS = 1; //active low
+    bit FSDO = 1; //active low
+    bit FSCTS = 1; //active low
 
     AppManager AppManager(
         .CLK(CLK),
@@ -30,7 +30,7 @@ module AppManagerTest(input wire CLK);
         .FSDO(FSDO),
         .FSCTS(FSCTS)
     );
-    task write(reg [0:7] data);
+    task write(bit [0:7] data);
         FastSerialTest.write(data);
     endtask
     task clearWriteQueue();
@@ -38,7 +38,7 @@ module AppManagerTest(input wire CLK);
     endtask
 
     //On Data
-    task onData(reg [0:7] data);
+    task onData(bit [0:7] data);
         $display ("test read %b", data);
     endtask
 

@@ -6,7 +6,7 @@
 module TopTest;
 
     //100MHz clock
-    reg CLK = 0;
+    bit CLK = 0;
     always #5 CLK <= !CLK;
   
     AppManagerTest AppManagerTest(CLK);

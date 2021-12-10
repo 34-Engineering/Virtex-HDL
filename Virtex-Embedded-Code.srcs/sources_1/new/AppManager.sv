@@ -7,7 +7,7 @@
     */
 module AppManager(
     input wire CLK,
-    output reg FSDI, //FPGA->PC
+    output bit FSDI, //FPGA->PC
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
@@ -20,10 +20,10 @@ module AppManager(
     parameter GET_CONFIG_CODE = 'b001;
     parameter SET_CONFIG_CODE = 'b100;
     enum {NONE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = NONE;
-    reg stateStep = 0; //which byte num we are on in the state
+    bit stateStep = 0; //which byte num we are on in the state
 
     //Fast Serial
-    FastSerial FastSerial(
+    FastSerial inst(
         .CLK(CLK),
         .FSDI(FSDI),
         .FSCLK(FSCLK),
@@ -31,15 +31,15 @@ module AppManager(
         .FSCTS(FSCTS),
         .enabled(USB_ON & !USB_PWREN & USB_SUS)
     );
-    task write(reg [0:7] data);
-        FastSerial.write(data);
+    task write(bit [0:7] data);
+        inst.write(data);
     endtask
     task clearWriteQueue();
-        FastSerial.clearWriteQueue();
+        inst.clearWriteQueue();
     endtask
 
     //On Data
-    task onData(reg [0:7] data);
-        $display ("read %b", data);
+    task onData(bit [0:7] data);
+        // $display ("read %b", data);
     endtask
 endmodule

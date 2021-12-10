@@ -1,4 +1,6 @@
 `timescale 1ns / 1ps
+`include "Util.sv"
+import Util::*;
 
 /* Top - 
 
@@ -41,7 +43,7 @@ module Top(
     output wire [2:0] LED_EN,
     output wire [2:0] LED_TAR,
     output wire [2:0] LED_COM,
-    output reg LED_USER,
+    output wire LED_USER,
     input wire LED_FAULT,
     
     //Power Data
@@ -65,30 +67,17 @@ module Top(
     output wire CAM_RESET
     );
 
-    //Blink LED at 1hz
-    reg [31:0] counter = 0;
-    initial begin
-        LED_USER <= 0;
-    end
-    always @ (posedge CLK) begin
-        counter <= counter + 1;
-        if (counter > 50000000) begin
-            LED_USER <= !LED_USER;
-            counter <= 0;
-        end
-    end
-
     //Process Vars
-    reg enabled = 0;
-    reg targetBlobValid = 0;
-    reg [9:0] targetBlob [12:0];
+    bit enabled = 0;
+    bit targetBlobValid = 0;
+    Blob targetBlob;
 
     //Sub-Components
     AppManager AppManager(
         .CLK(CLK),
         .FSDI(USB_BD[0]),
         .FSCLK(USB_BD[1]),
-        .FSMOSI(USB_BD[2]),
+        .FSDO(USB_BD[2]),
         .FSCTS(USB_BD[3]),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
@@ -124,11 +113,12 @@ module Top(
 
     LEDManager LEDManager(
         .CLK(CLK),
-        .LS_IR(LED_IR),
-        .LS_PWR(LED_PWR),
-        .LS_EN(LED_EN),
-        .LS_TAR(LED_TAR),
-        .LS_COM(LED_COM),
+        .LED_IR(LED_IR),
+        .LED_PWR(LED_PWR),
+        .LED_EN(LED_EN),
+        .LED_TAR(LED_TAR),
+        .LED_COM(LED_COM),
+        .LED_USER(LED_USER),
         .LED_FAULT(LED_FAULT),
         .USB_ON(USB_ON),
         .PWR_12V_EN(PWR_12V_EN),

@@ -11,14 +11,14 @@ module RoboRIOManager(
 
     parameter ADDR = 7'h34;
 
-    reg hasComms = 0;
-    reg inSequence = 0;
+    bit hasComms = 0;
+    bit inSequence = 0;
     enum { WRITE, READ } rwMode = READ;
-    reg [2:0] sectionCount = 0; //which section we are in in the sequence
-    reg [2:0] sectionInd = 0; //where we are in the section
-    reg [6:0] addr = 0; //saved data from the section
-    reg [7:0] location = 0;
-    reg [31:0] data = 0;
+    bit [2:0] sectionCount = 0; //which section we are in in the sequence
+    bit [2:0] sectionInd = 0; //where we are in the section
+    bit [6:0] addr = 0; //saved data from the section
+    bit [7:0] location = 0;
+    bit [31:0] data = 0;
 
     always @(posedge I2C_SCL) begin
         if (inSequence) begin
