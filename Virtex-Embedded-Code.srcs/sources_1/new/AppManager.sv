@@ -23,23 +23,27 @@ module AppManager(
     bit stateStep = 0; //which byte num we are on in the state
 
     //Fast Serial
-    FastSerial inst(
+    wire [7:0] readData;
+    wire readDataValid;
+    FastSerial FastSerial(
         .CLK(CLK),
         .FSDI(FSDI),
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS),
-        .enabled(USB_ON & !USB_PWREN & USB_SUS)
+        .enabled(USB_ON & !USB_PWREN & USB_SUS),
+        .readData(readData),
+        .readDataValid(readDataValid)
     );
     task write(bit [0:7] data);
-        inst.write(data);
+        FastSerial.write(data);
     endtask
     task clearWriteQueue();
-        inst.clearWriteQueue();
+        FastSerial.clearWriteQueue();
     endtask
 
     //On Data
-    task onData(bit [0:7] data);
-        // $display ("read %b", data);
-    endtask
+    always @(posedge readDataValid) begin
+        $display ("read %b", readData);
+    end
 endmodule

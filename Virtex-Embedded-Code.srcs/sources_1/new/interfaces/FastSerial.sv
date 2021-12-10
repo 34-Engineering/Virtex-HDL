@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-/* Implementation of FTDI's Fast Serial Interface
+/* FastSerial - Implementation of FTDI's Fast Serial Interface
     Fast Serial Docs: https://ftdichip.com/wp-content/uploads/2020/08/AN_131_FT2232D_H_Fast-Opto-Isolated-Serial-Interface-mode.pdf
     FT2232H Docs: https://www.ftdichip.com/Support/Documents/DataSheets/ICs/DS_FT2232H.pdf
     Fast Serial Notes: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
@@ -11,7 +11,9 @@ module FastSerial(
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
-    input wire enabled
+    input wire enabled,
+    output bit [0:7] readData,
+    output bit readDataValid
     );
 
     //48MHz Clock
@@ -43,7 +45,7 @@ module FastSerial(
     endtask
     
     bit isReading = 0;
-    bit [0:7] readData = 0;
+    // bit [0:7] readData = 0;
     bit [3:0] readPointer = 0;
 
     //Loop
@@ -52,9 +54,8 @@ module FastSerial(
         if (isReading & enabled) begin
             if (readPointer == 8) begin
                 // $display ("done reading");
-                readPointer = 0;
                 isReading = 0;
-                // Top.AppManager.onData(readData);
+                readDataValid = 1;
             end
             else begin
                 // $display ("read %p = %b", readPointer, FSDO);
@@ -69,6 +70,7 @@ module FastSerial(
             // $display ("start reading");
             readPointer = 0;
             isReading = 1;
+            readDataValid = 0;
             FSDI <= 1;
         end
 

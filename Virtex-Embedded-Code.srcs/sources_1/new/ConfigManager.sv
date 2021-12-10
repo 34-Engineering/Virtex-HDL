@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* ConfigManager - SPI Master to the EEPROM
     Reads in config at boot
@@ -6,11 +7,11 @@
     Max 32 configurations */
 module ConfigManager(
     input wire CLK,
-    output wire SPI_CS,
-    output wire SPI_WP,
-    output wire SPI_HOLD,
-    output wire SPI_CLK,
-    output wire SPI_MOSI,
+    output reg SPI_CS,
+    output reg SPI_WP,
+    output reg SPI_HOLD,
+    output reg SPI_CLK,
+    output reg SPI_MOSI,
     input wire SPI_MISO
     );
 
@@ -35,26 +36,42 @@ module ConfigManager(
     };
 
     //Config Wires
-    wire dualObjectMode     = configVars[0]; //OFF, ON_AIN, ON_AOUT
-    wire orientation        = configVars[1]; //0, 90, 180, 270
-    wire boundingWidthMin   = configVars[2];
-    wire boundingWidthMax   = configVars[3];
-    wire boundingHeightMin  = configVars[4];
-    wire boundingHeightMax  = configVars[5];
-    wire fullnessMin        = configVars[6];
-    wire fullnessMax        = configVars[7];
-    wire slopeDiffMin       = configVars[8];
-    wire slopeDiffMax       = configVars[9];
-    wire slopeMin           = configVars[10];
-    wire slopeMax           = configVars[11];
-    wire nearestCoordX      = configVars[12];
-    wire nearestCoordY      = configVars[13];
-    wire threshold          = configVars[14]; //8 bit
-    wire exposure           = configVars[15]; //8 bit
+    wire [1:0] dualObjectMode = DualObjectMode'(configVars[0][1:0]);
+    wire [1:0] orientation = Orientation'(configVars[1][1:0]);
+    wire [15:0] boundingWidthMin  = configVars[2];
+    wire [15:0] boundingWidthMax  = configVars[3];
+    wire [15:0] boundingHeightMin = configVars[4];
+    wire [15:0] boundingHeightMax = configVars[5];
+    wire [15:0] fullnessMin       = configVars[6];
+    wire [15:0] fullnessMax       = configVars[7];
+    wire [15:0] slopeDiffMin      = configVars[8];
+    wire [15:0] slopeDiffMax      = configVars[9];
+    wire [15:0] slopeMin          = configVars[10];
+    wire [15:0] slopeMax          = configVars[11];
+    wire [15:0] nearestCoordX     = configVars[12];
+    wire [15:0] nearestCoordY     = configVars[13];
+    wire [9:0] threshold          = configVars[14][9:0];
+    wire [7:0] exposure           = configVars[15][7:0];
 
-    //EEPROM
-    assign SPI_CS = 1;
+    //Set Config over Fast Serial
+    task setConfig(bit [4:0] addr, bit [15:0] value);
+    endtask
+
+    //Read from EEPROM at boot
+    initial begin
+        SPI_CS <= 1;
+        SPI_WP <= 0;
+        SPI_HOLD <= 0;
+        SPI_CLK <= 0;
+        SPI_MOSI <= 0;
+        //TODO Read Tasks
+    end
 
     //TODO SPI MASTER
+    task onData(bit [15:0] data);
+    
+    endtask
+    task write (bit [15:0] data);
 
+    endtask
 endmodule

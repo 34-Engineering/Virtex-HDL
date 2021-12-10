@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 
 /* FastSerialTest - 
 
@@ -24,7 +25,7 @@ module FastSerialTest(
     bit [3:0] readPointer = 0;
 
     //Loop
-    always @(negedge FSCLK) begin
+    always @(posedge FSCLK) begin
         //reading
         if (isReading) begin
             if (readPointer == 8) begin
