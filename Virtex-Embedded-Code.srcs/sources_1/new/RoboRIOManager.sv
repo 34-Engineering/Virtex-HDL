@@ -15,7 +15,7 @@ module RoboRIOManager(
     parameter ADDR = 'h34;
     wire [7:0] readData;
     wire readDataValid;
-    I2CSlave#(ADDR) (
+    I2CSlave#(ADDR) I2C (
         .SCL(I2C_SCL),
         .SDA(I2C_SDA),
         .readData(readData),

@@ -44,10 +44,10 @@ module ConfigManager(
     wire [15:0] boundingHeightMax = configVars[5];
     wire [15:0] fullnessMin       = configVars[6];
     wire [15:0] fullnessMax       = configVars[7];
-    wire [15:0] slopeDiffMin      = configVars[8];
-    wire [15:0] slopeDiffMax      = configVars[9];
-    wire [15:0] slopeMin          = configVars[10];
-    wire [15:0] slopeMax          = configVars[11];
+    wire [15:0] slopeDiffMin      = configVars[8]; //tanΘ
+    wire [15:0] slopeDiffMax      = configVars[9]; //tanΘ
+    wire [15:0] slopeMin          = configVars[10]; //tanΘ
+    wire [15:0] slopeMax          = configVars[11]; //tanΘ
     wire [15:0] nearestCoordX     = configVars[12];
     wire [15:0] nearestCoordY     = configVars[13];
     wire [9:0] threshold          = configVars[14][9:0];
@@ -68,6 +68,7 @@ module ConfigManager(
     end
 
     //TODO SPI MASTER
+    SPIMaster SPI();
     task onData(bit [15:0] data);
     
     endtask

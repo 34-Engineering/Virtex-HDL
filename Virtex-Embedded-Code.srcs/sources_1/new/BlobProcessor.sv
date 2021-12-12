@@ -121,6 +121,7 @@ module BlobProcessor();
         //before setting the config setting
         //bounded between -1 and 1
         //todo handle different angles (the bottom line changes)
+        //todo division
         return atand((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
     endfunction
 
@@ -135,11 +136,6 @@ module BlobProcessor();
         else if (blobs[blobPointer].valid == 1) begin
             blobPointer++;
             fixBlobIndex();
-        end
-
-        //is ok
-        else begin
-            return;
         end
     endtask
 endmodule
