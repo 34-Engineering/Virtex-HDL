@@ -74,7 +74,7 @@ module FastSerial(
         end
 
         //writing
-        else if (writeQueueWritePointer !== writeQueueReadPointer & enabled) begin
+        else if (writeQueueWritePointer != writeQueueReadPointer & enabled) begin
             //bit 0
             if (writePointer == 0) begin
                 // $display ("wrote 0 = 0");

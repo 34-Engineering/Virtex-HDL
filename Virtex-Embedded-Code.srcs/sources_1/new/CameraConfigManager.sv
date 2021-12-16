@@ -19,4 +19,10 @@ module CameraConfigManager(
 
     //TODO SPI MASTER
     SPIMaster SPI();
+
+    task write();
+        begin
+            
+        end
+    endtask
 endmodule

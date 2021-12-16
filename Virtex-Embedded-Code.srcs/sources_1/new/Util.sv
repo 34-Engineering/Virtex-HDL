@@ -6,7 +6,7 @@
 package Util;
     //Types
     typedef struct {
-        bit [9:0] x1, y1;
+        bit [9:0] x, y;
     } Vector;
 
     typedef struct {

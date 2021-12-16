@@ -1,7 +1,9 @@
 `timescale 1ns / 1ps
 
 /* ISERDES- 1:10 DDR SerDes implementation for the Python 300 Sync + Data channels
-    
+    Docs1: https://www.xilinx.com/support/documentation/ip_documentation/selectio_wiz/v5_1/pg070-selectio-wiz.pdf
+    Docs2: https://www.xilinx.com/support/documentation/user_guides/ug471_7Series_SelectIO.pdf
+    Example: https://www.xilinx.com/support/documentation/application_notes/xapp524-serial-lvds-adc-interface.pdf
     */
 module ISERDES (
     input SERIAL_CLK,
@@ -32,7 +34,9 @@ module ISERDES (
     end
         
 
-    //ISERDES
+    //ISERDES1
+    wire ISERDES1_SHIFTOUT1;
+    wire ISERDES1_SHIFTOUT2;
     ISERDESE2 #(
         .INTERFACE_TYPE("NETWORKING"),
         .SERDES_MODE("MASTER"),
@@ -44,9 +48,49 @@ module ISERDES (
         .DYN_CLK_INV_EN("FALSE"),
         .IOBDELAY("IFD") // NONE, BOTH, IBUF, IFD
     )
-    ISERDES (
+    ISERDES1 (
         .SHIFTIN1(1'b0),
         .SHIFTIN2(1'b0),
+        .OFB(1'b0),
+        .D(SERIAL_DATA),
+        .DDLY(1'b0),
+        .CE1(1'b1),
+        .CE2(1'b1),
+        .RST(!reset),
+        .BITSLIP(1'b0),
+        .CLK(serial_clk),
+        .CLKB(!serial_clk),
+        .CLKDIV(PARALLEL_CLK),
+        .CLKDIVP(1'b0),
+        .DYNCLKDIVSEL(1'b0),
+        .DYNCLKSEL(1'b0),
+        .OCLK(1'b0),
+        .OCLKB(1'b0),
+        .SHIFTOUT1(ISERDES1_SHIFTOUT1),
+        .SHIFTOUT2(ISERDES1_SHIFTOUT2),
+        .O(),
+        .Q1(PARALLEL_DATA[0]),
+        .Q2(PARALLEL_DATA[1]),
+        .Q3(PARALLEL_DATA[2]),
+        .Q4(PARALLEL_DATA[3]),
+        .Q5(PARALLEL_DATA[4])
+    );
+
+    //ISERDES2
+    ISERDESE2 #(
+        .INTERFACE_TYPE("NETWORKING"),
+        .SERDES_MODE("MASTER"),
+        .DATA_WIDTH(10),
+        .DATA_RATE("DDR"),
+        .OFB_USED("FALSE"),
+        .NUM_CE(2),
+        .DYN_CLKDIV_INV_EN("FALSE"), 
+        .DYN_CLK_INV_EN("FALSE"),
+        .IOBDELAY("NONE") // NONE, BOTH, IBUF, IFD
+    )
+    ISERDES2 (
+        .SHIFTIN1(ISERDES1_SHIFTOUT1),
+        .SHIFTIN2(ISERDES1_SHIFTOUT2),
         .OFB(1'b0),
         .D(SERIAL_DATA),
         .DDLY(1'b0),
@@ -65,15 +109,10 @@ module ISERDES (
         .SHIFTOUT1(),
         .SHIFTOUT2(),
         .O(),
-        .Q1(PARALLEL_DATA[0]),
-        .Q2(PARALLEL_DATA[1]),
-        .Q3(PARALLEL_DATA[2]),
-        .Q4(PARALLEL_DATA[3]),
-        .Q5(PARALLEL_DATA[4]),
-        .Q6(PARALLEL_DATA[5]),
-        .Q7(PARALLEL_DATA[6]),
-        .Q8(PARALLEL_DATA[7]),
-        .Q9(PARALLEL_DATA[8]),
-        .Q10(PARALLEL_DATA[9])
+        .Q1(PARALLEL_DATA[5]),
+        .Q2(PARALLEL_DATA[6]),
+        .Q3(PARALLEL_DATA[7]),
+        .Q4(PARALLEL_DATA[8]),
+        .Q5(PARALLEL_DATA[9])
     );
 endmodule

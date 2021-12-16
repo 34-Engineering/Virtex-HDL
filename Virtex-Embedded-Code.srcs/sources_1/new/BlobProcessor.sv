@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "Util.sv"
 import Util::*;
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
@@ -98,19 +99,21 @@ module BlobProcessor();
     endtask
 
     task reset();
-        //invalidate all blobs
-        foreach (blobs[i]) begin
-            blobs[i].valid = 0;
-        end
+        begin
+            foreach (blobs[i]) begin
+                blobs[i].valid = 0;
+            end
 
-        //reset counter
-        blobPointer = 0;
+            blobPointer = 0;
+        end
     endtask
 
     function Blob chooseBlob();
-        foreach (blobs[i]) begin
-            if (blobs[i].valid) begin
-                return blobs[i]; //TODO
+        begin
+            foreach (blobs[i]) begin
+                if (blobs[i].valid) begin
+                    return blobs[i]; //TODO
+                end
             end
         end
     endfunction

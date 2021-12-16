@@ -24,6 +24,6 @@ module RoboRIOManager(
 
     //On Data
     always @(posedge readDataValid) begin
-        $display ("read %b", data);
+        $display ("read %b", readData);
     end
 endmodule

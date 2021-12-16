@@ -54,41 +54,41 @@ module CameraManager(
     ISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_RESET(1'b1),
         .PARALLEL_CLK(parallel_clk),
-        .PARALLEL_DATA(SYNC)
+        .PARALLEL_DATA(SYNC),
+        .RESET(1'b1)
     );
     ISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_RESET(1'b1),
         .PARALLEL_CLK(parallel_clk),
-        .PARALLEL_DATA(DOUT[0])
+        .PARALLEL_DATA(DOUT[0]),
+        .RESET(1'b1)
     );
     ISERDES DOUT_1_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_RESET(1'b1),
         .PARALLEL_CLK(parallel_clk),
-        .PARALLEL_DATA(DOUT[1])
+        .PARALLEL_DATA(DOUT[1]),
+        .RESET(1'b1)
     );
     ISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_RESET(1'b1),
         .PARALLEL_CLK(parallel_clk),
-        .PARALLEL_DATA(DOUT[2])
+        .PARALLEL_DATA(DOUT[2]),
+        .RESET(1'b1)
     );
     ISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_RESET(1'b1),
         .PARALLEL_CLK(parallel_clk),
-        .PARALLEL_DATA(DOUT[3])
+        .PARALLEL_DATA(DOUT[3]),
+        .RESET(1'b1)
     );
 
     //Blob Processor
-    BlobProcessor BlobProcessor();
+    BlobProcessor blobProcessor();
 
     //Camera Config Manager
     CameraConfigManager CameraConfigManager(
@@ -104,11 +104,30 @@ module CameraManager(
 
     //Init
     initial begin
-        // CameraConfigManager.write(...)
+        CameraConfigManager.write();
+        // blobProcessor.reset();
     end
 
     //Loop
+    reg [9:0] x = 0;
+    reg [9:0] y = 0;
+    reg [9:0] test = 0;
+    assign SPI_MOSI = test[5];
     always @(posedge parallel_clk) begin
-        
+        foreach (DOUT[i]) begin
+            if (DOUT[i] > 500) begin
+                blobProcessor.processPixel({ x, y });
+            end
+        end
+
+        if (x + 4 > 640) begin
+            y = y + 1;
+            x = 0;
+        end
+        else begin
+            x = x + 4;
+        end
+
+        test <= blobProcessor.chooseBlob();
     end
 endmodule
