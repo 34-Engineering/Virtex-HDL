@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* RoboRIOManager - I2C Slave to the RoboRIO
     Sets config on request
@@ -6,10 +7,11 @@
 module RoboRIOManager(
     input wire CLK,
     input wire I2C_SCL,
-    inout wire I2C_SDA
+    inout wire I2C_SDA,
+    inout Configuration configuration,
+    output bit saveConfig,
+    inout reg hasCommunication
     );
-
-    bit hasComms = 0;
 
     //I2C
     parameter ADDR = 'h34;

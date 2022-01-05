@@ -6,22 +6,19 @@
     Fast Serial Notes: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
     */
 module FastSerial(
-    input wire CLK,
+    input wire CLK48,
     output bit FSDI, //FPGA->PC
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
+    input bit [7:0] writeData,
+    input bit writeDataValid,
     output bit [0:7] readData,
-    output bit readDataValid
+    output bit readDataValid,
+    input bit reset //active low
     );
 
-    //48MHz Clock
-    wire CLK48;
-    clk_wiz_1 clk_wiz_1(
-        .clk_in1(CLK),
-        .clk_out1(CLK48)
-    );
     assign FSCLK = CLK48;
 
     parameter writeQueueSize = 320 - 1;
@@ -29,21 +26,6 @@ module FastSerial(
     bit [9:0] writeQueueReadPointer = 0;
     bit [9:0] writeQueueWritePointer = 0;
     bit [3:0] writePointer = 0;
-    
-    task write(bit [0:7] data);
-        writeQueue[writeQueueWritePointer] = data;
-        if (writeQueueWritePointer >= writeQueueSize) begin
-            writeQueueWritePointer = 0;
-        end
-        else begin
-            writeQueueWritePointer = writeQueueWritePointer + 1;
-        end
-    endtask
-    task clearWriteQueue();
-        writeQueueReadPointer = 0;
-        writeQueueWritePointer = 0;
-    endtask
-    
     bit isReading = 0;
     bit [3:0] readPointer = 0;
 
@@ -110,5 +92,27 @@ module FastSerial(
         else begin
             FSDI <= 1;
         end
+    end
+
+    //Add to Write Queue
+    always @(posedge writeDataValid) begin
+        writeQueue[writeQueueWritePointer] = writeData;
+        if (writeQueueWritePointer >= writeQueueSize) begin
+            writeQueueWritePointer = 0;
+        end
+        else begin
+            writeQueueWritePointer = writeQueueWritePointer + 1;
+        end
+    end
+
+    //Reset (active low)
+    always @(negedge reset) begin
+        writeQueueReadPointer = 0;
+        writeQueueWritePointer = 0;
+        writePointer = 0;
+        isReading = 0;
+        readPointer = 0;
+        readDataValid = 0;
+        FSDI = 1;
     end
 endmodule

@@ -8,9 +8,9 @@
 module ISERDES (
     input SERIAL_CLK,
     input SERIAL_DATA,
-    input PARALLEL_CLK,
-    output [9:0] PARALLEL_DATA,
-    input RESET //active low
+    input RESET, //active low
+    input parallelClk,
+    output [9:0] parallelData
     );
 
     //IDELAYE2?
@@ -26,13 +26,12 @@ module ISERDES (
     //Reset Generator
     reg [3:0] reset_sr = 4'hF;
     wire reset = reset_sr[0];
-    always @(posedge PARALLEL_CLK) begin
+    always @(posedge parallelClk) begin
         if (RESET)
             reset_sr <= 4'hF;
         else
             reset_sr <= reset_sr >> 1;
     end
-        
 
     //ISERDES1
     wire ISERDES1_SHIFTOUT1;
@@ -60,7 +59,7 @@ module ISERDES (
         .BITSLIP(1'b0),
         .CLK(serial_clk),
         .CLKB(!serial_clk),
-        .CLKDIV(PARALLEL_CLK),
+        .CLKDIV(parallelClk),
         .CLKDIVP(1'b0),
         .DYNCLKDIVSEL(1'b0),
         .DYNCLKSEL(1'b0),
@@ -69,11 +68,11 @@ module ISERDES (
         .SHIFTOUT1(ISERDES1_SHIFTOUT1),
         .SHIFTOUT2(ISERDES1_SHIFTOUT2),
         .O(),
-        .Q1(PARALLEL_DATA[0]),
-        .Q2(PARALLEL_DATA[1]),
-        .Q3(PARALLEL_DATA[2]),
-        .Q4(PARALLEL_DATA[3]),
-        .Q5(PARALLEL_DATA[4])
+        .Q1(parallelData[0]),
+        .Q2(parallelData[1]),
+        .Q3(parallelData[2]),
+        .Q4(parallelData[3]),
+        .Q5(parallelData[4])
     );
 
     //ISERDES2
@@ -100,7 +99,7 @@ module ISERDES (
         .BITSLIP(1'b0),
         .CLK(serial_clk),
         .CLKB(!serial_clk),
-        .CLKDIV(PARALLEL_CLK),
+        .CLKDIV(parallelClk),
         .CLKDIVP(1'b0),
         .DYNCLKDIVSEL(1'b0),
         .DYNCLKSEL(1'b0),
@@ -109,10 +108,10 @@ module ISERDES (
         .SHIFTOUT1(),
         .SHIFTOUT2(),
         .O(),
-        .Q1(PARALLEL_DATA[5]),
-        .Q2(PARALLEL_DATA[6]),
-        .Q3(PARALLEL_DATA[7]),
-        .Q4(PARALLEL_DATA[8]),
-        .Q5(PARALLEL_DATA[9])
+        .Q1(parallelData[5]),
+        .Q2(parallelData[6]),
+        .Q3(parallelData[7]),
+        .Q4(parallelData[8]),
+        .Q5(parallelData[9])
     );
 endmodule

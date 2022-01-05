@@ -14,7 +14,7 @@ module LEDManager(
     input wire PWR_12V_EN,
     input wire enabled,
     input wire targetBlobValid,
-    input wire hasComms
+    input wire hasCommunication
     );
 
     //LED_USER: blink at 1hz
@@ -41,9 +41,9 @@ module LEDManager(
     assign LED_TAR[2] = targetBlobValid; 
 
     //COM: green when has coms
-    assign LED_COM[1] = hasComms;
+    assign LED_COM[1] = hasCommunication;
 
-    //EN: flashes orange rgb(255, 165, 0) when enabled
+    //EN: flashes orange rgb(255, 165, 0) at ?hz when enabled
     bit [26:0] enabledToggleCounter;
     bit [7:0] enabledGreenCounter;
     wire enabledToggle = enabled && enabledToggleCounter > 50000000;

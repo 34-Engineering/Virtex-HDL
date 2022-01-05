@@ -14,15 +14,16 @@ module CameraConfigManager(
     output wire RESET //active low
     );
 
-    assign RESET = 1;
+    reg test = 0;
+    assign RESET = test;
     assign SPI_CS = 1;
 
     //TODO SPI MASTER
-    SPIMaster SPI();
+    SPIMaster SPI(test);
 
     task write();
         begin
-            
+            test <= ~test;
         end
     endtask
 endmodule

@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
@@ -21,7 +22,8 @@ module CameraManager(
     output wire SPI_CLK,
     output wire TRIGGER,
     input wire MONITOR,
-    output wire RESET
+    output wire RESET,
+    output OutputFrame outputFrame
     );
 
     //LVDS Input Buffers
@@ -42,10 +44,10 @@ module CameraManager(
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
     //36MHz Parallel Clock (360MHz / 10)
-    wire parallel_clk;
+    wire CLK36;
     clk_wiz_2 clk_wiz_2(
         .clk_in1(CLK),
-        .clk_out1(parallel_clk)
+        .clk_out1(CLK36)
     );
 
     //ISERDES
@@ -54,41 +56,53 @@ module CameraManager(
     ISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_CLK(parallel_clk),
+        .CLK36(CLK36),
         .PARALLEL_DATA(SYNC),
         .RESET(1'b1)
     );
     ISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_CLK(parallel_clk),
+        .CLK36(CLK36),
         .PARALLEL_DATA(DOUT[0]),
         .RESET(1'b1)
     );
     ISERDES DOUT_1_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_CLK(parallel_clk),
+        .CLK36(CLK36),
         .PARALLEL_DATA(DOUT[1]),
         .RESET(1'b1)
     );
     ISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_CLK(parallel_clk),
+        .CLK36(CLK36),
         .PARALLEL_DATA(DOUT[2]),
         .RESET(1'b1)
     );
     ISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .PARALLEL_CLK(parallel_clk),
+        .CLK36(CLK36),
         .PARALLEL_DATA(DOUT[3]),
         .RESET(1'b1)
     );
 
     //Blob Processor
-    BlobProcessor blobProcessor();
+    bit kernelValid;
+    Vector kernelPos;
+    bit [3:0] kernel;
+    bit endFrame;
+    Blob outputBlob;
+    BlobProcessor blobProcessor(
+        .CLK36(CLK36),
+        .kernelValid(kernelValid),
+        .kernelPos(kernelPos),
+        .kernel(kernel),
+        .endFrame(endFrame),
+        .outputBlob(outputBlob)
+    );
 
     //Camera Config Manager
     CameraConfigManager CameraConfigManager(
@@ -102,32 +116,30 @@ module CameraManager(
         .RESET(RESET)
     );
 
-    //Init
-    initial begin
-        CameraConfigManager.write();
-        // blobProcessor.reset();
-    end
-
     //Loop
-    reg [9:0] x = 0;
-    reg [9:0] y = 0;
-    reg [9:0] test = 0;
-    assign SPI_MOSI = test[5];
-    always @(posedge parallel_clk) begin
+    bit [9:0] x = 0;
+    bit [9:0] y = 0;
+    always @(posedge CLK36) begin
         foreach (DOUT[i]) begin
-            if (DOUT[i] > 500) begin
-                blobProcessor.processPixel({ x, y });
-            end
+            kernel[i] = DOUT[i] > 500;
         end
 
         if (x + 4 > 640) begin
-            y = y + 1;
-            x = 0;
+            if (y > 479) begin
+                //end frame
+                y = 0;
+                x = 0;
+                endFrame = 0;
+            end
+            else begin
+                //end line
+                y = y + 1;
+                x = 0;
+            end
         end
         else begin
+            //next kernel
             x = x + 4;
         end
-
-        test <= blobProcessor.chooseBlob();
     end
 endmodule

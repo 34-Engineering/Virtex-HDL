@@ -1,16 +1,49 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
 import Util::*;
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
    Virtex Algorithm: https://docs.google.com/document/d/1bz1e-nRzw2SLFKddVVZY3nFoIvRZqutlnkVuUk7gstA/edit
    */
-module BlobProcessor();
+module BlobProcessor(
+    input wire CLK36,
+    input wire kernelValid,
+    input Vector kernalPos, //the leftmost coordinate of the pixel
+    input wire [3:0] kernel, //theshold of each pixel in the kernel
+    input wire endFrame, //chooses blob and resets
+    output Blob outputBlob
+    );
+    
     parameter blobsSize = 100 - 1;
     Blob blobs[0:blobsSize];
     bit [7:0] blobPointer = 0;
-
     bit [7:0] joined = 255; //the index of of the blob is last joined
+
+    //Loop
+    always @(negedge CLK36) begin
+        //End Frame
+        if (endFrame) begin
+            foreach (blobs[i]) begin
+                if (blobs[i].valid) begin
+                    //todo proper selection
+                    outputBlob <= blobs[i];
+                end
+                blobs[i].valid = 0;
+            end
+
+            blobPointer = 0;
+        end
+
+        //Process Pixel
+        if (kernelValid) begin
+            foreach (kernel[i]) begin
+                if (kernel[i]) begin
+                    processPixel('{ x: kernelPos.x + i, y: kernelPos.y });
+                end
+            end
+        end
+    end
+
+    //Process Pixel
     task processPixel(input Vector pos);
         //try to join pixel into an existing blob
         foreach (blobs[i]) begin
@@ -98,36 +131,7 @@ module BlobProcessor();
         end
     endtask
 
-    task reset();
-        begin
-            foreach (blobs[i]) begin
-                blobs[i].valid = 0;
-            end
-
-            blobPointer = 0;
-        end
-    endtask
-
-    function Blob chooseBlob();
-        begin
-            foreach (blobs[i]) begin
-                if (blobs[i].valid) begin
-                    return blobs[i]; //TODO
-                end
-            end
-        end
-    endfunction
-
-    function real calculateSlope(Blob blob);
-        //calculates slope of bottom line of the quad
-        //instead of calculating the angle on the fpga with atand we do it on the roborio
-        //before setting the config setting
-        //bounded between -1 and 1
-        //todo handle different angles (the bottom line changes)
-        //todo division
-        return atand((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
-    endfunction
-
+    //Fix Blob Index
     task fixBlobIndex();
         //out of bounds
         if (blobPointer > blobsSize) begin
@@ -141,4 +145,15 @@ module BlobProcessor();
             fixBlobIndex();
         end
     endtask
+
+    //Calculate Slope
+    function real calculateSlope(Blob blob);
+        //calculates slope of bottom line of the quad
+        //instead of calculating the angle on the fpga with atand we do it on the roborio
+        //before setting the config setting
+        //bounded between -1 and 1
+        //todo handle different angles (the bottom line changes)
+        //todo division
+        return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
+    endfunction
 endmodule
