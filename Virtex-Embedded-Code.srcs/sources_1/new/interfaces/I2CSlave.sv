@@ -3,27 +3,63 @@
 /* I2CSlave - 
 
     */
-module I2CSlave #(parameter ADDR = 'h34) (
+module I2CSlave #(parameter ADDRESS = 'h34) (
     input wire SCL,
-    inout reg SDA,
-    input bit [7:0] writeData,
-    input bit writeDataValid,
-    output bit [7:0] readData,
+    inout wire SDA,
+    input wire enabled,
+    input bit [7:0] responseData, //data byte to respond to the master with when they request a read
+    input bit responseDataValid,
+    output bit requestResponse, //the master requested a read
+    output bit [7:0] readData, //data byte the master wrote to us
     output bit readDataValid,
     input bit reset //active low
     );
 
-    parameter writeQueueSize = 10 - 1;
-    bit [0:7] writeQueue[0:writeQueueSize];
-    bit [9:0] writeQueueReadPointer = 0;
-    bit [9:0] writeQueueWritePointer = 0;
-    bit [3:0] writePointer = 0;
-    bit isReading = 0;
-    bit [3:0] readPointer = 0;
+    bit [4:0] transactionPointer = 0;
+    bit inTransaction = 0;
+    bit [6:0] readAddress = 0;
 
     //Loop
-    always @(posedge SCL) begin
-        
+    always @(negedge SCL) begin
+        //in transaction: reading address
+        if (inTransaction & transactionPointer < 7 & enabled) begin
+            readAddress[transactionPointer] = SDA;
+        end
+
+        //in transaction
+        else if (inTransaction & readAddress == ADDRESS & enabled) begin
+            //R/W bit
+            if (transactionPointer < 8) begin
+                
+            end
+
+            //ack bit
+            if (transactionPointer < 9) begin
+                
+            end
+
+            //data byte
+            if (transactionPointer < 17) begin
+                
+            end
+
+            //ack bit
+            if (transactionPointer < 18) begin
+                
+            end
+        end
+
+        //start transaction
+        else if (!SDA & enabled) begin
+            inTransaction = 1;
+            transactionPointer = 0;
+            readDataValid = 0;
+        end
+
+        //idle
+        else begin
+            
+        end
     end
 
     /*
@@ -43,24 +79,10 @@ module I2CSlave #(parameter ADDR = 'h34) (
     
     */
 
-    //Add to Write Queue
-    always @(posedge writeDataValid) begin
-        writeQueue[writeQueueWritePointer] = writeData;
-        if (writeQueueWritePointer >= writeQueueSize) begin
-            writeQueueWritePointer = 0;
-        end
-        else begin
-            writeQueueWritePointer = writeQueueWritePointer + 1;
-        end
-    end
-
     //Reset (active low)
     always @(negedge reset) begin
-        writeQueueReadPointer = 0;
-        writeQueueWritePointer = 0;
-        writePointer = 0;
-        isReading = 0;
-        readPointer = 0;
+        transactionPointer = 0;
+        inTransaction = 0;
         readDataValid = 0;
     end
 endmodule

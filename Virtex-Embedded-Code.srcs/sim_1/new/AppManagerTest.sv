@@ -1,9 +1,17 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* AppManagerTest - 
 
     */
-module AppManagerTest(input wire CLK);
+module AppManagerTest(
+    input wire CLK,
+    input VirtexConfig virtexConfig,
+    input VirtexConfig virtexConfigOut,
+    output bit saveVirtexConfig,
+    input OutputFrame outputFrame
+    );
+
     wire USB_ON = 1;
     wire USB_PWREN = 0;
     wire USB_SUS = 1;
@@ -20,7 +28,10 @@ module AppManagerTest(input wire CLK);
         .FSCTS(FSCTS),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
-        .USB_SUS(USB_SUS)
+        .USB_SUS(USB_SUS),
+        .configuration(configuration),
+        .saveConfig(saveConfig),
+        .outputFrame(outputFrame)
     );
 
     //Fast Serial
@@ -31,16 +42,10 @@ module AppManagerTest(input wire CLK);
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS),
-        .enabled(1),
+        .enabled(1'b1),
         .readData(readData),
         .readDataValid(readDataValid)
     );
-    task write(bit [0:7] data);
-        FastSerialTest.write(data);
-    endtask
-    task clearWriteQueue();
-        FastSerialTest.clearWriteQueue();
-    endtask
 
     //On Data
     always @(posedge readDataValid) begin
@@ -49,20 +54,6 @@ module AppManagerTest(input wire CLK);
 
     //Test
     initial begin
-        write(8'b11111111);
-        write(8'b00000000);
-        write(8'b11110000);
-        write(8'b00001111);
-        write(8'b10101010);
-        write(8'b01010101);
-
-        #1000 begin
-            AppManager.write(8'b11111111);
-            AppManager.write(8'b00000000);
-            AppManager.write(8'b11110000);
-            AppManager.write(8'b00001111);
-            AppManager.write(8'b10101010);
-            AppManager.write(8'b01010101);
-        end
+        FastSerialTest.write(8'b00100000);
     end
 endmodule

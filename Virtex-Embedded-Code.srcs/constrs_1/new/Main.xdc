@@ -63,7 +63,7 @@ set_property PACKAGE_PIN N8 [get_ports {TDO}]
 set_property PACKAGE_PIN N7 [get_ports {TDI}]
 set_property IOSTANDARD LVCMOS33 [get_ports {T*}]
 
-# LEDs (0 = R, 1 = G, 2 = B)
+# LEDs (R = 0, G = 1, B = 2)
 set_property PACKAGE_PIN A10 [get_ports {LED_TAR[0]}]
 set_property PACKAGE_PIN B10 [get_ports {LED_TAR[0]}]
 set_property PACKAGE_PIN B11 [get_ports {LED_TAR[1]}]

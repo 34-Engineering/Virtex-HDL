@@ -15,14 +15,15 @@ module AppManager(
     input wire USB_ON,
     input wire USB_PWREN, //usb power enabled, active low
     input wire USB_SUS, //usb in suspend mode, active low
-    inout Configuration configuration,
-    output bit saveConfig,
+    input VirtexConfig#wire virtexConfig,
+    output bit [20:0] writeConfig,
+    output bit writeConfigValid,
     input OutputFrame outputFrame
     );
 
-    parameter GET_FRAME_CODE = 'b000;
-    parameter GET_CONFIG_CODE = 'b001;
-    parameter SET_CONFIG_CODE = 'b100;
+    parameter GET_FRAME_CODE = 3'b000;
+    parameter GET_CONFIG_CODE = 3'b001;
+    parameter SET_CONFIG_CODE = 3'b100;
     enum {NONE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = NONE;
     bit stateStep = 0; //which byte num we are on in the state
 
@@ -49,7 +50,10 @@ module AppManager(
 
     //On Data
     always @(posedge readDataValid) begin
-        // $display ("read %b", readData);
+        
+
+
+        $display ("read %b %b", readData, readData[2:0]);
         //TODO
     end
 endmodule

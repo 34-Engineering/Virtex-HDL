@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* TopTest - 
 
@@ -8,9 +9,22 @@ module TopTest;
     //100MHz clock
     bit CLK = 0;
     always #5 CLK <= !CLK;
-  
-    // AppManagerTest AppManagerTest(CLK);
-    RoboRIOManagerTest RoboRIOManagerTest(CLK);
+
+    bit enabled = 0;
+    bit targetBlobValid = 0;
+    Blob targetBlob;
+    bit hasCommunication = 0;
+    VirtexConfig virtexConfig = DefaultVirtexConfig;
+    bit saveConfig = 0;
+    OutputFrame outputFrame;
+
+    AppManagerTest AppManagerTest(
+        .CLK(CLK),
+        .configuration(configuration),
+        .saveConfig(saveConfig),
+        .outputFrame(outputFrame)
+    );
+    // RoboRIOManagerTest RoboRIOManagerTest(CLK);
     // ConfigManagerTest ConfigManagerTest(CLK);
     // FlashManagerTest FlashManagerTest(CLK);
     // LEDManagerTest LEDManagerTest(CLK);

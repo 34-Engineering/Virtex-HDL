@@ -23,6 +23,7 @@ module CameraManager(
     output wire TRIGGER,
     input wire MONITOR,
     output wire RESET,
+    input VirtexConfig virtexConfig,
     output OutputFrame outputFrame
     );
 

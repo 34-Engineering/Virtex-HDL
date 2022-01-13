@@ -3,8 +3,8 @@
 -- Tool Version: Vivado v.2021.1 (win64) Build 3247384 Thu Jun 10 19:36:33 MDT 2021
 -- Date        : Mon Dec  6 19:23:15 2021
 -- Host        : RISC-IV running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub
---               c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub -rename_top clk_wiz_1 -prefix
+--               clk_wiz_1_ clk_wiz_1_stub.vhdl
 -- Design      : clk_wiz_1
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a35tftg256-1

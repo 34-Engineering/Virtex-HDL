@@ -71,7 +71,6 @@ module Top(
     bit targetBlobValid = 0;
     Blob targetBlob;
     bit hasCommunication = 0;
-    Configuration configuration = Util.DefaultConfiguration;
     bit saveConfig = 0;
     OutputFrame outputFrame;
 
@@ -85,42 +84,42 @@ module Top(
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS),
-        .configuration(configuration),
+        .config(configuration),
         .saveConfig(saveConfig),
         .outputFrame(outputFrame)
     );
 
-    RoboRIOManager RoboRIOManager(
-        .CLK(CLK),
-        .I2C_SCL(RIO_SCL),
-        .I2C_SDA(RIO_SDA),
-        .configuration(configuration),
-        .saveConfig(saveConfig),
-        .hasCommunication(hasCommunication)
-    );
+    // RoboRIOManager RoboRIOManager(
+    //     .CLK(CLK),
+    //     .I2C_SCL(RIO_SCL),
+    //     .I2C_SDA(RIO_SDA),
+    //     .configuration(configuration),
+    //     .saveConfig(saveConfig),
+    //     .hasCommunication(hasCommunication)
+    // );
 
-    ConfigManager ConfigManager(
-        .CLK(CLK),
-        .SPI_CS(CONF_CS),
-        .SPI_WP(CONF_WP),
-        .SPI_HOLD(CONF_HOLD),
-        .SPI_CLK(CONF_CLK),
-        .SPI_MOSI(CONF_MOSI),
-        .SPI_MISO(CONF_MISO),
-        .configuration(configuration),
-        .save(saveConfig)
-    );
+    // ConfigManager ConfigManager(
+    //     .CLK(CLK),
+    //     .SPI_CS(CONF_CS),
+    //     .SPI_WP(CONF_WP),
+    //     .SPI_HOLD(CONF_HOLD),
+    //     .SPI_CLK(CONF_CLK),
+    //     .SPI_MOSI(CONF_MOSI),
+    //     .SPI_MISO(CONF_MISO),
+    //     .configuration(configuration),
+    //     .save(saveConfig)
+    // );
 
-    FlashManager FlashManager(
-        .CLK(CLK),
-        .SPI_CLK(FLASH_CLK),
-        .SPI_CS(FLASH_CS),
-        .SPI_Q(FLASH_SIO),
-        .TMS(TMS),
-        .TCK(TCK),
-        .TDO(TDO),
-        .TDI(TDI)
-    );
+    // FlashManager FlashManager(
+    //     .CLK(CLK),
+    //     .SPI_CLK(FLASH_CLK),
+    //     .SPI_CS(FLASH_CS),
+    //     .SPI_Q(FLASH_SIO),
+    //     .TMS(TMS),
+    //     .TCK(TCK),
+    //     .TDO(TDO),
+    //     .TDI(TDI)
+    // );
 
     LEDManager LEDManager(
         .CLK(CLK),
@@ -138,21 +137,21 @@ module Top(
         .hasCommunication(hasCommunication)
     );
 
-    CameraManager CameraManager(
-        .CLK(CLK),
-        .LVDS_CLK_P(CAM_CLK_P),
-        .LVDS_CLK_N(CAM_CLK_N),
-        .LVDS_SYNC_P(CAM_SYNC_P),
-        .LVDS_SYNC_N(CAM_SYNC_N),
-        .LVDS_DOUT_P(CAM_DOUT_P),
-        .LVDS_DOUT_N(CAM_DOUT_N),
-        .SPI_CS(CAM_SPI_CS),
-        .SPI_MOSI(CAM_SPI_MOSI),
-        .SPI_MISO(CAM_SPI_MISO),
-        .SPI_CLK(CAM_SPI_CLK),
-        .TRIGGER(CAM_TRIG),
-        .MONITOR(CAM_MON),
-        .RESET(CAM_RESET),
-        .outputFrame(outputFrame)
-    );
+    // CameraManager CameraManager(
+    //     .CLK(CLK),
+    //     .LVDS_CLK_P(CAM_CLK_P),
+    //     .LVDS_CLK_N(CAM_CLK_N),
+    //     .LVDS_SYNC_P(CAM_SYNC_P),
+    //     .LVDS_SYNC_N(CAM_SYNC_N),
+    //     .LVDS_DOUT_P(CAM_DOUT_P),
+    //     .LVDS_DOUT_N(CAM_DOUT_N),
+    //     .SPI_CS(CAM_SPI_CS),
+    //     .SPI_MOSI(CAM_SPI_MOSI),
+    //     .SPI_MISO(CAM_SPI_MISO),
+    //     .SPI_CLK(CAM_SPI_CLK),
+    //     .TRIGGER(CAM_TRIG),
+    //     .MONITOR(CAM_MON),
+    //     .RESET(CAM_RESET),
+    //     .outputFrame(outputFrame)
+    // );
 endmodule

@@ -16,7 +16,10 @@ module RoboRIOManagerTest(input wire CLK);
         .readDataValid(readDataValid)
     );
 
-    //On Data
+    initial begin
+        write(8'b11111111);
+    end
+
     always @(posedge readDataValid) begin
         $display ("test read %b", readData);
     end

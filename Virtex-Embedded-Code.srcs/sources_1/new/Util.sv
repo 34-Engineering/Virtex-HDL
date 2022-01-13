@@ -40,7 +40,7 @@ package Util;
         reg [15:0] centerY;
         reg [9:0] threshold;
         reg [7:0] exposure;
-    } Configuration;
+    } VirtexConfig;
 
     typedef bit [639:0] [479:0] OutputFrame;
 
@@ -54,7 +54,7 @@ package Util;
     endfunction
 
     //Other
-    parameter Configuration DefaultConfiguration = '{
+    parameter VirtexConfig DefaultVirtexConfig = '{
         dualObjectMode: DualObjectMode'(0),
         orientation: Orientation'(0),
         boundingWidthMin: 0,

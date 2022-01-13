@@ -8,7 +8,7 @@ module LEDManager(
     output wire [2:0] LED_EN,
     output wire [2:0] LED_TAR,
     output wire [2:0] LED_COM,
-    output bit LED_USER,
+    output wire LED_USER,
     input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON,
     input wire PWR_12V_EN,
@@ -17,17 +17,11 @@ module LEDManager(
     input wire hasCommunication
     );
 
-    //LED_USER: blink at 1hz
-    bit [31:0] counter = 0;
-    initial begin
-        LED_USER <= 0;
-    end
+    //LED_USER: blink at 1.5hz
+    bit [25:0] counter = 0;
+    assign LED_USER = counter > 25'b1111111111111111111111111;
     always @ (posedge CLK) begin
         counter <= counter + 1;
-        if (counter > 50000000) begin
-            LED_USER <= !LED_USER;
-            counter <= 0;
-        end
     end
 
     //LED_IR: on when enabled, no fault, and 12V power
@@ -43,10 +37,10 @@ module LEDManager(
     //COM: green when has coms
     assign LED_COM[1] = hasCommunication;
 
-    //EN: flashes orange rgb(255, 165, 0) at ?hz when enabled
-    bit [26:0] enabledToggleCounter;
+    //EN: flashes orange rgb(255, 165, 0) at 1.5hz when enabled
+    bit [25:0] enabledToggleCounter;
     bit [7:0] enabledGreenCounter;
-    wire enabledToggle = enabled && enabledToggleCounter > 50000000;
+    wire enabledToggle = enabled && enabledToggleCounter > 25'b1111111111111111111111111;
     assign LED_EN[2] = enabledToggle;
     assign LED_EN[1] = enabledToggle && enabledGreenCounter > 165;
     always @(posedge CLK) begin

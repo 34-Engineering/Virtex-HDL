@@ -13,9 +13,11 @@ module ConfigManager(
     output reg SPI_CLK,
     output reg SPI_MOSI,
     input wire SPI_MISO,
-    inout Configuration configuration,
+    output VirtexConfig virtexConfig,
     input wire save
     );
+
+    VirtexConfig virtexConfig = DefaultVirtexConfig;
 
     //Read from EEPROM at boot
     initial begin

@@ -19,7 +19,7 @@ module CameraConfigManager(
     assign SPI_CS = 1;
 
     //TODO SPI MASTER
-    SPIMaster SPI(test);
+    // SPIMaster SPI(test);
 
     task write();
         begin
