@@ -8,7 +8,7 @@ module AppManagerTest(
     input wire CLK,
     input VirtexConfig virtexConfig,
     input VirtexConfig virtexConfigOut,
-    output bit saveVirtexConfig,
+    output reg saveVirtexConfig,
     input OutputFrame outputFrame
     );
 
@@ -17,8 +17,8 @@ module AppManagerTest(
     wire USB_SUS = 1;
     wire FSDI;
     wire FSCLK;
-    bit FSDO = 1; //active low
-    bit FSCTS = 1; //active low
+    reg FSDO = 1; //active low
+    reg FSCTS = 1; //active low
 
     AppManager AppManager(
         .CLK(CLK),

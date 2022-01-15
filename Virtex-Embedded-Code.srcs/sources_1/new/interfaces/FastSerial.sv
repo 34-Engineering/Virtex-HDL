@@ -7,27 +7,27 @@
     */
 module FastSerial(
     input wire CLK48,
-    output bit FSDI, //FPGA->PC
+    output reg FSDI, //FPGA->PC
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
-    input bit [7:0] writeData,
-    input bit writeDataValid,
-    output bit [0:7] readData,
-    output bit readDataValid,
-    input bit reset //active low
+    input reg [7:0] writeData,
+    input reg writeDataValid,
+    output reg [0:7] readData,
+    output reg readDataValid,
+    input reg reset //active low
     );
 
     assign FSCLK = CLK48;
 
     parameter writeQueueSize = 320 - 1;
-    bit [0:7] writeQueue[0:writeQueueSize];
-    bit [9:0] writeQueueReadPointer = 0;
-    bit [9:0] writeQueueWritePointer = 0;
-    bit [3:0] writePointer = 0;
-    bit isReading = 0;
-    bit [3:0] readPointer = 0;
+    reg [0:7] writeQueue[0:writeQueueSize];
+    reg [9:0] writeQueueReadPointer = 0;
+    reg [9:0] writeQueueWritePointer = 0;
+    reg [3:0] writePointer = 0;
+    reg isReading = 0;
+    reg [3:0] readPointer = 0;
 
     //Loop
     always @(negedge FSCLK) begin
@@ -57,14 +57,14 @@ module FastSerial(
 
         //writing
         else if (writeQueueWritePointer != writeQueueReadPointer & enabled) begin
-            //bit 0
+            //reg 0
             if (writePointer == 0) begin
                 // $display ("wrote 0 = 0");
                 FSDI = 0;
                 writePointer = 1;
             end
 
-            //bit 9
+            //reg 9
             else if (writePointer == 9 & !FSCTS) begin
                 // $display ("wrote 9 = 1");
                 FSDI = 1;
@@ -78,7 +78,7 @@ module FastSerial(
                 writePointer = 0;
             end
 
-            //bit 1-8
+            //reg 1-8
             else if (!FSCTS) begin
                 // $display ("wrote %p = %b", writePointer, writeQueue[writeQueueReadPointer][writePointer - 1]);
                 FSDI = writeQueue[writeQueueReadPointer][writePointer - 1];

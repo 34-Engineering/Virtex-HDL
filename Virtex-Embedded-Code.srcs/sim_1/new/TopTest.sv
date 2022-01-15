@@ -7,15 +7,15 @@ import Util::*;
 module TopTest;
 
     //100MHz clock
-    bit CLK = 0;
+    reg CLK = 0;
     always #5 CLK <= !CLK;
 
-    bit enabled = 0;
-    bit targetBlobValid = 0;
+    reg enabled = 0;
+    reg targetBlobValid = 0;
     Blob targetBlob;
-    bit hasCommunication = 0;
+    reg hasCommunication = 0;
     VirtexConfig virtexConfig = DefaultVirtexConfig;
-    bit saveConfig = 0;
+    reg saveConfig = 0;
     OutputFrame outputFrame;
 
     AppManagerTest AppManagerTest(

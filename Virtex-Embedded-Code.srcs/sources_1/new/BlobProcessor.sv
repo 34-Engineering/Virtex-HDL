@@ -7,7 +7,7 @@ import Util::*;
 module BlobProcessor(
     input wire CLK36,
     input wire kernelValid,
-    input Vector kernalPos, //the leftmost coordinate of the pixel
+    input wire Vector kernalPos, //the leftmost coordinate of the pixel
     input wire [3:0] kernel, //theshold of each pixel in the kernel
     input wire endFrame, //chooses blob and resets
     output Blob outputBlob
@@ -15,8 +15,8 @@ module BlobProcessor(
     
     parameter blobsSize = 100 - 1;
     Blob blobs[0:blobsSize];
-    bit [7:0] blobPointer = 0;
-    bit [7:0] joined = 255; //the index of of the blob is last joined
+    reg [7:0] blobPointer = 0;
+    reg [7:0] joined = 255; //the index of of the blob is last joined
 
     //Loop
     always @(negedge CLK36) begin

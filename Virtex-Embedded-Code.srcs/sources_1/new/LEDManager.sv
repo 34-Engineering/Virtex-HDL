@@ -18,7 +18,7 @@ module LEDManager(
     );
 
     //LED_USER: blink at 1.5hz
-    bit [25:0] counter = 0;
+    reg [25:0] counter = 0;
     assign LED_USER = counter > 25'b1111111111111111111111111;
     always @ (posedge CLK) begin
         counter <= counter + 1;
@@ -38,8 +38,8 @@ module LEDManager(
     assign LED_COM[1] = hasCommunication;
 
     //EN: flashes orange rgb(255, 165, 0) at 1.5hz when enabled
-    bit [25:0] enabledToggleCounter;
-    bit [7:0] enabledGreenCounter;
+    reg [25:0] enabledToggleCounter;
+    reg [7:0] enabledGreenCounter;
     wire enabledToggle = enabled && enabledToggleCounter > 25'b1111111111111111111111111;
     assign LED_EN[2] = enabledToggle;
     assign LED_EN[1] = enabledToggle && enabledGreenCounter > 165;

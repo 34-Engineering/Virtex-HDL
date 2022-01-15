@@ -5,23 +5,23 @@
     */
 interface SPIMaster(
     input wire CLK,
-    output bit CS,
-    output bit MOSI,
-    input bit MISO,
-    input bit [7:0] writeData,
-    input bit writeDataValid,
-    output bit [7:0] readData,
-    output bit readDataValid,
-    input bit reset
+    output reg CS,
+    output reg MOSI,
+    input reg MISO,
+    input reg [7:0] writeData,
+    input reg writeDataValid,
+    output reg [7:0] readData,
+    output reg readDataValid,
+    input reg reset
     );
 
     parameter writeQueueSize = 10 - 1;
-    bit [0:7] writeQueue[0:writeQueueSize];
-    bit [9:0] writeQueueReadPointer = 0;
-    bit [9:0] writeQueueWritePointer = 0;
-    bit [3:0] writePointer = 0;
-    bit isReading = 0;
-    bit [3:0] readPointer = 0;
+    reg [0:7] writeQueue[0:writeQueueSize];
+    reg [9:0] writeQueueReadPointer = 0;
+    reg [9:0] writeQueueWritePointer = 0;
+    reg [3:0] writePointer = 0;
+    reg isReading = 0;
+    reg [3:0] readPointer = 0;
 
     //Loop
     always @(posedge CLK) begin

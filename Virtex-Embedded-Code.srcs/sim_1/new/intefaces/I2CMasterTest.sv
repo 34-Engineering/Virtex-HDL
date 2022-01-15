@@ -4,13 +4,13 @@
 
     */
 module I2CMasterTest#(parameter ADDR = 'h34) (
-    output bit SCL,
+    output reg SCL,
     inout wire SDA,
-    input bit [15:0] writeData, //addr + r/w + data byte
-    input bit writeDataValid,
-    output bit [7:0] readData,
-    output bit readDataValid,
-    input bit reset //active low
+    input reg [15:0] writeData, //addr + r/w + data byte
+    input reg writeDataValid,
+    output reg [7:0] readData,
+    output reg readDataValid,
+    input reg reset //active low
     );
 
     //400kHz clock

@@ -14,29 +14,39 @@ module ConfigManager(
     output reg SPI_MOSI,
     input wire SPI_MISO,
     output VirtexConfig virtexConfig,
-    input wire save
+    input VirtexConfigWriteRequest virtexConfigWriteRequests []
     );
 
-    VirtexConfig virtexConfig = DefaultVirtexConfig;
+    initial begin
+        virtexConfig = DefaultVirtexConfig;
+    end
 
-    //Read from EEPROM at boot
+    //TODO Read from EEPROM at boot
     initial begin
         SPI_CS <= 1;
         SPI_WP <= 0;
         SPI_HOLD <= 0;
         SPI_CLK <= 0;
         SPI_MOSI <= 0;
-        //TODO Read Tasks
     end
 
     //TODO SPI MASTER
     SPIMaster SPI();
-    task onData(bit [15:0] data);
+    task onData(reg [15:0] data);
     
     endtask
 
-    //Save Config to EEPROM
-    always @(posedge save) begin
-        
-    end
+    task save();
+        //TODO
+    endtask
+
+    //Write Requests
+    genvar i;
+    generate
+        for (i=0; i < $size(virtexConfigWriteRequests); i++) begin
+            always @(posedge virtexConfigWriteRequests[i].valid) begin
+                virtexConfig[virtexConfigWriteRequests[i].address] = virtexConfigWriteRequests[i].data;
+            end
+        end
+    endgenerate
 endmodule

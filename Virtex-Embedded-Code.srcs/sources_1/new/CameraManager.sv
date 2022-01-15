@@ -23,7 +23,7 @@ module CameraManager(
     output wire TRIGGER,
     input wire MONITOR,
     output wire RESET,
-    input VirtexConfig virtexConfig,
+    input wire VirtexConfig virtexConfig,
     output OutputFrame outputFrame
     );
 
@@ -91,10 +91,10 @@ module CameraManager(
     );
 
     //Blob Processor
-    bit kernelValid;
+    reg kernelValid;
     Vector kernelPos;
-    bit [3:0] kernel;
-    bit endFrame;
+    reg [3:0] kernel;
+    reg endFrame;
     Blob outputBlob;
     BlobProcessor blobProcessor(
         .CLK36(CLK36),
@@ -118,8 +118,8 @@ module CameraManager(
     );
 
     //Loop
-    bit [9:0] x = 0;
-    bit [9:0] y = 0;
+    reg [9:0] x = 0;
+    reg [9:0] y = 0;
     always @(posedge CLK36) begin
         foreach (DOUT[i]) begin
             kernel[i] = DOUT[i] > 500;

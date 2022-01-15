@@ -8,8 +8,8 @@ module RoboRIOManager(
     input wire CLK,
     input wire I2C_SCL,
     inout wire I2C_SDA,
-    input VirtexConfig virtexConfig,
-    output bit saveConfig,
+    input wire VirtexConfig virtexConfig,
+    output VirtexConfigWriteRequest virtexConfigWriteRequest,
     output reg hasCommunication
     );
 

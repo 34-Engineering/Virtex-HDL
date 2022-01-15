@@ -6,50 +6,56 @@
 package Util;
     //Types
     typedef struct {
-        bit [9:0] x, y;
+        logic [9:0] x, y;
     } Vector;
 
     typedef struct {
         Vector boundingTopLeft, boundingBottomRight;
         Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft;
-        bit valid = 0;
+        logic valid = 0;
     } Blob;
 
     typedef enum {
        OFF=0, ON_VERTICAL=1, ON_HORIZONTAL=2, ON_DIAGONAL=3
-    } DualObjectMode;
+    } DualObjectMode; //TODO support more than 2 targets
 
     typedef enum {
        NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
     } Orientation;
     
     typedef struct packed {
-        reg [1:0] dualObjectMode;
-        reg [1:0] orientation;
-        reg [15:0] boundingWidthMin;
-        reg [15:0] boundingWidthMax;
-        reg [15:0] boundingHeightMin;
-        reg [15:0] boundingHeightMax;
-        reg [15:0] fullnessMin;
-        reg [15:0] fullnessMax;
-        reg [15:0] slopeDiffMin;
-        reg [15:0] slopeDiffMax;
-        reg [15:0] slopeMin;
-        reg [15:0] slopeMax;
-        reg [15:0] centerX;
-        reg [15:0] centerY;
-        reg [9:0] threshold;
-        reg [7:0] exposure;
+        logic [1:0] dualObjectMode;
+        logic [1:0] orientation;
+        logic [15:0] boundingWidthMin;
+        logic [15:0] boundingWidthMax;
+        logic [15:0] boundingHeightMin;
+        logic [15:0] boundingHeightMax;
+        logic [15:0] fullnessMin;
+        logic [15:0] fullnessMax;
+        logic [15:0] slopeDiffMin;
+        logic [15:0] slopeDiffMax;
+        logic [15:0] slopeMin;
+        logic [15:0] slopeMax;
+        logic [15:0] centerX;
+        logic [15:0] centerY;
+        logic [9:0] threshold;
+        logic [7:0] exposure;
     } VirtexConfig;
 
-    typedef bit [639:0] [479:0] OutputFrame;
+    typedef struct packed {
+        logic [4:0] address;
+        logic [15:0] data;
+        logic valid; 
+    } VirtexConfigWriteRequest;
+
+    typedef logic [639:0] [479:0] OutputFrame;
 
     //Range
-    function bit [9:0] min(input bit [9:0] num1, num2);
+    function logic [9:0] min(input logic [9:0] num1, num2);
         return num1 < num2 ? num1 : num2;
     endfunction
 
-    function bit [9:0] max(input bit [9:0] num1, num2);
+    function logic [9:0] max(input logic [9:0] num1, num2);
         return num1 > num2 ? num1 : num2;
     endfunction
 
