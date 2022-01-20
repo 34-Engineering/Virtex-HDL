@@ -2,24 +2,24 @@
 import Util::*;
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
-   Virtex Algorithm: https://docs.google.com/document/d/1bz1e-nRzw2SLFKddVVZY3nFoIvRZqutlnkVuUk7gstA/edit
+   
    */
 module BlobProcessor(
-    input wire CLK36,
+    input wire CLK72,
     input wire kernelValid,
-    input wire Vector kernalPos, //the leftmost coordinate of the pixel
-    input wire [3:0] kernel, //theshold of each pixel in the kernel
+    input wire Vector kernelPos, //the leftmost coordinate of the pixel
+    input wire [7:0] kernel, //theshold of each pixel in the kernel
     input wire endFrame, //chooses blob and resets
     output Blob outputBlob
     );
     
-    parameter blobsSize = 100 - 1;
-    Blob blobs[0:blobsSize];
+    parameter maxBlobs = 100 - 1;
+    Blob blobs[0:maxBlobs];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
 
     //Loop
-    always @(negedge CLK36) begin
+    always @(negedge CLK72) begin
         //End Frame
         if (endFrame) begin
             foreach (blobs[i]) begin
@@ -32,13 +32,14 @@ module BlobProcessor(
 
             blobPointer = 0;
         end
+    end
 
-        //Process Pixel
-        if (kernelValid) begin
-            foreach (kernel[i]) begin
-                if (kernel[i]) begin
-                    processPixel('{ x: kernelPos.x + i, y: kernelPos.y });
-                end
+    //New Kernel
+    always @(posedge kernelValid) begin
+        foreach (kernel[i]) begin
+            if (kernel[i]) begin
+                // TODO kernal swapping
+                processPixel('{ x: kernelPos.x, y: kernelPos.y });
             end
         end
     end
@@ -49,18 +50,18 @@ module BlobProcessor(
         foreach (blobs[i]) begin
             //if point inside blob bounding box
             if (blobs[i].valid &
-                pos.x + 2 > blobs[i].boundingTopLeft.x & 
-                pos.x - 2 < blobs[i].boundingBottomRight.x & 
-                pos.y + 2 > blobs[i].boundingTopLeft.y & 
-                pos.y - 2 < blobs[i].boundingBottomRight.y) begin
+                pos.x + 2 > blobs[i].boundTopLeft.x & 
+                pos.x - 2 < blobs[i].boundBottomRight.x & 
+                pos.y + 2 > blobs[i].boundTopLeft.y & 
+                pos.y - 2 < blobs[i].boundBottomRight.y) begin
 
                 //this pixel is touching multiple blobs --> merge them
                 if (joined !== 255) begin
                     blobs[joined].valid = 0;
 
                     //make new bounding box
-                    blobs[i].boundingTopLeft.x = min(blobs[i].boundingTopLeft.x, blobs[joined].boundingTopLeft.x);
-                    blobs[i].boundingTopLeft.y = min(blobs[i].boundingTopLeft.y, blobs[joined].boundingTopLeft.y);
+                    blobs[i].boundTopLeft.x = min(blobs[i].boundTopLeft.x, blobs[joined].boundTopLeft.x);
+                    blobs[i].boundTopLeft.y = min(blobs[i].boundTopLeft.y, blobs[joined].boundTopLeft.y);
                     blobs[i].boundBottomRight.x = max(blobs[i].boundBottomRight.x, blobs[joined].boundBottomRight.x);
                     blobs[i].boundBottomRight.y = max(blobs[i].boundBottomRight.y, blobs[joined].boundBottomRight.y);
                                         
@@ -86,14 +87,14 @@ module BlobProcessor(
                 joined = i;
 
                 //expand bouding box
-                if (pos.x < blobs[i].boundingTopLeft.x)
-                    blobs[i].boundingTopLeft.x = blobs[i].boundingTopLeft.x - 1;
-                else if (pos.x + 1 > blobs[i].boundingBottomRight.x)
-                    blobs[i].boundingBottomRight.x = blobs[i].boundingBottomRight.x + 1;
-                if (pos.y < blobs[i].boundingTopLeft.y)
-                    blobs[i].boundingTopLeft.y = blobs[i].boundingTopLeft.y - 1;
-                else if (pos.y + 1 > blobs[i].boundingBottomRight.y)
-                    blobs[i].boundingBottomRight.y = blobs[i].boundingBottomRight.y + 1;
+                if (pos.x < blobs[i].boundTopLeft.x)
+                    blobs[i].boundTopLeft.x = blobs[i].boundTopLeft.x - 1;
+                else if (pos.x + 1 > blobs[i].boundBottomRight.x)
+                    blobs[i].boundBottomRight.x = blobs[i].boundBottomRight.x + 1;
+                if (pos.y < blobs[i].boundTopLeft.y)
+                    blobs[i].boundTopLeft.y = blobs[i].boundTopLeft.y - 1;
+                else if (pos.y + 1 > blobs[i].boundBottomRight.y)
+                    blobs[i].boundBottomRight.y = blobs[i].boundBottomRight.y + 1;
 
                 //move corner vertexes
                 if (pos.x + pos.y < blobs[i].cornerTopLeft.x + blobs[i].cornerTopLeft.y) begin
@@ -133,16 +134,20 @@ module BlobProcessor(
 
     //Fix Blob Index
     task fixBlobIndex();
-        //out of bounds
-        if (blobPointer > blobsSize) begin
+        //out of bounds --> overflow
+        if (blobPointer > maxBlobs) begin
             blobPointer = 0;
-            fixBlobIndex();
         end
 
-        //on top of existing blob
-        else if (blobs[blobPointer].valid == 1) begin
-            blobPointer++;
-            fixBlobIndex();
+        //on top of existing blob --> find empty blob
+        //if all blobs are full it won't change blobPointer and just overwrite the blob its on; is this the behavior we want? should it clear the blob in that case?
+        if (blobs[blobPointer].valid) begin
+            foreach (blobs[i]) begin
+                if (!blobs[i].valid) begin
+                    blobPointer = i;
+                    return;
+                end
+            end
         end
     endtask
 

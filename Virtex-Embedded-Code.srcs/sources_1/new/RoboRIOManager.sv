@@ -6,20 +6,23 @@ import Util::*;
     Sends config or processed data on request */
 module RoboRIOManager(
     input wire CLK,
-    input wire I2C_SCL,
-    inout wire I2C_SDA,
+    input wire RIO_SCLK,
+    input wire RIO_MOSI,
+    output wire RIO_MISO,
+    input wire RIO_CS,
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     output reg hasCommunication
     );
 
     //I2C
-    parameter ADDR = 'h34;
     wire [7:0] readData;
     wire readDataValid;
-    I2CSlave#(ADDR) I2C (
-        .SCL(I2C_SCL),
-        .SDA(I2C_SDA),
+    SPISlave SPI(
+        .SCLK(SCLK),
+        .MOSI(MOSI),
+        .MISO(MISO),
+        .CS(CS),
         .readData(readData),
         .readDataValid(readDataValid)
     );

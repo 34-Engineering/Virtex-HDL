@@ -10,7 +10,7 @@ package Util;
     } Vector;
 
     typedef struct {
-        Vector boundingTopLeft, boundingBottomRight;
+        Vector boundTopLeft, boundBottomRight;
         Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft;
         logic valid = 0;
     } Blob;
@@ -48,7 +48,7 @@ package Util;
         logic valid; 
     } VirtexConfigWriteRequest;
 
-    typedef logic [639:0] [479:0] OutputFrame;
+    typedef logic [639:0] [479:0] ImageFrame;
 
     //Range
     function logic [9:0] min(input logic [9:0] num1, num2);
@@ -61,8 +61,8 @@ package Util;
 
     //Other
     parameter VirtexConfig DefaultVirtexConfig = '{
-        dualObjectMode: DualObjectMode'(0),
-        orientation: Orientation'(0),
+        dualObjectMode: 0,
+        orientation: 0,
         boundingWidthMin: 0,
         boundingWidthMax: 16'hffff,
         boundingHeightMin: 0,

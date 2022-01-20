@@ -3,10 +3,38 @@ import Util::*;
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
-    Python 300 Notes: https://docs.google.com/document/d/1I_gz72WDF619c93o520tFeQNC_jHlEsQBOqtdv9CuxE/edit?usp=sharing
+    Start up Sequences are documented in CameraConfigManager.sv
 
-    Summary:
-    Data is read out in an 8 pixel kernel, where PIX_[0-3] read out 2 pixels each with pixel 0 MSB First and pixel 1 LSB First
+    Setup:
+     - P/N: NOIP1FN0300A−QTI/QDI (monochrome, infrared-optimized)
+        - 4 LVDS data lanes (DOUT) + SYNC + CLK
+        - 1/4" Optical Format (4.8µm x 4.8µm pixels)
+        - Resolution: 640 x 480 (672 x 512 readable pixels, 16 pixels not exposed)
+        - ~34% quantum efficiency @ 850nm
+        - 815 Frames per Second w/ ZROT
+     - Configured in 8-bit mode w/ a 72MHz PLL input (output clock is 288MHz)
+
+    Kernel: 8x1 section of 8-bit pixels
+     - kernels are output on the data channels in which 2 pixels are output on each channel
+     - kernel (0, 0) is in the bottom left looking head on at the image sensor
+     - in even kernels DOUT[0] sends pixels 0 and 1 (left to right), etc. in odd kernels this is reversed
+
+    Frame:
+     - Training (idle)
+     - Black Line
+        - SYNC: "LS", ["BL"] x ?, "LE", "CRC"
+        - DOUT: black pixels             CRC value
+     - Training (ROT)
+     - [Image Data + Training (ROT)] x ?
+        - SYNC: "FS", "ID", ["IMG"] x ?, "LE", "ID", "CRC"
+        - DOUT: pixels                                CRC value
+     - Frame End?
+     - Training (idle)
+
+    CRC (per channel): x^8 + x^6 + x^3 + x^2 + 1
+
+    Black Lines: default 2
+
     */
 module CameraManager(
     input wire CLK,
@@ -24,9 +52,24 @@ module CameraManager(
     input wire MONITOR,
     output wire RESET,
     input wire VirtexConfig virtexConfig,
-    output OutputFrame outputFrame
+    output ImageFrame imageFrame
     );
 
+    //Default SYNC Channel Codes (Frame Sync + Data Classification)
+    localparam FS = 8'haa; //frame start
+    localparam FE = 8'hca; //frame end
+    localparam LS = 8'h2a; //line start
+    localparam LE = 8'h4a; //line end
+    localparam BL = 8'h05; //black pixels
+    localparam IMG = 8'h0d; //valid pixels
+    localparam CRC = 8'h16; //checksum
+    localparam TR = 8'he9; //training pattern for SYNC + DOUT
+    localparam WN = 8'h00; //main window ID
+
+    reg isInFrame;
+    reg lineNumber;
+
+    
     //LVDS Input Buffers
     wire LVDS_CLK;
     wire LVDS_SYNC;
@@ -44,63 +87,74 @@ module CameraManager(
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
-    //36MHz Parallel Clock (360MHz / 10)
-    wire CLK36;
+    //Generate 72MHz (288 * 2 / 8) Parallel Clock from 288MHz Input Clock
+    wire CLK72;
     clk_wiz_2 clk_wiz_2(
-        .clk_in1(CLK),
-        .clk_out1(CLK36)
+        .clk_in1(LVDS_CLK),
+        .clk_out1(CLK72)
     );
 
-    //ISERDES
-    wire [9:0] SYNC;
-    wire [9:0] DOUT [3:0];
+    //ISERDES (288 MHz DDR; 576 Mb/s per line)
+    wire [7:0] SYNC;
+    wire [7:0] DOUT [3:0];
+    wire [4:0] trainingDone; //check w/ trainingDone == 0
     ISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .CLK36(CLK36),
-        .PARALLEL_DATA(SYNC),
-        .RESET(1'b1)
+        .parallelClk(CLK72),
+        .parallelData(SYNC),
+        .reset(1'b1),
+        .trainingPattern(TR),
+        .trainingDone(trainingDone[0])
     );
     ISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .CLK36(CLK36),
-        .PARALLEL_DATA(DOUT[0]),
-        .RESET(1'b1)
+        .parallelClk(CLK72),
+        .parallelData(DOUT[0]),
+        .reset(1'b1),
+        .trainingPattern(TR),
+        .trainingDone(trainingDone[1])
     );
     ISERDES DOUT_1_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .CLK36(CLK36),
-        .PARALLEL_DATA(DOUT[1]),
-        .RESET(1'b1)
+        .parallelClk(CLK72),
+        .parallelData(DOUT[1]),
+        .reset(1'b1),
+        .trainingPattern(TR),
+        .trainingDone(trainingDone[2])
     );
     ISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .CLK36(CLK36),
-        .PARALLEL_DATA(DOUT[2]),
-        .RESET(1'b1)
+        .parallelClk(CLK72),
+        .parallelData(DOUT[2]),
+        .reset(1'b1),
+        .trainingPattern(TR),
+        .trainingDone(trainingDone[3])
     );
     ISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .CLK36(CLK36),
-        .PARALLEL_DATA(DOUT[3]),
-        .RESET(1'b1)
+        .parallelClk(CLK72),
+        .parallelData(DOUT[3]),
+        .reset(1'b1),
+        .trainingPattern(TR),
+        .trainingDone(trainingDone[4])
     );
 
     //Blob Processor
-    reg kernelValid;
-    Vector kernelPos;
-    reg [3:0] kernel;
+    reg lastKernelValid;
+    Vector lastKernelPos; //(0, 0) to (79, 479)
+    reg [7:0] lastKernel; //kernel value, not yet inverted
     reg endFrame;
-    Blob outputBlob;
+    wire Blob outputBlob;
     BlobProcessor blobProcessor(
-        .CLK36(CLK36),
-        .kernelValid(kernelValid),
-        .kernelPos(kernelPos),
-        .kernel(kernel),
+        .CLK72(CLK72),
+        .kernelValid(lastKernelValid),
+        .kernelPos(lastKernelPos),
+        .kernel(lastKernel),
         .endFrame(endFrame),
         .outputBlob(outputBlob)
     );
@@ -118,29 +172,27 @@ module CameraManager(
     );
 
     //Loop
-    reg [9:0] x = 0;
-    reg [9:0] y = 0;
-    always @(posedge CLK36) begin
-        foreach (DOUT[i]) begin
-            kernel[i] = DOUT[i] > 500;
-        end
+    Vector kernelPos; //(0, 0) to (79, 479)
+    reg [7:0] kernel; //kernel value, not yet inverted
+    always @(posedge CLK72) begin
+        //lastKernelValid = 0
 
-        if (x + 4 > 640) begin
-            if (y > 479) begin
-                //end frame
-                y = 0;
-                x = 0;
-                endFrame = 0;
-            end
-            else begin
-                //end line
-                y = y + 1;
-                x = 0;
-            end
-        end
-        else begin
-            //next kernel
-            x = x + 4;
-        end
+        //on FS
+            //kernelPos.x = 0, kernelPos.y = 0
+
+        //on FE
+            //endFrame = 1
+
+        //on LS
+            //kernelPos.x = 0
+
+        //on IMG
+            //kernel[0-3, 4-7] = DOUT[0-3] > virtexConfig.threshold
+        
+        //on kernel done
+            //lastKernelPos = kernelPos
+            //lastKernel = kernel
+            //lastKernelValid = 1
+            //kernelPos.x += 1
     end
 endmodule

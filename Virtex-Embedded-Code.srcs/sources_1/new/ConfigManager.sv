@@ -14,7 +14,7 @@ module ConfigManager(
     output reg SPI_MOSI,
     input wire SPI_MISO,
     output VirtexConfig virtexConfig,
-    input VirtexConfigWriteRequest virtexConfigWriteRequests []
+    input VirtexConfigWriteRequest virtexConfigWriteRequests [1:0]
     );
 
     initial begin
@@ -31,14 +31,14 @@ module ConfigManager(
     end
 
     //TODO SPI MASTER
-    SPIMaster SPI();
-    task onData(reg [15:0] data);
+    // SPIMaster SPI();
+    // task onData(reg [15:0] data);
     
-    endtask
+    // endtask
 
-    task save();
-        //TODO
-    endtask
+    // task save();
+    //     //TODO
+    // endtask
 
     //Write Requests
     genvar i;

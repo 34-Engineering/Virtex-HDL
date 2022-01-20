@@ -16,14 +16,16 @@ module TopTest;
     reg hasCommunication = 0;
     VirtexConfig virtexConfig = DefaultVirtexConfig;
     reg saveConfig = 0;
-    OutputFrame outputFrame;
+    ImageFrame imageFrame;
 
-    AppManagerTest AppManagerTest(
-        .CLK(CLK),
-        .configuration(configuration),
-        .saveConfig(saveConfig),
-        .outputFrame(outputFrame)
-    );
+    
+
+    // AppManagerTest AppManagerTest(
+    //     .CLK(CLK),
+    //     .configuration(configuration),
+    //     .saveConfig(saveConfig),
+    //     .imageFrame(imageFrame)
+    // );
     // RoboRIOManagerTest RoboRIOManagerTest(CLK);
     // ConfigManagerTest ConfigManagerTest(CLK);
     // FlashManagerTest FlashManagerTest(CLK);

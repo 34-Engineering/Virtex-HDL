@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 
-/* SPIMaster - 
+/* SPISlave - 
 
     */
-interface SPIMaster(
+interface SPISlave(
     input wire CLK,
-    output wire SCLK,
+    input wire SCLK,
     output reg CS,
     output reg MOSI,
     input reg MISO,

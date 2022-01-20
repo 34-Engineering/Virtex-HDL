@@ -8,7 +8,7 @@ import Util::*;
     */
 module AppManager(
     input wire CLK,
-    output reg FSDI, //FPGA->PC
+    output wire FSDI, //FPGA->PC
     output wire FSCLK, //48MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
@@ -17,7 +17,7 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input wire OutputFrame outputFrame
+    input wire ImageFrame imageFrame
     );
 
     parameter GET_FRAME_CODE = 3'b000;
