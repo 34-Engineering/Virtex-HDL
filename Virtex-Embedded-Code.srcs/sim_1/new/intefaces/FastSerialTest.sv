@@ -56,7 +56,7 @@ module FastSerialTest(
         end
 
         //writing
-        else if (writeQueueWritePointer !== writeQueueReadPointer & enabled) begin
+        else if (writeQueueWritePointer != writeQueueReadPointer & enabled) begin
             //reg 0
             if (writePointer == 0) begin
                 // $display ("test wrote 0 = 0");

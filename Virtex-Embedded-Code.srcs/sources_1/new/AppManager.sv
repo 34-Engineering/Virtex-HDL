@@ -23,8 +23,8 @@ module AppManager(
     parameter GET_FRAME_CODE = 3'b000;
     parameter GET_CONFIG_CODE = 3'b001;
     parameter SET_CONFIG_CODE = 3'b100;
-    enum {NONE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = NONE;
-    reg stateStep = 0; //which byte num we are on in the state
+    enum {IDLE, GET_FRAME, SET_CONFIG} state = IDLE;
+    wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
     //48MHz clock
     wire CLK48;
@@ -34,6 +34,9 @@ module AppManager(
     );
 
     //Fast Serial
+    reg [7:0] writeData;
+    reg writeDataValid;
+    wire writeQueueEmpty;
     wire [7:0] readData;
     wire readDataValid;
     FastSerial FastSerial(
@@ -42,17 +45,77 @@ module AppManager(
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS),
-        .enabled(USB_ON & !USB_PWREN & USB_SUS),
+        .enabled(enabled),
+        .writeData(writeData),
+        .writeDataValid(writeDataValid),
+        .writeQueueEmpty(writeQueueEmpty),
         .readData(readData),
-        .readDataValid(readDataValid)
+        .readDataValid(readDataValid),
+        .reset(1'b1)
     );
 
     //On Data
-    always @(posedge readDataValid) begin
-        
+    Vector getFrameKernelPos;
+    reg [4:0] setConfigAddress = 0;
+    reg [15:0] setConfigData = 0;
+    reg setConfigPartion = 0;
+    always @(posedge CLK48) begin
+        if (enabled) begin
+            case (state)
+                IDLE: begin
+                    //Get Frame
+                    if (readDataValid & readData[2:0] == GET_FRAME_CODE) begin
+                        state = GET_FRAME;
+                        getFrameKernelPos = 0;
+                    end
 
+                    //Get Config
+                    else if (readDataValid & readData[2:0] == GET_CONFIG_CODE) begin
+                        writeData = virtexConfig[readData[7:3]*16 + 8 +: 8]; //TODO is this correct bit order?
+                        writeDataValid = 1;
+                        writeDataValid = 0;
+                        writeData = virtexConfig[readData[7:3]*16 +: 8]; 
+                        writeDataValid = 1;
+                        writeDataValid = 0;
+                    end
 
-        $display ("read %b %b", readData, readData[2:0]);
-        //TODO
+                    //Set Config
+                    else if (readDataValid & readData[2:0] == SET_CONFIG_CODE) begin
+                        state = SET_CONFIG;
+                        setConfigPartion = 0;
+                        setConfigAddress = readData[7:3];
+                    end
+                end
+
+                GET_FRAME: begin
+                    //38,400 loops
+                    writeData = imageFrame[getFrameKernelPos.x][getFrameKernelPos.y];
+
+                    if (getFrameKernelPos.x > 79) begin
+                        getFrameKernelPos.x = 0;
+                        getFrameKernelPos.y = getFrameKernelPos.y + 1;
+                        
+                        if (getFrameKernelPos.y > 479) begin
+                            state = IDLE;
+                        end
+                    end
+                end
+
+                SET_CONFIG: begin
+                    //second partion of data
+                    if (setConfigPartion & readDataValid) begin
+                        setConfigData[7:0] = readData;
+                        state = IDLE;
+                        setConfigPartion <= 0;
+                    end
+
+                    //first partion of data
+                    else if (readDataValid) begin
+                        setConfigData[15:8] = readData;
+                        setConfigPartion = 1;
+                    end
+                end
+            endcase
+        end
     end
 endmodule

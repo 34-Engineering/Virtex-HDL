@@ -5,7 +5,7 @@
     
     Power Up Sequence
      - Enable Clock Management 1 & 2 (initialized the sensor for operation)
-        - to transition from 1 to 2 you loop until DevRead16(0, 24) !== 0 // check PLL lock status
+        - to transition from 1 to 2 you loop until DevRead16(0, 24) != 0 // check PLL lock status
      - Required Register Upload (sets values of registers for power control and misc. functions)
      - Soft Power Up (turns on biases etc; internal power control)
      - Set imaging mode
@@ -32,31 +32,54 @@ module CameraConfigManager(
     output wire SPI_CLK,
     output wire TRIGGER,
     input wire MONITOR,
-    output wire RESET //active low
+    output wire reset, //active low
+    input wire sequencerEnabled
     );
 
-    reg [2:0] Python300PowerUpStage = 0;
+    reg [25:0] writeData;
+    reg writeDataValid;
+    wire writeQueueEmpty;
+    wire [7:0] readData;
+    wire readDataValid;
+    //TODO SPIMaster SPI();
+    task write(logic [8:0] address, logic [15:0] word);
+        writeData = {address, 1'b1, word};
+        writeDataValid = 1;
+        writeDataValid = 0;
+    endtask
+    task read(logic [8:0] address);
+        writeData = {address, 1'b0};
+        writeDataValid = 1;
+        writeDataValid = 0;
+    endtask
 
-    reg writeQueueEmpty = 0;
-
+    //Power Up Sequence
+    reg poweredUpSequenceStage = 0;
     initial begin
         enableClockManagement1();
+        read(9'd24); //TODO is this hex?
+    end
+    always @ (posedge CLK) begin //TODO SPI CLK
+        //check PLL lock status
+        if (!poweredUpSequenceStage & readDataValid & readData != 0) begin
+            enableClockManagement2();
+            requiredRegisterUpload();
+            softPowerUp();
+            setImagineMode(); //TODO
+            poweredUpSequenceStage = 1;
+        end
     end
 
-    always @ (posedge CLK) begin
-        //TODO SPI read (0, 24) === 0 exit
-
-        enableClockManagement2();
-        requiredRegisterUpload();
-        softPowerUp();
-        setImagineMode();
+    //Enable/Disable Sequencer
+    always @ (posedge sequencerEnabled or negedge sequencerEnabled) begin
+        if (sequencerEnabled) begin
+            //TODO make sure initialize has been done before this
+            write(192, 16'h080D);
+        end
+        else begin
+            write(192, 16'h0800);
+        end
     end
-
-    //TODO SPIMaster SPI();
-
-    task write(logic [8:0] address, logic [15:0] word);
-
-    endtask
 
     task enableClockManagement1();
         write(2, 16'h0000);     // chip confirugre LVDS monochrome
@@ -247,7 +270,6 @@ module CameraConfigManager(
     endtask
 
     task softPowerDown();
-        disableSequencer();
         write(112, 16'h0000);	// Disable LVDS transmitters
         write(48, 16'h0000);	// Disable AFE
         write(32, 16'h700E);	// Disable analog clock
@@ -255,14 +277,6 @@ module CameraConfigManager(
         write(72, 16'h0010);	// Disable charge pump
         write(64, 16'h0000);	// Disable biasing block
         write(10, 16'h0999);	// Soft reset
-    endtask
-
-    task enableSequencer();
-        write(192, 16'h080D);
-    endtask
-
-    task disableSequencer();
-        write(192, 16'h0800);
     endtask
 
     task setImagineMode();

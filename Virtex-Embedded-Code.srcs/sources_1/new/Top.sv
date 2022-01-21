@@ -69,12 +69,11 @@ module Top(
     output wire CAM_RESET
     );
 
-    reg enabled = 0;
-    reg hasCommunication = 0;
-    reg targetBlobValid = 0;
+    wire enabled;
+    wire hasCommunication;
+    wire targetBlobValid;
     wire Blob targetBlob;
     wire ImageFrame imageFrame;
-    reg saveConfig = 0;
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
 
@@ -101,7 +100,8 @@ module Top(
         .RIO_CS(RIO_CS),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
-        .hasCommunication(hasCommunication)
+        .hasCommunication(hasCommunication),
+        .enabled(enabled)
     );
 
     ConfigManager ConfigManager(
@@ -157,7 +157,8 @@ module Top(
         .SPI_CLK(CAM_SPI_CLK),
         .TRIGGER(CAM_TRIG),
         .MONITOR(CAM_MON),
-        .RESET(CAM_RESET),
+        .reset(CAM_RESET),
+        .enabled(enabled),
         .virtexConfig(virtexConfig),
         .imageFrame(imageFrame)
     );

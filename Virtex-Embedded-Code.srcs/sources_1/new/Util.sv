@@ -5,7 +5,7 @@
     */
 package Util;
     //Types
-    typedef struct {
+    typedef struct packed {
         logic [9:0] x, y;
     } Vector;
 
@@ -24,8 +24,9 @@ package Util;
     } Orientation;
     
     typedef struct packed {
-        logic [1:0] dualObjectMode;
-        logic [1:0] orientation;
+        logic [15:0] test;
+        logic [15:0] dualObjectMode;
+        logic [15:0] orientation;
         logic [15:0] boundingWidthMin;
         logic [15:0] boundingWidthMax;
         logic [15:0] boundingHeightMin;
@@ -38,29 +39,12 @@ package Util;
         logic [15:0] slopeMax;
         logic [15:0] centerX;
         logic [15:0] centerY;
-        logic [9:0] threshold;
-        logic [7:0] exposure;
+        logic [15:0] threshold;
+        logic [15:0] exposure;
     } VirtexConfig;
 
-    typedef struct packed {
-        logic [4:0] address;
-        logic [15:0] data;
-        logic valid; 
-    } VirtexConfigWriteRequest;
-
-    typedef logic [639:0] [479:0] ImageFrame;
-
-    //Range
-    function logic [9:0] min(input logic [9:0] num1, num2);
-        return num1 < num2 ? num1 : num2;
-    endfunction
-
-    function logic [9:0] max(input logic [9:0] num1, num2);
-        return num1 > num2 ? num1 : num2;
-    endfunction
-
-    //Other
     parameter VirtexConfig DefaultVirtexConfig = '{
+        test: 16'h0f0f,
         dualObjectMode: 0,
         orientation: 0,
         boundingWidthMin: 0,
@@ -78,4 +62,21 @@ package Util;
         threshold: 8'h0f,
         exposure: 8'h0f
     };
+
+    typedef struct packed {
+        logic [4:0] address;
+        logic [15:0] data;
+        logic valid; 
+    } VirtexConfigWriteRequest;
+
+    typedef logic [7:0] ImageFrame [79:0] [479:0];
+
+    //Range
+    function logic [9:0] min(input logic [9:0] num1, num2);
+        return num1 < num2 ? num1 : num2;
+    endfunction
+
+    function logic [9:0] max(input logic [9:0] num1, num2);
+        return num1 > num2 ? num1 : num2;
+    endfunction
 endpackage

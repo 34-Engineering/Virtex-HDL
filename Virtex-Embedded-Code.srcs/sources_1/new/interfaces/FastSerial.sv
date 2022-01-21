@@ -14,6 +14,7 @@ module FastSerial(
     input wire enabled,
     input reg [7:0] writeData,
     input reg writeDataValid,
+    output wire writeQueueEmpty,
     output reg [0:7] readData,
     output reg readDataValid,
     input reg reset //active low
@@ -28,6 +29,7 @@ module FastSerial(
     reg [3:0] writePointer = 0;
     reg isReading = 0;
     reg [3:0] readPointer = 0;
+    assign writeQueueEmpty = writeQueueWritePointer == writeQueueReadPointer;
 
     //Loop
     always @(negedge FSCLK) begin
@@ -56,7 +58,7 @@ module FastSerial(
         end
 
         //writing
-        else if (writeQueueWritePointer != writeQueueReadPointer & enabled) begin
+        else if (!writeQueueEmpty & enabled) begin
             //reg 0
             if (writePointer == 0) begin
                 // $display ("wrote 0 = 0");

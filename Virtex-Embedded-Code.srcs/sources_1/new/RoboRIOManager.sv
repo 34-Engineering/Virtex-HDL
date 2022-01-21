@@ -12,7 +12,8 @@ module RoboRIOManager(
     input wire RIO_CS,
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    output reg hasCommunication
+    output reg hasCommunication,
+    output reg enabled
     );
 
     //I2C

@@ -6,10 +6,10 @@ import Util::*;
    */
 module BlobProcessor(
     input wire CLK72,
-    input wire kernelValid,
+    input wire kernelValid, //active high
     input wire Vector kernelPos, //the leftmost coordinate of the pixel
     input wire [7:0] kernel, //theshold of each pixel in the kernel
-    input wire endFrame, //chooses blob and resets
+    input wire endFrame, //active high
     output Blob outputBlob
     );
     
@@ -18,27 +18,23 @@ module BlobProcessor(
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
 
-    //Loop
-    always @(negedge CLK72) begin
-        //End Frame
-        if (endFrame) begin
-            foreach (blobs[i]) begin
-                if (blobs[i].valid) begin
-                    //todo proper selection
-                    outputBlob <= blobs[i];
-                end
-                blobs[i].valid = 0;
+    //End Frame
+    always @(posedge endFrame) begin
+        foreach (blobs[i]) begin
+            if (blobs[i].valid) begin
+                //todo proper selection
+                outputBlob <= blobs[i];
             end
-
-            blobPointer = 0;
+            blobs[i].valid = 0;
         end
+
+        blobPointer = 0;
     end
 
     //New Kernel
     always @(posedge kernelValid) begin
         foreach (kernel[i]) begin
             if (kernel[i]) begin
-                // TODO kernal swapping
                 processPixel('{ x: kernelPos.x, y: kernelPos.y });
             end
         end
@@ -56,7 +52,7 @@ module BlobProcessor(
                 pos.y - 2 < blobs[i].boundBottomRight.y) begin
 
                 //this pixel is touching multiple blobs --> merge them
-                if (joined !== 255) begin
+                if (joined != 255) begin
                     blobs[joined].valid = 0;
 
                     //make new bounding box
