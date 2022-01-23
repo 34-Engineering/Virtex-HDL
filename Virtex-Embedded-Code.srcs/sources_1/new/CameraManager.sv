@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 import Util::*;
+`include "CameraManagerParams.sv"
+import CameraManagerParams::*;
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
@@ -59,17 +61,6 @@ module CameraManager(
     output ImageFrame imageFrame,
     output wire Blob targetBlob
     );
-
-    //Default SYNC Channel Codes (Frame Sync + Data Classification)
-    localparam FS = 8'haa; //frame start
-    localparam FE = 8'hca; //frame end
-    localparam LS = 8'h2a; //line start
-    localparam LE = 8'h4a; //line end
-    localparam BL = 8'h05; //black pixels
-    localparam IMG = 8'h0d; //valid pixels
-    localparam CRC = 8'h16; //checksum
-    localparam TR = 8'he9; //training pattern for SYNC + DOUT
-    localparam WN = 8'h00; //main window ID
 
     //LVDS Input Buffers
     wire LVDS_CLK;
