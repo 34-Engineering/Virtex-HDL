@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+import Util::*;
 
 /* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs */
 module LEDManager(
@@ -13,7 +14,7 @@ module LEDManager(
     input wire USB_ON,
     input wire PWR_12V_EN,
     input wire enabled,
-    input wire targetBlobValid,
+    input wire Blob targetBlob,
     input wire hasCommunication
     );
 
@@ -32,7 +33,7 @@ module LEDManager(
     assign LED_PWR[0] = USB_ON;
 
     //TAR: blue when target valid
-    assign LED_TAR[2] = targetBlobValid; 
+    assign LED_TAR[2] = targetBlob.valid; 
 
     //COM: green when has coms
     assign LED_COM[1] = hasCommunication;
@@ -44,7 +45,7 @@ module LEDManager(
     assign LED_EN[2] = enabledToggle;
     assign LED_EN[1] = enabledToggle && enabledGreenCounter > 165;
     always @(posedge CLK) begin
-        enabledToggleCounter = enabledToggleCounter + 1;
-        enabledGreenCounter = enabledGreenCounter + 1;
+        enabledToggleCounter <= enabledToggleCounter + 1;
+        enabledGreenCounter <= enabledGreenCounter + 1;
     end
 endmodule

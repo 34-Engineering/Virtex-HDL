@@ -3,7 +3,8 @@ import Util::*;
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
-    Start up Sequences are documented in CameraConfigManager.sv
+    
+    CameraConfigManager manages the SPI interface with the image sensor
 
     Setup:
      - P/N: NOIP1FN0300A−QTI/QDI (monochrome, infrared-optimized)
@@ -14,12 +15,12 @@ import Util::*;
         - 815 Frames per Second w/ ZROT
      - Configured in 8-bit mode w/ a 72MHz PLL input (output clock is 288MHz)
 
-    Kernel: 8x1 section of 8-bit pixels
+    Kernel: 8x1 section of pixels
      - kernels are output on the data channels in which 2 pixels are output on each channel
      - kernel (0, 0) is in the bottom left looking head on at the image sensor
      - in even kernels DOUT[0] sends pixels 0 and 1 (left to right), etc. in odd kernels this is reversed
 
-    Frame:
+    Frame Sequence:
      - Training (idle)
      - Black Lines
         - SYNC: "LS", ["BL"] x ?, "LE", "CRC"
@@ -55,7 +56,8 @@ module CameraManager(
     output wire reset,
     input wire enabled,
     input wire VirtexConfig virtexConfig,
-    output ImageFrame imageFrame
+    output ImageFrame imageFrame,
+    output wire Blob targetBlob
     );
 
     //Default SYNC Channel Codes (Frame Sync + Data Classification)
@@ -148,14 +150,13 @@ module CameraManager(
     Vector lastKernelPos; //(0, 0) to (79, 479)
     reg [7:0] lastKernel;
     reg endFrame;
-    wire Blob outputBlob;
     BlobProcessor blobProcessor(
         .CLK72(CLK72),
         .kernelValid(lastKernelValid),
         .kernelPos(lastKernelPos),
         .kernel(lastKernel),
         .endFrame(endFrame),
-        .outputBlob(outputBlob)
+        .targetBlob(targetBlob)
     );
 
     //Camera Config Manager
@@ -178,42 +179,41 @@ module CameraManager(
     reg [7:0] kernel;
     reg isInFrame;
     always @(posedge CLK72) begin
-        lastKernelValid <= 0;
-
         if (SYNC == FS) begin
-            //FS replaces LS
+            //Note: FS replaces LS
             endFrame <= 0;
-            isInFrame = 1;
-            kernelPos.y = 0;
-            kernelPos.x = 0;
-            kernelPartion = 0;
-            kernelOdd = 0;
-            processImageData(); //TODO check
+            isInFrame <= 1;
+            kernelPos.y <= 0;
+            kernelPos.x <= 0;
+            kernelPartion <= 0;
+            kernelOdd <= 0;
+            processImageData();
         end
 
         else if (SYNC == FE) begin
-            endFrame = 1;
-            isInFrame = 0;
-            processImageData(); //TODO check
+            endFrame <= 1;
+            isInFrame <= 0;
+            processImageData();
         end
 
-        else if (SYNC == LS & isInFrame) begin //check if in frame to make sure its not a black pixel
-            kernelPos.x = 0;
-            kernelPartion = 0;
-            kernelOdd = 0;
-            processImageData(); //TODO check
+        else if (SYNC == LS & isInFrame) begin
+            //check if in frame to make sure its not a black pixel
+            kernelPos.x <= 0;
+            kernelPartion <= 0;
+            kernelOdd <= 0;
+            processImageData();
         end
 
         else if (SYNC == LE & isInFrame) begin
-            processImageData(); //TODO check
+            processImageData();
         end
 
         else if (SYNC == WN & isInFrame) begin
-            processImageData(); //TODO check
+            processImageData();
         end
 
         // else if (SYNC == BL) begin
-            
+            //TODO do we want black level checking?
         // end
 
         else if (SYNC == IMG) begin
@@ -221,7 +221,7 @@ module CameraManager(
         end
 
         // else if (SYNC == CRC) begin
-            //TODO?
+            //TODO add CRC checking
         // end
     end
 
@@ -230,45 +230,46 @@ module CameraManager(
         if (kernelPartion) begin
             if (kernelOdd) begin
                 //load backwards
-                kernel[0] = DOUT[3] > virtexConfig.threshold;
-                kernel[2] = DOUT[2] > virtexConfig.threshold;
-                kernel[4] = DOUT[1] > virtexConfig.threshold;
-                kernel[6] = DOUT[0] > virtexConfig.threshold;
+                kernel[0] <= DOUT[3] > virtexConfig.threshold;
+                kernel[2] <= DOUT[2] > virtexConfig.threshold;
+                kernel[4] <= DOUT[1] > virtexConfig.threshold;
+                kernel[6] <= DOUT[0] > virtexConfig.threshold;
             end
             else begin
                 //load normally
-                kernel[1] = DOUT[0] > virtexConfig.threshold;
-                kernel[3] = DOUT[1] > virtexConfig.threshold;
-                kernel[5] = DOUT[2] > virtexConfig.threshold;
-                kernel[7] = DOUT[3] > virtexConfig.threshold;
+                kernel[1] <= DOUT[0] > virtexConfig.threshold;
+                kernel[3] <= DOUT[1] > virtexConfig.threshold;
+                kernel[5] <= DOUT[2] > virtexConfig.threshold;
+                kernel[7] <= DOUT[3] > virtexConfig.threshold;
             end
             
-            lastKernelPos = kernelPos;
-            lastKernel = kernel;
-            lastKernelValid = 1;
+            lastKernelPos <= kernelPos;
+            lastKernel <= kernel;
+            lastKernelValid <= 1;
             imageFrame[kernelPos.x][kernelPos.y] <= kernel;
-            kernelPos.x += 1;
+            kernelPos.x <= kernelPos.x + 1;
         end
 
         //load partion 1 of kernel (see page 40)
         else begin
             if (kernelOdd) begin
                 //load backwards
-                kernel[1] = DOUT[3] > virtexConfig.threshold;
-                kernel[3] = DOUT[2] > virtexConfig.threshold;
-                kernel[5] = DOUT[1] > virtexConfig.threshold;
-                kernel[7] = DOUT[0] > virtexConfig.threshold;
+                kernel[1] <= DOUT[3] > virtexConfig.threshold;
+                kernel[3] <= DOUT[2] > virtexConfig.threshold;
+                kernel[5] <= DOUT[1] > virtexConfig.threshold;
+                kernel[7] <= DOUT[0] > virtexConfig.threshold;
             end
             else begin
                 //load normally
-                kernel[0] = DOUT[0] > virtexConfig.threshold;
-                kernel[2] = DOUT[1] > virtexConfig.threshold;
-                kernel[4] = DOUT[2] > virtexConfig.threshold;
-                kernel[6] = DOUT[3] > virtexConfig.threshold;
+                kernel[0] <= DOUT[0] > virtexConfig.threshold;
+                kernel[2] <= DOUT[1] > virtexConfig.threshold;
+                kernel[4] <= DOUT[2] > virtexConfig.threshold;
+                kernel[6] <= DOUT[3] > virtexConfig.threshold;
             end
             
-            kernelPartion = 1;
-            kernelOdd = !kernelOdd;
+            kernelPartion <= 1;
+            kernelOdd <= !kernelOdd;
+            lastKernelValid <= 0;
         end
     endtask
 endmodule

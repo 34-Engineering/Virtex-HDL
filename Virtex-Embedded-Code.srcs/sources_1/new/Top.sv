@@ -71,26 +71,25 @@ module Top(
 
     wire enabled;
     wire hasCommunication;
-    wire targetBlobValid;
     wire Blob targetBlob;
     wire ImageFrame imageFrame;
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
 
     //Sub-Components
-    // AppManager AppManager(
-    //     .CLK(CLK),
-    //     .FSDI(USB_BD[0]),
-    //     .FSCLK(USB_BD[1]),
-    //     .FSDO(USB_BD[2]),
-    //     .FSCTS(USB_BD[3]),
-    //     .USB_ON(USB_ON),
-    //     .USB_PWREN(USB_PWREN),
-    //     .USB_SUS(USB_SUS),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-    //     .imageFrame(imageFrame)
-    // );
+    AppManager AppManager(
+        .CLK(CLK),
+        .FSDI(USB_BD[0]),
+        .FSCLK(USB_BD[1]),
+        .FSDO(USB_BD[2]),
+        .FSCTS(USB_BD[3]),
+        .USB_ON(USB_ON),
+        .USB_PWREN(USB_PWREN),
+        .USB_SUS(USB_SUS),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
+        .imageFrame(imageFrame)
+    );
 
     RoboRIOManager RoboRIOManager(
         .CLK(CLK),
@@ -101,7 +100,8 @@ module Top(
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
         .hasCommunication(hasCommunication),
-        .enabled(enabled)
+        .enabled(enabled),
+        .targetBlob(targetBlob)
     );
 
     ConfigManager ConfigManager(
@@ -116,16 +116,16 @@ module Top(
         .virtexConfigWriteRequests(virtexConfigWriteRequests)
     );
 
-    // FlashManager FlashManager(
-    //     .CLK(CLK),
-    //     .SPI_CLK(FLASH_CLK),
-    //     .SPI_CS(FLASH_CS),
-    //     .SPI_Q(FLASH_SIO),
-    //     .TMS(TMS),
-    //     .TCK(TCK),
-    //     .TDO(TDO),
-    //     .TDI(TDI)
-    // );
+    FlashManager FlashManager(
+        .CLK(CLK),
+        .SPI_CLK(FLASH_CLK),
+        .SPI_CS(FLASH_CS),
+        .SPI_Q(FLASH_SIO),
+        .TMS(TMS),
+        .TCK(TCK),
+        .TDO(TDO),
+        .TDI(TDI)
+    );
 
     LEDManager LEDManager(
         .CLK(CLK),
@@ -139,7 +139,7 @@ module Top(
         .USB_ON(USB_ON),
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
-        .targetBlobValid(targetBlobValid),
+        .targetBlob(targetBlob),
         .hasCommunication(hasCommunication)
     );
 
@@ -160,6 +160,7 @@ module Top(
         .reset(CAM_RESET),
         .enabled(enabled),
         .virtexConfig(virtexConfig),
-        .imageFrame(imageFrame)
+        .imageFrame(imageFrame),
+        .targetBlob(targetBlob)
     );
 endmodule

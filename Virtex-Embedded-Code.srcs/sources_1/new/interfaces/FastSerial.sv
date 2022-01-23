@@ -37,13 +37,13 @@ module FastSerial(
         if (isReading & enabled) begin
             if (readPointer == 8) begin
                 // $display ("done reading");
-                isReading = 0;
-                readDataValid = 1;
+                isReading <= 0;
+                readDataValid <= 1;
             end
             else begin
                 // $display ("read %p = %b", readPointer, FSDO);
-                readData[readPointer] = FSDO;
-                readPointer = readPointer + 1;
+                readData[readPointer] <= FSDO;
+                readPointer <= readPointer + 1;
             end
             FSDI <= 1;
         end
@@ -51,9 +51,9 @@ module FastSerial(
         //start reading
         else if (!FSDO & enabled) begin
             // $display ("start reading");
-            readPointer = 0;
-            isReading = 1;
-            readDataValid = 0;
+            readPointer <= 0;
+            isReading <= 1;
+            readDataValid <= 0;
             FSDI <= 1;
         end
 
@@ -62,29 +62,29 @@ module FastSerial(
             //reg 0
             if (writePointer == 0) begin
                 // $display ("wrote 0 = 0");
-                FSDI = 0;
-                writePointer = 1;
+                FSDI <= 0;
+                writePointer <= 1;
             end
 
             //reg 9
             else if (writePointer == 9 & !FSCTS) begin
                 // $display ("wrote 9 = 1");
-                FSDI = 1;
+                FSDI <= 1;
 
                 if (writeQueueReadPointer >= writeQueueSize) begin
-                    writeQueueReadPointer = 0;
+                    writeQueueReadPointer <= 0;
                 end
                 else begin
-                    writeQueueReadPointer = writeQueueReadPointer + 1;
+                    writeQueueReadPointer <= writeQueueReadPointer + 1;
                 end
-                writePointer = 0;
+                writePointer <= 0;
             end
 
             //reg 1-8
             else if (!FSCTS) begin
                 // $display ("wrote %p = %b", writePointer, writeQueue[writeQueueReadPointer][writePointer - 1]);
-                FSDI = writeQueue[writeQueueReadPointer][writePointer - 1];
-                writePointer = writePointer + 1;
+                FSDI <= writeQueue[writeQueueReadPointer][writePointer - 1];
+                writePointer <= writePointer + 1;
             end
 
             //else waiting for FSCTS or interrupted (and reset?)
@@ -100,21 +100,21 @@ module FastSerial(
     always @(posedge writeDataValid) begin
         writeQueue[writeQueueWritePointer] = writeData;
         if (writeQueueWritePointer >= writeQueueSize) begin
-            writeQueueWritePointer = 0;
+            writeQueueWritePointer <= 0;
         end
         else begin
-            writeQueueWritePointer = writeQueueWritePointer + 1;
+            writeQueueWritePointer <= writeQueueWritePointer + 1;
         end
     end
 
     //Reset (active low)
     always @(negedge reset) begin
-        writeQueueReadPointer = 0;
-        writeQueueWritePointer = 0;
-        writePointer = 0;
-        isReading = 0;
-        readPointer = 0;
-        readDataValid = 0;
-        FSDI = 1;
+        writeQueueReadPointer <= 0;
+        writeQueueWritePointer <= 0;
+        writePointer <= 0;
+        isReading <= 0;
+        readPointer <= 0;
+        readDataValid <= 0;
+        FSDI <= 1;
     end
 endmodule

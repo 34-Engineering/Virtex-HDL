@@ -65,25 +65,26 @@ module AppManager(
                 IDLE: begin
                     //Get Frame
                     if (readDataValid & readData[2:0] == GET_FRAME_CODE) begin
-                        state = GET_FRAME;
-                        getFrameKernelPos = 0;
+                        state <= GET_FRAME;
+                        getFrameKernelPos <= 0;
                     end
 
                     //Get Config
                     else if (readDataValid & readData[2:0] == GET_CONFIG_CODE) begin
-                        writeData = virtexConfig[readData[7:3]*16 + 8 +: 8]; //TODO is this correct bit order?
+                        //TODO parallelize
+                        writeData = virtexConfig[readData[7:3]*16 + 15 -: 7];
                         writeDataValid = 1;
                         writeDataValid = 0;
-                        writeData = virtexConfig[readData[7:3]*16 +: 8]; 
+                        writeData = virtexConfig[readData[7:3]*16 + 7 -: 7]; 
                         writeDataValid = 1;
                         writeDataValid = 0;
                     end
 
                     //Set Config
                     else if (readDataValid & readData[2:0] == SET_CONFIG_CODE) begin
-                        state = SET_CONFIG;
-                        setConfigPartion = 0;
-                        setConfigAddress = readData[7:3];
+                        state <= SET_CONFIG;
+                        setConfigPartion <= 0;
+                        setConfigAddress <= readData[7:3];
                     end
                 end
 
@@ -92,27 +93,27 @@ module AppManager(
                     writeData = imageFrame[getFrameKernelPos.x][getFrameKernelPos.y];
 
                     if (getFrameKernelPos.x > 79) begin
-                        getFrameKernelPos.x = 0;
-                        getFrameKernelPos.y = getFrameKernelPos.y + 1;
-                        
-                        if (getFrameKernelPos.y > 479) begin
-                            state = IDLE;
+                        if (getFrameKernelPos.y > 478) begin
+                            state <= IDLE;
                         end
+
+                        getFrameKernelPos.x <= 0;
+                        getFrameKernelPos.y <= getFrameKernelPos.y + 1;
                     end
                 end
 
                 SET_CONFIG: begin
                     //second partion of data
                     if (setConfigPartion & readDataValid) begin
-                        setConfigData[7:0] = readData;
-                        state = IDLE;
+                        setConfigData[7:0] <= readData;
+                        state <= IDLE;
                         setConfigPartion <= 0;
                     end
 
                     //first partion of data
                     else if (readDataValid) begin
-                        setConfigData[15:8] = readData;
-                        setConfigPartion = 1;
+                        setConfigData[15:8] <= readData;
+                        setConfigPartion <= 1;
                     end
                 end
             endcase

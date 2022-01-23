@@ -30,13 +30,15 @@ module ConfigManager(
         SPI_MOSI <= 0;
     end
 
-    //TODO SPI MASTER
+    //TODO implement SPI master
+    //TODO 2MHz SPI_CLK
     // SPIMaster SPI();
+
     // task onData(reg [15:0] data);
     
     // endtask
 
-    // task save();
+    // task write();
     //     //TODO
     // endtask
 
@@ -45,7 +47,7 @@ module ConfigManager(
     generate
         for (i=0; i < $size(virtexConfigWriteRequests); i++) begin
             always @(posedge virtexConfigWriteRequests[i].valid) begin
-                virtexConfig[virtexConfigWriteRequests[i].address] = virtexConfigWriteRequests[i].data;
+                virtexConfig[virtexConfigWriteRequests[i].address] <= virtexConfigWriteRequests[i].data;
             end
         end
     endgenerate

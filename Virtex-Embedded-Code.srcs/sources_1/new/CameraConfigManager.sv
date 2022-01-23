@@ -65,22 +65,42 @@ module CameraConfigManager(
             enableClockManagement2();
             requiredRegisterUpload();
             softPowerUp();
-            setImagineMode(); //TODO
-            poweredUpSequenceStage = 1;
+            setImagineMode();
+            poweredUpSequenceStage <= 1;
         end
     end
 
     //Enable/Disable Sequencer
+    reg waitingToEnableSequencer = 0;
     always @ (posedge sequencerEnabled or negedge sequencerEnabled) begin
-        if (sequencerEnabled) begin
-            //TODO make sure initialize has been done before this
+        if (sequencerEnabled & poweredUpSequenceStage) begin
+            //see note about poweredUpSequenceStage below
+            //enable sequencer
             write(192, 16'h080D);
         end
+        else if (sequencerEnabled) begin
+            //trying to enable the sequencer, but power up has not finished
+            //so enable it when we can
+            waitingToEnableSequencer <= 1;
+        end
         else begin
+            //disable sequencer
             write(192, 16'h0800);
         end
     end
+    always @ (posedge CLK) begin
+        //if waiting to enable sequencer & power up has finished
+        /*Note: even tho poweredUpSequenceStage = 1 doesnt mean power up has finished, this
+          will be added to end of the write queue (behind all the power up commands) so
+          it will occur as intentended */
+        if (waitingToEnableSequencer & poweredUpSequenceStage) begin
+            //enable sequencer
+            write(192, 16'h080D);
+            waitingToEnableSequencer <= 0;
+        end
+    end
 
+    //TODO reorganize into array or ?
     task enableClockManagement1();
         write(2, 16'h0000);     // chip confirugre LVDS monochrome
         write(17, 16'h210f);    // configure PLL

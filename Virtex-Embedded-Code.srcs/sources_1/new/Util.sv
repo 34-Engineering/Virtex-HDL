@@ -4,29 +4,41 @@
 
     */
 package Util;
-    //Types
+    //10-bit Vector
     typedef struct packed {
         logic [9:0] x, y;
     } Vector;
 
-    typedef struct {
-        Vector boundTopLeft, boundBottomRight;
-        Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft;
-        logic valid = 0;
+    //64-bit Blob
+    typedef struct packed {
+        Vector boundTopLeft, boundBottomRight; //square bounding box
+        Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
+        logic valid;
+        logic [2:0] empty; //to make it 64-bit
     } Blob;
 
-    typedef enum {
-       OFF=0, ON_VERTICAL=1, ON_HORIZONTAL=2, ON_DIAGONAL=3
-    } DualObjectMode; //TODO support more than 2 targets
+    typedef logic [7:0] ImageFrame [79:0] [479:0];
 
-    typedef enum {
+    //Config
+    typedef enum logic [7:0] {
+       ANY=0, HORIZONTAL=1, VERTICAL=2, DIAGONAL=3,
+       DIAGONAL_FORWARD=4, DIAGONAL_BACKWARD=5 //TODO new names for diagonals?
+    } TargetOrientation;
+
+    typedef struct packed {
+        logic [7:0] count;
+        TargetOrientation targetOrientation;
+    } TargetMode;
+
+    typedef enum logic [15:0] {
        NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
     } Orientation;
     
     typedef struct packed {
+        //all must be 16-bit
         logic [15:0] test;
-        logic [15:0] dualObjectMode;
-        logic [15:0] orientation;
+        TargetMode targetMode;
+        Orientation orientation;
         logic [15:0] boundingWidthMin;
         logic [15:0] boundingWidthMax;
         logic [15:0] boundingHeightMin;
@@ -45,8 +57,8 @@ package Util;
 
     parameter VirtexConfig DefaultVirtexConfig = '{
         test: 16'h0f0f,
-        dualObjectMode: 0,
-        orientation: 0,
+        targetMode: '{1, ANY},
+        orientation: NORMAL,
         boundingWidthMin: 0,
         boundingWidthMax: 16'hffff,
         boundingHeightMin: 0,
@@ -69,14 +81,16 @@ package Util;
         logic valid; 
     } VirtexConfigWriteRequest;
 
-    typedef logic [7:0] ImageFrame [79:0] [479:0];
-
-    //Range
+    //Range Functions
     function logic [9:0] min(input logic [9:0] num1, num2);
         return num1 < num2 ? num1 : num2;
     endfunction
 
     function logic [9:0] max(input logic [9:0] num1, num2);
         return num1 > num2 ? num1 : num2;
+    endfunction
+
+    function logic [9:0] clamp(input logic[9:0] num, min, max);
+        return num < min ? min : (num > max ? max : num);
     endfunction
 endpackage

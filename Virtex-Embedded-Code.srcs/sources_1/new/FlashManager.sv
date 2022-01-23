@@ -16,6 +16,9 @@ module FlashManager(
 
     assign SPI_CS = 1;
 
-    //TODO SPI MASTER
-    SPIMaster SPI();
+    //80MHz SPI_CLK
+    //TODO 80MHz SPI_CLK
+
+    //SPI master
+    //TODO SPI master
 endmodule
