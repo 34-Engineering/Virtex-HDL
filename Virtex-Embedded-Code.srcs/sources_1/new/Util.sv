@@ -35,8 +35,6 @@ package Util;
     } Orientation;
     
     typedef struct packed {
-        //all must be 16-bit
-        logic [15:0] test;
         TargetMode targetMode;
         Orientation orientation;
         logic [15:0] boundingWidthMin;
@@ -53,10 +51,25 @@ package Util;
         logic [15:0] centerY;
         logic [15:0] threshold;
         logic [15:0] exposure;
+        logic [15:0] reserved1;
+        logic [15:0] reserved2;
+        logic [15:0] reserved3;
+        logic [15:0] reserved4;
+        logic [15:0] reserved5;
+        logic [15:0] reserved6;
+        logic [15:0] reserved7;
+        logic [15:0] reserved8;
+        logic [15:0] reserved9;
+        logic [15:0] reserved10;
+        logic [15:0] reserved11;
+        logic [15:0] reserved12;
+        logic [15:0] reserved13;
+        logic [15:0] reserved14;
+        logic [15:0] reserved15;
+        logic [15:0] reserved16;
     } VirtexConfig;
 
     parameter VirtexConfig DefaultVirtexConfig = '{
-        test: 16'h0f0f,
         targetMode: '{1, ANY},
         orientation: NORMAL,
         boundingWidthMin: 0,
@@ -72,13 +85,29 @@ package Util;
         centerX: 16'd320,
         centerY: 16'd240,
         threshold: 8'h0f,
-        exposure: 8'h0f
+        exposure: 8'h0f,
+        reserved1: 16'd0,
+        reserved2: 16'd0,
+        reserved3: 16'd0,
+        reserved4: 16'd0,
+        reserved5: 16'd0,
+        reserved6: 16'd0,
+        reserved7: 16'd0,
+        reserved8: 16'd0,
+        reserved9: 16'd0,
+        reserved10: 16'd0,
+        reserved11: 16'd0,
+        reserved12: 16'd0,
+        reserved13: 16'd0,
+        reserved14: 16'd0,
+        reserved15: 16'd0,
+        reserved16: 16'd0
     };
 
     typedef struct packed {
         logic [4:0] address;
         logic [15:0] data;
-        logic valid; 
+        logic valid;
     } VirtexConfigWriteRequest;
 
     //Range Functions

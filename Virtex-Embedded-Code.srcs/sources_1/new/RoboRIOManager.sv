@@ -23,7 +23,7 @@ import Util::*;
         - returns all blobs matching criteria from config (excluding CenterX & CenterY)
         - see blob structure in Util.sv
      - 0100001 get/set enabled, 1 byte data 
-     - 10XXXXX get/set config, 2 bytes data 
+     - 10XXXXX get/set config, 2 bytes data
      
     */
 module RoboRIOManager(
@@ -45,7 +45,7 @@ module RoboRIOManager(
     localparam SET_ENABLED = 8'b01000011;
 
     //Crude SPI slave implementation
-    reg byteNumber = 0; //what byte we are on
+    reg [3:0] byteNumber = 0; //what byte we are on
     reg [2:0] bytePointer = 0; //where we are in the byte
     reg [7:0] readData = 0;
     reg [7:0] writeData = 0;
@@ -113,8 +113,8 @@ module RoboRIOManager(
 
         //Get Config
         if (commandIsGetConfig & byteNumber < 2) begin
-            //finds the config position (each entry is 16-bits)
-            //then splits the 16-bit config into 2x 8-bit sections
+            //finds the config register index w/ * 16
+            //then split 16-bit config into [15:8] & [7:0]
             writeData <= virtexConfig[(command[5:1]*16) + (byteNumber*8+7) -: 7];
             byteNumber <= byteNumber + 1;
         end

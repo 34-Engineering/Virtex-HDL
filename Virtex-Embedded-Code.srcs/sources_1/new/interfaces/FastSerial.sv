@@ -22,8 +22,7 @@ module FastSerial(
 
     assign FSCLK = CLK48;
 
-    parameter writeQueueSize = 320 - 1;
-    reg [0:7] writeQueue[0:writeQueueSize];
+    reg [0:7] writeQueue [0:319];
     reg [9:0] writeQueueReadPointer = 0;
     reg [9:0] writeQueueWritePointer = 0;
     reg [3:0] writePointer = 0;
@@ -71,7 +70,7 @@ module FastSerial(
                 // $display ("wrote 9 = 1");
                 FSDI <= 1;
 
-                if (writeQueueReadPointer >= writeQueueSize) begin
+                if (writeQueueReadPointer >= $size(writeQueue) - 1) begin
                     writeQueueReadPointer <= 0;
                 end
                 else begin
@@ -98,8 +97,8 @@ module FastSerial(
 
     //Add to Write Queue
     always @(posedge writeDataValid) begin
-        writeQueue[writeQueueWritePointer] = writeData;
-        if (writeQueueWritePointer >= writeQueueSize) begin
+        writeQueue[writeQueueWritePointer] <= writeData;
+        if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
             writeQueueWritePointer <= 0;
         end
         else begin

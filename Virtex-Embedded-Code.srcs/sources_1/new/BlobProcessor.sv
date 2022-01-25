@@ -13,8 +13,7 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    parameter maxBlobs = 100 - 1;
-    Blob blobs[0:maxBlobs];
+    Blob blobs[0:99];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
 
@@ -131,7 +130,7 @@ module BlobProcessor(
     //Fix Blob Index
     task fixBlobIndex();
         //out of bounds --> overflow
-        if (blobPointer > maxBlobs) begin
+        if (blobPointer > $size(blobs) - 1) begin
             blobPointer <= 0;
         end
 

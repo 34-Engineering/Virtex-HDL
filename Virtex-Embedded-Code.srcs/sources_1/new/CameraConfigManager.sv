@@ -49,9 +49,10 @@ module CameraConfigManager(
     reg [7:0] writeCommandNumber = 0;
     reg [4:0] writeCommandPointer = 0;
     reg isSequencerEnabled = 0;
-    always @(posedge SPI_CLK) begin
+    always @(negedge SPI_CLK) begin //FIXME clock edges
         case (powerUpStage)
             ENABLE_CLOCK_MANAGEMENT_1: begin
+                //TODO CS
                 writeAllCommands(enableClockManagement1);
             end
 

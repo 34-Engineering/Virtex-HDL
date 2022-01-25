@@ -48,7 +48,7 @@ module Top(
     output wire LED_USER,
     input wire LED_FAULT,
     
-    //Power Data
+    //Power
     input wire PWR_12V_EN,
 
     //Camera/Image Sensor LVDS
@@ -70,40 +70,11 @@ module Top(
     );
 
     wire enabled;
-    wire hasCommunication;
-    wire Blob targetBlob;
-    wire ImageFrame imageFrame;
+    wire bootDone;
+
+    //ConfigManager
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
-
-    //Sub-Components
-    AppManager AppManager(
-        .CLK(CLK),
-        .FSDI(USB_BD[0]),
-        .FSCLK(USB_BD[1]),
-        .FSDO(USB_BD[2]),
-        .FSCTS(USB_BD[3]),
-        .USB_ON(USB_ON),
-        .USB_PWREN(USB_PWREN),
-        .USB_SUS(USB_SUS),
-        .virtexConfig(virtexConfig),
-        .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-        .imageFrame(imageFrame)
-    );
-
-    RoboRIOManager RoboRIOManager(
-        .CLK(CLK),
-        .RIO_SCLK(RIO_SCLK),
-        .RIO_MOSI(RIO_MOSI),
-        .RIO_MISO(RIO_MISO),
-        .RIO_CS(RIO_CS),
-        .virtexConfig(virtexConfig),
-        .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
-        .hasCommunication(hasCommunication),
-        .enabled(enabled),
-        .targetBlob(targetBlob)
-    );
-
     ConfigManager ConfigManager(
         .CLK(CLK),
         .SPI_CS(CONF_CS),
@@ -113,36 +84,13 @@ module Top(
         .SPI_MOSI(CONF_MOSI),
         .SPI_MISO(CONF_MISO),
         .virtexConfig(virtexConfig),
-        .virtexConfigWriteRequests(virtexConfigWriteRequests)
+        .virtexConfigWriteRequests(virtexConfigWriteRequests),
+        .bootDone(bootDone)
     );
 
-    FlashManager FlashManager(
-        .CLK(CLK),
-        .SPI_CLK(FLASH_CLK),
-        .SPI_CS(FLASH_CS),
-        .SPI_Q(FLASH_SIO),
-        .TMS(TMS),
-        .TCK(TCK),
-        .TDO(TDO),
-        .TDI(TDI)
-    );
-
-    LEDManager LEDManager(
-        .CLK(CLK),
-        .LED_IR(LED_IR),
-        .LED_PWR(LED_PWR),
-        .LED_EN(LED_EN),
-        .LED_TAR(LED_TAR),
-        .LED_COM(LED_COM),
-        .LED_USER(LED_USER),
-        .LED_FAULT(LED_FAULT),
-        .USB_ON(USB_ON),
-        .PWR_12V_EN(PWR_12V_EN),
-        .enabled(enabled),
-        .targetBlob(targetBlob),
-        .hasCommunication(hasCommunication)
-    );
-
+    //CameraManager
+    wire Blob targetBlob;
+    wire ImageFrame imageFrame;
     CameraManager CameraManager(
         .CLK(CLK),
         .LVDS_CLK_P(CAM_CLK_P),
@@ -162,5 +110,64 @@ module Top(
         .virtexConfig(virtexConfig),
         .imageFrame(imageFrame),
         .targetBlob(targetBlob)
+    );
+
+    //AppManager
+    AppManager AppManager(
+        .CLK(CLK),
+        .FSDI(USB_BD[0]),
+        .FSCLK(USB_BD[1]),
+        .FSDO(USB_BD[2]),
+        .FSCTS(USB_BD[3]),
+        .USB_ON(USB_ON),
+        .USB_PWREN(USB_PWREN),
+        .USB_SUS(USB_SUS),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
+        .imageFrame(imageFrame)
+    );
+
+    //RoboRIOManager
+    wire hasCommunication;
+    // RoboRIOManager RoboRIOManager(
+    //     .CLK(CLK),
+    //     .RIO_SCLK(RIO_SCLK),
+    //     .RIO_MOSI(RIO_MOSI),
+    //     .RIO_MISO(RIO_MISO),
+    //     .RIO_CS(RIO_CS),
+    //     .virtexConfig(virtexConfig),
+    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
+    //     .hasCommunication(hasCommunication),
+    //     .enabled(enabled),
+    //     .targetBlob(targetBlob)
+    // );
+
+    //FlashManager
+    FlashManager FlashManager(
+        .CLK(CLK),
+        .SPI_CLK(FLASH_CLK),
+        .SPI_CS(FLASH_CS),
+        .SPI_Q(FLASH_SIO),
+        .TMS(TMS),
+        .TCK(TCK),
+        .TDO(TDO),
+        .TDI(TDI)
+    );
+
+    //LEDManager
+    LEDManager LEDManager(
+        .CLK(CLK),
+        .LED_IR(LED_IR),
+        .LED_PWR(LED_PWR),
+        .LED_EN(LED_EN),
+        .LED_TAR(LED_TAR),
+        .LED_COM(LED_COM),
+        .LED_USER(LED_USER),
+        .LED_FAULT(LED_FAULT),
+        .USB_ON(USB_ON),
+        .PWR_12V_EN(PWR_12V_EN),
+        .enabled(enabled),
+        .targetBlob(targetBlob),
+        .hasCommunication(hasCommunication)
     );
 endmodule
