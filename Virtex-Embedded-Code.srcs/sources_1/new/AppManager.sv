@@ -28,7 +28,7 @@ module AppManager(
 
     //48MHz clock
     wire CLK48;
-    clk_wiz_1 clk_wiz_1(
+    clk_wiz_1(
         .clk_in1(CLK),
         .clk_out1(CLK48)
     );
@@ -39,7 +39,7 @@ module AppManager(
     wire writeQueueEmpty;
     wire [7:0] readData;
     wire readDataValid;
-    FastSerial FastSerial(
+    FastSerial(
         .CLK48(CLK48),
         .FSDI(FSDI),
         .FSCLK(FSCLK),

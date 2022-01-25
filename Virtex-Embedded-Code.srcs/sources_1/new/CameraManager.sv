@@ -1,12 +1,11 @@
 `timescale 1ns / 1ps
 import Util::*;
-`include "CameraManagerParams.sv"
 import CameraManagerParams::*;
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
     
-    CameraConfigManager manages the SPI interface with the image sensor
+    CameraSPIManager manages the SPI interface with the image sensor
 
     Setup:
      - P/N: NOIP1FN0300A−QTI/QDI (monochrome, infrared-optimized)
@@ -53,8 +52,8 @@ module CameraManager(
     output wire SPI_MOSI,
     input wire SPI_MISO,
     output wire SPI_CLK,
-    output wire TRIGGER,
-    input wire MONITOR,
+    output wire [2:0] TRIGGER,
+    input wire [1:0] MONITOR,
     output wire reset,
     input wire enabled,
     input wire VirtexConfig virtexConfig,
@@ -81,7 +80,7 @@ module CameraManager(
 
     //Generate 72MHz (288 * 2 / 8) Parallel Clock from 288MHz Input Clock
     wire CLK72;
-    clk_wiz_2 clk_wiz_2(
+    clk_wiz_2(
         .clk_in1(LVDS_CLK),
         .clk_out1(CLK72)
     );
@@ -141,7 +140,7 @@ module CameraManager(
     Vector lastKernelPos; //(0, 0) to (79, 479)
     reg [7:0] lastKernel;
     reg endFrame;
-    BlobProcessor blobProcessor(
+    BlobProcessor(
         .CLK72(CLK72),
         .kernelValid(lastKernelValid),
         .kernelPos(lastKernelPos),
@@ -150,8 +149,8 @@ module CameraManager(
         .targetBlob(targetBlob)
     );
 
-    //Camera Config Manager
-    CameraConfigManager CameraConfigManager(
+    //Camera SPI Manager
+    CameraSPIManager(
         .CLK(CLK),
         .SPI_CS(SPI_CS),
         .SPI_MOSI(SPI_MOSI),

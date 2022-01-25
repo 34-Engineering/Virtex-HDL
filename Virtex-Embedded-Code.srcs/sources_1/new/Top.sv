@@ -1,69 +1,54 @@
 `timescale 1ns / 1ps
 `include "Util.sv"
+`include "CameraManagerParams.sv"
 import Util::*;
 
-/* Top - 
+/* Top - top (main) module for the FPGA source code
 
+    Only this module and it's submodules will get synthesizes and implemented into the bit file.
+
+    All the inputs either come from TopSim.sv or the Virtex.xdc contraints file.
+    
     */
 module Top(
     input CLK,
 
     //USB
-    inout wire [3:0] USB_BD,
-    input wire USB_ON,
-    input wire USB_PWREN,
-    input wire USB_SUS,
+    input wire USB_FSDI, USB_FSCLK, USB_FSDO, USB_FSCTS,
+    input wire USB_ON, USB_PWREN, USB_SUS,
 
     //RoboRIO
-    // input wire RIO_SCLK,
-    // input wire RIO_MOSI,
-    // output wire RIO_MISO,
-    // input wire RIO_CS,
+    input wire RIO_CLK, RIO_MOSI, RIO_CS,
+    output wire RIO_MISO,
 
     //Config EEPROM
-    output wire CONF_CS,
-    output wire CONF_WP,
-    output wire CONF_HOLD,
-    output wire CONF_CLK,
-    output wire CONF_MOSI,
+    output wire CONF_CS, CONF_WP, CONF_HOLD, CONF_CLK, CONF_MOSI,
     input wire CONF_MISO,
 
     //Flash Memory
-    output wire FLASH_CLK,
-    output wire FLASH_CS,
+    output wire FLASH_CLK, FLASH_CS,
     output wire [3:0] FLASH_SIO,
 
     //JTAG
-    input wire TMS,
-    input wire TCK,
-    output wire TDO,
-    input wire TDI,
+    input wire USB_TMS, USB_TCK, USB_TDI,
+    output wire USB_TDO,
 
     //LEDs
-    output wire LED_IR,
-    output wire [2:0] LED_PWR,
-    output wire [2:0] LED_EN,
-    output wire [2:0] LED_TAR,
-    output wire [2:0] LED_COM,
-    output wire LED_USER,
+    output wire LED_IR, LED_USER,
+    output wire [2:0] LED_PWR, LED_EN, LED_TAR, LED_COM,
     input wire LED_FAULT,
     
     //Power
     input wire PWR_12V_EN,
 
     //Camera/Image Sensor LVDS
-    input wire CAM_CLK_P,
-    input wire CAM_CLK_N,
-    input wire CAM_SYNC_P,
-    input wire CAM_SYNC_N,
-    input wire [3:0] CAM_DOUT_P,
-    input wire [3:0] CAM_DOUT_N,
+    input wire CAM_CLK_P, CAM_CLK_N,
+    input wire CAM_SYNC_P, CAM_SYNC_N,
+    input wire [3:0] CAM_DOUT_P, CAM_DOUT_N,
 
     //Camera/Image Sensor IO
-    output wire CAM_SPI_CS,
-    output wire CAM_SPI_MOSI,
+    output wire CAM_SPI_CLK, CAM_SPI_MOSI, CAM_SPI_CS, 
     input wire CAM_SPI_MISO,
-    output wire CAM_SPI_CLK,
     output wire [2:0] CAM_TRIG,
     input wire [1:0] CAM_MON,
     output wire CAM_RESET
@@ -75,7 +60,7 @@ module Top(
     //ConfigManager
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
-    ConfigManager ConfigManager(
+    ConfigManager(
         .CLK(CLK),
         .SPI_CS(CONF_CS),
         .SPI_WP(CONF_WP),
@@ -91,7 +76,7 @@ module Top(
     //CameraManager
     wire Blob targetBlob;
     wire ImageFrame imageFrame;
-    CameraManager CameraManager(
+    CameraManager(
         .CLK(CLK),
         .LVDS_CLK_P(CAM_CLK_P),
         .LVDS_CLK_N(CAM_CLK_N),
@@ -113,12 +98,12 @@ module Top(
     );
 
     //AppManager
-    AppManager AppManager(
+    AppManager(
         .CLK(CLK),
-        .FSDI(USB_BD[0]),
-        .FSCLK(USB_BD[1]),
-        .FSDO(USB_BD[2]),
-        .FSCTS(USB_BD[3]),
+        .FSDI(USB_FSDI),
+        .FSCLK(USB_FSCLK),
+        .FSDO(USB_FSDO),
+        .FSCTS(USB_FSCTS),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS),
@@ -129,33 +114,33 @@ module Top(
 
     //RoboRIOManager
     wire hasCommunication;
-    // RoboRIOManager RoboRIOManager(
-    //     .CLK(CLK),
-    //     .RIO_SCLK(RIO_SCLK),
-    //     .RIO_MOSI(RIO_MOSI),
-    //     .RIO_MISO(RIO_MISO),
-    //     .RIO_CS(RIO_CS),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
-    //     .hasCommunication(hasCommunication),
-    //     .enabled(enabled),
-    //     .targetBlob(targetBlob)
-    // );
+    RoboRIOManager RoboRIOManager(
+        .CLK(CLK),
+        .SPI_CLK(RIO_CLK),
+        .SPI_MOSI(RIO_MOSI),
+        .SPI_MISO(RIO_MISO),
+        .SPI_CS(RIO_CS),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
+        .hasCommunication(hasCommunication),
+        .enabled(enabled),
+        .targetBlob(targetBlob)
+    );
 
     //FlashManager
-    FlashManager FlashManager(
+    FlashManager(
         .CLK(CLK),
         .SPI_CLK(FLASH_CLK),
         .SPI_CS(FLASH_CS),
         .SPI_Q(FLASH_SIO),
-        .TMS(TMS),
-        .TCK(TCK),
-        .TDO(TDO),
-        .TDI(TDI)
+        .TMS(USB_TMS),
+        .TCK(USB_TCK),
+        .TDO(USB_TDO),
+        .TDI(USB_TDI)
     );
 
     //LEDManager
-    LEDManager LEDManager(
+    LEDManager(
         .CLK(CLK),
         .LED_IR(LED_IR),
         .LED_PWR(LED_PWR),

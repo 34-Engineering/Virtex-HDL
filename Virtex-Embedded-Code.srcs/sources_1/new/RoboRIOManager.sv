@@ -28,10 +28,10 @@ import Util::*;
     */
 module RoboRIOManager(
     input wire CLK,
-    input wire RIO_SCLK, //4MHz
-    input wire RIO_MOSI,
-    output reg RIO_MISO,
-    input wire RIO_CS,
+    input wire SPI_CLK, //4MHz
+    input wire SPI_MOSI,
+    output reg SPI_MISO,
+    input wire SPI_CS,
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     output reg hasCommunication,
@@ -50,13 +50,13 @@ module RoboRIOManager(
     reg [7:0] readData = 0;
     reg [7:0] writeData = 0;
     reg [7:0] command = 0; //register addr + r/w
-    always @(posedge RIO_SCLK) begin
-        if (!RIO_CS) begin
+    always @(posedge SPI_CLK) begin
+        if (!SPI_CS) begin
             //write data to MISO
-            RIO_MISO <= writeData[bytePointer];
+            SPI_MISO <= writeData[bytePointer];
 
             //read data from MOSI (cant be parallel, onDataByte() requires it)
-            readData[bytePointer] = RIO_MOSI;
+            readData[bytePointer] = SPI_MOSI;
             
             if (bytePointer == 7) begin
                 onByteDone();

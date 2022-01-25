@@ -7,7 +7,7 @@ import Util::*;
     
     VirtexConfig: 32 x 16-bit (see Util.sv for individual configurations & defaults)
 
-    EEPROM: AT25010B-MAHL-E (128 x 8-bit)
+    EEPROM: AT25010B-MAHL-E (128 x 8-bit); Docs: https://ww1.microchip.com/downloads/en/DeviceDoc/20006251A.pdf
      [0] Validity
       - 0x34 EEPROM will be read at boot into virtexConfig
       - 0xXX EEPROM DefaultVirtexConfig will be written to at boot
@@ -65,7 +65,7 @@ module ConfigManager(
     localparam VALID_DATA   = 8'h34;
 
     //10MHz Clock (20MHz is only allowed at 5V)
-    clk_wiz_3 clk_wiz_3(
+    clk_wiz_3(
         .clk_in1(CLK),
         .clk_out1(SPI_CLK)
     );

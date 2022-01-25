@@ -2,6 +2,16 @@
 
 /* FlashManager - 
 
+    Docs: https://www.macronix.com/Lists/Datasheet/Attachments/7409/MX25V1635F,%202.5V,%2016Mb,%20v1.4.pdf
+
+
+    Flash: MX25V1635FM2I (2,000,000 x 8-bits)
+     - 80MHz
+
+
+
+    Uses 
+
     */
 module FlashManager(
     input wire CLK,
