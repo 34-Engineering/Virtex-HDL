@@ -14,5 +14,6 @@ module AppSim(
     output reg USB_SUS
     );
 
+    FastSerialSim();
 
 endmodule

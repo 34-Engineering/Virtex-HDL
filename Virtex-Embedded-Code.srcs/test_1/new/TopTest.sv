@@ -10,6 +10,7 @@ import Util::*;
 module TopTest;
 
     FT2232HSimTest();
+    JTAGTest();
     JTAGSimTest();
     FastSerialTest();
     FastSerialSimTest();

@@ -26,6 +26,13 @@ module FlashManager(
 
     assign SPI_CS = 1;
 
+    JTAG(
+        .TMS(TMS),
+        .TCK(TCK),
+        .TDO(TDO),
+        .TDI(TDI)
+    );
+
     //80MHz SPI_CLK
     //TODO 80MHz SPI_CLK?
 
