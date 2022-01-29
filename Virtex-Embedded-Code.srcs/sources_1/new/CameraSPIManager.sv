@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
-import Util::*;
-import CameraManagerParams::*;
+`include "Util.sv"
+`include "CameraManagerParams.sv"
 
 /* CameraSPIManager - manages register upload & enabling/disabling the sequencer over SPI to the Python 300
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
@@ -50,89 +50,83 @@ module CameraSPIManager(
     reg [4:0] writeCommandPointer = 0;
     reg isSequencerEnabled = 0;
     always @(negedge SPI_CLK) begin //FIXME clock edges
-        case (powerUpStage)
-            ENABLE_CLOCK_MANAGEMENT_1: begin
-                //TODO CS
-                writeAllCommands(enableClockManagement1);
-            end
+        if (powerUpStage == CHECK_PLL_LOCK) begin
+            if (writeCommandPointer == 25) begin
+                //TODO does it really just return a single bit??
+                if (SPI_MISO == 0) begin
+                    //not unlocked --> keep retrying
+                    writeCommandPointer <= 0;
+                    writeCommandNumber <= writeCommandNumber + 1;
 
-            CHECK_PLL_LOCK: begin
-                if (writeCommandPointer == 25) begin
-                    //TODO does it really just return a single bit??
-                    if (SPI_MISO == 0) begin
-                        //not unlocked --> keep retrying
-                        writeCommandPointer <= 0;
-                        writeCommandNumber <= writeCommandNumber + 1;
-
-                        if (writeCommandNumber == 20) begin
-                            //TODO error
-                        end
-                    end
-                    else begin
-                        //move to next stage
-                        powerUpStage <= powerUpStage.next;
-                        writeCommandPointer <= 0;
-                        writeCommandNumber <= 0;
+                    if (writeCommandNumber == 20) begin
+                        //TODO error
                     end
                 end
                 else begin
-                    //write request for PLL lock status
-                    SPI_MOSI <= checkPLLLockStatus[writeCommandPointer];
-                end
-            end
-
-            REGISTER_UPLOAD: begin
-                writeAllCommands(powerUpSequenceRegisterUpload);
-            end
-
-            DONE: begin
-                //writing enable/disable sequencer
-                if (writeCommandNumber) begin
-                    //write command
-                    SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][writeCommandPointer];
-
-                    if (writeCommandNumber == SPIWriteCommandEndIndex) begin
-                        //done writing command
-                        writeCommandNumber <= 0;
-                    end
-                    else begin
-                        //increment pointer
-                        writeCommandPointer <= writeCommandPointer + 1;
-                    end
-                end
-
-                //wants to enable/disable sequencer
-                else if (sequencerEnabled != isSequencerEnabled) begin
-                    isSequencerEnabled <= sequencerEnabled;
-                    writeCommandNumber <= 1;
+                    //move to next stage
+                    powerUpStage <= powerUpStage.next;
                     writeCommandPointer <= 0;
+                    writeCommandNumber <= 0;
                 end
-            end
-        endcase
-    end
-
-    task writeAllCommands(SPIWriteCommand commands []);
-        //write all commands
-        SPI_MOSI <= commands[writeCommandNumber][writeCommandPointer];
-
-        if (writeCommandPointer == SPIWriteCommandEndIndex) begin
-            if (writeCommandNumber == $size(commands) - 1) begin
-                //move to next stage
-                powerUpStage <= powerUpStage.next;
-                writeCommandNumber <= 0;
             end
             else begin
-                //move to next command
-                writeCommandNumber <= writeCommandNumber + 1;
+                //write request for PLL lock status
+                SPI_MOSI <= checkPLLLockStatus[writeCommandPointer];
+            end
+        end
+
+        else if (powerUpStage == DONE) begin
+            //writing enable/disable sequencer
+            if (writeCommandNumber) begin
+                //write command
+                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][writeCommandPointer];
+
+                if (writeCommandNumber == SPIWriteCommandEndIndex) begin
+                    //done writing command
+                    writeCommandNumber <= 0;
+                end
+                else begin
+                    //increment pointer
+                    writeCommandPointer <= writeCommandPointer + 1;
+                end
             end
 
-            writeCommandPointer <= 0;
+            //wants to enable/disable sequencer
+            else if (sequencerEnabled != isSequencerEnabled) begin
+                isSequencerEnabled <= sequencerEnabled;
+                writeCommandNumber <= 1;
+                writeCommandPointer <= 0;
+            end
         end
+
+        
         else begin
-            //increment write pointer
-            writeCommandPointer <= writeCommandPointer + 1;
+            //write all commands
+            if (powerUpStage == REGISTER_UPLOAD)
+                SPI_MOSI <= powerUpSequenceRegisterUpload[writeCommandNumber][writeCommandPointer];
+            else SPI_MOSI <= enableClockManagement1[writeCommandNumber][writeCommandPointer];
+
+            if (writeCommandPointer == SPIWriteCommandEndIndex) begin
+                if (powerUpStage == REGISTER_UPLOAD ?
+                    writeCommandNumber == $size(powerUpSequenceRegisterUpload) - 1 : 
+                    writeCommandNumber == $size(enableClockManagement1) - 1) begin
+                    //move to next stage
+                    powerUpStage <= powerUpStage.next;
+                    writeCommandNumber <= 0;
+                end
+                else begin
+                    //move to next command
+                    writeCommandNumber <= writeCommandNumber + 1;
+                end
+
+                writeCommandPointer <= 0;
+            end
+            else begin
+                //increment write pointer
+                writeCommandPointer <= writeCommandPointer + 1;
+            end
         end
-    endtask
+    end
 
     //Reset
     always @(negedge reset) begin

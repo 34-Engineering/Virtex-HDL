@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "Util.sv"
 
 /* RoboRIOManager - SPI Slave to the RoboRIO
     

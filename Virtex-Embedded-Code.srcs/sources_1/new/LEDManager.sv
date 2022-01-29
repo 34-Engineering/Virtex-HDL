@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "Util.sv"
 
 /* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs */
 module LEDManager(
@@ -41,9 +41,9 @@ module LEDManager(
     //EN: flashes orange rgb(255, 165, 0) at 1.5hz when enabled
     reg [25:0] enabledToggleCounter;
     reg [7:0] enabledGreenCounter;
-    wire enabledToggle = enabled && enabledToggleCounter > 25'b1111111111111111111111111;
+    wire enabledToggle = enabled & enabledToggleCounter > 25'b1111111111111111111111111;
     assign LED_EN[2] = enabledToggle;
-    assign LED_EN[1] = enabledToggle && enabledGreenCounter > 165;
+    assign LED_EN[1] = enabledToggle & enabledGreenCounter > 165;
     always @(posedge CLK) begin
         enabledToggleCounter <= enabledToggleCounter + 1;
         enabledGreenCounter <= enabledGreenCounter + 1;

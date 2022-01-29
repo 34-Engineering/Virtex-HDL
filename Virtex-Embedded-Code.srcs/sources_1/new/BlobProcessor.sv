@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "Util.sv"
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
    
@@ -17,7 +17,7 @@ module BlobProcessor(
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
 
-    //End Frame
+    //End Frame --> Output Blob
     always @(posedge endFrame) begin
         foreach (blobs[i]) begin
             if (blobs[i].valid) begin
@@ -32,11 +32,15 @@ module BlobProcessor(
 
     //New Kernel
     always @(posedge kernelValid) begin
+        //process every pixel of the kernel
         foreach (kernel[i]) begin
             if (kernel[i]) begin
                 processPixel('{ x: kernelPos.x, y: kernelPos.y });
             end
         end
+
+        //old blob is stale --> mark as invalid
+        targetBlob.valid <= 0;
     end
 
     //Process Pixel
@@ -79,7 +83,7 @@ module BlobProcessor(
                     end
                 end
 
-                joined = i;
+                joined <= i;
 
                 //expand bouding box
                 if (pos.x < blobs[i].boundTopLeft.x)
@@ -122,21 +126,16 @@ module BlobProcessor(
                 '{pos.x, pos.y}, //y+1?
                 1, 0
             };
-            blobPointer++;
+            blobPointer <= blobPointer + 1;
             fixBlobIndex();
         end
     endtask
 
     //Fix Blob Index
     task fixBlobIndex();
-        //out of bounds --> overflow
-        if (blobPointer > $size(blobs) - 1) begin
-            blobPointer <= 0;
-        end
-
-        //on top of existing blob --> find empty blob
+        //out of bounds OR on top of existing blob --> find empty blob
         //if all blobs are full it won't change blobPointer and just overwrite the blob its on; is this the behavior we want? should it clear the blob in that case?
-        if (blobs[blobPointer].valid) begin
+        if (blobPointer > $size(blobs) - 1 | blobs[blobPointer].valid) begin
             foreach (blobs[i]) begin
                 if (!blobs[i].valid) begin
                     blobPointer <= i;

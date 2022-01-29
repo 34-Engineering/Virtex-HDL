@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "../../sources_1/new/Util.sv"
+`include "../../sources_1/new/CameraManagerParams.sv"
 
 /* TopTest - top test file for executing unit tests on every module
 
@@ -30,5 +31,6 @@ module TopTest;
     Python300SPISimTest();
     RoboRIOManagerTest();
     RoboRIOSimTest();
+    UtilTest();
 
 endmodule

@@ -1,4 +1,4 @@
-verilog xil_defaultlib --include "../../../../Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2" \
+verilog xil_defaultlib --include "../../../ipstatic" \
 "../../../../Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_sim_netlist.v" \
 
 verilog xil_defaultlib "glbl.v"

@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "Util.sv"
 
 /* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
      1) Streams video & processed blobs to FT2232H

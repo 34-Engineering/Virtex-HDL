@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
-import Util::*;
-import CameraManagerParams::*;
+`include "Util.sv"
+`include "CameraManagerParams.sv"
 
 /* CameraManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
@@ -61,8 +61,41 @@ module CameraManager(
     output wire Blob targetBlob
     );
 
+    //Generate 72MHz (288 * 2 / 8) Parallel Clock from 288MHz Input Clock
+    wire LVDS_CLK, CLK72;
+    clk_wiz_2 clk_wiz_2(
+        .clk_in1(LVDS_CLK),
+        .clk_out1(CLK72)
+    );
+
+    //Blob Processor
+    reg lastKernelValid;
+    Vector lastKernelPos; //(0, 0) to (79, 479)
+    reg [7:0] lastKernel;
+    reg endFrame = 0;
+    // BlobProcessor BlobProcessor(
+    //     .CLK72(CLK72),
+    //     .kernelValid(lastKernelValid),
+    //     .kernelPos(lastKernelPos),
+    //     .kernel(lastKernel),
+    //     .endFrame(endFrame),
+    //     .targetBlob(targetBlob)
+    // );
+
+    //Camera SPI Manager
+    CameraSPIManager CameraSPIManager(
+        .CLK(CLK),
+        .SPI_CS(SPI_CS),
+        .SPI_MOSI(SPI_MOSI),
+        .SPI_MISO(SPI_MISO),
+        .SPI_CLK(SPI_CLK),
+        .TRIGGER(TRIGGER),
+        .MONITOR(MONITOR),
+        .reset(reset),
+        .sequencerEnabled(enabled)
+    );
+
     //LVDS Input Buffers
-    wire LVDS_CLK;
     wire LVDS_SYNC;
     wire [3:0] LVDS_DOUT;
     IBUFGDS #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
@@ -78,18 +111,11 @@ module CameraManager(
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
-    //Generate 72MHz (288 * 2 / 8) Parallel Clock from 288MHz Input Clock
-    wire CLK72;
-    clk_wiz_2(
-        .clk_in1(LVDS_CLK),
-        .clk_out1(CLK72)
-    );
-
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
     wire [7:0] SYNC;
     wire [7:0] DOUT [3:0];
     wire [4:0] trainingDone; //check w/ trainingDone == 0
-    ISERDES SYNC_ISERDES(
+    CameraISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
         .parallelClk(CLK72),
@@ -98,68 +124,41 @@ module CameraManager(
         .trainingPattern(TR),
         .trainingDone(trainingDone[0])
     );
-    ISERDES DOUT_0_ISERDES(
+    CameraISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
+        .SERIAL_DATA(LVDS_DOUT[0]),
         .parallelClk(CLK72),
         .parallelData(DOUT[0]),
         .reset(1'b1),
         .trainingPattern(TR),
         .trainingDone(trainingDone[1])
     );
-    ISERDES DOUT_1_ISERDES(
+    CameraISERDES DOUT_1_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
+        .SERIAL_DATA(LVDS_DOUT[1]),
         .parallelClk(CLK72),
         .parallelData(DOUT[1]),
         .reset(1'b1),
         .trainingPattern(TR),
         .trainingDone(trainingDone[2])
     );
-    ISERDES DOUT_2_ISERDES(
+    CameraISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
+        .SERIAL_DATA(LVDS_DOUT[2]),
         .parallelClk(CLK72),
         .parallelData(DOUT[2]),
         .reset(1'b1),
         .trainingPattern(TR),
         .trainingDone(trainingDone[3])
     );
-    ISERDES DOUT_3_ISERDES(
+    CameraISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
+        .SERIAL_DATA(LVDS_DOUT[3]),
         .parallelClk(CLK72),
         .parallelData(DOUT[3]),
         .reset(1'b1),
         .trainingPattern(TR),
         .trainingDone(trainingDone[4])
-    );
-
-    //Blob Processor
-    reg lastKernelValid;
-    Vector lastKernelPos; //(0, 0) to (79, 479)
-    reg [7:0] lastKernel;
-    reg endFrame;
-    BlobProcessor(
-        .CLK72(CLK72),
-        .kernelValid(lastKernelValid),
-        .kernelPos(lastKernelPos),
-        .kernel(lastKernel),
-        .endFrame(endFrame),
-        .targetBlob(targetBlob)
-    );
-
-    //Camera SPI Manager
-    CameraSPIManager(
-        .CLK(CLK),
-        .SPI_CS(SPI_CS),
-        .SPI_MOSI(SPI_MOSI),
-        .SPI_MISO(SPI_MISO),
-        .SPI_CLK(SPI_CLK),
-        .TRIGGER(TRIGGER),
-        .MONITOR(MONITOR),
-        .reset(reset),
-        .sequencerEnabled(enabled)
     );
 
     //Loop

@@ -3,6 +3,8 @@
 /** CameraManagerParams - 
 
 */
+`ifndef CAMERA_MANAGER_PARAMS_DONE
+`define CAMERA_MANAGER_PARAMS_DONE
 package CameraManagerParams;
 
     //Default SYNC Channel Codes (Frame Sync + Data Classification)
@@ -233,3 +235,6 @@ package CameraManagerParams;
 
     localparam checkPLLLockStatus = 9'd24;
 endpackage
+
+import CameraManagerParams::*;
+`endif

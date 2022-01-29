@@ -3,6 +3,8 @@
 /* Util -  
 
     */
+`ifndef UTIL_DONE
+`define UTIL_DONE
 package Util;
     //10-bit Vector
     typedef struct packed {
@@ -14,7 +16,7 @@ package Util;
         Vector boundTopLeft, boundBottomRight; //square bounding box
         Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
         logic valid;
-        logic [2:0] empty; //to make it 64-bit
+        logic [2:0] reserved; //to make it 64-bit
     } Blob;
 
     typedef logic [7:0] ImageFrame [79:0] [479:0];
@@ -123,3 +125,6 @@ package Util;
         return num < min ? min : (num > max ? max : num);
     endfunction
 endpackage
+
+import Util::*;
+`endif

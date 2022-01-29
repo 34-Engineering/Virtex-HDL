@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "../../sources_1/new/Util.sv"
 
 /* TopSim - top simulation file for executing a global test of the entire FPGA
 

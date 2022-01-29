@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-import Util::*;
+`include "Util.sv"
 
 /* ConfigManager
     Transfers config from EEPROM to FPGA fabric at boot
@@ -65,7 +65,7 @@ module ConfigManager(
     localparam VALID_DATA   = 8'h34;
 
     //10MHz Clock (20MHz is only allowed at 5V)
-    clk_wiz_3(
+    clk_wiz_3 clk_wiz_3(
         .clk_in1(CLK),
         .clk_out1(SPI_CLK)
     );
@@ -198,7 +198,7 @@ module ConfigManager(
                 SPI_MOSI <= writeQueue[writeQueueReadPointer];
                 bytePointer <= bytePointer + 1;
             end
-            else if (byteNumber == 4 || byteNumber == 5) begin
+            else if (byteNumber == 4 | byteNumber == 5) begin
                 //write virtexConfig[address] into address
                 /*first get config address, then * 16 to find its index
                   then we count [15:0] to read in whole register
@@ -218,7 +218,7 @@ module ConfigManager(
     //Write Requests
     genvar i;
     generate
-        for (i=0; i < $size(virtexConfigWriteRequests); i++) begin
+        for (i=0; i < $size(virtexConfigWriteRequests); i = i + 1) begin
             always @(posedge virtexConfigWriteRequests[i].valid) begin
                 write(virtexConfigWriteRequests[i].address, virtexConfigWriteRequests[i].data);
             end
