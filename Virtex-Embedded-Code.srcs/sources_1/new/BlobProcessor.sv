@@ -33,11 +33,12 @@ module BlobProcessor(
     //New Kernel
     always @(posedge kernelValid) begin
         //process every pixel of the kernel
-        foreach (kernel[i]) begin
-            if (kernel[i]) begin
-                processPixel('{ x: kernelPos.x, y: kernelPos.y });
-            end
-        end
+        // foreach (kernel[i]) begin
+        //     if (kernel[i]) begin
+        //         processPixel('{ x: kernelPos.x + i, y: kernelPos.y });
+        //     end
+        // end
+        processPixel('{ x: kernelPos.x, y: kernelPos.y });
 
         //old blob is stale --> mark as invalid
         targetBlob.valid <= 0;

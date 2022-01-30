@@ -79,6 +79,7 @@ module ConfigManager(
     reg hasValidData = 1;
     reg [4:0] byteNumber = 0;
     reg [2:0] bytePointer = 0;
+    reg lastBytePointerZero = 1;
     reg [7:0] readData = 0;
     
     reg [4:0] writeQueue[0:31]; //stores write address
@@ -87,7 +88,6 @@ module ConfigManager(
 
     assign SPI_HOLD = inTransaction;
     assign SPI_WP = inTransaction & (bootDone | !hasValidData);
-    always @(posedge bytePointer == 0) byteNumber <= byteNumber + 1;
 
     always @(negedge SPI_CLK) begin
         if (!bootDone) begin
@@ -213,6 +213,12 @@ module ConfigManager(
                 inTransaction <= 0;
             end
         end
+
+        //increment byteNumber w/ bytePointer latch
+        if (bytePointer == 0 & !lastBytePointerZero) begin
+            byteNumber <= byteNumber + 1;
+        end
+        lastBytePointerZero <= bytePointer == 0;
     end
 
     //Write Requests

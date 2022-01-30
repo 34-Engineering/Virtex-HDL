@@ -7,8 +7,12 @@
 module JTAG(
     input wire TMS,
     input wire TCK,
-    output wire TDO,
+    output reg TDO,
     input wire TDI
     );
+
+    initial begin
+        TDO <= 0;    
+    end
 
 endmodule

@@ -45,8 +45,8 @@ module CameraISERDES (
         .CE2(1'b1),
         .RST(!reset),
         .BITSLIP(bitslip),
-        .CLK(serial_clk),
-        .CLKB(!serial_clk),
+        .CLK(SERIAL_CLK),
+        .CLKB(!SERIAL_CLK),
         .CLKDIV(parallelClk),
         .CLKDIVP(1'b0),
         .DYNCLKDIVSEL(1'b0),
@@ -69,7 +69,7 @@ module CameraISERDES (
     always @(negedge parallelClk) begin
         //once the parallel data lines up we are done with bitsliping
         if (bitslip & parallelData == trainingPattern) begin
-            bitslip = 0;
+            bitslip <= 0;
         end
     end
 endmodule

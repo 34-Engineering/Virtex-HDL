@@ -73,14 +73,14 @@ module CameraManager(
     Vector lastKernelPos; //(0, 0) to (79, 479)
     reg [7:0] lastKernel;
     reg endFrame = 0;
-    // BlobProcessor BlobProcessor(
-    //     .CLK72(CLK72),
-    //     .kernelValid(lastKernelValid),
-    //     .kernelPos(lastKernelPos),
-    //     .kernel(lastKernel),
-    //     .endFrame(endFrame),
-    //     .targetBlob(targetBlob)
-    // );
+    BlobProcessor BlobProcessor(
+        .CLK72(CLK72),
+        .kernelValid(lastKernelValid),
+        .kernelPos(lastKernelPos),
+        .kernel(lastKernel),
+        .endFrame(endFrame),
+        .targetBlob(targetBlob)
+    );
 
     //Camera SPI Manager
     CameraSPIManager CameraSPIManager(
@@ -115,6 +115,7 @@ module CameraManager(
     wire [7:0] SYNC;
     wire [7:0] DOUT [3:0];
     wire [4:0] trainingDone; //check w/ trainingDone == 0
+
     CameraISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
@@ -215,50 +216,50 @@ module CameraManager(
     end
 
     task processImageData();
-        //load partion 2 of kernel (see page 40)
-        if (kernelPartion) begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel[0] <= DOUT[3] > virtexConfig.threshold;
-                kernel[2] <= DOUT[2] > virtexConfig.threshold;
-                kernel[4] <= DOUT[1] > virtexConfig.threshold;
-                kernel[6] <= DOUT[0] > virtexConfig.threshold;
-            end
-            else begin
-                //load normally
-                kernel[1] <= DOUT[0] > virtexConfig.threshold;
-                kernel[3] <= DOUT[1] > virtexConfig.threshold;
-                kernel[5] <= DOUT[2] > virtexConfig.threshold;
-                kernel[7] <= DOUT[3] > virtexConfig.threshold;
-            end
+    //     //load partion 2 of kernel (see page 40)
+    //     if (kernelPartion) begin
+    //         if (kernelOdd) begin
+    //             //load backwards
+    //             kernel[0] <= DOUT[3] > virtexConfig.threshold;
+    //             kernel[2] <= DOUT[2] > virtexConfig.threshold;
+    //             kernel[4] <= DOUT[1] > virtexConfig.threshold;
+    //             kernel[6] <= DOUT[0] > virtexConfig.threshold;
+    //         end
+    //         else begin
+    //             //load normally
+    //             kernel[1] <= DOUT[0] > virtexConfig.threshold;
+    //             kernel[3] <= DOUT[1] > virtexConfig.threshold;
+    //             kernel[5] <= DOUT[2] > virtexConfig.threshold;
+    //             kernel[7] <= DOUT[3] > virtexConfig.threshold;
+    //         end
             
-            lastKernelPos <= kernelPos;
-            lastKernel <= kernel;
-            lastKernelValid <= 1;
-            imageFrame[kernelPos.x][kernelPos.y] <= kernel;
-            kernelPos.x <= kernelPos.x + 1;
-        end
+    //         lastKernelPos <= kernelPos;
+    //         lastKernel <= kernel;
+    //         lastKernelValid <= 1;
+    //         imageFrame[kernelPos.x][kernelPos.y] <= kernel;
+    //         kernelPos.x <= kernelPos.x + 1;
+    //     end
 
-        //load partion 1 of kernel (see page 40)
-        else begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel[1] <= DOUT[3] > virtexConfig.threshold;
-                kernel[3] <= DOUT[2] > virtexConfig.threshold;
-                kernel[5] <= DOUT[1] > virtexConfig.threshold;
-                kernel[7] <= DOUT[0] > virtexConfig.threshold;
-            end
-            else begin
-                //load normally
-                kernel[0] <= DOUT[0] > virtexConfig.threshold;
-                kernel[2] <= DOUT[1] > virtexConfig.threshold;
-                kernel[4] <= DOUT[2] > virtexConfig.threshold;
-                kernel[6] <= DOUT[3] > virtexConfig.threshold;
-            end
+    //     //load partion 1 of kernel (see page 40)
+    //     else begin
+    //         if (kernelOdd) begin
+    //             //load backwards
+    //             kernel[1] <= DOUT[3] > virtexConfig.threshold;
+    //             kernel[3] <= DOUT[2] > virtexConfig.threshold;
+    //             kernel[5] <= DOUT[1] > virtexConfig.threshold;
+    //             kernel[7] <= DOUT[0] > virtexConfig.threshold;
+    //         end
+    //         else begin
+    //             //load normally
+    //             kernel[0] <= DOUT[0] > virtexConfig.threshold;
+    //             kernel[2] <= DOUT[1] > virtexConfig.threshold;
+    //             kernel[4] <= DOUT[2] > virtexConfig.threshold;
+    //             kernel[6] <= DOUT[3] > virtexConfig.threshold;
+    //         end
             
-            kernelPartion <= 1;
-            kernelOdd <= !kernelOdd;
-            lastKernelValid <= 0;
-        end
+    //         kernelPartion <= 1;
+    //         kernelOdd <= !kernelOdd;
+    //         lastKernelValid <= 0;
+    //     end
     endtask
 endmodule

@@ -59,84 +59,84 @@ module Top(
     //ConfigManager
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
-    // ConfigManager ConfigManager(
-    //     .CLK(CLK),
-    //     .SPI_CS(CONF_CS),
-    //     .SPI_WP(CONF_WP),
-    //     .SPI_HOLD(CONF_HOLD),
-    //     .SPI_CLK(CONF_CLK),
-    //     .SPI_MOSI(CONF_MOSI),
-    //     .SPI_MISO(CONF_MISO),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequests(virtexConfigWriteRequests),
-    //     .bootDone(bootDone)
-    // );
+    ConfigManager ConfigManager(
+        .CLK(CLK),
+        .SPI_CS(CONF_CS),
+        .SPI_WP(CONF_WP),
+        .SPI_HOLD(CONF_HOLD),
+        .SPI_CLK(CONF_CLK),
+        .SPI_MOSI(CONF_MOSI),
+        .SPI_MISO(CONF_MISO),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequests(virtexConfigWriteRequests),
+        .bootDone(bootDone)
+    );
 
     //CameraManager
     wire Blob targetBlob;
     wire ImageFrame imageFrame;
-    // CameraManager CameraManager(
-    //     .CLK(CLK),
-    //     .LVDS_CLK_P(CAM_CLK_P),
-    //     .LVDS_CLK_N(CAM_CLK_N),
-    //     .LVDS_SYNC_P(CAM_SYNC_P),
-    //     .LVDS_SYNC_N(CAM_SYNC_N),
-    //     .LVDS_DOUT_P(CAM_DOUT_P),
-    //     .LVDS_DOUT_N(CAM_DOUT_N),
-    //     .SPI_CS(CAM_SPI_CS),
-    //     .SPI_MOSI(CAM_SPI_MOSI),
-    //     .SPI_MISO(CAM_SPI_MISO),
-    //     .SPI_CLK(CAM_SPI_CLK),
-    //     .TRIGGER(CAM_TRIG),
-    //     .MONITOR(CAM_MON),
-    //     .reset(CAM_RESET),
-    //     .enabled(enabled),
-    //     .virtexConfig(virtexConfig),
-    //     .imageFrame(imageFrame),
-    //     .targetBlob(targetBlob)
-    // );
+    CameraManager CameraManager(
+        .CLK(CLK),
+        .LVDS_CLK_P(CAM_CLK_P),
+        .LVDS_CLK_N(CAM_CLK_N),
+        .LVDS_SYNC_P(CAM_SYNC_P),
+        .LVDS_SYNC_N(CAM_SYNC_N),
+        .LVDS_DOUT_P(CAM_DOUT_P),
+        .LVDS_DOUT_N(CAM_DOUT_N),
+        .SPI_CS(CAM_SPI_CS),
+        .SPI_MOSI(CAM_SPI_MOSI),
+        .SPI_MISO(CAM_SPI_MISO),
+        .SPI_CLK(CAM_SPI_CLK),
+        .TRIGGER(CAM_TRIG),
+        .MONITOR(CAM_MON),
+        .reset(CAM_RESET),
+        .enabled(enabled),
+        .virtexConfig(virtexConfig),
+        .imageFrame(imageFrame),
+        .targetBlob(targetBlob)
+    );
 
     //AppManager
-    // AppManager AppManager(
-    //     .CLK(CLK),
-    //     .FSDI(USB_FSDI),
-    //     .FSCLK(USB_FSCLK),
-    //     .FSDO(USB_FSDO),
-    //     .FSCTS(USB_FSCTS),
-    //     .USB_ON(USB_ON),
-    //     .USB_PWREN(USB_PWREN),
-    //     .USB_SUS(USB_SUS),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-    //     .imageFrame(imageFrame)
-    // );
+    AppManager AppManager(
+        .CLK(CLK),
+        .FSDI(USB_FSDI),
+        .FSCLK(USB_FSCLK),
+        .FSDO(USB_FSDO),
+        .FSCTS(USB_FSCTS),
+        .USB_ON(USB_ON),
+        .USB_PWREN(USB_PWREN),
+        .USB_SUS(USB_SUS),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
+        .imageFrame(imageFrame)
+    );
 
     //RoboRIOManager
     wire hasCommunication;
-    // RoboRIOManager RoboRIOManager(
-    //     .CLK(CLK),
-    //     .SPI_CLK(RIO_CLK),
-    //     .SPI_MOSI(RIO_MOSI),
-    //     .SPI_MISO(RIO_MISO),
-    //     .SPI_CS(RIO_CS),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
-    //     .hasCommunication(hasCommunication),
-    //     .enabled(enabled),
-    //     .targetBlob(targetBlob)
-    // );
+    RoboRIOManager RoboRIOManager(
+        .CLK(CLK),
+        .SPI_CLK(RIO_CLK),
+        .SPI_MOSI(RIO_MOSI),
+        .SPI_MISO(RIO_MISO),
+        .SPI_CS(RIO_CS),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
+        .hasCommunication(hasCommunication),
+        .enabled(enabled),
+        .targetBlob(targetBlob)
+    );
 
     //FlashManager
-    // FlashManager FlashManager(
-    //     .CLK(CLK),
-    //     .SPI_CLK(FLASH_CLK),
-    //     .SPI_CS(FLASH_CS),
-    //     .SPI_Q(FLASH_SIO),
-    //     .TMS(USB_TMS),
-    //     .TCK(USB_TCK),
-    //     .TDO(USB_TDO),
-    //     .TDI(USB_TDI)
-    // );
+    FlashManager FlashManager(
+        .CLK(CLK),
+        .SPI_CLK(FLASH_CLK),
+        .SPI_CS(FLASH_CS),
+        .SPI_Q(FLASH_SIO),
+        .TMS(USB_TMS),
+        .TCK(USB_TCK),
+        .TDO(USB_TDO),
+        .TDI(USB_TDI)
+    );
 
     //LEDManager
     LEDManager LEDManager(

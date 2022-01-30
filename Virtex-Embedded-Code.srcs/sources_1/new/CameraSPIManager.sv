@@ -49,8 +49,16 @@ module CameraSPIManager(
     reg [7:0] writeCommandNumber = 0;
     reg [4:0] writeCommandPointer = 0;
     reg isSequencerEnabled = 0;
-    always @(negedge SPI_CLK) begin //FIXME clock edges
-        if (powerUpStage == CHECK_PLL_LOCK) begin
+    always @(negedge SPI_CLK or negedge reset) begin //FIXME clock edges
+        //Reset
+        if (~reset) begin
+            writeCommandNumber <= 0;
+            writeCommandPointer <= 0;
+            powerUpStage <= ENABLE_CLOCK_MANAGEMENT_1;
+        end
+
+        //Check PLL Lock
+        else if (powerUpStage == CHECK_PLL_LOCK) begin
             if (writeCommandPointer == 25) begin
                 //TODO does it really just return a single bit??
                 if (SPI_MISO == 0) begin
@@ -75,6 +83,7 @@ module CameraSPIManager(
             end
         end
 
+        //Done (enable/disable sequencer)
         else if (powerUpStage == DONE) begin
             //writing enable/disable sequencer
             if (writeCommandNumber) begin
@@ -99,7 +108,7 @@ module CameraSPIManager(
             end
         end
 
-        
+        //Enable Clock Management 1 & Register Upload
         else begin
             //write all commands
             if (powerUpStage == REGISTER_UPLOAD)
@@ -127,12 +136,4 @@ module CameraSPIManager(
             end
         end
     end
-
-    //Reset
-    always @(negedge reset) begin
-        writeCommandNumber <= 0;
-        writeCommandPointer <= 0;
-        powerUpStage <= ENABLE_CLOCK_MANAGEMENT_1;
-    end
-
 endmodule
