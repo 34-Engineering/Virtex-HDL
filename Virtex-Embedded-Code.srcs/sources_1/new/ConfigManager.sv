@@ -90,7 +90,7 @@ module ConfigManager(
     assign SPI_WP = inTransaction & (bootDone | !hasValidData);
 
     always @(negedge SPI_CLK) begin
-        if (!bootDone) begin
+        if (~bootDone) begin
             //Check EEPROM Validity
             if (byteNumber == 0) begin
                 //write READ opcode

@@ -13,35 +13,46 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    Blob blobs[0:99];
+    Blob blobs[0:49];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
 
-    //End Frame --> Output Blob
-    always @(posedge endFrame) begin
-        foreach (blobs[i]) begin
-            if (blobs[i].valid) begin
-                //todo proper selection
-                targetBlob <= blobs[i];
-            end
-            blobs[i].valid <= 0;
-        end
-
-        blobPointer <= 0;
-    end
-
     //New Kernel
     always @(posedge kernelValid) begin
-        //process every pixel of the kernel
+        // process every pixel of the kernel
         // foreach (kernel[i]) begin
         //     if (kernel[i]) begin
         //         processPixel('{ x: kernelPos.x + i, y: kernelPos.y });
         //     end
         // end
+
         processPixel('{ x: kernelPos.x, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 1, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 2, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 3, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 4, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 5, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 6, y: kernelPos.y });
+        processPixel('{ x: kernelPos.x + 7, y: kernelPos.y });
 
         //old blob is stale --> mark as invalid
         targetBlob.valid <= 0;
+
+        //End Frame --> Select Target Blob
+        if (endFrame) begin
+            foreach (blobs[i]) begin
+                if (blobs[i].valid) begin
+                    //TODO proper selection
+                    targetBlob <= blobs[i];
+                end
+
+                //mark blob as invalid (stale)
+                blobs[i].valid <= 0;
+            end
+
+            //reset blob pointer
+            blobPointer <= 0;
+        end
     end
 
     //Process Pixel

@@ -14,10 +14,10 @@ module FastSerial(
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
     input reg [7:0] writeData,
-    input reg writeDataValid,
-    output wire writeQueueEmpty,
+    input reg writeDataValid, //active high
+    output wire writeQueueEmpty, //active high
     output reg [0:7] readData,
-    output reg readDataValid,
+    output reg readDataValid, //active high
     input reg reset //active low
     );
 
@@ -30,11 +30,23 @@ module FastSerial(
     reg isReading = 0;
     reg [3:0] readPointer = 0;
     assign writeQueueEmpty = writeQueueWritePointer == writeQueueReadPointer;
+    reg lastWriteDataValid = 0;
 
     //Loop
     always @(negedge FSCLK) begin
+        //reset
+        if (~reset) begin
+            writeQueueReadPointer <= 0;
+            writeQueueWritePointer <= 0;
+            writePointer <= 0;
+            isReading <= 0;
+            readPointer <= 0;
+            readDataValid <= 0;
+            FSDI <= 1;
+        end
+
         //reading
-        if (isReading & enabled) begin
+        else if (isReading & enabled) begin
             if (readPointer == 8) begin
                 // $display ("done reading");
                 isReading <= 0;
@@ -94,27 +106,17 @@ module FastSerial(
         else begin
             FSDI <= 1;
         end
-    end
 
-    //Add to Write Queue
-    always @(posedge writeDataValid) begin
-        writeQueue[writeQueueWritePointer] <= writeData;
-        if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
-            writeQueueWritePointer <= 0;
+        //add to write queue
+        if (writeDataValid & ~lastWriteDataValid) begin
+            writeQueue[writeQueueWritePointer] <= writeData;
+            if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
+                writeQueueWritePointer <= 0;
+            end
+            else begin
+                writeQueueWritePointer <= writeQueueWritePointer + 1;
+            end
         end
-        else begin
-            writeQueueWritePointer <= writeQueueWritePointer + 1;
-        end
-    end
-
-    //Reset (active low)
-    always @(negedge reset) begin
-        writeQueueReadPointer <= 0;
-        writeQueueWritePointer <= 0;
-        writePointer <= 0;
-        isReading <= 0;
-        readPointer <= 0;
-        readDataValid <= 0;
-        FSDI <= 1;
+        lastWriteDataValid <= writeDataValid;
     end
 endmodule

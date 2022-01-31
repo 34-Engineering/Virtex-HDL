@@ -13,7 +13,10 @@ module Top(
     input CLK,
 
     //USB
-    input wire USB_FSDI, USB_FSCLK, USB_FSDO, USB_FSCTS,
+    input wire USB_TMS, USB_TCK, USB_TDI,
+    output wire USB_TDO,
+    input wire USB_FSDO, USB_FSCTS,
+    output wire USB_FSDI, USB_FSCLK,
     input wire USB_ON, USB_PWREN, USB_SUS,
 
     //RoboRIO
@@ -27,10 +30,6 @@ module Top(
     //Flash Memory
     output wire FLASH_CLK, FLASH_CS,
     output wire [3:0] FLASH_SIO,
-
-    //JTAG
-    input wire USB_TMS, USB_TCK, USB_TDI,
-    output wire USB_TDO,
 
     //LEDs
     output wire LED_IR, LED_USER,
@@ -74,7 +73,7 @@ module Top(
 
     //CameraManager
     wire Blob targetBlob;
-    wire ImageFrame imageFrame;
+    wire FrameBufferWriteRequest frameBufferWriteRequest;
     CameraManager CameraManager(
         .CLK(CLK),
         .LVDS_CLK_P(CAM_CLK_P),
@@ -92,7 +91,7 @@ module Top(
         .reset(CAM_RESET),
         .enabled(enabled),
         .virtexConfig(virtexConfig),
-        .imageFrame(imageFrame),
+        .frameBufferWriteRequest(frameBufferWriteRequest),
         .targetBlob(targetBlob)
     );
 
@@ -108,7 +107,7 @@ module Top(
         .USB_SUS(USB_SUS),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-        .imageFrame(imageFrame)
+        .frameBufferWriteRequest(frameBufferWriteRequest)
     );
 
     //RoboRIOManager

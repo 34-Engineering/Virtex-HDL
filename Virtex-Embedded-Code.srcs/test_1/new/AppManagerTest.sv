@@ -9,7 +9,7 @@ module AppManagerTest(
     input VirtexConfig virtexConfig,
     input VirtexConfig virtexConfigOut,
     output reg saveVirtexConfig,
-    input ImageFrame imageFrame
+    input FrameBuffer frameBuffer
     );
 
     wire USB_ON = 1;
@@ -31,7 +31,7 @@ module AppManagerTest(
         .USB_SUS(USB_SUS),
         .configuration(configuration),
         .saveConfig(saveConfig),
-        .imageFrame(imageFrame)
+        .frameBuffer(frameBuffer)
     );
 
     //Fast Serial

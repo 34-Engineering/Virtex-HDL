@@ -27,7 +27,7 @@ module TopSim;
 
     //Python300Sim for CameraManager
     wire Blob targetBlob;
-    wire ImageFrame imageFrame;
+    wire FrameBuffer frameBuffer;
     wire CAM_CLK_P, CAM_CLK_N, CAM_SYNC_P, CAM_SYNC_N, CAM_DOUT_P, CAM_DOUT_N;
     wire CAM_SPI_CS, CAM_SPI_MOSI, CAM_SPI_MISO, CAM_SPI_CLK;
     wire CAM_TRIG, CAM_MON, CAM_RESET;

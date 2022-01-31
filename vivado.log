@@ -1,0 +1,174 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Sun Jan 30 12:49:01 2022
+# Process ID: 11356
+# Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent24636 C:\Users\liams\Documents\GitHub\Virtex-Embedded-Code\Virtex-Embedded-Code.xpr
+# Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/vivado.log
+# Journal file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.xpr
+WARNING: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1'.
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2021.1/data/ip'.
+open_project: Time (s): cpu = 00:00:13 ; elapsed = 00:00:09 . Memory (MB): peak = 1236.055 ; gain = 0.000
+launch_runs synth_1 -jobs 20
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_3'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_3'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_2'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_2'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_0'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_0'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_1'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_1'...
+[Sun Jan 30 12:49:51 2022] Launched clk_wiz_2_synth_1, clk_wiz_0_synth_1, clk_wiz_1_synth_1, clk_wiz_3_synth_1...
+Run output will be captured here:
+clk_wiz_2_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_2_synth_1/runme.log
+clk_wiz_0_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_0_synth_1/runme.log
+clk_wiz_1_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_1_synth_1/runme.log
+clk_wiz_3_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_3_synth_1/runme.log
+[Sun Jan 30 12:49:51 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+set_param general.maxThreads 8
+8
+reset_run synth_1
+WARNING: [Vivado 12-1017] Problems encountered:
+1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
+
+launch_runs synth_1 -jobs 20
+[Sun Jan 30 15:11:15 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 16:14:26 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+[Sun Jan 30 16:22:49 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 16:51:45 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 16:58:13 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 16:58:13 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 17:55:54 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 17:55:54 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 19:58:14 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 19:58:14 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 20:09:03 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 20:09:03 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+set_param drc.disableLUTOverUtilError 1
+1
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 20:28:28 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+open_run impl_1
+INFO: [Device 21-403] Loading part xc7a35tftg256-1
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.217 . Memory (MB): peak = 1543.148 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 2913 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line31/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2311.770 ; gain = 36.219
+Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2311.770 ; gain = 36.219
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2311.770 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+open_run: Time (s): cpu = 00:00:22 ; elapsed = 00:00:16 . Memory (MB): peak = 2471.508 ; gain = 1153.270
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 20:32:52 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 20:32:52 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+refresh_design
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.112 . Memory (MB): peak = 2765.336 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 1581 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line31/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2765.336 ; gain = 0.000
+Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2765.336 ; gain = 0.000
+refresh_design: Time (s): cpu = 00:00:11 ; elapsed = 00:00:06 . Memory (MB): peak = 2765.336 ; gain = 13.824
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 20:47:53 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 20:47:53 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+close_design
+reset_run synth_1
+WARNING: [Vivado 12-1017] Problems encountered:
+1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
+
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 21:29:44 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 21:29:44 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Sun Jan 30 21:35:22 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Sun Jan 30 21:35:22 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Mon Jan 31 13:06:09 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Mon Jan 31 13:06:09 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Mon Jan 31 14:46:55 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Mon Jan 31 14:46:55 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log

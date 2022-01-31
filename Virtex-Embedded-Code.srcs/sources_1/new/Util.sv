@@ -19,8 +19,6 @@ package Util;
         logic [2:0] reserved; //to make it 64-bit
     } Blob;
 
-    typedef logic [7:0] ImageFrame [79:0] [479:0];
-
     //Config
     typedef enum logic [7:0] {
        ANY=0, HORIZONTAL=1, VERTICAL=2, DIAGONAL=3,
@@ -109,8 +107,17 @@ package Util;
     typedef struct packed {
         logic [4:0] address;
         logic [15:0] data;
-        logic valid;
+        logic valid; //active high
     } VirtexConfigWriteRequest;
+
+    //Frame Buffer
+    typedef logic [7:0] FrameBuffer [79:0][479:0];
+
+    typedef struct packed {
+        Vector kernelPos;
+        logic [7:0] kernel;
+        logic valid; //active high
+    } FrameBufferWriteRequest;
 
     //Range Functions
     function logic [9:0] min(input logic [9:0] num1, num2);

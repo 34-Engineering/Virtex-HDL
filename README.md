@@ -54,3 +54,5 @@ All simulating, synthesis, implementation, and bitstream generation is done thro
  4) Install the [Verilog VSCode Extension](https://marketplace.visualstudio.com/items?itemName=mshr-h.VerilogHDL) and configure settings
     - Set `verilog.ctags.path` = `ctags`
     - Set `verilog.linting.linter` = `xvlog`
+
+ 5) (Optional) Run `set_param general.maxThreads 8` in the Vivado TCL console to reduce Synthesis time.

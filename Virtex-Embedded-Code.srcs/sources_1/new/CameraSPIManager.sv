@@ -30,8 +30,8 @@ module CameraSPIManager(
     output reg SPI_MOSI,
     input wire SPI_MISO,
     output wire SPI_CS, //active low
-    output wire TRIGGER,
-    input wire MONITOR,
+    output wire [2:0] TRIGGER,
+    input wire [1:0] MONITOR,
     output wire reset, //active low
     input wire sequencerEnabled
     );
@@ -49,7 +49,7 @@ module CameraSPIManager(
     reg [7:0] writeCommandNumber = 0;
     reg [4:0] writeCommandPointer = 0;
     reg isSequencerEnabled = 0;
-    always @(negedge SPI_CLK or negedge reset) begin //FIXME clock edges
+    always @(negedge SPI_CLK) begin
         //Reset
         if (~reset) begin
             writeCommandNumber <= 0;

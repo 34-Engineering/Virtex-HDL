@@ -21,7 +21,7 @@ module LEDManager(
     //LED_USER: blink at 1.5hz
     reg [25:0] counter = 0;
     assign LED_USER = counter > 25'b1111111111111111111111111;
-    always @ (posedge CLK) begin
+    always @(posedge CLK) begin
         counter <= counter + 1;
     end
 

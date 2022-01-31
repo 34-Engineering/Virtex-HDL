@@ -17,7 +17,7 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input wire ImageFrame imageFrame
+    input wire FrameBufferWriteRequest frameBufferWriteRequest
     );
 
     parameter GET_FRAME_CODE = 3'b000;
@@ -25,6 +25,8 @@ module AppManager(
     parameter SET_CONFIG_CODE = 3'b100;
     enum {IDLE, GET_FRAME, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
+
+    FrameBuffer frameBuffer;
 
     //48MHz clock
     wire CLK48;
@@ -90,7 +92,7 @@ module AppManager(
 
                 GET_FRAME: begin
                     //38,400 loops
-                    writeData = imageFrame[getFrameKernelPos.x][getFrameKernelPos.y];
+                    writeData = frameBuffer[getFrameKernelPos.x][getFrameKernelPos.y];
 
                     if (getFrameKernelPos.x > 79) begin
                         if (getFrameKernelPos.y > 478) begin
@@ -118,5 +120,10 @@ module AppManager(
                 end
             endcase
         end
+    end
+
+    //Add to Frame Buffer
+    always @(posedge frameBufferWriteRequest.valid) begin
+        frameBuffer[frameBufferWriteRequest.kernelPos.x][frameBufferWriteRequest.kernelPos.y] = frameBufferWriteRequest.kernel;
     end
 endmodule
