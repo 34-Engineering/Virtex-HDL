@@ -11,7 +11,7 @@
      [0] Validity
       - 0x34 EEPROM will be read at boot into virtexConfig
       - 0xXX EEPROM DefaultVirtexConfig will be written to at boot
-     [1:64] virtexConfig  
+     [1:64] virtexConfig
 
     Status Register (8-bits):
      [7:4] Reserved for Future Use (read only)
@@ -37,10 +37,12 @@
      - address (8-bits)
      - data byte at address, address + 1, ... until CS is pulled high
 
-    WRITE Transaction (WP must be low & WEL must be high):
+    WRITE Transaction (WP must be low & ENABLE_WEL must be written before every WRITE):
      - opcode (8-bits)
      - address (8-bits)
      - data byte at address, address + 1, ... until CS is pulled high
+
+    Note: CS must be pulled high between commands
 
     */
 module ConfigManager(
@@ -111,7 +113,7 @@ module ConfigManager(
                 hasValidData <= readData == VALID_DATA;
             end
 
-            //Transfer [1-64] (3-66) EEPROM into virtexConfig
+            //Continue READ & Transfer [1-64] (3-66) EEPROM into virtexConfig
             else if (hasValidData & byteNumber > 2 & byteNumber < 67) begin
                 /*first find config register number, then * 16 to find its index
                   then we count [15:0] to read in whole register
@@ -120,7 +122,7 @@ module ConfigManager(
                 bytePointer <= bytePointer + 1;
             end
 
-            //Write virtexConfig to EEPROM [1-64] & VALID_DATA to [0]
+            //Stop READ & WRITE DefaultVirtexConfig to EEPROM [1-64] then WRITE VALID_DATA to [0]
             else if (!hasValidData & (byteNumber == 3 | byteNumber == 5 | byteNumber == 72 | byteNumber == 74)) begin
                 //pull up CS to write new command
                 SPI_CS <= 1;

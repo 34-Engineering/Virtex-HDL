@@ -1,21 +1,18 @@
 `timescale 1ns / 1ps
 `include "Util.sv"
 
-/* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs */
+/* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs
+
+    Signal LEDs: 3-bit registers where 0 = red, 1 = blue, 2 = green (RGB)
+*/
 module LEDManager(
     input wire CLK,
-    output wire LED_IR,
-    output wire [2:0] LED_PWR, //0 = red, 1 = green, 2 = blue
-    output wire [2:0] LED_EN,
-    output wire [2:0] LED_TAR,
-    output wire [2:0] LED_COM,
-    output wire LED_USER,
+    output wire LED_IR, LED_USER,
+    output wire [2:0] LED_PWR, LED_EN, LED_TAR, LED_COM,
     input wire LED_FAULT, //active low, from MAX16834
-    input wire USB_ON,
-    input wire PWR_12V_EN,
-    input wire enabled,
-    input wire Blob targetBlob,
-    input wire hasCommunication
+    input wire USB_ON, PWR_12V_EN,
+    input wire enabled, hasCommunication,
+    input wire Blob targetBlob
     );
 
     //LED_USER: blink at 1.5hz

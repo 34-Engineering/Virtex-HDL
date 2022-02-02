@@ -19,7 +19,7 @@ package Util;
         logic [2:0] reserved; //to make it 64-bit
     } Blob;
 
-    //Config
+    //Virtex Config
     typedef enum logic [7:0] {
        ANY=0, HORIZONTAL=1, VERTICAL=2, DIAGONAL=3,
        DIAGONAL_FORWARD=4, DIAGONAL_BACKWARD=5 //TODO new names for diagonals?
@@ -118,19 +118,6 @@ package Util;
         logic [7:0] kernel;
         logic valid; //active high
     } FrameBufferWriteRequest;
-
-    //Range Functions
-    function logic [9:0] min(input logic [9:0] num1, num2);
-        return num1 < num2 ? num1 : num2;
-    endfunction
-
-    function logic [9:0] max(input logic [9:0] num1, num2);
-        return num1 > num2 ? num1 : num2;
-    endfunction
-
-    function logic [9:0] clamp(input logic[9:0] num, min, max);
-        return num < min ? min : (num > max ? max : num);
-    endfunction
 endpackage
 
 import Util::*;

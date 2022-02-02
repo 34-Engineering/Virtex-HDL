@@ -28,14 +28,11 @@
     */
 module RoboRIOManager(
     input wire CLK,
-    input wire SPI_CLK, //4MHz
-    input wire SPI_MOSI,
+    input wire SPI_CLK, SPI_CS, SPI_MOSI,
     output reg SPI_MISO,
-    input wire SPI_CS,
+    output reg enabled, hasCommunication,
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    output reg hasCommunication,
-    output reg enabled,
     input wire Blob targetBlob
     );
 

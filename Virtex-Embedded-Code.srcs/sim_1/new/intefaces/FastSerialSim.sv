@@ -5,43 +5,44 @@
 
     */
 module FastSerialSim(
-    input wire FSDI,
-    input wire FSCLK,
-    output reg FSDO,
-    output reg FSCTS,
-    input wire enabled
+    input wire FSDI, //FPGA->PC
+    input wire FSCLK, //48MHz (FPGA generated)
+    output reg FSDO, //PC->FPGA
+    output reg FSCTS, //FPGA clear to send, active low
+    input wire enabled,
+    input reg [7:0] writeData,
+    input reg writeDataValid, //active high
+    output wire writeQueueEmpty, //active high
+    output reg [0:7] readData,
+    output reg readDataValid, //active high
+    input reg reset //active low
     );
 
-    parameter writeQueueSize = 320 - 1;
-    reg [0:7] writeQueue[0:writeQueueSize];
+    reg [0:7] writeQueue[0:319];
     reg [9:0] writeQueueReadPointer = 0;
     reg [9:0] writeQueueWritePointer = 0;
     reg [3:0] writePointer = 0;
-
-    reg [0:7] readData;
-    reg readDataValid = 0;
-    
-    task write(reg [0:7] data);
-        writeQueue[writeQueueWritePointer] = data;
-        if (writeQueueWritePointer >= writeQueueSize) begin
-            writeQueueWritePointer = 0;
-        end
-        else begin
-            writeQueueWritePointer = writeQueueWritePointer + 1;
-        end
-    endtask
-    task clearWriteQueue();
-        writeQueueReadPointer = 0;
-        writeQueueWritePointer = 0;
-    endtask
-    
     reg isReading = 0;
     reg [3:0] readPointer = 0;
+    assign writeQueueEmpty = writeQueueWritePointer == writeQueueReadPointer;
+    reg lastWriteDataValid = 0;
 
     //Loop
     always @(posedge FSCLK) begin
+        //reset
+        if (~reset) begin
+            writeQueueReadPointer <= 0;
+            writeQueueWritePointer <= 0;
+            writePointer <= 0;
+            isReading <= 0;
+            readPointer <= 0;
+            readDataValid <= 0;
+            FSCTS <= 1;
+            FSDO <= 0;
+        end
+
         //reading
-        if (isReading & enabled) begin
+        else if (isReading & enabled) begin
             if (readPointer == 8) begin
                 // $display ("test done reading");
                 FSCTS = 1;
@@ -71,7 +72,7 @@ module FastSerialSim(
                 // $display ("test wrote 9 = 1");
                 FSDO = 1;
 
-                if (writeQueueReadPointer >= writeQueueSize) begin
+                if (writeQueueReadPointer >= $size(writeQueue) - 1) begin
                     writeQueueReadPointer = 0;
                 end
                 else begin
@@ -91,7 +92,7 @@ module FastSerialSim(
         end
 
         //start reading
-        else if (!FSDI & FSCTS) begin
+        else if (~FSDI & FSCTS) begin
             // $display ("test start reading");
             readPointer = 0;
             isReading = 1;
@@ -105,6 +106,18 @@ module FastSerialSim(
             FSDO <= 1;
             FSCTS <= 1;
         end
+
+        //add to write queue
+        if (writeDataValid & ~lastWriteDataValid) begin
+            writeQueue[writeQueueWritePointer] <= writeData;
+            if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
+                writeQueueWritePointer <= 0;
+            end
+            else begin
+                writeQueueWritePointer <= writeQueueWritePointer + 1;
+            end
+        end
+        lastWriteDataValid <= writeDataValid;
     end
 
 endmodule

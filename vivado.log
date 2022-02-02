@@ -172,3 +172,142 @@ launch_runs impl_1 -jobs 20
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
 [Mon Jan 31 14:46:55 2022] Launched impl_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Mon Jan 31 20:05:45 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Mon Jan 31 20:05:45 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Mon Jan 31 21:45:08 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Mon Jan 31 21:45:08 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+open_run impl_1
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.111 . Memory (MB): peak = 2862.199 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 1581 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2862.199 ; gain = 0.000
+Restored from archive | CPU: 1.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2862.199 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.004 . Memory (MB): peak = 2862.199 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+open_run: Time (s): cpu = 00:00:07 ; elapsed = 00:00:05 . Memory (MB): peak = 2862.199 ; gain = 0.000
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 09:24:02 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Tue Feb  1 09:24:02 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+close_design
+set_param place.sliceLegEffortLimit limit 4000
+ERROR: [Common 17-165] Too many positional options when parsing '4000', please type 'set_param -help' for usage info.
+set_param place.sliceLegEffortLimit limit 2000
+ERROR: [Common 17-165] Too many positional options when parsing '2000', please type 'set_param -help' for usage info.
+set_param place.sliceLegEffortLimit 4000
+4000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 12:06:57 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+set_param place.sliceLegEffortLimit 10000
+10000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 12:14:25 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run impl_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 12:19:02 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 12:30:56 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Tue Feb  1 12:30:56 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 14:56:48 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Tue Feb  1 14:56:48 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+open_run impl_1
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.150 . Memory (MB): peak = 2862.199 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 1691 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2862.199 ; gain = 0.000
+Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2862.199 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 2862.199 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+open_run: Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2862.199 ; gain = 0.000
+CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 16:45:16 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Tue Feb  1 16:45:16 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+[Tue Feb  1 20:05:25 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+[Tue Feb  1 20:05:25 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
+refresh_design
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2948.070 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 141 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.207 . Memory (MB): peak = 2948.070 ; gain = 0.000
+Restored from archive | CPU: 0.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.207 . Memory (MB): peak = 2948.070 ; gain = 0.000
+CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+report_utilization -name utilization_1
+exit
+INFO: [Common 17-206] Exiting Vivado at Tue Feb  1 21:46:17 2022...

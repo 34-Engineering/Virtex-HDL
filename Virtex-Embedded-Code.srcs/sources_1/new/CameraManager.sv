@@ -42,16 +42,10 @@
     */
 module CameraManager(
     input wire CLK,
-    input wire LVDS_CLK_P,
-    input wire LVDS_CLK_N,
-    input wire LVDS_SYNC_P,
-    input wire LVDS_SYNC_N,
-    input wire [3:0] LVDS_DOUT_P,
-    input wire [3:0] LVDS_DOUT_N,
-    output wire SPI_CS,
-    output wire SPI_MOSI,
+    input wire LVDS_CLK_P, LVDS_CLK_N, LVDS_SYNC_P, LVDS_SYNC_N,
+    input wire [3:0] LVDS_DOUT_P, LVDS_DOUT_N,
+    output wire SPI_CS, SPI_MOSI, SPI_CLK,
     input wire SPI_MISO,
-    output wire SPI_CLK,
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     output wire reset, //active low?
@@ -61,7 +55,7 @@ module CameraManager(
     output wire Blob targetBlob
     );
 
-    //Generate 72MHz (288 * 2 / 8) Parallel Clock from 288MHz Input Clock
+    //Generate 72MHz Parallel Clock from 288MHz Input Clock
     wire LVDS_CLK, CLK72;
     BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("4")) CLK72_BUFR (
         .O(CLK72),
@@ -69,22 +63,37 @@ module CameraManager(
         .CLR(1'b0),
         .I(LVDS_CLK)
     );
-    // clk_wiz_2 clk_wiz_2(
-    //     .clk_in1(LVDS_CLK),
-    //     .clk_out1(CLK72)
-    // );
+
+    //Generate 400MHz Global Clock
+    wire CLK400;
+    clk_wiz_2 clk_wiz_2(
+        .clk_in1(CLK),
+        .clk_out1(CLK400)
+    );
 
     //Blob Processor
-    reg lastKernelValid;
-    Vector lastKernelPos; //(0, 0) to (79, 479)
-    reg [7:0] lastKernel;
-    reg endFrame = 0;
+    reg lastKernelValidR [2:0];
+    Vector lastKernelPosR [2:0];
+    reg [7:0] lastKernelR [2:0];
+    reg endFrameR [2:0] = '{0, 0, 0};
+    always @(posedge CLK400) begin
+        //Cross clock domain w/ 2x dff
+        //r0 @ 72MHz -> r1 @ 400MHz (metastable) -> r2 @ 400MHz (stable)
+        lastKernelValidR[1] <= lastKernelValidR[0];
+        lastKernelValidR[2] <= lastKernelValidR[1];
+        lastKernelPosR[1] <= lastKernelPosR[0];
+        lastKernelPosR[2] <= lastKernelPosR[1];
+        lastKernelR[1] <= lastKernelR[0];
+        lastKernelR[2] <= lastKernelR[1];
+        endFrameR[1] <= endFrameR[0];
+        endFrameR[2] <= endFrameR[1];
+    end
     BlobProcessor BlobProcessor(
-        .CLK72(CLK72),
-        .kernelValid(lastKernelValid),
-        .kernelPos(lastKernelPos),
-        .kernel(lastKernel),
-        .endFrame(endFrame),
+        .CLK400(CLK400),
+        .kernelValid(lastKernelValidR[2]),
+        .kernelPos(lastKernelPosR[2]),
+        .kernel(lastKernelR[2]),
+        .endFrame(endFrameR[2]),
         .targetBlob(targetBlob)
     );
 
@@ -177,7 +186,7 @@ module CameraManager(
     always @(posedge CLK72) begin
         if (SYNC == FS) begin
             //Note: FS replaces LS
-            endFrame <= 0;
+            endFrameR[0] <= 0;
             isInFrame <= 1;
             kernelPos.y <= 0;
             kernelPos.x <= 0;
@@ -187,7 +196,7 @@ module CameraManager(
         end
 
         else if (SYNC == FE) begin
-            endFrame <= 1;
+            endFrameR[0] <= 1;
             isInFrame <= 0;
             processImageData();
         end
@@ -239,8 +248,8 @@ module CameraManager(
                 kernel[7] <= DOUT[3] > virtexConfig.threshold;
             end
             
-            lastKernelPos <= kernelPos;
-            lastKernel <= kernel;
+            lastKernelPosR[0] <= kernelPos;
+            lastKernelR[0] <= kernel;
             kernelPos.x <= kernelPos.x + 1;
             frameBufferWriteRequest <= '{kernelPos, kernel, 1};
         end
@@ -263,7 +272,7 @@ module CameraManager(
 
         kernelOdd <= ~kernelOdd;
         kernelPartion <= ~kernelPartion;
-        lastKernelValid <= kernelPartion;
+        lastKernelValidR[0] <= kernelPartion;
         frameBufferWriteRequest.valid <= kernelPartion;
     endtask
 endmodule

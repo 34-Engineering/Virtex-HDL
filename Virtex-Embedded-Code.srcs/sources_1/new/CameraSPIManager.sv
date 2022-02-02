@@ -26,10 +26,9 @@
      */
 module CameraSPIManager(
     input wire CLK,
-    output wire SPI_CLK,
+    output wire SPI_CLK, SPI_CS, //active low
     output reg SPI_MOSI,
     input wire SPI_MISO,
-    output wire SPI_CS, //active low
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     output wire reset, //active low

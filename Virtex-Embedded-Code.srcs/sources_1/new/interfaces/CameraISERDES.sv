@@ -8,19 +8,18 @@
      - https://www.xilinx.com/support/documentation/sw_manuals/xilinx2012_2/ug953-vivado-7series-libraries.pdf
     */
 module CameraISERDES (
-    input SERIAL_CLK,
-    input SERIAL_DATA,
-    input parallelClk,
-    output [7:0] parallelData,
-    input reset, //active low
-    input [7:0] trainingPattern,
+    input wire SERIAL_CLK, SERIAL_DATA,
+    input wire parallelClk,
+    output wire [7:0] parallelData,
+    input wire reset, //active low
+    input wire [7:0] trainingPattern,
     output wire trainingDone //active low
     );
 
     //IDELAYE2?
     //IDELAYCTRL?
 
-    //ISERDESE2 (see docs)
+    //ISERDESE2 Primitive (see docs)
     reg bitslip = 1;
     ISERDESE2 #(
         .INTERFACE_TYPE("NETWORKING"),

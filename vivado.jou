@@ -63,3 +63,44 @@ wait_on_run impl_1
 reset_run synth_1
 launch_runs impl_1 -jobs 20
 wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+open_run impl_1
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+close_design
+set_param place.sliceLegEffortLimit limit 4000
+set_param place.sliceLegEffortLimit limit 2000
+set_param place.sliceLegEffortLimit 4000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+set_param place.sliceLegEffortLimit 10000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run impl_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+open_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+refresh_design
+report_utilization -name utilization_1

@@ -56,6 +56,10 @@ module TopSim;
         .FSCLK(USB_FSCLK),
         .FSDO(USB_FSDO),
         .FSCTS(USB_FSCTS),
+        .TMS(USB_TMS),
+        .TCK(USB_TCK),
+        .TDO(USB_TDO),
+        .TDI(USB_TDI),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS)
@@ -101,6 +105,10 @@ module TopSim;
         .USB_FSCLK(USB_FSCLK),
         .USB_FSDO(USB_FSDO),
         .USB_FSCTS(USB_FSCTS),
+        .USB_TMS(USB_TMS),
+        .USB_TCK(USB_TCK),
+        .USB_TDO(USB_TDO),
+        .USB_TDI(USB_TDI),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS),
@@ -123,12 +131,6 @@ module TopSim;
         .FLASH_CLK(FLASH_CLK),
         .FLASH_CS(FLASH_CS),
         .FLASH_SIO(FLASH_SIO),
-
-        //JTAG
-        .USB_TMS(USB_TMS),
-        .USB_TCK(USB_TCK),
-        .USB_TDO(USB_TDO),
-        .USB_TDI(USB_TDI),
 
         //LEDs
         .LED_IR(LED_IR),

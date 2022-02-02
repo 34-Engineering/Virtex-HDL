@@ -20,9 +20,9 @@ module AppManager(
     input wire FrameBufferWriteRequest frameBufferWriteRequest
     );
 
-    parameter GET_FRAME_CODE = 3'b000;
-    parameter GET_CONFIG_CODE = 3'b001;
-    parameter SET_CONFIG_CODE = 3'b100;
+    localparam GET_FRAME_CODE = 3'b000;
+    localparam GET_CONFIG_CODE = 3'b001;
+    localparam SET_CONFIG_CODE = 3'b100;
     enum {IDLE, GET_FRAME, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 

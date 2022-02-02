@@ -5,7 +5,7 @@
    
    */
 module BlobProcessor(
-    input wire CLK72,
+    input wire CLK400,
     input wire kernelValid, //active high
     input wire Vector kernelPos, //the leftmost coordinate of the pixel
     input wire [7:0] kernel, //theshold of each pixel in the kernel
@@ -13,30 +13,27 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    Blob blobs[0:49];
+    Blob blobs[0:19];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
+    reg lastKernelValid;
+    reg [2:0] kernelPointer = 0;
 
-    //New Kernel
-    always @(posedge kernelValid) begin
-        // process every pixel of the kernel
-        // foreach (kernel[i]) begin
-        //     if (kernel[i]) begin
-        //         processPixel('{ x: kernelPos.x + i, y: kernelPos.y });
-        //     end
-        // end
+    //Loop
+    always @(posedge CLK400) begin
+        //New Kernel
+        if (kernelValid & ~lastKernelValid) begin
+            //start processing
+            kernelPointer <= 0;
+        end
+        lastKernelValid <= kernelValid;
 
-        processPixel('{ x: kernelPos.x, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 1, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 2, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 3, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 4, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 5, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 6, y: kernelPos.y });
-        processPixel('{ x: kernelPos.x + 7, y: kernelPos.y });
-
-        //old blob is stale --> mark as invalid
-        targetBlob.valid <= 0;
+        //Process Kernel in four steps (0-3)
+        if (kernelValid & kernelPointer < 4) begin
+            processPixel('{ x: kernelPos.x + kernelPointer << 1, y: kernelPos.y });
+            processPixel('{ x: kernelPos.x + kernelPointer << 1 + 1, y: kernelPos.y });
+            kernelPointer <= kernelPointer + 1;
+        end
 
         //End Frame --> Select Target Blob
         if (endFrame) begin
@@ -56,7 +53,7 @@ module BlobProcessor(
     end
 
     //Process Pixel
-    task processPixel(input Vector pos);
+    task static processPixel(input Vector pos);
         //try to join pixel into an existing blob
         foreach (blobs[i]) begin
             //if point inside blob bounding box
@@ -144,7 +141,7 @@ module BlobProcessor(
     endtask
 
     //Fix Blob Index
-    task fixBlobIndex();
+    task static fixBlobIndex();
         //out of bounds OR on top of existing blob --> find empty blob
         //if all blobs are full it won't change blobPointer and just overwrite the blob its on; is this the behavior we want? should it clear the blob in that case?
         if (blobPointer > $size(blobs) - 1 | blobs[blobPointer].valid) begin
@@ -166,5 +163,14 @@ module BlobProcessor(
         //todo handle different angles (the bottom line changes)
         //todo division
         return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
+    endfunction
+
+    //Range Functions
+    function logic [9:0] min(input logic [9:0] num1, num2);
+        return num1 < num2 ? num1 : num2;
+    endfunction
+
+    function logic [9:0] max(input logic [9:0] num1, num2);
+        return num1 > num2 ? num1 : num2;
     endfunction
 endmodule
