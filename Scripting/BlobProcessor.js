@@ -7,7 +7,7 @@ let blobPointer = 0;
 let joined = 255; //the index of of the blob is last joined
 let frameBuffer = [...Array(1000)].map(e => Array(1000));
 
-fs.createReadStream('images/2019_Noise2.png')
+fs.createReadStream('images/2019_Noise3.png')
     .pipe(new png())
     .on('parsed', function () {
 
