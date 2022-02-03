@@ -39,6 +39,9 @@
 
     Black Lines: default 2
 
+    Flow:
+     - LVDS Lines -> IBUFGDS -> ISERDES -> Parallel Data (SYNC & DOUT[3:0])
+
     */
 module CameraManager(
     input wire CLK,
@@ -129,8 +132,7 @@ module CameraManager(
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
     wire [7:0] SYNC;
     wire [7:0] DOUT [3:0];
-    wire [4:0] trainingDone; //check w/ trainingDone == 0
-
+    wire [4:0] trainingDone;
     CameraISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),

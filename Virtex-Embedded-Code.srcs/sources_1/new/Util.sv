@@ -14,9 +14,9 @@ package Util;
     //64-bit Blob
     typedef struct packed {
         Vector boundTopLeft, boundBottomRight; //square bounding box
-        Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
+        // Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
         logic valid;
-        logic [2:0] reserved; //to make it 64-bit
+        // logic [2:0] reserved; //to make it 64-bit
     } Blob;
 
     //Virtex Config

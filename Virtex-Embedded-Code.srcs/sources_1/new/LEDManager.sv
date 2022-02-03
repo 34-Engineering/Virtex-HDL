@@ -15,13 +15,6 @@ module LEDManager(
     input wire Blob targetBlob
     );
 
-    //LED_USER: blink at 1.5hz
-    reg [25:0] counter = 0;
-    assign LED_USER = counter > 25'b1111111111111111111111111;
-    always @(posedge CLK) begin
-        counter <= counter + 1;
-    end
-
     //LED_IR: on when enabled, no fault, and 12V power
     assign LED_IR = enabled & LED_FAULT & PWR_12V_EN;
 
@@ -35,14 +28,17 @@ module LEDManager(
     //COM: green when has coms
     assign LED_COM[1] = hasCommunication;
 
-    //EN: flashes orange rgb(255, 165, 0) at 1.5hz when enabled
+    //EN: flashes orange rgb(255, 165, 0) at 2.5hz (100MHz / 40MHz) when enabled
     reg [25:0] enabledToggleCounter;
     reg [7:0] enabledGreenCounter;
-    wire enabledToggle = enabled & enabledToggleCounter > 25'b1111111111111111111111111;
+    wire enabledToggle = enabled & enabledToggleCounter > 25'd20000000;
     assign LED_EN[2] = enabledToggle;
     assign LED_EN[1] = enabledToggle & enabledGreenCounter > 165;
     always @(posedge CLK) begin
-        enabledToggleCounter <= enabledToggleCounter + 1;
         enabledGreenCounter <= enabledGreenCounter + 1;
+        enabledToggleCounter <= enabledToggleCounter < 26'd40000000 ? enabledToggleCounter + 1 : 0;
     end
+
+    //LED_USER: blink at 2.5hz 
+    assign LED_USER = enabledToggleCounter > 25'd20000000;
 endmodule

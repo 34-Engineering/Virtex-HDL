@@ -1,0 +1,15 @@
+{
+  "name": "blob-processor-testing",
+  "version": "0.1.0",
+  "description": "",
+  "main": "BlobProcessor.js",
+  "scripts": {
+    "start": "node BlobProcessor.js"
+  },
+  "author": "34 Engineering, LLC",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "pngjs": "^6.0.0",
+    "pngjs-draw": "^0.0.6"
+  }
+}

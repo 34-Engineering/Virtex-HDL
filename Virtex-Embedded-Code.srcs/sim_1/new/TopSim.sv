@@ -83,18 +83,10 @@ module TopSim;
         .SPI_Q(FLASH_SIO)
     );
 
-    //LEDSim for LEDManager
-    wire LED_IR, LED_USER, LED_FAULT;
+    //No Sim for LEDManager
+    reg LED_FAULT = 1;
+    wire LED_IR, LED_USER;
     wire [2:0] LED_PWR, LED_EN, LED_TAR, LED_COM;
-    LEDSim(
-        .LED_IR(LED_IR),
-        .LED_PWR(LED_PWR),
-        .LED_EN(LED_EN),
-        .LED_TAR(LED_TAR),
-        .LED_COM(LED_COM),
-        .LED_USER(LED_USER),
-        .LED_FAULT(LED_FAULT)
-    );
 
     //Top
     Top(

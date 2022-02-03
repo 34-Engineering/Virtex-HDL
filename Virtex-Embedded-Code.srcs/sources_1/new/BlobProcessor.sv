@@ -13,7 +13,7 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    Blob blobs[0:19];
+    Blob blobs[0:399];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
     reg lastKernelValid;
@@ -74,22 +74,22 @@ module BlobProcessor(
                     blobs[i].boundBottomRight.y <= max(blobs[i].boundBottomRight.y, blobs[joined].boundBottomRight.y);
                                         
                     //make new corners
-                    if (blobs[joined].cornerTopLeft.x+blobs[joined].cornerTopLeft.y < blobs[i].cornerTopLeft.x+blobs[i].cornerTopLeft.y) begin
-                        blobs[i].cornerTopLeft.x <= blobs[joined].cornerTopLeft.x;
-                        blobs[i].cornerTopLeft.y <= blobs[joined].cornerTopLeft.y;
-                    end
-                    else if (blobs[joined].cornerTopRight.x-blobs[joined].cornerTopRight.y > blobs[i].cornerTopRight.x-blobs[i].cornerTopRight.y) begin
-                        blobs[i].cornerTopRight.x <= blobs[joined].cornerTopRight.x;
-                        blobs[i].cornerTopRight.y <= blobs[joined].cornerTopRight.y;
-                    end
-                    else if (blobs[joined].cornerBottomRight.x+blobs[joined].cornerBottomRight.y > blobs[i].cornerBottomRight.x+blobs[i].cornerBottomRight.y) begin
-                        blobs[i].cornerBottomRight.x <= blobs[joined].cornerBottomRight.x;
-                        blobs[i].cornerBottomRight.y <= blobs[joined].cornerBottomRight.y;
-                    end
-                    else if (blobs[joined].cornerBottomLeft.x-blobs[joined].cornerBottomLeft.y < blobs[i].cornerBottomLeft.x-blobs[i].cornerBottomLeft.y) begin
-                        blobs[i].cornerBottomLeft.x <= blobs[joined].cornerBottomLeft.x;
-                        blobs[i].cornerBottomLeft.y <= blobs[joined].cornerBottomLeft.y;
-                    end
+                    // if (blobs[joined].cornerTopLeft.x+blobs[joined].cornerTopLeft.y < blobs[i].cornerTopLeft.x+blobs[i].cornerTopLeft.y) begin
+                    //     blobs[i].cornerTopLeft.x <= blobs[joined].cornerTopLeft.x;
+                    //     blobs[i].cornerTopLeft.y <= blobs[joined].cornerTopLeft.y;
+                    // end
+                    // else if (blobs[joined].cornerTopRight.x-blobs[joined].cornerTopRight.y > blobs[i].cornerTopRight.x-blobs[i].cornerTopRight.y) begin
+                    //     blobs[i].cornerTopRight.x <= blobs[joined].cornerTopRight.x;
+                    //     blobs[i].cornerTopRight.y <= blobs[joined].cornerTopRight.y;
+                    // end
+                    // else if (blobs[joined].cornerBottomRight.x+blobs[joined].cornerBottomRight.y > blobs[i].cornerBottomRight.x+blobs[i].cornerBottomRight.y) begin
+                    //     blobs[i].cornerBottomRight.x <= blobs[joined].cornerBottomRight.x;
+                    //     blobs[i].cornerBottomRight.y <= blobs[joined].cornerBottomRight.y;
+                    // end
+                    // else if (blobs[joined].cornerBottomLeft.x-blobs[joined].cornerBottomLeft.y < blobs[i].cornerBottomLeft.x-blobs[i].cornerBottomLeft.y) begin
+                    //     blobs[i].cornerBottomLeft.x <= blobs[joined].cornerBottomLeft.x;
+                    //     blobs[i].cornerBottomLeft.y <= blobs[joined].cornerBottomLeft.y;
+                    // end
                 end
 
                 joined <= i;
@@ -105,22 +105,22 @@ module BlobProcessor(
                     blobs[i].boundBottomRight.y <= blobs[i].boundBottomRight.y + 1;
 
                 //move corner vertexes
-                if (pos.x + pos.y < blobs[i].cornerTopLeft.x + blobs[i].cornerTopLeft.y) begin
-                    blobs[i].cornerTopLeft.x <= pos.x;
-                    blobs[i].cornerTopLeft.y <= pos.y;
-                end
-                else if (pos.x - pos.y > blobs[i].cornerTopRight.x - blobs[i].cornerTopRight.y) begin
-                    blobs[i].cornerTopRight.x <= pos.x;
-                    blobs[i].cornerTopRight.y <= pos.y;
-                end
-                else if (pos.x + pos.y > blobs[i].cornerBottomRight.x + blobs[i].cornerBottomRight.y) begin
-                    blobs[i].cornerBottomRight.x <= pos.x;
-                    blobs[i].cornerBottomRight.y <= pos.y;
-                end
-                else if (pos.x - pos.y < blobs[i].cornerBottomLeft.x - blobs[i].cornerBottomLeft.y) begin
-                    blobs[i].cornerBottomLeft.x <= pos.x;
-                    blobs[i].cornerBottomLeft.y <= pos.y;
-                end
+                // if (pos.x + pos.y < blobs[i].cornerTopLeft.x + blobs[i].cornerTopLeft.y) begin
+                //     blobs[i].cornerTopLeft.x <= pos.x;
+                //     blobs[i].cornerTopLeft.y <= pos.y;
+                // end
+                // else if (pos.x - pos.y > blobs[i].cornerTopRight.x - blobs[i].cornerTopRight.y) begin
+                //     blobs[i].cornerTopRight.x <= pos.x;
+                //     blobs[i].cornerTopRight.y <= pos.y;
+                // end
+                // else if (pos.x + pos.y > blobs[i].cornerBottomRight.x + blobs[i].cornerBottomRight.y) begin
+                //     blobs[i].cornerBottomRight.x <= pos.x;
+                //     blobs[i].cornerBottomRight.y <= pos.y;
+                // end
+                // else if (pos.x - pos.y < blobs[i].cornerBottomLeft.x - blobs[i].cornerBottomLeft.y) begin
+                //     blobs[i].cornerBottomLeft.x <= pos.x;
+                //     blobs[i].cornerBottomLeft.y <= pos.y;
+                // end
             end
         end
 
@@ -129,22 +129,27 @@ module BlobProcessor(
             blobs[blobPointer] <= '{
                 '{pos.x, pos.y},
                 '{pos.x + 1, pos.y + 1},
-                '{pos.x, pos.y},
-                '{pos.x, pos.y}, //x+1?
-                '{pos.x, pos.y}, //x+1,y+1?
-                '{pos.x, pos.y}, //y+1?
-                1, 0
+                // '{pos.x, pos.y},
+                // '{pos.x, pos.y}, //x+1?
+                // '{pos.x, pos.y}, //x+1,y+1?
+                // '{pos.x, pos.y}, //y+1?
+                1
+                // 0
             };
             blobPointer <= blobPointer + 1;
-            fixBlobIndex();
+            fixBlobPointer();
         end
     endtask
 
-    //Fix Blob Index
-    task static fixBlobIndex();
+    //Fix Blob Pointer
+    task static fixBlobPointer();
         //out of bounds OR on top of existing blob --> find empty blob
         //if all blobs are full it won't change blobPointer and just overwrite the blob its on; is this the behavior we want? should it clear the blob in that case?
         if (blobPointer > $size(blobs) - 1 | blobs[blobPointer].valid) begin
+            if (blobPointer > $size(blobs) - 1) begin
+                blobPointer <= 0;
+            end
+            
             foreach (blobs[i]) begin
                 if (!blobs[i].valid) begin
                     blobPointer <= i;
@@ -155,15 +160,15 @@ module BlobProcessor(
     endtask
 
     //Calculate Slope
-    function real calculateSlope(Blob blob);
-        //calculates slope of bottom line of the quad
-        //instead of calculating the angle on the fpga with atand we do it on the roborio
-        //before setting the config setting
-        //bounded between -1 and 1
-        //todo handle different angles (the bottom line changes)
-        //todo division
-        return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
-    endfunction
+    // function real calculateSlope(Blob blob);
+    //     //calculates slope of bottom line of the quad
+    //     //instead of calculating the angle on the fpga with atand we do it on the roborio
+    //     //before setting the config setting
+    //     //bounded between -1 and 1
+    //     //todo handle different angles (the bottom line changes)
+    //     //todo division
+    //     return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
+    // endfunction
 
     //Range Functions
     function logic [9:0] min(input logic [9:0] num1, num2);

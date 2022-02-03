@@ -24,5 +24,12 @@ module FT2232HSim(
         .TCK(TCK),
         .TDI(TDI)
     );
+
+    initial begin
+        //TODO add functionality?
+        USB_ON <= 1;
+        USB_PWREN <= 0;
+        USB_SUS <= 0;
+    end
     
 endmodule
