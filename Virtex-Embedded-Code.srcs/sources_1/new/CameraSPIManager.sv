@@ -26,13 +26,13 @@
      */
 module CameraSPIManager(
     input wire CLK,
-    output wire SPI_CLK, SPI_CS, //active low
-    output reg SPI_MOSI,
+    output wire SPI_CLK,
+    output reg SPI_MOSI, SPI_CS, //active low
     input wire SPI_MISO,
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
-    output wire reset, //active low
-    input wire sequencerEnabled
+    input wire sequencerEnabled,
+    input Fault fault
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;
@@ -45,93 +45,108 @@ module CameraSPIManager(
     );
 
     //Crude SPI Implemenation
-    reg [7:0] writeCommandNumber = 0;
-    reg [4:0] writeCommandPointer = 0;
+    reg [7:0] commandNumber = 0;
+    reg [4:0] commandPointer = 0;
     reg isSequencerEnabled = 0;
     always @(negedge SPI_CLK) begin
-        //Reset
-        if (~reset) begin
-            writeCommandNumber <= 0;
-            writeCommandPointer <= 0;
-            powerUpStage <= ENABLE_CLOCK_MANAGEMENT_1;
-        end
-
         //Check PLL Lock
-        else if (powerUpStage == CHECK_PLL_LOCK) begin
-            if (writeCommandPointer == 25) begin
-                //TODO does it really just return a single bit??
-                if (SPI_MISO == 0) begin
-                    //not unlocked --> keep retrying
-                    writeCommandPointer <= 0;
-                    writeCommandNumber <= writeCommandNumber + 1;
+        if (powerUpStage == CHECK_PLL_LOCK) begin
+            if (SPI_CS) begin
+                //drop CS and come back next loop
+                SPI_CS <= 0;
+            end
 
-                    if (writeCommandNumber == 20) begin
-                        //TODO error
+            else if (commandPointer == 25) begin //addr + rw + word - 1 = 25
+                //returns 16-bit word, but we only care about [0]
+                if (SPI_MISO == 0) begin //TODO check
+                    //not unlocked --> keep retrying
+                    commandNumber <= commandNumber + 1;
+
+                    if (commandNumber == 20) begin
+                        fault <= PYTHON_300_PLL_FAULT;
                     end
                 end
                 else begin
                     //move to next stage
                     powerUpStage <= powerUpStage.next;
-                    writeCommandPointer <= 0;
-                    writeCommandNumber <= 0;
+                    commandNumber <= 0;
+                    fault <= NO_FAULT;
                 end
+
+                commandPointer <= 0;
+                SPI_CS <= 1;
             end
-            else begin
+            else if (commandPointer < 11) begin
                 //write request for PLL lock status
-                SPI_MOSI <= checkPLLLockStatus[writeCommandPointer];
+                SPI_MOSI <= checkPLLLockStatus[commandPointer];
             end
         end
 
         //Done (enable/disable sequencer)
         else if (powerUpStage == DONE) begin
+            
             //writing enable/disable sequencer
-            if (writeCommandNumber) begin
+            if (commandNumber & SPI_CS) begin
+                //drop CS and come back next loop
+                SPI_CS <= 0;
+            end
+            else if (commandNumber) begin
                 //write command
-                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][writeCommandPointer];
+                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][commandPointer];
 
-                if (writeCommandNumber == SPIWriteCommandEndIndex) begin
+                if (commandNumber == SPIWriteCommandEndIndex) begin
                     //done writing command
-                    writeCommandNumber <= 0;
+                    commandNumber <= 0;
                 end
                 else begin
                     //increment pointer
-                    writeCommandPointer <= writeCommandPointer + 1;
+                    commandPointer <= commandPointer + 1;
                 end
             end
 
             //wants to enable/disable sequencer
             else if (sequencerEnabled != isSequencerEnabled) begin
                 isSequencerEnabled <= sequencerEnabled;
-                writeCommandNumber <= 1;
-                writeCommandPointer <= 0;
+                commandNumber <= 1;
+                commandPointer <= 0;
             end
         end
 
         //Enable Clock Management 1 & Register Upload
         else begin
-            //write all commands
-            if (powerUpStage == REGISTER_UPLOAD)
-                SPI_MOSI <= powerUpSequenceRegisterUpload[writeCommandNumber][writeCommandPointer];
-            else SPI_MOSI <= enableClockManagement1[writeCommandNumber][writeCommandPointer];
-
-            if (writeCommandPointer == SPIWriteCommandEndIndex) begin
-                if (powerUpStage == REGISTER_UPLOAD ?
-                    writeCommandNumber == $size(powerUpSequenceRegisterUpload) - 1 : 
-                    writeCommandNumber == $size(enableClockManagement1) - 1) begin
-                    //move to next stage
-                    powerUpStage <= powerUpStage.next;
-                    writeCommandNumber <= 0;
-                end
-                else begin
-                    //move to next command
-                    writeCommandNumber <= writeCommandNumber + 1;
-                end
-
-                writeCommandPointer <= 0;
+            if (SPI_CS) begin
+                //pull down CS and come back next loop
+                SPI_CS <= 0;
             end
+            
             else begin
+                //write all commands
+                if (powerUpStage == REGISTER_UPLOAD)
+                    SPI_MOSI <= powerUpSequenceRegisterUpload[commandNumber][commandPointer];
+                else SPI_MOSI <= enableClockManagement1[commandNumber][commandPointer];
+
+                //end of command
+                if (commandPointer == SPIWriteCommandEndIndex) begin
+                    if (powerUpStage == REGISTER_UPLOAD ?
+                        commandNumber == $size(powerUpSequenceRegisterUpload) - 1 : 
+                        commandNumber == $size(enableClockManagement1) - 1) begin
+                        //move to next stage
+                        powerUpStage <= powerUpStage.next;
+                        commandNumber <= 0;
+                    end
+                    else begin
+                        //move to next command
+                        commandNumber <= commandNumber + 1;
+                    end
+
+                    SPI_CS <= 1;
+                    commandPointer <= 0;
+                end
+
                 //increment write pointer
-                writeCommandPointer <= writeCommandPointer + 1;
+                else begin
+                    commandPointer <= commandPointer + 1;
+                end
             end
         end
     end

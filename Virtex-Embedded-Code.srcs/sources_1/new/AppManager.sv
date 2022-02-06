@@ -56,7 +56,7 @@ module AppManager(
         .reset(1'b1)
     );
 
-    //On Data
+    //Loop
     Vector getFrameKernelPos;
     reg [4:0] setConfigAddress = 0;
     reg [15:0] setConfigData = 0;

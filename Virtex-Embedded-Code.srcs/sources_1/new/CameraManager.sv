@@ -51,12 +51,15 @@ module CameraManager(
     input wire SPI_MISO,
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
-    output wire reset, //active low?
+    output wire RESET_SENSOR, //active low
     input wire enabled,
     input wire VirtexConfig virtexConfig,
     output FrameBufferWriteRequest frameBufferWriteRequest,
-    output wire Blob targetBlob
+    output wire Blob targetBlob,
+    output wire Fault fault
     );
+
+    assign RESET_SENSOR = 1;
 
     //Generate 72MHz Parallel Clock from 288MHz Input Clock
     wire LVDS_CLK, CLK72;
@@ -109,8 +112,8 @@ module CameraManager(
         .SPI_CLK(SPI_CLK),
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
-        .reset(reset),
-        .sequencerEnabled(enabled)
+        .sequencerEnabled(enabled),
+        .fault(fault)
     );
 
     //LVDS Input Buffers

@@ -13,12 +13,12 @@ module FastSerial(
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
-    input reg [7:0] writeData,
-    input reg writeDataValid, //active high
+    input wire [7:0] writeData,
+    input wire writeDataValid, //active high
     output wire writeQueueEmpty, //active high
     output reg [0:7] readData,
     output reg readDataValid, //active high
-    input reg reset //active low
+    input wire reset //active low
     );
 
     assign FSCLK = CLK48;

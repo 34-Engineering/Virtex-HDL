@@ -22,6 +22,7 @@
      - 0000011 get all blobs, 1+8*b bytes (byte 1 = num blobs)
         - returns all blobs matching criteria from config (excluding CenterX & CenterY)
         - see blob structure in Util.sv
+     - 0010000 get faults //TODO
      - 0100001 get/set enabled, 1 byte data 
      - 10XXXXX get/set config, 2 bytes data
      
@@ -39,6 +40,7 @@ module RoboRIOManager(
     localparam GET_BLOB = 8'b00000010;
     localparam GET_ALL_BLOBS = 8'b00000110;
     localparam GET_ENABLED = 8'b01000010;
+    localparam GET_FAULTS = 8'b00100000;
     localparam SET_ENABLED = 8'b01000011;
 
     //Crude SPI slave implementation
@@ -58,7 +60,7 @@ module RoboRIOManager(
             if (bytePointer == 7) begin
                 onByteDone();
             end
-
+            
             bytePointer <= bytePointer + 1;
         end
 

@@ -118,6 +118,13 @@ package Util;
         logic [7:0] kernel;
         logic valid; //active high
     } FrameBufferWriteRequest;
+
+    //Fault
+    typedef enum logic [7:0] {
+        NO_FAULT = 0,
+        PYTHON_300_PLL_FAULT = 1,
+        IR_LED_FAULT = 2
+    } Fault;
 endpackage
 
 import Util::*;
