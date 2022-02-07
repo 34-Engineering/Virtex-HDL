@@ -11,10 +11,16 @@ module AppSim(
     output wire FSCTS
     );
 
-    localparam GET_FRAME_CODE = 3'b000;
+    localparam GET_FRAME_CODE = 8'b00011111;
     localparam GET_CONFIG_CODE = 3'b001;
     localparam SET_CONFIG_CODE = 3'b100;
-    enum {IDLE, GET_FRAME, SET_CONFIG} state = IDLE;
+    enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
+
+    FrameBuffer frameBuffer;
+    Vector frameBufferPos = '{0, 0}; //(0, 0) to (80, 479)
+    reg wantsToSetConfig = 0, wantsToGetConfig = 0;
+    reg [4:0] address;
+    reg [15:0] value;
 
     //Fast Serial
     reg [7:0] writeData;
@@ -36,14 +42,58 @@ module AppSim(
     );
 
     //Loop
-    
+    reg configPartion = 0;
+    always @(negedge FSCLK) begin
+        case (state) begin
+            IDLE: begin
+                //Get Config
+                if (wantsToGetConfig) begin
+                    writeData <= GET_CONFIG_CODE + address;
+                    writeDataValid <= 1;
+                    state <= GET_CONFIG;
+                end
 
-    task setConfig(reg [7:0] address, reg [15:0] value);
+                //Set Config
+                else if (wantsToSetConfig) begin
+                    writeData <= SET_CONFIG_CODE + address;
+                    writeDataValid <= 1;
+                    configPartion <= 0;
+                    state <= SET_CONFIG;
+                end
 
-    endtask
+                //Get Frame
+                else begin
+                    writeData <= GET_FRAME_CODE;
+                    writeDataValid <= 1;
+                    configPartion <= 0;
+                    state <= GET_FRAME;
+                end
+            end
 
-    task getConfig(reg [7:0] address);
+            GET_FRAME: begin
+                if (readDataValid) begin
+                    //throw data into frame buffer
+                    frameBuffer[frameBufferPos.x][frameBufferPos.y] <= readData;
 
-    endtask
+                    //increment frame buffer pos
+                    if (frameBufferPos.x == 79) begin
+                        frameBufferPos.x <= 0;
+                        framebufferPos.y <= frameBufferPos.y + 1;
+                    end
+                    else begin
+                        frameBufferPos.x <= frameBufferPos.x + 1;
+                    end
+                end
+            end
+
+            GET_CONFIG: begin
+                
+            end
+
+            SET_CONFIG: begin
+                
+            end
+        end
+    end
 
 endmodule
