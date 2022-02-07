@@ -3,6 +3,15 @@
 
 /* BlobProcessor - Processes incoming pixels into blobs and selects the target blob based on config
    
+    Naming:
+    
+    Blob: a group of touching pixels
+     - Bounding Box: a non-rotated square that covers all pixels in the blob
+     - Quad: a quadrilateral that is drawn inside the bounding box that covers most of the pixels (this is used for rotation/slope calculations)
+        - Corner: the four corners of the quad
+    
+    Target: a (group) of blob(s) that represent the entire physical target
+
    */
 module BlobProcessor(
     input wire CLK400,
@@ -13,7 +22,7 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    Blob blobs[0:399];
+    Blob blobs[0:99];
     reg [7:0] blobPointer = 0;
     reg [7:0] joined = 255; //the index of of the blob is last joined
     reg lastKernelValid;

@@ -11,7 +11,7 @@ package Util;
         logic [9:0] x, y;
     } Vector;
 
-    //64-bit Blob
+    //?-bit Blob
     typedef struct packed {
         Vector boundTopLeft, boundBottomRight; //square bounding box
         // Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
@@ -21,36 +21,47 @@ package Util;
 
     //Virtex Config
     typedef enum logic [7:0] {
-       ANY=0, HORIZONTAL=1, VERTICAL=2, DIAGONAL=3,
-       DIAGONAL_FORWARD=4, DIAGONAL_BACKWARD=5 //TODO new names for diagonals?
+       HORIZONTAL=1,
+       VERTICAL=2 //TODO diagonal support?
     } TargetOrientation;
 
     typedef struct packed {
-        logic [7:0] count;
         TargetOrientation targetOrientation;
+        logic [7:0] count;
     } TargetMode;
 
     typedef enum logic [15:0] {
        NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
-    } Orientation;
-    
-    typedef struct packed {
+    } CameraOrientation;
+
+    typedef struct packed { //32 x 16
+        //camera config
+        CameraOrientation cameraOrientation;
+        logic [15:0] threshold;
+        logic [15:0] exposure;
+
+        //target params
         TargetMode targetMode;
-        Orientation orientation;
-        logic [15:0] boundingWidthMin;
-        logic [15:0] boundingWidthMax;
-        logic [15:0] boundingHeightMin;
-        logic [15:0] boundingHeightMax;
-        logic [15:0] fullnessMin;
-        logic [15:0] fullnessMax;
-        logic [15:0] slopeDiffMin;
+        logic [15:0] gapMin;
+        logic [15:0] gapMax;
+        logic [15:0] slopeDiffMin; //difference between each blob next to eachother
         logic [15:0] slopeDiffMax;
         logic [15:0] slopeMin;
         logic [15:0] slopeMax;
         logic [15:0] centerX;
         logic [15:0] centerY;
-        logic [15:0] threshold;
-        logic [15:0] exposure;
+
+        //blob params
+        logic [15:0] boundingWidthMin;
+        logic [15:0] boundingWidthMax;
+        logic [15:0] boundingHeightMin;
+        logic [15:0] boundingHeightMax;
+        logic [15:0] boundingAreaMin;
+        logic [15:0] boundingAreaMax;
+        logic [15:0] fullnessMin;
+        logic [15:0] fullnessMax;
+        
+        //reserved for future use
         logic [15:0] reserved1;
         logic [15:0] reserved2;
         logic [15:0] reserved3;
@@ -63,29 +74,36 @@ package Util;
         logic [15:0] reserved10;
         logic [15:0] reserved11;
         logic [15:0] reserved12;
-        logic [15:0] reserved13;
-        logic [15:0] reserved14;
-        logic [15:0] reserved15;
-        logic [15:0] reserved16;
     } VirtexConfig;
 
-    parameter VirtexConfig DefaultVirtexConfig = '{
-        targetMode: '{1, ANY},
-        orientation: NORMAL,
-        boundingWidthMin: 0,
-        boundingWidthMax: 16'hffff,
-        boundingHeightMin: 0,
-        boundingHeightMax: 16'hffff,
-        fullnessMin: 0,
-        fullnessMax: 16'hffff,
+    localparam VirtexConfig DefaultVirtexConfig = '{
+        //camera config
+        cameraOrientation: NORMAL,
+        threshold: 8'h0f,
+        exposure: 8'h0f,
+
+        //target params
+        targetMode: '{HORIZONTAL, 1},
+        gapMin: 0,
+        gapMax: 16'hffff,
         slopeDiffMin: 0,
         slopeDiffMax: 16'hffff,
         slopeMin: 0,
         slopeMax: 16'hffff,
         centerX: 16'd320,
         centerY: 16'd240,
-        threshold: 8'h0f,
-        exposure: 8'h0f,
+
+        //blob params
+        boundingWidthMin: 0,
+        boundingWidthMax: 16'hffff,
+        boundingHeightMin: 0,
+        boundingHeightMax: 16'hffff,
+        boundingAreaMin: 100,
+        boundingAreaMax: 16'hffff,
+        fullnessMin: 0,
+        fullnessMax: 16'hffff,
+        
+        //reserved for future use
         reserved1: 16'd0,
         reserved2: 16'd0,
         reserved3: 16'd0,
@@ -97,11 +115,7 @@ package Util;
         reserved9: 16'd0,
         reserved10: 16'd0,
         reserved11: 16'd0,
-        reserved12: 16'd0,
-        reserved13: 16'd0,
-        reserved14: 16'd0,
-        reserved15: 16'd0,
-        reserved16: 16'd0
+        reserved12: 16'd0
     };
 
     typedef struct packed {

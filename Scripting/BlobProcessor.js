@@ -2,12 +2,14 @@ const fs = require('fs');
 var drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
+const maxBlobs = 21;
+const minArea = 100;
 let blobs = [];
 let blobPointer = 0;
 let joined = 255; //the index of of the blob is last joined
 let frameBuffer = [...Array(1000)].map(e => Array(1000));
 
-fs.createReadStream('images/2019_Noise3.png')
+fs.createReadStream('images/2019_Noise2.png')
     .pipe(new png())
     .on('parsed', function () {
 
@@ -29,12 +31,12 @@ fs.createReadStream('images/2019_Noise3.png')
             }
         }
 
-        console.log("num:" + blobs.length);
+        console.log("x:", blobs.length, blobPointer);
 
         //Draw Blobs
         for (let i = 0; i < blobs.length; i++) {
             const area = (blobs[i].boundBottomRight.x - blobs[i].boundTopLeft.x) * (blobs[i].boundBottomRight.y - blobs[i].boundTopLeft.y);
-            if (blobs[i].valid && area > 1000) {
+            if (blobs[i].valid && area >= minArea) {
                 this.drawRect(
                     blobs[i].boundTopLeft.x,
                     blobs[i].boundTopLeft.y,
@@ -135,7 +137,7 @@ function processPixel(pos) {
             reserved: 0
         };
         blobPointer = blobPointer + 1;
-        fixBlobPointer();
+        fixBlobPointer(pos);
     }
 }
 
@@ -182,21 +184,37 @@ function getStats(blob) {
 }
 
 //Fix Blob Pointer
-function fixBlobPointer() {
+function fixBlobPointer(pos) {
     //out of bounds OR on top of existing blob --> find empty blob
-    //if all blobs are full it won't change blobPointer and just overwrite the blob its on; is this the behavior we want? should it clear the blob in that case?
-    // if (blobPointer > blobs.length - 1 || blobs[blobPointer].valid) {
-    //     if (blobPointer > blobs.length - 1) {
-    //         blobPointer = 0;
-    //     }
+    if (blobPointer > maxBlobs || blobs[blobPointer]?.valid) {
+        if (blobPointer > maxBlobs) {
+            blobPointer = 0;
+        }
 
-    //     for (let i = 0; i < blobs.length; i++) {
-    //         if (!blobs[i].valid) {
-    //             blobPointer = i;
-    //             return;
-    //         }
-    //     }
-    // }
+        for (let i = 0; i < blobs.length; i++) {
+            //if found valid blob then we outta here
+            if (!blobs[i]?.valid) {
+                blobPointer = i;
+                return;
+            }
+
+            //otherwise find smallest blob
+            if (getPriority(i, pos) < getPriority(blobPointer, pos)) {
+                blobPointer = i;
+            }
+        }
+    }
+}
+
+function getPriority(i, pos) {
+    const area = (blobs[i].boundTopLeft.x - blobs[i].boundBottomRight.x) * (blobs[i].boundTopLeft.y - blobs[i].boundBottomRight.y);
+
+    if (blobs[i].boundBottomRight.y + 20 < pos.y && area < minArea) {
+        //blob is done --> lowest priority
+        return 0;
+    }
+    
+    return area;
 }
 
 //Range Functions
