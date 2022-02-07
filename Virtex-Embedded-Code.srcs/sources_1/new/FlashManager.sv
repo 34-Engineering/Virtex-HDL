@@ -26,6 +26,8 @@ module FlashManager(
         
     end
 
+    //TODO
+ 
     // wire bscan_tdi;
     // wire bscan_tck;
     // wire bscan_tms;

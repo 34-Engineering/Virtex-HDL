@@ -9,9 +9,9 @@ module FastSerialSim(
     input wire FSCLK, //48MHz (FPGA generated)
     output reg FSDO, //PC->FPGA
     output reg FSCTS, //FPGA clear to send, active low
-    input wire enabled,
-    input reg [7:0] writeData,
-    input reg writeDataValid, //active high
+    input wire enabled, //active high
+    input wire [7:0] writeData,
+    input wire writeDataValid, //active high
     output wire writeQueueEmpty, //active high
     output reg [0:7] readData,
     output reg readDataValid, //active high

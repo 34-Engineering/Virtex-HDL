@@ -20,10 +20,10 @@ module AppManager(
     input wire FrameBufferWriteRequest frameBufferWriteRequest
     );
 
-    localparam GET_FRAME_CODE = 3'b000;
+    localparam GET_FRAME_CODE = 8'b00011111;
     localparam GET_CONFIG_CODE = 3'b001;
     localparam SET_CONFIG_CODE = 3'b100;
-    enum {IDLE, GET_FRAME, SET_CONFIG} state = IDLE;
+    enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
     FrameBuffer frameBuffer;
@@ -56,37 +56,33 @@ module AppManager(
         .reset(1'b1)
     );
 
-    //On Data
+    //Loop
     Vector getFrameKernelPos;
-    reg [4:0] setConfigAddress = 0;
-    reg [15:0] setConfigData = 0;
-    reg setConfigPartion = 0;
-    always @(posedge CLK48) begin
+    reg [4:0] configAddress = 0;
+    reg [15:0] configData = 0;
+    reg configPartion = 0;
+    always @(posedge CLK48) begin //TODO should this be negedge?
         if (enabled) begin
             case (state)
                 IDLE: begin
                     //Get Frame
-                    if (readDataValid & readData[2:0] == GET_FRAME_CODE) begin
+                    if (readDataValid & readData == GET_FRAME_CODE) begin
                         state <= GET_FRAME;
                         getFrameKernelPos <= 0;
                     end
 
                     //Get Config
                     else if (readDataValid & readData[2:0] == GET_CONFIG_CODE) begin
-                        //TODO parallelize
-                        writeData = virtexConfig[readData[7:3]*16 + 15 -: 7];
-                        writeDataValid = 1;
-                        writeDataValid = 0;
-                        writeData = virtexConfig[readData[7:3]*16 + 7 -: 7]; 
-                        writeDataValid = 1;
-                        writeDataValid = 0;
+                        state <= GET_CONFIG;
+                        configPartion <= 0;
+                        configAddress <= readData[7:3];
                     end
 
                     //Set Config
                     else if (readDataValid & readData[2:0] == SET_CONFIG_CODE) begin
                         state <= SET_CONFIG;
-                        setConfigPartion <= 0;
-                        setConfigAddress <= readData[7:3];
+                        configPartion <= 0;
+                        configAddress <= readData[7:3];
                     end
                 end
 
@@ -104,18 +100,40 @@ module AppManager(
                     end
                 end
 
-                SET_CONFIG: begin
-                    //second partion of data
-                    if (setConfigPartion & readDataValid) begin
-                        setConfigData[7:0] <= readData;
-                        state <= IDLE;
-                        setConfigPartion <= 0;
+                GET_CONFIG: begin
+                    //TODO validate
+                    //drop data valid and come back next loop
+                    if (writeDataValid) begin
+                        writeDataValid <= 0;
                     end
 
-                    //first partion of data
+                    //write second partion
+                    else if (configPartion & writeQueueEmpty) begin
+                        writeData <= virtexConfig[configAddress*16 + 7 -: 7];
+                        writeDataValid <= 1;
+                        state <= IDLE;
+                    end
+
+                    //write first partion
+                    else if (writeQueueEmpty) begin
+                        writeData <= virtexConfig[configAddress*16 + 15 -: 7];
+                        writeDataValid <= 1;
+                        configPartion <= 1;
+                    end
+                end
+
+                SET_CONFIG: begin
+                    //read second partion
+                    if (configPartion & readDataValid) begin
+                        configData[7:0] <= readData;
+                        configPartion <= 0;
+                        state <= IDLE;
+                    end
+
+                    //read first partion
                     else if (readDataValid) begin
-                        setConfigData[15:8] <= readData;
-                        setConfigPartion <= 1;
+                        configData[15:8] <= readData;
+                        configPartion <= 1;
                     end
                 end
             endcase

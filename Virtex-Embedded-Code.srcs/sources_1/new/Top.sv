@@ -54,6 +54,7 @@ module Top(
 
     wire enabled;
     wire bootDone;
+    wire Fault faults [1:0];
 
     //ConfigManager
     wire VirtexConfig virtexConfig;
@@ -88,11 +89,12 @@ module Top(
         .SPI_CLK(CAM_SPI_CLK),
         .TRIGGER(CAM_TRIG),
         .MONITOR(CAM_MON),
-        .reset(CAM_RESET),
+        .RESET_SENSOR(CAM_RESET),
         .enabled(enabled),
         .virtexConfig(virtexConfig),
         .frameBufferWriteRequest(frameBufferWriteRequest),
-        .targetBlob(targetBlob)
+        .targetBlob(targetBlob),
+        .fault(faults[0])
     );
 
     //AppManager
@@ -151,6 +153,7 @@ module Top(
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
         .targetBlob(targetBlob),
-        .hasCommunication(hasCommunication)
+        .hasCommunication(hasCommunication),
+        .fault(faults[1])
     );
 endmodule

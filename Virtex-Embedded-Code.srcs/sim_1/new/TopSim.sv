@@ -25,13 +25,13 @@ module TopSim;
         .SPI_MISO(CONF_MISO)
     );
 
-    //Python300Sim for CameraManager
+    //LensSim for CameraManager
     wire Blob targetBlob;
     wire FrameBuffer frameBuffer;
     wire CAM_CLK_P, CAM_CLK_N, CAM_SYNC_P, CAM_SYNC_N, CAM_DOUT_P, CAM_DOUT_N;
     wire CAM_SPI_CS, CAM_SPI_MOSI, CAM_SPI_MISO, CAM_SPI_CLK;
     wire CAM_TRIG, CAM_MON, CAM_RESET;
-    Python300Sim(
+    LensSim(
         .LVDS_CLK_P(CAM_CLK_P),
         .LVDS_CLK_N(CAM_CLK_N),
         .LVDS_SYNC_P(CAM_SYNC_P),
@@ -44,7 +44,7 @@ module TopSim;
         .SPI_CLK(CAM_SPI_CLK),
         .TRIGGER(CAM_TRIG),
         .MONITOR(CAM_MON),
-        .reset(CAM_RESET)
+        .SENSOR_RESET(CAM_RESET)
     );
 
     //FT2232HSim for AppManager
@@ -65,23 +65,18 @@ module TopSim;
         .USB_SUS(USB_SUS)
     );
 
-    //RoboRIOSim for RoboRIOManager
+    //RobotCodeSim for RoboRIOManager
     wire RIO_CLK, RIO_MOSI, RIO_MISO, RIO_CS;
-    RoboRIOSim(
+    RobotCodeSim(
         .SPI_CLK(RIO_CLK),
         .SPI_MOSI(RIO_MOSI),
         .SPI_MISO(RIO_MISO),
         .SPI_CS(RIO_CS)
     );
 
-    //MX25V1635FM2ISim for FlashManager
+    //No Sim for FlashManager
     wire FLASH_CLK, FLASH_CS;
     wire [3:0] FLASH_SIO;
-    MX25V1635FM2ISim(
-        .SPI_CLK(FLASH_CLK),
-        .SPI_CS(FLASH_CS),
-        .SPI_Q(FLASH_SIO)
-    );
 
     //No Sim for LEDManager
     reg LED_FAULT = 1;

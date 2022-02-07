@@ -23,7 +23,8 @@ module Python300Sim(
     input wire SPI_CLK,
     output wire [2:0] TRIGGER,
     output wire [1:0] MONITOR,
-    input wire reset
+    input wire SENSOR_RESET
+    //TODO
     );
 
     reg CLK72 = 0, CLK288 = 0;
@@ -40,8 +41,8 @@ module Python300Sim(
         .SPI_CLK(SPI_CLK),
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
-        .reset(reset),
-        .sequencerEnabled(sequencerEnabled)
+        .sequencerEnabled(sequencerEnabled),
+        .SENSOR_RESET(SENSOR_RESET)
     );
 
     //LVDS Output Buffers
@@ -68,35 +69,35 @@ module Python300Sim(
         .SERIAL_DATA(LVDS_SYNC),
         .parallelClk(CLK72),
         .parallelData(SYNC),
-        .reset(1'b1)
+        .reset(SENSOR_RESET)
     );
     CameraOSERDESSim DOUT_0_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[0]),
         .parallelClk(CLK72),
         .parallelData(DOUT[0]),
-        .reset(reset)
+        .reset(SENSOR_RESET)
     );
     CameraOSERDESSim DOUT_1_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[1]),
         .parallelClk(CLK72),
         .parallelData(DOUT[1]),
-        .reset(reset)
+        .reset(SENSOR_RESET)
     );
     CameraOSERDESSim DOUT_2_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[2]),
         .parallelClk(CLK72),
         .parallelData(DOUT[2]),
-        .reset(reset)
+        .reset(SENSOR_RESET)
     );
     CameraOSERDESSim DOUT_3_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[3]),
         .parallelClk(CLK72),
         .parallelData(DOUT[3]),
-        .reset(reset)
+        .reset(SENSOR_RESET)
     );
 
     //Loop
@@ -106,6 +107,7 @@ module Python300Sim(
     reg [7:0] kernel;
     reg isInFrame;
 
-    //TODO
+    //TODO return test image
+    
 
 endmodule
