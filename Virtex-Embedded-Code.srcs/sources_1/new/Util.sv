@@ -31,13 +31,14 @@ package Util;
         logic [15:0] blackOffset; //128 [7:0]; def h4008
         logic [15:0] gain;
         /*
+        gain is split up into analog gain (course) and digital gain (fine)
         '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain},
         '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain},
         '{205, 1, 16'h0080},	// Digital_gain_0
         '{236, 1, 16'h0080},	// Digital_gain_1
         */
         logic [15:0] integrationTime;
-        // 
+        //
 
         //target params
         logic [15:0] targetBlobCountMin; //amount of blobs in target
