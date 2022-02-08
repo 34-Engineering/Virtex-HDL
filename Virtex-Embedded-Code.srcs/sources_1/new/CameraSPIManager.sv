@@ -32,7 +32,7 @@ module CameraSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     input wire sequencerEnabled,
-    input Fault fault
+    input reg Fault fault
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;

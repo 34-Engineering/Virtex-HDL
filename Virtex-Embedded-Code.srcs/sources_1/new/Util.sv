@@ -20,46 +20,46 @@ package Util;
     } Blob;
 
     //Virtex Config
-    typedef enum logic [7:0] {
-       HORIZONTAL=1,
-       VERTICAL=2 //TODO diagonal support?
-    } TargetOrientation;
-
-    typedef struct packed {
-        TargetOrientation targetOrientation;
-        logic [7:0] count;
-    } TargetMode;
-
     typedef enum logic [15:0] {
        NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
     } CameraOrientation;
 
     typedef struct packed { //32 x 16
         //camera config
-        CameraOrientation cameraOrientation;
-        logic [15:0] threshold;
-        logic [15:0] exposure;
+        /*00*/CameraOrientation cameraOrientation;
+        /*01*/logic [15:0] threshold;
+        logic [15:0] blackOffset; //128 [7:0]; def h4008
+        logic [15:0] gain;
+        /*
+        '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain},
+        '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain},
+        '{205, 1, 16'h0080},	// Digital_gain_0
+        '{236, 1, 16'h0080},	// Digital_gain_1
+        */
+        logic [15:0] integrationTime;
+        // 
 
         //target params
-        TargetMode targetMode;
-        logic [15:0] gapMin;
-        logic [15:0] gapMax;
-        logic [15:0] slopeDiffMin; //difference between each blob next to eachother
-        logic [15:0] slopeDiffMax;
-        logic [15:0] slopeMin;
-        logic [15:0] slopeMax;
-        logic [15:0] centerX;
-        logic [15:0] centerY;
+        logic [15:0] targetBlobCountMin; //amount of blobs in target
+        logic [15:0] targetBlobCountMax;
+        logic [15:0] targetBlobGapMin; //distance between blobs
+        logic [15:0] targetBlobGapMax;
+        logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
+        logic [15:0] targetBlobSlopeDiffMax;
+        logic [15:0] targetCenterX; //choose blob thats closet to this point
+        logic [15:0] targetCenterY;
 
         //blob params
-        logic [15:0] boundingWidthMin;
-        logic [15:0] boundingWidthMax;
-        logic [15:0] boundingHeightMin;
-        logic [15:0] boundingHeightMax;
-        logic [15:0] boundingAreaMin;
-        logic [15:0] boundingAreaMax;
-        logic [15:0] fullnessMin;
-        logic [15:0] fullnessMax;
+        logic [15:0] blobBoundingAspectRatioMin;
+        logic [15:0] blobBoundingAspectRatioMax;
+        logic [15:0] blobBoundingHeightMin;
+        logic [15:0] blobBoundingHeightMax;
+        logic [15:0] blobBoundingAreaMin;
+        logic [15:0] blobBoundingAreaMax;
+        logic [15:0] blobSlopeMin; //slope of each blob
+        logic [15:0] blobSlopeMax;
+        logic [15:0] blobFullnessMin;
+        logic [15:0] blobFullnessMax;
         
         //reserved for future use
         logic [15:0] reserved1;
@@ -73,7 +73,6 @@ package Util;
         logic [15:0] reserved9;
         logic [15:0] reserved10;
         logic [15:0] reserved11;
-        logic [15:0] reserved12;
     } VirtexConfig;
 
     localparam VirtexConfig DefaultVirtexConfig = '{
@@ -83,25 +82,26 @@ package Util;
         exposure: 8'h0f,
 
         //target params
-        targetMode: '{HORIZONTAL, 1},
-        gapMin: 0,
-        gapMax: 16'hffff,
-        slopeDiffMin: 0,
-        slopeDiffMax: 16'hffff,
-        slopeMin: 0,
-        slopeMax: 16'hffff,
-        centerX: 16'd320,
-        centerY: 16'd240,
+        targetBlobCountMin: 1,
+        targetBlobCountMax: 1,
+        targetBlobGapMin: 0,
+        targetBlobGapMax: 16'hffff,
+        targetBlobSlopeDiffMin: 0,
+        targetBlobSlopeDiffMax: 16'hffff,
+        targetBlobSlopeMin: 0,
+        targetBlobSlopeMax: 16'hffff,
+        targetCenterX: 16'd320,
+        targetCenterY: 16'd240,
 
         //blob params
-        boundingWidthMin: 0,
-        boundingWidthMax: 16'hffff,
-        boundingHeightMin: 0,
-        boundingHeightMax: 16'hffff,
-        boundingAreaMin: 100,
-        boundingAreaMax: 16'hffff,
-        fullnessMin: 0,
-        fullnessMax: 16'hffff,
+        blobBoundingWidthMin: 0,
+        blobBoundingWidthMax: 16'hffff,
+        blobBoundingHeightMin: 0,
+        blobBoundingHeightMax: 16'hffff,
+        blobBoundingAreaMin: 100,
+        blobBoundingAreaMax: 16'hffff,
+        blobFullnessMin: 0,
+        blobFullnessMax: 16'hffff,
         
         //reserved for future use
         reserved1: 16'd0,
@@ -114,8 +114,7 @@ package Util;
         reserved8: 16'd0,
         reserved9: 16'd0,
         reserved10: 16'd0,
-        reserved11: 16'd0,
-        reserved12: 16'd0
+        reserved11: 16'd0
     };
 
     typedef struct packed {

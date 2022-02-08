@@ -37,8 +37,6 @@
 
     CRC (per channel): x^8 + x^6 + x^3 + x^2 + 1
 
-    Black Lines: default 2
-
     Flow:
      - LVDS Lines -> IBUFGDS -> ISERDES -> Parallel Data (SYNC & DOUT[3:0])
 

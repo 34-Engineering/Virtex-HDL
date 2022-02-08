@@ -27,8 +27,14 @@ package CameraManagerParams;
 
     localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
+    localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
+
+    localparam PythonSPICommand disableSequencer = '{192, 1, 16'h0800};
+
+    localparam PythonSPICommand checkPLLLockStatus = '{9'd24, 0, 0};
+
     localparam PythonSPICommand enableClockManagement1 [9] = '{
-        '{2, 1, 16'h0000}, // chip confirugre LVDS monochrome
+        '{2, 1, 16'h0000},     // chip confirugre LVDS monochrome
         '{17, 1, 16'h210f},    // configure PLL
         '{20, 1, 16'h0000},    // configure internal clocking
         '{26, 1, 16'h1180},    // configure PLL lock detector
@@ -36,13 +42,13 @@ package CameraManagerParams;
         '{32, 1, 16'h400C},
         '{16, 1, 16'h0003},    // PLL release soft reset
         '{8, 1, 16'h0090},     // reset PLL lock detect
-        '{8, 1, 16'h0000}     // release PLL lock detect reset 
+        '{8, 1, 16'h0000}      // release PLL lock detect reset 
     };
 
     localparam PythonSPICommand enableClockManagement2 [3] = '{
         '{9, 1, 16'h0000},     // release clock generator soft reset
         '{32, 1, 16'h400E},
-        '{34, 1, 16'h0001}    // enable logic clock
+        '{34, 1, 16'h0001}     // enable logic clock
     };
 
     localparam PythonSPICommand requiredRegisterUpload [133] = '{
@@ -59,20 +65,20 @@ package CameraManagerParams;
         '{72, 1, 16'h0010},
         
         // black offset config
-        '{128, 1, 16'h3608},	// Black_offset
-        '{197, 1, 16'h0103},	// Black lines (3 black lines, 1 gated},
+        '{128, 1, 16'h4008},	// Black_offset
+        '{197, 1, 16'h0102},	// Black lines (2 black lines, 1 gated)
         '{129, 1, 16'h8001},	// 8-bit mode - auto_black cal
         
-        // auto exposure control config
-        '{169, 1, 16'h0800},	// AEC min gain configuration
-        '{171, 1, 16'h1002},	// AEC max gain configuration
-        '{250, 1, 16'h2081},	// AEC gain_stage_1 LUT - ZROT
-        '{251, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 1
-        '{252, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 2
-        '{192, 1, 16'h080c},	// Enable signal on monitor pins - ZROT
+        // AEC config
+        '{160, 1, 16'h0010},    //disable AEC
+        // '{169, 1, 16'h0800},	// AEC min gain configuration
+        // '{171, 1, 16'h1002},	// AEC max gain configuration
+        // '{250, 1, 16'h2081},	// AEC gain_stage_1 LUT - ZROT
+        // '{251, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 1
+        // '{252, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 2
         
         // sequencer config
-        '{192, 1, 16'h080c},	// Enable signal on monitor pins - ZROT
+        disableSequencer,
         '{193, 1, 16'h0000},	// XSM_delay
         '{194, 1, 16'h02e4},	// Integration control
         '{201, 1, 16'h0064},	// Exposure_0 1 ms
@@ -85,8 +91,8 @@ package CameraManagerParams;
         '{231, 1, 16'h0074},	// Fr_length_1
         
         // gain config
-        '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain // [4:0]: MUX_gain},
-        '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain // [4:0]: MUX_gain},
+        '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain},
+        '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain},
         '{205, 1, 16'h0080},	// Digital_gain_0
         '{236, 1, 16'h0080},	// Digital_gain_1
         
@@ -218,22 +224,17 @@ package CameraManagerParams;
     localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = {enableClockManagement2, requiredRegisterUpload, softPowerUp};
 
     localparam PythonSPICommand softPowerDown [6:0] = '{
-        '{112, 1, 16'h0000},	// Disable LVDS transmitters
-        '{48, 1, 16'h0000},	// Disable AFE
-        '{32, 1, 16'h700E},	// Disable analog clock
-        '{40, 1, 16'h0000},	// Disable column multiplexer
-        '{72, 1, 16'h0010},	// Disable charge pump
-        '{64, 1, 16'h0000},	// Disable biasing block
-        '{10, 1, 16'h0999}	// Soft reset
+        '{112, 1, 16'h0000}, // Disable LVDS transmitters
+        '{48, 1, 16'h0000},	 // Disable AFE
+        '{32, 1, 16'h700E},	 // Disable analog clock
+        '{40, 1, 16'h0000},	 // Disable column multiplexer
+        '{72, 1, 16'h0010},	 // Disable charge pump
+        '{64, 1, 16'h0000},	 // Disable biasing block
+        '{10, 1, 16'h0999}	 // Soft reset
     };
-
-    localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
-
-    localparam PythonSPICommand disableSequencer = '{192, 1, 16'h0800};
 
     localparam PythonSPICommand enableDisableSequencer [2] = {disableSequencer, enableSequencer};
 
-    localparam PythonSPICommand checkPLLLockStatus = '{9'd24, 0, 0};
 endpackage
 
 import CameraManagerParams::*;
