@@ -125,7 +125,7 @@ package Util;
     } VirtexConfigWriteRequest;
 
     //Frame Buffer
-    typedef logic [7:0] FrameBuffer [79:0][479:0];
+    typedef logic [639:0] FrameBuffer [479:0];
 
     typedef struct packed {
         Vector kernelPos;
@@ -137,7 +137,8 @@ package Util;
     typedef enum logic [7:0] {
         NO_FAULT = 0,
         PYTHON_300_PLL_FAULT = 1,
-        IR_LED_FAULT = 2
+        IR_LED_FAULT = 2,
+        OUT_OF_BLOB_MEM_FAULT = 3
     } Fault;
 endpackage
 
