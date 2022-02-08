@@ -193,7 +193,7 @@ function processPixel(pos: Vector): number {
                 blobs[masterBlobID].boundBottomRight.x = max(blobs[slaveBlobID].boundBottomRight.x, blobs[masterBlobID].boundBottomRight.x);
                 blobs[masterBlobID].boundBottomRight.y = max(blobs[slaveBlobID].boundBottomRight.y, blobs[masterBlobID].boundBottomRight.y);
                 
-                //expand quad
+                //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
                 if (blobs[slaveBlobID].quadTopLeft.x+blobs[slaveBlobID].quadTopLeft.y < blobs[masterBlobID].quadTopLeft.x+blobs[masterBlobID].quadTopLeft.y) {
                     blobs[masterBlobID].quadTopLeft.x = blobs[slaveBlobID].quadTopLeft.x;
                     blobs[masterBlobID].quadTopLeft.y = blobs[slaveBlobID].quadTopLeft.y;
@@ -233,7 +233,7 @@ function processPixel(pos: Vector): number {
         else if (pos.y + 1 > blobs[masterBlobID].boundBottomRight.y)
             blobs[masterBlobID].boundBottomRight.y = blobs[masterBlobID].boundBottomRight.y + 1;
         
-        //expand quad
+        //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
         if (pos.x + pos.y < blobs[masterBlobID].quadTopLeft.x + blobs[masterBlobID].quadTopLeft.y) {
             blobs[masterBlobID].quadTopLeft.x = pos.x;
             blobs[masterBlobID].quadTopLeft.y = pos.y;
