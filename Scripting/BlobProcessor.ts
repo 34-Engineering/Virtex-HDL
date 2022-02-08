@@ -19,12 +19,13 @@ interface BlobData {
     valid: boolean
 }
 
-const MIN_AREA = 1000;
+const MIN_AREA = 0;
 const MAX_BLOBS = 1000;
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
 
-let frameBuffer: boolean[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0))
+let frameBuffer: boolean[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0));
+let testBlobBuffer: number[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0))
 let blobIDBuffer: number[] = Array(IMAGE_WIDTH * 2).fill(MAX_BLOBS); //stores last 2 lines of blob IDs
 let blobIDBufferHalf: boolean = false; //which section of the blobIDBuffer we are on [639:0] or [1279:640]
 let blobs: BlobData[] = Array(MAX_BLOBS).fill({
@@ -40,7 +41,7 @@ let blobs: BlobData[] = Array(MAX_BLOBS).fill({
 });
 let blobIndex = 0;
 
-fs.createReadStream('images/2019_Noise2.png')
+fs.createReadStream('images/2019_Noise.png')
     .pipe(new png())
     .on('parsed', function () {
         //Process all Pixels
@@ -53,12 +54,13 @@ fs.createReadStream('images/2019_Noise2.png')
 
                 frameBuffer[x][y] = threshold;
 
+                let blobID = MAX_BLOBS;
                 if (threshold) {
-                    processPixel({ x, y });
+                    blobID = processPixel({ x, y });
                 }
-                else {
-                    blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = MAX_BLOBS;
-                }
+                
+                blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = blobID;
+                testBlobBuffer[x][y] = blobID;
             }
 
             //swap blobIDBufferHalf
@@ -68,6 +70,19 @@ fs.createReadStream('images/2019_Noise2.png')
         console.log("blob count: ", blobIndex - 1, maxCount);
 
         //Draw Blobs
+        for (let y = 0; y < IMAGE_HEIGHT; y++) {
+            for (let x = 0; x < IMAGE_WIDTH; x++) {
+                if (testBlobBuffer[x][y] !== MAX_BLOBS) {
+                    const idx = (IMAGE_WIDTH * y + x) << 2;
+                    const blobIndex = getBlobID(testBlobBuffer[x][y]);
+                    // const blobIndex = testBlobBuffer[x][y];
+                    //@ts-ignore
+                    this.data[idx] = Math.sin(blobIndex * 50) * 255;
+                    //@ts-ignore
+                    this.data[idx + 1] = Math.sin(blobIndex * 100) * 255;
+                }
+            }
+        }
         for (let i = 0; i < blobs.length; i++) {
             const area = (blobs[i]?.boundBottomRight.x - blobs[i]?.boundTopLeft.x) * (blobs[i]?.boundBottomRight.y - blobs[i]?.boundTopLeft.y);
             if (blobs[i]?.valid && area >= MIN_AREA) {
@@ -80,7 +95,7 @@ fs.createReadStream('images/2019_Noise2.png')
                     [255, 0, 0, 255]
                 );
 
-                //@ts-ignore
+                // @ts-ignore
                 this.drawLine(
                     blobs[i].cornerTopLeft.x,
                     blobs[i].cornerTopLeft.y,
@@ -131,16 +146,16 @@ function getBlobID(startID: number, count?: number): number {
 }
 
 //Process Pixel & Return BlobID
-function processPixel(pos: Vector): void {
+function processPixel(pos: Vector): number {
     let blobIDBufferIndexes: number[] = [];
     if (pos.x > 0 && pos.y > 0)
-        blobIDBufferIndexes.push(pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0));
-    if (pos.y > 0)
-        blobIDBufferIndexes.push(pos.x+0 + (blobIDBufferHalf?IMAGE_WIDTH:0));
-    if (pos.x < IMAGE_WIDTH-1 && pos.y > 0)
-        blobIDBufferIndexes.push(pos.x+1 + (blobIDBufferHalf?IMAGE_WIDTH:0));
-    if (pos.x > 0)
         blobIDBufferIndexes.push(pos.x-1 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+    if (pos.y > 0)
+        blobIDBufferIndexes.push(pos.x+0 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+    if (pos.x < IMAGE_WIDTH-1 && pos.y > 0)
+        blobIDBufferIndexes.push(pos.x+1 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+    if (pos.x > 0)
+        blobIDBufferIndexes.push(pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0));
 
     let masterBlobID;
     for (let i = 0; i < blobIDBufferIndexes.length; i++) {
@@ -214,14 +229,14 @@ function processPixel(pos: Vector): void {
             blobs[masterBlobID].cornerBottomLeft.y = pos.y;
         }
 
-        blobIDBuffer[pos.x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = masterBlobID;
+        return masterBlobID;
     }
     
     //not touching a blob => make new blob
     else {
         blobs[blobIndex] = {
             boundTopLeft:      {x:pos.x  , y:pos.y  },
-            boundBottomRight:  {x:pos.x+1, y:pos.y+1},
+            boundBottomRight:  {x:pos.x+0, y:pos.y+0},
             cornerTopLeft:     {x:pos.x  , y:pos.y  },
             cornerTopRight:    {x:pos.x+1, y:pos.y  },
             cornerBottomLeft:  {x:pos.x  , y:pos.y+1},
@@ -231,9 +246,9 @@ function processPixel(pos: Vector): void {
             valid: true
         };
 
-        blobIDBuffer[pos.x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = blobIndex;
-
         blobIndex++;
+                
+        return blobIndex - 1;
     }
 }
 
