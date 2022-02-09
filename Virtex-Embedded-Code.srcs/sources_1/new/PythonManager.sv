@@ -187,7 +187,7 @@ module PythonManager(
     reg [7:0] kernel;
     reg isInFrame;
     always @(posedge CLK72) begin
-        if (SYNC == FS) begin
+        if (SYNC == PYTHON_SYNC_FRAME_START) begin
             //Note: FS replaces LS
             endFrameR[0] <= 0;
             isInFrame <= 1;
@@ -198,13 +198,13 @@ module PythonManager(
             processImageData();
         end
 
-        else if (SYNC == FE) begin
+        else if (SYNC == PYTHON_SYNC_FRAME_END) begin
             endFrameR[0] <= 1;
             isInFrame <= 0;
             processImageData();
         end
 
-        else if (SYNC == LS & isInFrame) begin
+        else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
             //check if in frame to make sure its not a black pixel
             kernelPos.x <= 0;
             kernelPartion <= 0;
@@ -212,11 +212,11 @@ module PythonManager(
             processImageData();
         end
 
-        else if (SYNC == LE & isInFrame) begin
+        else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
             processImageData();
         end
 
-        else if (SYNC == WN & isInFrame) begin
+        else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
             processImageData();
         end
 
@@ -224,7 +224,7 @@ module PythonManager(
             //TODO do we want black level checking?
         // end
 
-        else if (SYNC == IMG) begin
+        else if (SYNC == PYTHON_SYNC_IMAGE) begin
             processImageData();
         end
 

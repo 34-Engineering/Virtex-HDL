@@ -1,43 +1,42 @@
 `timescale 1ns / 1ps
+`include "Util.sv"
 
 /** PythonManagerParams - 
 
 */
-`ifndef PYTHONERA_MANAGER_PARAMS_DONE
-`define PYTHONERA_MANAGER_PARAMS_DONE
+`ifndef PYTHON_MANAGER_PARAMS_DONE
+`define PYTHON_MANAGER_PARAMS_DONE
 package PythonManagerParams;
 
     //Default SYNC Channel Codes (Frame Sync + Data Classification)
-    localparam FS = 8'haa; //frame start
-    localparam FE = 8'hca; //frame end
-    localparam LS = 8'h2a; //line start
-    localparam LE = 8'h4a; //line end
-    localparam BL = 8'h05; //black pixels
-    localparam IMG = 8'h0d; //valid pixels
-    localparam CRC = 8'h16; //checksum
-    localparam TR = 8'he9; //training pattern for SYNC + DOUT
-    localparam WN = 8'h00; //main window ID
+    localparam PYTHON_SYNC_FRAME_START = 8'haa;
+    localparam PYTHON_SYNC_FRAME_END = 8'hca;
+    localparam PYTHON_SYNC_LINE_START = 8'h2a;
+    localparam PYTHON_SYNC_LINE_END = 8'h4a;
+    localparam PYTHON_SYNC_BLACK = 8'h05; //black pixels
+    localparam PYTHON_SYNC_IMAGE = 8'h0d; //valid pixels
+    localparam PYTHON_SYNC_CRC = 8'h16; //checksum
+    localparam PYTHON_SYNC_MAIN_WINDOW_ID = 8'h00;
+    localparam PYTHON_TRAINING_PATTERN = 8'he9; //training pattern for SYNC + DOUT
 
+    //Types
     typedef struct packed {
         logic [8:0] address;
         logic readWrite; //1 for write
         logic [0:15] word;
     } PythonSPICommand;
-
-    typedef struct packed {
-        logic [1:0] reserved;
-        logic gain_lat_comp;
-        logic [8:0] afe_gain0;
-        logic [4:0] mux_gainsw0;
-    } ;
-
     localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
+    //SPI Commands
     localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
-
     localparam PythonSPICommand disableSequencer = '{192, 1, 16'h0800};
 
     localparam PythonSPICommand checkPLLLockStatus = '{9'd24, 0, 0};
+
+    localparam logic [8:0] setBlackOffsetAddress = 128;
+    localparam logic [8:0] setAnalogGainAddress = 204;
+    localparam logic [8:0] setDigitalGainAddress = 205;
+    localparam logic [8:0] setExposureAddress = 201;
 
     localparam PythonSPICommand enableClockManagement1 [9] = '{
         '{2, 1, 16'h0000},     // chip confirugre LVDS monochrome
@@ -71,7 +70,7 @@ package PythonManagerParams;
         '{72, 1, 16'h0010},
         
         // black offset config
-        '{128, 1, 16'h4008},	// Black_offset
+        '{setBlackOffsetAddress, 1, makePythonBlackOffsetConfig(DefaultVirtexConfig.blackOffset)},
         '{197, 1, 16'h0102},	// Black lines (2 black lines, 1 gated)
         '{129, 1, 16'h8001},	// 8-bit mode - auto_black cal
         
@@ -87,8 +86,8 @@ package PythonManagerParams;
         disableSequencer,
         '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
         '{194, 1, 16'h02e4},	// Integration control (ft_mode = 1)
-        '{201, 1, 16'd41746},	// Exposure_0 1 ms (following frames)
-        '{232, 1, 16'd41746},	// Exposure_1 1 ms (current frame)
+        '{setExposureAddress, 1, DefaultVirtexConfig.exposure},	// Exposure_0 1 ms (following frames)
+        '{232, 1, DefaultVirtexConfig.exposure},	// Exposure_1 1 ms (current frame)
         
         // fr_length & mult_timer config (Python 300}, ZROT
         //NOTE: download "PYTHON Frame Rate Calculator V3.0" and use "python300.ini"
@@ -99,10 +98,10 @@ package PythonManagerParams;
         '{231, 1, 16'd41500},	// Fr_length_1 (current frame)
         
         // gain config
-        '{204, 1, 16'h01e1},	// Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain) (following frames)
-        '{235, 1, 16'h01e1},	// Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain) (current frame)
-        '{205, 1, 16'h0080},	// Digital_gain_0 (following frames)
-        '{236, 1, 16'h0080},	// Digital_gain_1 (current frame)
+        '{setAnalogGainAddress, 1, DefaultVirtexConfig.analogGain},	// Analog_gain_0 (following frames)
+        '{235, 1, DefaultVirtexConfig.analogGain},	// Analog_gain_1 (current frame)
+        '{setDigitalGainAddress, 1, DefaultVirtexConfig.digitalGain},	// Digital_gain_0 (following frames)
+        '{236, 1, DefaultVirtexConfig.digitalGain},	// Digital_gain_1 (current frame)
         
         //////// program space ////////
         '{211, 1, 16'h0e49},   // no mux
