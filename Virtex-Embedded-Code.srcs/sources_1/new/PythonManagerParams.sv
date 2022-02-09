@@ -90,10 +90,9 @@ package PythonManagerParams;
         '{232, 1, DefaultVirtexConfig.exposure},	// Exposure_1 1 ms (current frame)
         
         // fr_length & mult_timer config (Python 300}, ZROT
-        //NOTE: download "PYTHON Frame Rate Calculator V3.0" and use "python300.ini"
-        //      in this repo for config
-        '{199, 1, 16'd2},	// Mult_timer_0 (following frames)
-        '{230, 1, 16'd2},	// Mult_timer_1 (current frame)
+        //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"
+        '{199, 1, 16'd2},	    // Mult_timer_0 (following frames)
+        '{230, 1, 16'd2},	    // Mult_timer_1 (current frame)
         '{200, 1, 16'd41500},	// Fr_length_0 (following frames)
         '{231, 1, 16'd41500},	// Fr_length_1 (current frame)
         

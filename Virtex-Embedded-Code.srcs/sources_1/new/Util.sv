@@ -6,6 +6,10 @@
 `ifndef UTIL_DONE
 `define UTIL_DONE
 package Util;
+
+    localparam IMAGE_WIDTH = 640;
+    localparam IMAGE_HEIGHT = 480;
+
     //10-bit Vector
     typedef struct packed {
         logic [9:0] x, y;
@@ -101,8 +105,8 @@ package Util;
         targetBlobGapMax: 16'hffff,
         targetBlobSlopeDiffMin: 0,
         targetBlobSlopeDiffMax: 16'hffff,
-        targetCenterX: 16'd320,
-        targetCenterY: 16'd240,
+        targetCenterX: IMAGE_WIDTH / 2,
+        targetCenterY: IMAGE_HEIGHT / 2,
 
         //blob params
         blobBoundAspectRatioMin: 0,
@@ -134,7 +138,7 @@ package Util;
     } VirtexConfigWriteRequest;
 
     //Frame Buffer
-    typedef logic [639:0] FrameBuffer [479:0];
+    typedef logic [IMAGE_HEIGHT-1:0] FrameBuffer [IMAGE_WIDTH-1:0];
 
     typedef struct packed {
         Vector kernelPos;

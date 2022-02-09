@@ -88,7 +88,7 @@ module AppManager(
 
                 GET_FRAME: begin
                     //38,400 loops
-                    writeData = frameBuffer[getFrameKernelPos.x][getFrameKernelPos.y];
+                    writeData = frameBuffer[getFrameKernelPos.y][getFrameKernelPos.x +: 7];
 
                     if (getFrameKernelPos.x > 79) begin
                         if (getFrameKernelPos.y > 478) begin
@@ -142,6 +142,6 @@ module AppManager(
 
     //Add to Frame Buffer
     always @(posedge frameBufferWriteRequest.valid) begin
-        frameBuffer[frameBufferWriteRequest.kernelPos.x][frameBufferWriteRequest.kernelPos.y] = frameBufferWriteRequest.kernel;
+        frameBuffer[frameBufferWriteRequest.kernelPos.y][frameBufferWriteRequest.kernelPos.x +: 7] = frameBufferWriteRequest.kernel;
     end
 endmodule

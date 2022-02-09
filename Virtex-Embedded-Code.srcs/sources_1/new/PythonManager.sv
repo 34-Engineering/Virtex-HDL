@@ -69,18 +69,17 @@ module PythonManager(
     );
 
     //Generate 400MHz Global Clock
-    wire CLK400;
-    clk_wiz_2 clk_wiz_2(
-        .clk_in1(CLK),
-        .clk_out1(CLK400)
-    );
+    // wire CLK400;
+    // clk_wiz_2 clk_wiz_2(
+    //     .clk_in1(CLK),
+    //     .clk_out1(CLK400)
+    // );
 
     //Blob Processor
     reg lastKernelValidR [2:0];
     Vector lastKernelPosR [2:0];
     reg [7:0] lastKernelR [2:0];
-    reg endFrameR [2:0] = '{0, 0, 0};
-    always @(posedge CLK400) begin
+    always @(posedge CLK) begin
         //Cross clock domain w/ 2x dff
         //r0 @ 72MHz -> r1 @ 400MHz (metastable) -> r2 @ 400MHz (stable)
         lastKernelValidR[1] <= lastKernelValidR[0];
@@ -89,15 +88,12 @@ module PythonManager(
         lastKernelPosR[2] <= lastKernelPosR[1];
         lastKernelR[1] <= lastKernelR[0];
         lastKernelR[2] <= lastKernelR[1];
-        endFrameR[1] <= endFrameR[0];
-        endFrameR[2] <= endFrameR[1];
     end
     BlobProcessor BlobProcessor(
-        .CLK400(CLK400),
+        .CLK(CLK),
         .kernelValid(lastKernelValidR[2]),
         .kernelPos(lastKernelPosR[2]),
         .kernel(lastKernelR[2]),
-        .endFrame(endFrameR[2]),
         .targetBlob(targetBlob)
     );
 
@@ -189,7 +185,6 @@ module PythonManager(
     always @(posedge CLK72) begin
         if (SYNC == PYTHON_SYNC_FRAME_START) begin
             //Note: FS replaces LS
-            endFrameR[0] <= 0;
             isInFrame <= 1;
             kernelPos.y <= 0;
             kernelPos.x <= 0;
@@ -199,7 +194,6 @@ module PythonManager(
         end
 
         else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-            endFrameR[0] <= 1;
             isInFrame <= 0;
             processImageData();
         end
