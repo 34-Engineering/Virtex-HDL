@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 
-/** CameraManagerParams - 
+/** PythonManagerParams - 
 
 */
-`ifndef CAMERA_MANAGER_PARAMS_DONE
-`define CAMERA_MANAGER_PARAMS_DONE
-package CameraManagerParams;
+`ifndef PYTHONERA_MANAGER_PARAMS_DONE
+`define PYTHONERA_MANAGER_PARAMS_DONE
+package PythonManagerParams;
 
     //Default SYNC Channel Codes (Frame Sync + Data Classification)
     localparam FS = 8'haa; //frame start
@@ -18,12 +18,18 @@ package CameraManagerParams;
     localparam TR = 8'he9; //training pattern for SYNC + DOUT
     localparam WN = 8'h00; //main window ID
 
-    //SPI Commands
     typedef struct packed {
         logic [8:0] address;
         logic readWrite; //1 for write
         logic [0:15] word;
     } PythonSPICommand;
+
+    typedef struct packed {
+        logic [1:0] reserved;
+        logic gain_lat_comp;
+        logic [8:0] afe_gain0;
+        logic [4:0] mux_gainsw0;
+    } ;
 
     localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
@@ -79,22 +85,24 @@ package CameraManagerParams;
         
         // sequencer config
         disableSequencer,
-        '{193, 1, 16'h0000},	// XSM_delay
-        '{194, 1, 16'h02e4},	// Integration control
-        '{201, 1, 16'h0064},	// Exposure_0 1 ms
-        '{232, 1, 16'h0064},	// Exposure_1 1 ms
+        '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
+        '{194, 1, 16'h02e4},	// Integration control (ft_mode = 1)
+        '{201, 1, 16'd41746},	// Exposure_0 1 ms (following frames)
+        '{232, 1, 16'd41746},	// Exposure_1 1 ms (current frame)
         
         // fr_length & mult_timer config (Python 300}, ZROT
-        '{199, 1, 16'h02c9},	// Mult_timer_0
-        '{230, 1, 16'h02c9},	// Mult_timer_1
-        '{200, 1, 16'h0074},	// Fr_length_0
-        '{231, 1, 16'h0074},	// Fr_length_1
+        //NOTE: download "PYTHON Frame Rate Calculator V3.0" and use "python300.ini"
+        //      in this repo for config
+        '{199, 1, 16'd2},	// Mult_timer_0 (following frames)
+        '{230, 1, 16'd2},	// Mult_timer_1 (current frame)
+        '{200, 1, 16'd41500},	// Fr_length_0 (following frames)
+        '{231, 1, 16'd41500},	// Fr_length_1 (current frame)
         
         // gain config
-        '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain},
-        '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain},
-        '{205, 1, 16'h0080},	// Digital_gain_0
-        '{236, 1, 16'h0080},	// Digital_gain_1
+        '{204, 1, 16'h01e1},	// Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain) (following frames)
+        '{235, 1, 16'h01e1},	// Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain) (current frame)
+        '{205, 1, 16'h0080},	// Digital_gain_0 (following frames)
+        '{236, 1, 16'h0080},	// Digital_gain_1 (current frame)
         
         //////// program space ////////
         '{211, 1, 16'h0e49},   // no mux
@@ -237,5 +245,5 @@ package CameraManagerParams;
 
 endpackage
 
-import CameraManagerParams::*;
+import PythonManagerParams::*;
 `endif

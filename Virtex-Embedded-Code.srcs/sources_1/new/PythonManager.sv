@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 `include "Util.sv"
-`include "CameraManagerParams.sv"
+`include "PythonManagerParams.sv"
 
-/* CameraManager - Manages the Python 300 Image Sensor
+/* PythonManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
     
-    CameraSPIManager manages the SPI interface with the image sensor
+    PythonSPIManager manages the SPI interface with the image sensor
 
     Setup:
      - P/N: NOIP1FN0300A−QTI/QDI (monochrome, infrared-optimized)
@@ -41,7 +41,7 @@
      - LVDS Lines -> IBUFGDS -> ISERDES -> Parallel Data (SYNC & DOUT[3:0])
 
     */
-module CameraManager(
+module PythonManager(
     input wire CLK,
     input wire LVDS_CLK_P, LVDS_CLK_N, LVDS_SYNC_P, LVDS_SYNC_N,
     input wire [3:0] LVDS_DOUT_P, LVDS_DOUT_N,
@@ -101,8 +101,8 @@ module CameraManager(
         .targetBlob(targetBlob)
     );
 
-    //Camera SPI Manager
-    CameraSPIManager CameraSPIManager(
+    //Python SPI Manager
+    PythonSPIManager PythonSPIManager(
         .CLK(CLK),
         .SPI_CS(SPI_CS),
         .SPI_MOSI(SPI_MOSI),
@@ -134,7 +134,7 @@ module CameraManager(
     wire [7:0] SYNC;
     wire [7:0] DOUT [3:0];
     wire [4:0] trainingDone;
-    CameraISERDES SYNC_ISERDES(
+    PythonISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
         .parallelClk(CLK72),
@@ -143,7 +143,7 @@ module CameraManager(
         .trainingPattern(TR),
         .trainingDone(trainingDone[0])
     );
-    CameraISERDES DOUT_0_ISERDES(
+    PythonISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[0]),
         .parallelClk(CLK72),
@@ -152,7 +152,7 @@ module CameraManager(
         .trainingPattern(TR),
         .trainingDone(trainingDone[1])
     );
-    CameraISERDES DOUT_1_ISERDES(
+    PythonISERDES DOUT_1_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[1]),
         .parallelClk(CLK72),
@@ -161,7 +161,7 @@ module CameraManager(
         .trainingPattern(TR),
         .trainingDone(trainingDone[2])
     );
-    CameraISERDES DOUT_2_ISERDES(
+    PythonISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[2]),
         .parallelClk(CLK72),
@@ -170,7 +170,7 @@ module CameraManager(
         .trainingPattern(TR),
         .trainingDone(trainingDone[3])
     );
-    CameraISERDES DOUT_3_ISERDES(
+    PythonISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[3]),
         .parallelClk(CLK72),

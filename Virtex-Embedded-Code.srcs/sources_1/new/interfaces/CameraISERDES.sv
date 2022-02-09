@@ -1,13 +1,13 @@
 `timescale 1ns / 1ps
 
-/* CameraISERDES- 1:8 DDR SerDes implementation for the Python 300 Sync + Data channels
+/* PythonISERDES- 1:8 DDR SerDes implementation for the Python 300 Sync + Data channels
     Docs
      - https://www.xilinx.com/support/documentation/ip_documentation/selectio_wiz/v5_1/pg070-selectio-wiz.pdf
      - https://www.xilinx.com/support/documentation/user_guides/ug471_7Series_SelectIO.pdf
      - https://www.xilinx.com/support/documentation/application_notes/xapp524-serial-lvds-adc-interface.pdf
      - https://www.xilinx.com/support/documentation/sw_manuals/xilinx2012_2/ug953-vivado-7series-libraries.pdf
     */
-module CameraISERDES (
+module PythonISERDES (
     input wire SERIAL_CLK, SERIAL_DATA,
     input wire parallelClk,
     output wire [7:0] parallelData,

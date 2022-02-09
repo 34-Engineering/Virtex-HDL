@@ -25,26 +25,26 @@ module TopSim;
         .SPI_MISO(CONF_MISO)
     );
 
-    //LensSim for CameraManager
+    //LensSim for PythonManager
     wire Blob targetBlob;
     wire FrameBuffer frameBuffer;
-    wire CAM_CLK_P, CAM_CLK_N, CAM_SYNC_P, CAM_SYNC_N, CAM_DOUT_P, CAM_DOUT_N;
-    wire CAM_SPI_CS, CAM_SPI_MOSI, CAM_SPI_MISO, CAM_SPI_CLK;
-    wire CAM_TRIG, CAM_MON, CAM_RESET;
+    wire PYTHON_CLK_P, PYTHON_CLK_N, PYTHON_SYNC_P, PYTHON_SYNC_N, PYTHON_DOUT_P, PYTHON_DOUT_N;
+    wire PYTHON_SPI_CS, PYTHON_SPI_MOSI, PYTHON_SPI_MISO, PYTHON_SPI_CLK;
+    wire PYTHON_TRIG, PYTHON_MON, PYTHON_RESET;
     LensSim(
-        .LVDS_CLK_P(CAM_CLK_P),
-        .LVDS_CLK_N(CAM_CLK_N),
-        .LVDS_SYNC_P(CAM_SYNC_P),
-        .LVDS_SYNC_N(CAM_SYNC_N),
-        .LVDS_DOUT_P(CAM_DOUT_P),
-        .LVDS_DOUT_N(CAM_DOUT_N),
-        .SPI_CS(CAM_SPI_CS),
-        .SPI_MOSI(CAM_SPI_MOSI),
-        .SPI_MISO(CAM_SPI_MISO),
-        .SPI_CLK(CAM_SPI_CLK),
-        .TRIGGER(CAM_TRIG),
-        .MONITOR(CAM_MON),
-        .SENSOR_RESET(CAM_RESET)
+        .LVDS_CLK_P(PYTHON_CLK_P),
+        .LVDS_CLK_N(PYTHON_CLK_N),
+        .LVDS_SYNC_P(PYTHON_SYNC_P),
+        .LVDS_SYNC_N(PYTHON_SYNC_N),
+        .LVDS_DOUT_P(PYTHON_DOUT_P),
+        .LVDS_DOUT_N(PYTHON_DOUT_N),
+        .SPI_CS(PYTHON_SPI_CS),
+        .SPI_MOSI(PYTHON_SPI_MOSI),
+        .SPI_MISO(PYTHON_SPI_MISO),
+        .SPI_CLK(PYTHON_SPI_CLK),
+        .TRIGGER(PYTHON_TRIG),
+        .MONITOR(PYTHON_MON),
+        .SENSOR_RESET(PYTHON_RESET)
     );
 
     //FT2232HSim for AppManager
@@ -131,22 +131,22 @@ module TopSim;
         //Power
         .PWR_12V_EN(PWR_12V_EN),
 
-        //Camera/Image Sensor LVDS
-        .CAM_CLK_P(CAM_CLK_P),
-        .CAM_CLK_N(CAM_CLK_N),
-        .CAM_SYNC_P(CAM_SYNC_P),
-        .CAM_SYNC_N(CAM_SYNC_N),
-        .CAM_DOUT_P(CAM_DOUT_P),
-        .CAM_DOUT_N(CAM_DOUT_N),
+        //Python/Image Sensor LVDS
+        .PYTHON_CLK_P(PYTHON_CLK_P),
+        .PYTHON_CLK_N(PYTHON_CLK_N),
+        .PYTHON_SYNC_P(PYTHON_SYNC_P),
+        .PYTHON_SYNC_N(PYTHON_SYNC_N),
+        .PYTHON_DOUT_P(PYTHON_DOUT_P),
+        .PYTHON_DOUT_N(PYTHON_DOUT_N),
 
-        //Camera/Image Sensor IO
-        .CAM_SPI_CS(CAM_SPI_CS),
-        .CAM_SPI_MOSI(CAM_SPI_MOSI),
-        .CAM_SPI_MISO(CAM_SPI_MISO),
-        .CAM_SPI_CLK(CAM_SPI_CLK),
-        .CAM_TRIG(CAM_TRIG),
-        .CAM_MON(CAM_MON),
-        .CAM_RESET(CAM_RESET)
+        //Python/Image Sensor IO
+        .PYTHON_SPI_CS(PYTHON_SPI_CS),
+        .PYTHON_SPI_MOSI(PYTHON_SPI_MOSI),
+        .PYTHON_SPI_MISO(PYTHON_SPI_MISO),
+        .PYTHON_SPI_CLK(PYTHON_SPI_CLK),
+        .PYTHON_TRIG(PYTHON_TRIG),
+        .PYTHON_MON(PYTHON_MON),
+        .PYTHON_RESET(PYTHON_RESET)
     );
     
 endmodule

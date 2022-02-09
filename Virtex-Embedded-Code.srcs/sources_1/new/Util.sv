@@ -11,37 +11,33 @@ package Util;
         logic [9:0] x, y;
     } Vector;
 
-    //?-bit Blob
+    //96-bit Blob
     typedef struct packed {
-        Vector boundTopLeft, boundBottomRight; //square bounding box
-        // Vector cornerTopLeft, cornerTopRight, cornerBottomRight, cornerBottomLeft; //corners of quad
+        Vector boundTopLeft, boundBottomRight;
+        Vector quadTopLeft, quadTopRight, quadBottomRight, quadBottomLeft;
+        logic [18:0] area;
+        logic [9:0] pointer;
         logic valid;
-        // logic [2:0] reserved; //to make it 64-bit
+        logic [5:0] reserved;
     } Blob;
 
     //Virtex Config
     typedef enum logic [15:0] {
        NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
-    } CameraOrientation;
+    } PythonOrientation;
 
     typedef struct packed { //32 x 16
-        //camera config
-        /*00*/CameraOrientation cameraOrientation;
-        /*01*/logic [15:0] threshold;
-        logic [15:0] blackOffset; //128 [7:0]; def h4008
-        logic [15:0] gain;
-        /*
-        gain is split up into analog gain (course) and digital gain (fine)
-        '{204, 1, 16'h01e1},	// ZROT - Analog_gain_0 ([12:5]: AFE_gain, [4:0]: MUX_gain},
-        '{235, 1, 16'h01e1},	// ZROT - Analog_gain_1 ([12:5]: AFE_gain, [4:0]: MUX_gain},
-        '{205, 1, 16'h0080},	// Digital_gain_0
-        '{236, 1, 16'h0080},	// Digital_gain_1
-        */
-        logic [15:0] integrationTime;
-        //
+        //python config
+        /*00*/PythonOrientation pythonOrientation;
+        /*01*/logic [15:0] threshold; //max: 255
+        /*02*/logic [15:0] blackOffset; //'{128, 1, 16'h4008} black_offset
+        /*03*/logic [15:0] analog_gain; //'{204, 1, 16'h01e1} analog_gain ([12:5]: AFE_gain, [4:0]: MUX_gain)
+        /*04*/logic [15:0] digital_gain; //'{205, 1, 16'h0080} digital_gain
+        /*05*/logic [15:0] exposure; //'{201, 1, 16'd41746} max: 41746
+                                     // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms)
 
         //target params
-        logic [15:0] targetBlobCountMin; //amount of blobs in target
+        /*06*/logic [15:0] targetBlobCountMin; //amount of blobs in target
         logic [15:0] targetBlobCountMax;
         logic [15:0] targetBlobGapMin; //distance between blobs
         logic [15:0] targetBlobGapMax;
@@ -51,16 +47,14 @@ package Util;
         logic [15:0] targetCenterY;
 
         //blob params
-        logic [15:0] blobBoundingAspectRatioMin;
-        logic [15:0] blobBoundingAspectRatioMax;
-        logic [15:0] blobBoundingHeightMin;
-        logic [15:0] blobBoundingHeightMax;
-        logic [15:0] blobBoundingAreaMin;
-        logic [15:0] blobBoundingAreaMax;
-        logic [15:0] blobSlopeMin; //slope of each blob
-        logic [15:0] blobSlopeMax;
-        logic [15:0] blobFullnessMin;
-        logic [15:0] blobFullnessMax;
+        logic [15:0] blobBoundAspectRatioMin; //boundWidth / boundHeight
+        logic [15:0] blobBoundAspectRatioMax;
+        logic [15:0] blobBoundAreaMin; //boundWidth * boundHeight
+        logic [15:0] blobBoundAreaMax;
+        logic [15:0] blobBoundFullnessMin; //blob.area / (boundWidth * boundHeight)
+        logic [15:0] blobBoundFullnessMax;
+        logic [15:0] blobQuadSlopeMin; //avg slope between left and right sides
+        logic [15:0] blobQuadSlopeMax;
         
         //reserved for future use
         logic [15:0] reserved1;
@@ -77,8 +71,8 @@ package Util;
     } VirtexConfig;
 
     localparam VirtexConfig DefaultVirtexConfig = '{
-        //camera config
-        cameraOrientation: NORMAL,
+        //python config
+        pythonOrientation: NORMAL,
         threshold: 8'h0f,
         exposure: 8'h0f,
 

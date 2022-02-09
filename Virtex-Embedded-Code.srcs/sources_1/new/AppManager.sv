@@ -3,7 +3,7 @@
 
 /* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
      1) Streams video & processed blobs to FT2232H
-     2) Reads & writes camera configurations 
+     2) Reads & writes python configurations 
     Virtex Fast Serial Protocol: https://docs.google.com/document/d/1n1cTdPgI_MZJplnfnsV4Gh2vK2MCvT35MewmOGstzLg/edit
     */
 module AppManager(

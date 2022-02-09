@@ -4,7 +4,7 @@
 /* Python300Sim - Simulates the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
 
-    See CameraManager.sv for more
+    See PythonManager.sv for more
 
     Flow:
      - Parallel Data (SYNC & DOUT[3:0]) -> OSERDES -> OBUFDS -> LVDS Lines
@@ -64,35 +64,35 @@ module Python300Sim(
     //OSERDES Sim
     wire [7:0] SYNC;
     wire [7:0] DOUT [3:0];
-    CameraOSERDESSim SYNC_OSERDES(
+    PythonOSERDESSim SYNC_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_SYNC),
         .parallelClk(CLK72),
         .parallelData(SYNC),
         .reset(SENSOR_RESET)
     );
-    CameraOSERDESSim DOUT_0_OSERDES(
+    PythonOSERDESSim DOUT_0_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[0]),
         .parallelClk(CLK72),
         .parallelData(DOUT[0]),
         .reset(SENSOR_RESET)
     );
-    CameraOSERDESSim DOUT_1_OSERDES(
+    PythonOSERDESSim DOUT_1_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[1]),
         .parallelClk(CLK72),
         .parallelData(DOUT[1]),
         .reset(SENSOR_RESET)
     );
-    CameraOSERDESSim DOUT_2_OSERDES(
+    PythonOSERDESSim DOUT_2_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[2]),
         .parallelClk(CLK72),
         .parallelData(DOUT[2]),
         .reset(SENSOR_RESET)
     );
-    CameraOSERDESSim DOUT_3_OSERDES(
+    PythonOSERDESSim DOUT_3_OSERDES(
         .SERIAL_CLK(CLK288),
         .SERIAL_DATA(LVDS_DOUT[3]),
         .parallelClk(CLK72),

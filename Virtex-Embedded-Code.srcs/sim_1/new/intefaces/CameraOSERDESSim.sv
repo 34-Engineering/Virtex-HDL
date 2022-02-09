@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 
-/* CameraOSERDESSim - Simulates the 1:8 DDR SerDes from the Python 300
+/* PythonOSERDESSim - Simulates the 1:8 DDR SerDes from the Python 300
 
-    See CameraISERDES.sv for more
+    See PythonISERDES.sv for more
     
     */
-module CameraOSERDESSim(
+module PythonOSERDESSim(
     input wire SERIAL_CLK,
     output wire SERIAL_DATA,
     input wire parallelClk,

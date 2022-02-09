@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `include "Util.sv"
-`include "CameraManagerParams.sv"
+`include "PythonManagerParams.sv"
 
 /* Top - top (main) module for the FPGA source code
 
@@ -39,17 +39,17 @@ module Top(
     //Power
     input wire PWR_12V_EN,
 
-    //Camera/Image Sensor LVDS
-    input wire CAM_CLK_P, CAM_CLK_N,
-    input wire CAM_SYNC_P, CAM_SYNC_N,
-    input wire [3:0] CAM_DOUT_P, CAM_DOUT_N,
+    //Python/Image Sensor LVDS
+    input wire PYTHON_CLK_P, PYTHON_CLK_N,
+    input wire PYTHON_SYNC_P, PYTHON_SYNC_N,
+    input wire [3:0] PYTHON_DOUT_P, PYTHON_DOUT_N,
 
-    //Camera/Image Sensor IO
-    output wire CAM_SPI_CLK, CAM_SPI_MOSI, CAM_SPI_CS, 
-    input wire CAM_SPI_MISO,
-    output wire [2:0] CAM_TRIG,
-    input wire [1:0] CAM_MON,
-    output wire CAM_RESET
+    //Python/Image Sensor IO
+    output wire PYTHON_SPI_CLK, PYTHON_SPI_MOSI, PYTHON_SPI_CS, 
+    input wire PYTHON_SPI_MISO,
+    output wire [2:0] PYTHON_TRIG,
+    input wire [1:0] PYTHON_MON,
+    output wire PYTHON_RESET
     );
 
     wire enabled;
@@ -72,24 +72,24 @@ module Top(
         .bootDone(bootDone)
     );
 
-    //CameraManager
+    //PythonManager
     wire Blob targetBlob;
     wire FrameBufferWriteRequest frameBufferWriteRequest;
-    CameraManager CameraManager(
+    PythonManager PythonManager(
         .CLK(CLK),
-        .LVDS_CLK_P(CAM_CLK_P),
-        .LVDS_CLK_N(CAM_CLK_N),
-        .LVDS_SYNC_P(CAM_SYNC_P),
-        .LVDS_SYNC_N(CAM_SYNC_N),
-        .LVDS_DOUT_P(CAM_DOUT_P),
-        .LVDS_DOUT_N(CAM_DOUT_N),
-        .SPI_CS(CAM_SPI_CS),
-        .SPI_MOSI(CAM_SPI_MOSI),
-        .SPI_MISO(CAM_SPI_MISO),
-        .SPI_CLK(CAM_SPI_CLK),
-        .TRIGGER(CAM_TRIG),
-        .MONITOR(CAM_MON),
-        .RESET_SENSOR(CAM_RESET),
+        .LVDS_CLK_P(PYTHON_CLK_P),
+        .LVDS_CLK_N(PYTHON_CLK_N),
+        .LVDS_SYNC_P(PYTHON_SYNC_P),
+        .LVDS_SYNC_N(PYTHON_SYNC_N),
+        .LVDS_DOUT_P(PYTHON_DOUT_P),
+        .LVDS_DOUT_N(PYTHON_DOUT_N),
+        .SPI_CS(PYTHON_SPI_CS),
+        .SPI_MOSI(PYTHON_SPI_MOSI),
+        .SPI_MISO(PYTHON_SPI_MISO),
+        .SPI_CLK(PYTHON_SPI_CLK),
+        .TRIGGER(PYTHON_TRIG),
+        .MONITOR(PYTHON_MON),
+        .RESET_SENSOR(PYTHON_RESET),
         .enabled(enabled),
         .virtexConfig(virtexConfig),
         .frameBufferWriteRequest(frameBufferWriteRequest),
