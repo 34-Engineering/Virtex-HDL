@@ -83,6 +83,7 @@ module RoboRIOManager(
         //Get Blob
         if (command == GET_BLOB & byteNumber < 9) begin
             //splits the 64-bit blob into 8x 8-bit sections
+            //TODO bigger blob
             writeData <= targetBlob[63 - (byteNumber*8) -: 7];
             byteNumber <= byteNumber + 1;
         end

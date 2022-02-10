@@ -2,10 +2,10 @@
 # Vivado v2021.1 (64-bit)
 # SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
 # IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
-# Start of session at: Sun Jan 30 12:49:01 2022
-# Process ID: 11356
+# Start of session at: Wed Feb  9 16:25:50 2022
+# Process ID: 20044
 # Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent24636 C:\Users\liams\Documents\GitHub\Virtex-Embedded-Code\Virtex-Embedded-Code.xpr
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21120 C:\Users\liams\Documents\GitHub\Virtex-Embedded-Code\Virtex-Embedded-Code.xpr
 # Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/vivado.log
 # Journal file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code\vivado.jou
 #-----------------------------------------------------------
@@ -14,300 +14,494 @@ open_project C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedde
 WARNING: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1'.
 Scanning sources...
 Finished scanning sources
+WARNING: [Project 1-509] GeneratedRun file for 'synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_2_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_0_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_1_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_3_synth_1' not found
 INFO: [IP_Flow 19-234] Refreshing IP repositories
 INFO: [IP_Flow 19-1704] No user IP repositories specified
 INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2021.1/data/ip'.
-open_project: Time (s): cpu = 00:00:13 ; elapsed = 00:00:09 . Memory (MB): peak = 1236.055 ; gain = 0.000
+open_project: Time (s): cpu = 00:00:14 ; elapsed = 00:00:10 . Memory (MB): peak = 1236.430 ; gain = 0.000
 launch_runs synth_1 -jobs 20
-INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_3'...
-INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_3'...
 INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_2'...
 INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_2'...
 INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_0'...
 INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_0'...
 INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_1'...
 INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_1'...
-[Sun Jan 30 12:49:51 2022] Launched clk_wiz_2_synth_1, clk_wiz_0_synth_1, clk_wiz_1_synth_1, clk_wiz_3_synth_1...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_3'...
+INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_3'...
+[Wed Feb  9 16:29:09 2022] Launched clk_wiz_2_synth_1, clk_wiz_0_synth_1, clk_wiz_1_synth_1, clk_wiz_3_synth_1...
 Run output will be captured here:
 clk_wiz_2_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_2_synth_1/runme.log
 clk_wiz_0_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_0_synth_1/runme.log
 clk_wiz_1_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_1_synth_1/runme.log
 clk_wiz_3_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_3_synth_1/runme.log
-[Sun Jan 30 12:49:51 2022] Launched synth_1...
+[Wed Feb  9 16:29:09 2022] Launched synth_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-set_param general.maxThreads 8
-8
-reset_run synth_1
-WARNING: [Vivado 12-1017] Problems encountered:
-1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
-
-launch_runs synth_1 -jobs 20
-[Sun Jan 30 15:11:15 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 16:14:26 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Sun Jan 30 16:22:49 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 16:51:45 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 16:58:13 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 16:58:13 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 17:55:54 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 17:55:54 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 19:58:14 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 19:58:14 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 20:09:03 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 20:09:03 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-set_param drc.disableLUTOverUtilError 1
-1
-reset_run impl_1 -prev_step 
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 20:28:28 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-open_run impl_1
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
 INFO: [Device 21-403] Loading part xc7a35tftg256-1
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.217 . Memory (MB): peak = 1543.148 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 2913 Unisim elements for replacement
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 1466.668 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 151 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
 INFO: [Project 1-479] Netlist was created with Vivado 2021.1
 INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line31/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-INFO: [Timing 38-478] Restoring timing data from binary archive.
-INFO: [Timing 38-479] Binary timing data restore complete.
-INFO: [Project 1-856] Restoring constraints from binary archive.
-INFO: [Project 1-853] Binary constraint restore complete.
-Reading XDEF placement.
-Reading placer database...
-Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2311.770 ; gain = 36.219
-Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2311.770 ; gain = 36.219
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2311.770 ; gain = 0.000
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2142.344 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
+  A total of 15 instances were transformed.
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
 
-open_run: Time (s): cpu = 00:00:22 ; elapsed = 00:00:16 . Memory (MB): peak = 2471.508 ; gain = 1153.270
-report_utilization -name utilization_1
+open_run: Time (s): cpu = 00:00:16 ; elapsed = 00:00:10 . Memory (MB): peak = 2171.324 ; gain = 877.938
 reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 20:32:52 2022] Launched synth_1...
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 16:43:08 2022] Launched synth_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 20:32:52 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-refresh_design
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.112 . Memory (MB): peak = 2765.336 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 1581 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line31/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-INFO: [Timing 38-478] Restoring timing data from binary archive.
-INFO: [Timing 38-479] Binary timing data restore complete.
-INFO: [Project 1-856] Restoring constraints from binary archive.
-INFO: [Project 1-853] Binary constraint restore complete.
-Reading XDEF placement.
-Reading placer database...
-Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2765.336 ; gain = 0.000
-Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2765.336 ; gain = 0.000
-refresh_design: Time (s): cpu = 00:00:11 ; elapsed = 00:00:06 . Memory (MB): peak = 2765.336 ; gain = 13.824
-report_utilization -name utilization_1
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 20:47:53 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 20:47:53 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-close_design
 reset_run synth_1
 WARNING: [Vivado 12-1017] Problems encountered:
 1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
 
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 21:29:44 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 21:29:44 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Sun Jan 30 21:35:22 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Sun Jan 30 21:35:22 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Mon Jan 31 13:06:09 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Mon Jan 31 13:06:09 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Mon Jan 31 14:46:55 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Mon Jan 31 14:46:55 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Mon Jan 31 20:05:45 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Mon Jan 31 20:05:45 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Mon Jan 31 21:45:08 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Mon Jan 31 21:45:08 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-open_run impl_1
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.111 . Memory (MB): peak = 2862.199 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 1581 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-INFO: [Timing 38-478] Restoring timing data from binary archive.
-INFO: [Timing 38-479] Binary timing data restore complete.
-INFO: [Project 1-856] Restoring constraints from binary archive.
-INFO: [Project 1-853] Binary constraint restore complete.
-Reading XDEF placement.
-Reading placer database...
-Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2862.199 ; gain = 0.000
-Restored from archive | CPU: 1.000000 secs | Memory: 0.000000 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2862.199 ; gain = 0.000
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.004 . Memory (MB): peak = 2862.199 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
-
-open_run: Time (s): cpu = 00:00:07 ; elapsed = 00:00:05 . Memory (MB): peak = 2862.199 ; gain = 0.000
-report_utilization -name utilization_1
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 09:24:02 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Tue Feb  1 09:24:02 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
 close_design
-set_param place.sliceLegEffortLimit limit 4000
-ERROR: [Common 17-165] Too many positional options when parsing '4000', please type 'set_param -help' for usage info.
-set_param place.sliceLegEffortLimit limit 2000
-ERROR: [Common 17-165] Too many positional options when parsing '2000', please type 'set_param -help' for usage info.
-set_param place.sliceLegEffortLimit 4000
-4000
-reset_run impl_1 -prev_step 
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 12:06:57 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-set_param place.sliceLegEffortLimit 10000
-10000
-reset_run impl_1 -prev_step 
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 12:14:25 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run impl_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 12:19:02 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run impl_1
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 12:30:56 2022] Launched synth_1...
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 16:44:29 2022] Launched synth_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Tue Feb  1 12:30:56 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 14:56:48 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Tue Feb  1 14:56:48 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-open_run impl_1
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.150 . Memory (MB): peak = 2862.199 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 1691 Unisim elements for replacement
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.087 . Memory (MB): peak = 2221.438 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 185 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
 INFO: [Project 1-479] Netlist was created with Vivado 2021.1
 INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-INFO: [Timing 38-478] Restoring timing data from binary archive.
-INFO: [Timing 38-479] Binary timing data restore complete.
-INFO: [Project 1-856] Restoring constraints from binary archive.
-INFO: [Project 1-853] Binary constraint restore complete.
-Reading XDEF placement.
-Reading placer database...
-Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2862.199 ; gain = 0.000
-Restored from archive | CPU: 2.000000 secs | Memory: 0.000000 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2862.199 ; gain = 0.000
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 2862.199 ; gain = 0.000
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2263.805 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
-No Unisim elements were transformed.
+  A total of 15 instances were transformed.
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
 
-open_run: Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 2862.199 ; gain = 0.000
-CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+open_run: Time (s): cpu = 00:00:09 ; elapsed = 00:00:05 . Memory (MB): peak = 2263.805 ; gain = 42.367
+report_utilization -name utilization_1
 reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 16:45:16 2022] Launched synth_1...
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 16:56:23 2022] Launched synth_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Tue Feb  1 16:45:16 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-reset_run synth_1
-launch_runs impl_1 -jobs 20
-[Tue Feb  1 20:05:25 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
-[Tue Feb  1 20:05:25 2022] Launched impl_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/impl_1/runme.log
-refresh_design
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2948.070 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 141 Unisim elements for replacement
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.484 . Memory (MB): peak = 2397.480 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 4669 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
 INFO: [Project 1-479] Netlist was created with Vivado 2021.1
 INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line33/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'CameraManager/CameraSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-INFO: [Timing 38-478] Restoring timing data from binary archive.
-INFO: [Timing 38-479] Binary timing data restore complete.
-INFO: [Project 1-856] Restoring constraints from binary archive.
-INFO: [Project 1-853] Binary constraint restore complete.
-Reading XDEF placement.
-Reading placer database...
-Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.207 . Memory (MB): peak = 2948.070 ; gain = 0.000
-Restored from archive | CPU: 0.000000 secs | Memory: 0.000000 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.207 . Memory (MB): peak = 2948.070 ; gain = 0.000
-CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2606.094 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 15 instances were transformed.
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
+
+open_run: Time (s): cpu = 00:00:19 ; elapsed = 00:00:14 . Memory (MB): peak = 2606.094 ; gain = 208.613
 report_utilization -name utilization_1
-exit
-INFO: [Common 17-206] Exiting Vivado at Tue Feb  1 21:46:17 2022...
+close_design
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 18:55:54 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+reset_run synth_1
+WARNING: [Vivado 12-1017] Problems encountered:
+1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
+
+WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
+WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 19:50:07 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.117 . Memory (MB): peak = 2606.094 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 667 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2606.094 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 71 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
+
+open_run: Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2606.094 ; gain = 0.000
+report_utilization -name utilization_1
+copy_run -name synth_1_copy_1 [get_runs synth_1] 
+synth_1_copy_1
+set_property STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION auto [get_runs synth_1]
+WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
+WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 21:17:57 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2793.602 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Common 17-41] Interrupt caught. Command should exit soon. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Common 17-344] 'get_clocks' was cancelled [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc will not be read for this cell.
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Common 17-344] 'open_run' was cancelled
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.131 . Memory (MB): peak = 2814.312 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2828.617 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 71 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
+
+open_run: Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2828.617 ; gain = 14.305
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+[Wed Feb  9 21:33:12 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+close_design
+open_run synth_1 -name synth_1
+Design is defaulting to impl run constrset: constrs_1
+Design is defaulting to synth run part: xc7a35tftg256-1
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2828.617 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-479] Netlist was created with Vivado 2021.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
+Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2882.168 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 71 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
+  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
+  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
+
+open_run: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 2882.168 ; gain = 53.551

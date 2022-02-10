@@ -12,6 +12,9 @@ const NULL_BLOB_ID = MAX_BLOBS;
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
 const IMAGE_PATH = 'images/2019_Noise.png';
+const DRAW_BLOB_COLOR = false;
+const DRAW_BOUND = true;
+const DRAW_QUAD = false;
 
 //Interfaces
 interface Vector {
@@ -32,7 +35,7 @@ interface BlobData {
 
 //Variables
 let frameBuffer: boolean[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0));
-let blobBuffer: number[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0)); //for coloring blobs (only for script version)
+let blobColorBuffer: number[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0)); //for coloring blobs (only for script version)
 let blobIDBuffer: number[] = Array(IMAGE_WIDTH * 2).fill(NULL_BLOB_ID); //stores last 2 lines of blob IDs
 let blobIDBufferHalf: boolean = false; //which section of the blobIDBuffer we are on [639:0] or [1279:640]
 let blobs: BlobData[] = Array(MAX_BLOBS).fill({
@@ -61,15 +64,11 @@ fs.createReadStream(IMAGE_PATH)
                 const threshold = value > 128;
                 frameBuffer[x][y] = threshold;
 
-                let blobID = NULL_BLOB_ID;
-                if (threshold) {
-                    blobID = processPixel({ x, y });
-                }
-                
                 //push blobID to buffer for every pixel
-                blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = blobID;
+                blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = 
+                    threshold ? processPixel({ x, y }) : NULL_BLOB_ID;
 
-                blobBuffer[x][y] = blobID;
+                blobColorBuffer[x][y] = blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)];
             }
 
             //swap which half of the buffer we are using every line
@@ -80,16 +79,18 @@ fs.createReadStream(IMAGE_PATH)
         console.log("blob count: ", blobIndex - 1);
 
         //Draw Blob Color
-        for (let y = 0; y < IMAGE_HEIGHT; y++) {
-            for (let x = 0; x < IMAGE_WIDTH; x++) {
-                if (blobBuffer[x][y] !== MAX_BLOBS) {
-                    const idx = (IMAGE_WIDTH * y + x) << 2;
-                    const blobIndex = getBlobID(blobBuffer[x][y]);
-                    // const blobIndex = blobBuffer[x][y];
-                    //@ts-ignore
-                    this.data[idx] = Math.sin(blobIndex * 50) * 255;
-                    //@ts-ignore
-                    this.data[idx + 1] = Math.sin(blobIndex * 100) * 255;
+        if (DRAW_BLOB_COLOR) {
+            for (let y = 0; y < IMAGE_HEIGHT; y++) {
+                for (let x = 0; x < IMAGE_WIDTH; x++) {
+                    if (blobColorBuffer[x][y] !== MAX_BLOBS) {
+                        const idx = (IMAGE_WIDTH * y + x) << 2;
+                        const blobIndex = getRealBlobID(blobColorBuffer[x][y]);
+                        // const blobIndex = blobColorBuffer[x][y];
+                        //@ts-ignore
+                        this.data[idx] = Math.sin(blobIndex * 50) * 255;
+                        //@ts-ignore
+                        this.data[idx + 1] = Math.sin(blobIndex * 100) * 255;
+                    }
                 }
             }
         }
@@ -98,50 +99,54 @@ fs.createReadStream(IMAGE_PATH)
         for (let i = 0; i < blobs.length; i++) {
             const area = (blobs[i]?.boundBottomRight.x - blobs[i]?.boundTopLeft.x) * (blobs[i]?.boundBottomRight.y - blobs[i]?.boundTopLeft.y);
             if (blobs[i]?.valid && area >= MIN_AREA) {
-                //@ts-ignore
-                this.drawRect(
-                    blobs[i].boundTopLeft.x,
-                    blobs[i].boundTopLeft.y,
-                    blobs[i].boundBottomRight.x - blobs[i].boundTopLeft.x,
-                    blobs[i].boundBottomRight.y - blobs[i].boundTopLeft.y,
-                    [255, 0, 0, 255]
-                );
+                if (DRAW_BOUND) {
+                    // @ts-ignore
+                    this.drawRect(
+                        blobs[i].boundTopLeft.x,
+                        blobs[i].boundTopLeft.y,
+                        blobs[i].boundBottomRight.x - blobs[i].boundTopLeft.x,
+                        blobs[i].boundBottomRight.y - blobs[i].boundTopLeft.y,
+                        [255, 0, 0, 255]
+                    );
+                }
 
-                // @ts-ignore
-                this.drawLine(
-                    blobs[i].quadTopLeft.x,
-                    blobs[i].quadTopLeft.y,
-                    blobs[i].quadTopRight.x,
-                    blobs[i].quadTopRight.y,
-                    [0, 255, 0, 255]
-                );
+                if (DRAW_QUAD) {
+                    // @ts-ignore
+                    this.drawLine(
+                        blobs[i].quadTopLeft.x,
+                        blobs[i].quadTopLeft.y,
+                        blobs[i].quadTopRight.x,
+                        blobs[i].quadTopRight.y,
+                        [0, 255, 0, 255]
+                    );
 
-                //@ts-ignore
-                this.drawLine(
-                    blobs[i].quadTopRight.x,
-                    blobs[i].quadTopRight.y,
-                    blobs[i].quadBottomRight.x,
-                    blobs[i].quadBottomRight.y,
-                    [0, 255, 0, 255]
-                );
+                    //@ts-ignore
+                    this.drawLine(
+                        blobs[i].quadTopRight.x,
+                        blobs[i].quadTopRight.y,
+                        blobs[i].quadBottomRight.x,
+                        blobs[i].quadBottomRight.y,
+                        [0, 255, 0, 255]
+                    );
 
-                //@ts-ignore
-                this.drawLine(
-                    blobs[i].quadBottomRight.x,
-                    blobs[i].quadBottomRight.y,
-                    blobs[i].quadBottomLeft.x,
-                    blobs[i].quadBottomLeft.y,
-                    [0, 255, 0, 255]
-                );
+                    //@ts-ignore
+                    this.drawLine(
+                        blobs[i].quadBottomRight.x,
+                        blobs[i].quadBottomRight.y,
+                        blobs[i].quadBottomLeft.x,
+                        blobs[i].quadBottomLeft.y,
+                        [0, 255, 0, 255]
+                    );
 
-                //@ts-ignore
-                this.drawLine(
-                    blobs[i].quadBottomLeft.x,
-                    blobs[i].quadBottomLeft.y,
-                    blobs[i].quadTopLeft.x,
-                    blobs[i].quadTopLeft.y,
-                    [0, 255, 0, 255]
-                );
+                    //@ts-ignore
+                    this.drawLine(
+                        blobs[i].quadBottomLeft.x,
+                        blobs[i].quadBottomLeft.y,
+                        blobs[i].quadTopLeft.x,
+                        blobs[i].quadTopLeft.y,
+                        [0, 255, 0, 255]
+                    );
+                }
             }
         }
 
@@ -157,50 +162,21 @@ function processPixel(pos: Vector): number {
     //pick out top left, top, top right, and left pixels from blobIDBuffer
     //but only if they are in the bounding of the 640x480 image
     if (pos.x > 0 && pos.y > 0) {
-        processSurroundingPixel(pos.x-1 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+        processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
     }
     if (pos.y > 0) {
-        processSurroundingPixel(pos.x+0 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+        processSurroundingPixel(blobIDBuffer[pos.x+0 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
     }
     if (pos.x < IMAGE_WIDTH-1 && pos.y > 0) {
-        processSurroundingPixel(pos.x+1 + (blobIDBufferHalf?0:IMAGE_WIDTH));
+        processSurroundingPixel(blobIDBuffer[pos.x+1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
     }
     if (pos.x > 0) {
-        processSurroundingPixel(pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0));
+        processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0)]);
     }
 
     //add this pixel to blob if we have a valid blob to join
     if (masterBlobID !== NULL_BLOB_ID) {
-        //expand bounding box
-        if (pos.x < blobs[masterBlobID].boundTopLeft.x)
-            blobs[masterBlobID].boundTopLeft.x = blobs[masterBlobID].boundTopLeft.x - 1;
-        else if (pos.x + 1 > blobs[masterBlobID].boundBottomRight.x)
-            blobs[masterBlobID].boundBottomRight.x = blobs[masterBlobID].boundBottomRight.x + 1;
-        if (pos.y < blobs[masterBlobID].boundTopLeft.y)
-            blobs[masterBlobID].boundTopLeft.y = blobs[masterBlobID].boundTopLeft.y - 1;
-        else if (pos.y + 1 > blobs[masterBlobID].boundBottomRight.y)
-            blobs[masterBlobID].boundBottomRight.y = blobs[masterBlobID].boundBottomRight.y + 1;
-        
-        //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-        if (pos.x + pos.y < blobs[masterBlobID].quadTopLeft.x + blobs[masterBlobID].quadTopLeft.y) {
-            blobs[masterBlobID].quadTopLeft.x = pos.x;
-            blobs[masterBlobID].quadTopLeft.y = pos.y;
-        }
-        else if (pos.x - pos.y > blobs[masterBlobID].quadTopRight.x - blobs[masterBlobID].quadTopRight.y) {
-            blobs[masterBlobID].quadTopRight.x = pos.x;
-            blobs[masterBlobID].quadTopRight.y = pos.y;
-        }
-        else if (pos.x + pos.y > blobs[masterBlobID].quadBottomRight.x + blobs[masterBlobID].quadBottomRight.y) {
-            blobs[masterBlobID].quadBottomRight.x = pos.x;
-            blobs[masterBlobID].quadBottomRight.y = pos.y;
-        }
-        else if (pos.x - pos.y < blobs[masterBlobID].quadBottomLeft.x - blobs[masterBlobID].quadBottomLeft.y) {
-            blobs[masterBlobID].quadBottomLeft.x = pos.x;
-            blobs[masterBlobID].quadBottomLeft.y = pos.y;
-        }
-
-        //increment area
-        blobs[masterBlobID].area++;
+        blobs[masterBlobID] = mergeBlobs(pixelToBlob(pos), blobs[masterBlobID]);
 
         return masterBlobID;
     }
@@ -208,17 +184,7 @@ function processPixel(pos: Vector): number {
     //not touching a blob => make new blob
     else {
         //create blob at next available index
-        blobs[blobIndex] = {
-            boundTopLeft:     {x:pos.x  , y:pos.y  },
-            boundBottomRight: {x:pos.x+1, y:pos.y+1},
-            quadTopLeft:      {x:pos.x  , y:pos.y  },
-            quadTopRight:     {x:pos.x+1, y:pos.y  },
-            quadBottomLeft:   {x:pos.x  , y:pos.y+1},
-            quadBottomRight:  {x:pos.x+1, y:pos.y+1},
-            area: 1,
-            pointer: 0,
-            valid: true
-        };
+        blobs[blobIndex] = pixelToBlob(pos);
 
         //increment index for next blob
         blobIndex++;
@@ -228,60 +194,98 @@ function processPixel(pos: Vector): number {
     }
 }
 
-function processSurroundingPixel(slaveBlobIDBufferIndex: number) {
+
+function processSurroundingPixel(slaveBlobID: number) {
     //find which blob to join, and merge blobs if it is touching mutliple
-    const slaveBlobID = blobIDBuffer[slaveBlobIDBufferIndex];
-    if (slaveBlobID !== MAX_BLOBS) {
+    if (slaveBlobID !== NULL_BLOB_ID) {
         //found master (1st valid blob)
         if (masterBlobID === NULL_BLOB_ID) {
-            masterBlobID = getBlobID(slaveBlobID);
+            masterBlobID = getRealBlobID(slaveBlobID);
         }
 
         //found another valid blob => merge with master
-        else if (getBlobID(slaveBlobID) !== masterBlobID) {
-            //expand bounding box
-            blobs[masterBlobID].boundTopLeft.x = min(blobs[slaveBlobID].boundTopLeft.x, blobs[masterBlobID].boundTopLeft.x);
-            blobs[masterBlobID].boundTopLeft.y = min(blobs[slaveBlobID].boundTopLeft.y, blobs[masterBlobID].boundTopLeft.y);
-            blobs[masterBlobID].boundBottomRight.x = max(blobs[slaveBlobID].boundBottomRight.x, blobs[masterBlobID].boundBottomRight.x);
-            blobs[masterBlobID].boundBottomRight.y = max(blobs[slaveBlobID].boundBottomRight.y, blobs[masterBlobID].boundBottomRight.y);
-            
-            //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-            if (blobs[slaveBlobID].quadTopLeft.x+blobs[slaveBlobID].quadTopLeft.y < blobs[masterBlobID].quadTopLeft.x+blobs[masterBlobID].quadTopLeft.y) {
-                blobs[masterBlobID].quadTopLeft.x = blobs[slaveBlobID].quadTopLeft.x;
-                blobs[masterBlobID].quadTopLeft.y = blobs[slaveBlobID].quadTopLeft.y;
-            }
-            else if (blobs[slaveBlobID].quadTopRight.x-blobs[slaveBlobID].quadTopRight.y > blobs[masterBlobID].quadTopRight.x-blobs[masterBlobID].quadTopRight.y) {
-                blobs[masterBlobID].quadTopRight.x = blobs[slaveBlobID].quadTopRight.x;
-                blobs[masterBlobID].quadTopRight.y = blobs[slaveBlobID].quadTopRight.y;
-            }
-            else if (blobs[slaveBlobID].quadBottomRight.x+blobs[slaveBlobID].quadBottomRight.y > blobs[masterBlobID].quadBottomRight.x+blobs[masterBlobID].quadBottomRight.y) {
-                blobs[masterBlobID].quadBottomRight.x = blobs[slaveBlobID].quadBottomRight.x;
-                blobs[masterBlobID].quadBottomRight.y = blobs[slaveBlobID].quadBottomRight.y;
-            }
-            else if (blobs[slaveBlobID].quadBottomLeft.x-blobs[slaveBlobID].quadBottomLeft.y < blobs[masterBlobID].quadBottomLeft.x-blobs[masterBlobID].quadBottomLeft.y) {
-                blobs[masterBlobID].quadBottomLeft.x = blobs[slaveBlobID].quadBottomLeft.x;
-                blobs[masterBlobID].quadBottomLeft.y = blobs[slaveBlobID].quadBottomLeft.y;
-            }
-
-            //combine areas
-            blobs[masterBlobID].area = blobs[masterBlobID].area + blobs[slaveBlobID].area;
+        else if (getRealBlobID(slaveBlobID) !== masterBlobID) {
+            //merge slave into master
+            blobs[masterBlobID] = mergeBlobs(blobs[slaveBlobID], blobs[masterBlobID]);
 
             //mark slave as pointer to master
-            blobs[slaveBlobID].valid = false;
-            blobs[slaveBlobID].pointer = masterBlobID;
+            blobs[slaveBlobID] = {
+                boundTopLeft: {x:0, y:0},
+                boundBottomRight: {x:0, y:0},
+                quadTopLeft: {x:0, y:0},
+                quadTopRight: {x:0, y:0},
+                quadBottomLeft: {x:0, y:0},
+                quadBottomRight: {x:0, y:0},
+                area: 0,
+                pointer: masterBlobID,
+                valid: false
+            };
         }
     }
 }
 
-//Get Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
-function getBlobID(startID: number) {
-    let ID: number = startID;
+//Merge Blobs
+function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
+    return {
+        boundTopLeft: {
+            x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+        },
+        boundBottomRight: {
+            x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+        },
+        quadTopLeft: mergeQuadTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
+        quadTopRight: mergeQuadTopRight(blob1.quadTopRight, blob2.quadTopRight),
+        quadBottomLeft: mergeQuadBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
+        quadBottomRight: mergeQuadBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
+        area: blob1.area + blob2.area,
+        pointer: 0,
+        valid: true
+    };
+}
+
+//Merge Quads
+function mergeQuadTopLeft(a: Vector, b: Vector): Vector {
+    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
+    return (a.x + a.y < b.x + b.y) ? a : b;
+}
+function mergeQuadTopRight(a: Vector, b: Vector): Vector {
+    return (a.x - a.y > b.x - b.y) ? a : b;
+}
+function mergeQuadBottomRight(a: Vector, b: Vector): Vector {
+    return (a.x + a.y > b.x + b.y) ? a : b;
+}
+function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
+    return (a.x - a.y < b.x - b.y) ? a : b;
+}
+
+//Pixel to Blob
+function pixelToBlob(pos: Vector): BlobData {
+    return {
+        boundTopLeft:     {x:pos.x  , y:pos.y  },
+        boundBottomRight: {x:pos.x+1, y:pos.y+1},
+        quadTopLeft:      {x:pos.x  , y:pos.y  },
+        quadTopRight:     {x:pos.x+1, y:pos.y  },
+        quadBottomLeft:   {x:pos.x  , y:pos.y+1},
+        quadBottomRight:  {x:pos.x+1, y:pos.y+1},
+        area: 1,
+        pointer: 0,
+        valid: true
+    };
+}
+
+//Get Real Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
+let currentID: number;
+function getRealBlobID(startID: number) {
+    currentID = startID;
+
     for (let i = 0; i < 5; i++) {
-        if (blobs[ID].valid) {
-            return ID;
+        if (blobs[currentID].valid) {
+            return currentID;
         }
         else {
-            ID = blobs[ID].pointer;
+            currentID = blobs[currentID].pointer;
         }
     }
     

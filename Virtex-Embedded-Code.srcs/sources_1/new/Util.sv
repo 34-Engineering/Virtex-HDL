@@ -37,7 +37,7 @@ package Util;
         logic [7:0] blackOffset;
     } PythonBlackOffsetConfig;
     function PythonBlackOffsetConfig makePythonBlackOffsetConfig(logic [15:0] blackOffset);
-        return '{0, 8, 0, blackOffset};
+        return '{0, 8, 0, blackOffset}; //duplicated in PythonManagerParams
     endfunction
 
     typedef struct packed {
@@ -93,7 +93,7 @@ package Util;
         //camera params & python config
         cameraOrientation: NORMAL,
         threshold: 128,
-        blackOffset: DefaultPythonBlackOffsetConfig.blackOffset,
+        blackOffset: 8,
         analogGain: '{0, 0, 15, 1},
         digitalGain: 128,
         exposure: 41746,

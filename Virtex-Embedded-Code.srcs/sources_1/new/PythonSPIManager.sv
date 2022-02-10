@@ -32,7 +32,7 @@ module PythonSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     input wire sequencerEnabled,
-    input reg Fault fault
+    output Fault fault
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;
@@ -94,7 +94,7 @@ module PythonSPIManager(
                 //write command
                 SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][commandPointer];
 
-                if (commandNumber == SPIWriteCommandEndIndex) begin
+                if (commandNumber == PythonSPICommandEndIndex) begin
                     //done writing command
                     commandNumber <= 0;
                 end
@@ -126,7 +126,7 @@ module PythonSPIManager(
                 else SPI_MOSI <= enableClockManagement1[commandNumber][commandPointer];
 
                 //end of command
-                if (commandPointer == SPIWriteCommandEndIndex) begin
+                if (commandPointer == PythonSPICommandEndIndex) begin
                     if (powerUpStage == REGISTER_UPLOAD ?
                         commandNumber == $size(powerUpSequenceRegisterUpload) - 1 : 
                         commandNumber == $size(enableClockManagement1) - 1) begin

@@ -13,42 +13,61 @@
     Target: a (group) of blob(s) that represent the entire physical target
 
    */
+/* synthesis keep */
 module BlobProcessor(
     input wire CLK,
     input wire kernelValid, //active high
-    input wire Vector kernelPos, //the leftmost coordinate of the pixel
+    input wire Vector kernelPos, //top left coord of the kernel
     input wire [7:0] kernel, //theshold of each pixel in the kernel
-    output Blob targetBlob
+    output Blob targetBlob,
+    input wire endFrame
+    //TODO invalidate blob w/ enabled
     );
     
+    //Blob BRAM
     localparam MAX_BLOBS = 100;
-    Blob blobs[0:MAX_BLOBS-1];
-    reg [7:0] blobIndex = 0;
+    /* synthesis keep */
+    (* ram_style =  "block" *) Blob [0:MAX_BLOBS-1] blobs; /* synthesis keep */
+    /* synthesis keep */
+    reg [7:0] blobIndex = 0; /* synthesis keep */
 
+    //Blob ID Buffer (stores the last two lines of blob IDs)
     localparam BLOB_ID_BUFFER_WIDTH = $clog2(MAX_BLOBS);
     localparam NULL_BLOB_ID = (2 ** BLOB_ID_BUFFER_WIDTH) - 1;
-    reg [BLOB_ID_BUFFER_WIDTH:0] blobIDBuffer [IMAGE_WIDTH*2-1:0]; //stores the last two lines of blob IDs
+    reg [BLOB_ID_BUFFER_WIDTH:0] blobIDBuffer [IMAGE_WIDTH*2-1:0];
     reg blobIDBufferHalf = 0;
     initial begin
-        for (int i = 0; i <= $size(blobIDBuffer); i++) begin
-            blobIDBuffer[i] = NULL_BLOB_ID;
+        for (int q = 0; q < $size(blobIDBuffer); q++) begin
+            blobIDBuffer[q] <= NULL_BLOB_ID;
         end
     end
     
-    //New Kernel
-    always @(posedge kernelValid) begin
-        //Process all 8 Pixels
-        for (int i = 0; i < 8; i++) begin
-            //push blobID to buffer for every pixel
-            blobIDBuffer[kernelPos.x + i + (blobIDBufferHalf?IMAGE_WIDTH:0)] = 
-                kernel[i] ? processPixel('{ x: kernelPos.x + i, y: kernelPos.y }) : NULL_BLOB_ID;
+    /* synthesis keep */
+    reg lastKernelValid = 0;/* synthesis keep */
+    reg lastEndFrame = 0;
+    /* synthesis keep */
+    always @(posedge CLK) begin /* synthesis keep */
+        //New Kernel
+        if (kernelValid & ~lastKernelValid) begin
+            //Process all 8 Pixels
+            for (int p = 0; p < 8; p++) begin
+                // push blobID to buffer for every pixel
+                blobIDBuffer[kernelPos.x + 0 + (blobIDBufferHalf?IMAGE_WIDTH:0)] <= 
+                    kernel[0] ? processPixel('{ x: kernelPos.x + 0, y: kernelPos.y }) : NULL_BLOB_ID;
+            end
+
+            //End Frame
+            if (kernelPos.y == IMAGE_HEIGHT-1 & kernelPos.x == (IMAGE_WIDTH/8)-1) begin
+                
+            end
         end
+        lastKernelValid <= kernelValid;
 
         //End Frame
-        if (kernelPos.y == IMAGE_HEIGHT-1 & kernelPos.x == (IMAGE_WIDTH/8)-1) begin
+        if (endFrame & ~lastEndFrame) begin
             //Select Target
             foreach (blobs[i]) begin
-                if (blobs[i].valid) begin
+                if (blobs[i].valid & blobs[i].area > 10) begin
                     //TODO proper selection
                     targetBlob <= blobs[i];
                 end
@@ -58,104 +77,139 @@ module BlobProcessor(
             end
 
             //Prepare for Next Frame
-            blobIndex <= 0;
+            blobIndex = 0;
         end
+        lastEndFrame <= endFrame;
     end
 
-    //Process Pixel
+    //Process Pixel & Return BlobID
+    logic [BLOB_ID_BUFFER_WIDTH:0] masterBlobID;
     function automatic processPixel(input Vector pos);
+        masterBlobID = NULL_BLOB_ID;
+
+        //pick out top left, top, top right, and left pixels from blobIDBuffer
+        //but only if they are in the bounding of the 640x480 image
         if (pos.x > 0 & pos.y > 0) begin
-            
+            processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
         end
         if (pos.y > 0) begin
-            
+            processSurroundingPixel(blobIDBuffer[pos.x+0 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
         end
         if (pos.x < IMAGE_WIDTH-1 & pos.y > 0) begin
-            
+            processSurroundingPixel(blobIDBuffer[pos.x+1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
         end
         if (pos.x > 0) begin
-            
+            processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0)]);
+        end
+
+        //add this pixel to blob if we have a valid blob to join
+        if (masterBlobID != NULL_BLOB_ID) begin
+            blobs[masterBlobID] <= mergeBlobs(pixelToBlob(pos), blobs[masterBlobID]);
+            return masterBlobID;
+        end
+        
+        //not touching a blob => make new blob
+        else begin
+            blobs[blobIndex] <= pixelToBlob(pos);
+            blobIndex = blobIndex + 1;
+            return blobIndex - 1;
         end
     endfunction
 
-    /*
-    //expand bounding box
-    blobs[i].boundTopLeft.x <= min(blobs[i].boundTopLeft.x, blobs[joined].boundTopLeft.x);
-    blobs[i].boundTopLeft.y <= min(blobs[i].boundTopLeft.y, blobs[joined].boundTopLeft.y);
-    blobs[i].boundBottomRight.x <= max(blobs[i].boundBottomRight.x, blobs[joined].boundBottomRight.x);
-    blobs[i].boundBottomRight.y <= max(blobs[i].boundBottomRight.y, blobs[joined].boundBottomRight.y);
-                        
-    //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-    if (blobs[joined].cornerTopLeft.x+blobs[joined].cornerTopLeft.y < blobs[i].cornerTopLeft.x+blobs[i].cornerTopLeft.y) begin
-        blobs[i].cornerTopLeft.x <= blobs[joined].cornerTopLeft.x;
-        blobs[i].cornerTopLeft.y <= blobs[joined].cornerTopLeft.y;
-    end
-    else if (blobs[joined].cornerTopRight.x-blobs[joined].cornerTopRight.y > blobs[i].cornerTopRight.x-blobs[i].cornerTopRight.y) begin
-        blobs[i].cornerTopRight.x <= blobs[joined].cornerTopRight.x;
-        blobs[i].cornerTopRight.y <= blobs[joined].cornerTopRight.y;
-    end
-    else if (blobs[joined].cornerBottomRight.x+blobs[joined].cornerBottomRight.y > blobs[i].cornerBottomRight.x+blobs[i].cornerBottomRight.y) begin
-        blobs[i].cornerBottomRight.x <= blobs[joined].cornerBottomRight.x;
-        blobs[i].cornerBottomRight.y <= blobs[joined].cornerBottomRight.y;
-    end
-    else if (blobs[joined].cornerBottomLeft.x-blobs[joined].cornerBottomLeft.y < blobs[i].cornerBottomLeft.x-blobs[i].cornerBottomLeft.y) begin
-        blobs[i].cornerBottomLeft.x <= blobs[joined].cornerBottomLeft.x;
-        blobs[i].cornerBottomLeft.y <= blobs[joined].cornerBottomLeft.y;
-    end
+    //Process Surrounding Pixel
+    function automatic processSurroundingPixel(input logic [BLOB_ID_BUFFER_WIDTH:0] slaveBlobID);
+        //find which blob to join, and merge blobs if it is touching mutliple
+        if (slaveBlobID != NULL_BLOB_ID) begin
+            //found master (1st valid blob)
+            if (masterBlobID == NULL_BLOB_ID) begin
+                masterBlobID = getRealBlobID(slaveBlobID);
+            end
 
-    //expand bouding box
-    if (pos.x < blobs[i].boundTopLeft.x)
-        blobs[i].boundTopLeft.x <= blobs[i].boundTopLeft.x - 1;
-    else if (pos.x + 1 > blobs[i].boundBottomRight.x)
-        blobs[i].boundBottomRight.x <= blobs[i].boundBottomRight.x + 1;
-    if (pos.y < blobs[i].boundTopLeft.y)
-        blobs[i].boundTopLeft.y <= blobs[i].boundTopLeft.y - 1;
-    else if (pos.y + 1 > blobs[i].boundBottomRight.y)
-        blobs[i].boundBottomRight.y <= blobs[i].boundBottomRight.y + 1;
+            //found another valid blob => merge with master
+            else if (getRealBlobID(slaveBlobID) != masterBlobID) begin
+                //merge slave into master
+                blobs[masterBlobID] <= mergeBlobs(blobs[slaveBlobID], blobs[masterBlobID]);
 
-    //expand quad (sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-    if (pos.x + pos.y < blobs[i].cornerTopLeft.x + blobs[i].cornerTopLeft.y) begin
-        blobs[i].cornerTopLeft.x <= pos.x;
-        blobs[i].cornerTopLeft.y <= pos.y;
-    end
-    else if (pos.x - pos.y > blobs[i].cornerTopRight.x - blobs[i].cornerTopRight.y) begin
-        blobs[i].cornerTopRight.x <= pos.x;
-        blobs[i].cornerTopRight.y <= pos.y;
-    end
-    else if (pos.x + pos.y > blobs[i].cornerBottomRight.x + blobs[i].cornerBottomRight.y) begin
-        blobs[i].cornerBottomRight.x <= pos.x;
-        blobs[i].cornerBottomRight.y <= pos.y;
-    end
-    else if (pos.x - pos.y < blobs[i].cornerBottomLeft.x - blobs[i].cornerBottomLeft.y) begin
-        blobs[i].cornerBottomLeft.x <= pos.x;
-        blobs[i].cornerBottomLeft.y <= pos.y;
-    end
+                //mark slave as pointer to master
+                blobs[slaveBlobID] <= '{
+                    boundTopLeft: 0,
+                    boundBottomRight: 0,
+                    quadTopLeft: 0,
+                    quadTopRight: 0,
+                    quadBottomLeft: 0,
+                    quadBottomRight: 0,
+                    area: 0,
+                    pointer: masterBlobID,
+                    valid: 0,
+                    reserved: 0
+                };
+            end
+        end
+    endfunction
 
-    //create blob at next available index
-    blobs[blobIndex] <= '{
-        boundTopLeft:     '{pos.x  , pos.y  },
-        boundBottomRight: '{pos.x+1, pos.y+1},
-        quadTopLeft:      '{pos.x  , pos.y  },
-        quadTopRight:     '{pos.x+1, pos.y  },
-        quadBottomLeft:   '{pos.x  , pos.y+1},
-        quadBottomRight:  '{pos.x+1, pos.y+1},
-        area: 1,
-        pointer: 0,
-        valid: 1
-    };
+    //Merge Blobs
+    function automatic Blob mergeBlobs(Blob blob1, blob2);
+        return '{
+            boundTopLeft: '{
+                x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+                y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+            },
+            boundBottomRight: '{
+                x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+                y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+            },
+            quadTopLeft: mergeQuadTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
+            quadTopRight: mergeQuadTopRight(blob1.quadTopRight, blob2.quadTopRight),
+            quadBottomLeft: mergeQuadBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
+            quadBottomRight: mergeQuadBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
+            area: blob1.area + blob2.area,
+            pointer: 0,
+            valid: 1,
+            reserved: 0
+        };
+    endfunction
 
-    blobIndex <= blobIndex + 1;
-    */
+    //Merge Quads
+    function automatic Vector mergeQuadTopLeft(Vector a, b);
+        //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
+        return (a.x + a.y < b.x + b.y) ? a : b;
+    endfunction
+    function automatic Vector mergeQuadTopRight(Vector a, b);
+        return (a.x - a.y > b.x - b.y) ? a : b;
+    endfunction
+    function automatic Vector mergeQuadBottomRight(Vector a, b);
+        return (a.x + a.y > b.x + b.y) ? a : b;
+    endfunction
+    function automatic Vector mergeQuadBottomLeft(Vector a, b);
+        return (a.x - a.y < b.x - b.y) ? a : b;
+    endfunction
 
-    //Get Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
-    function automatic getBlobID(logic [BLOB_ID_BUFFER_WIDTH:0] startID);
-        reg [BLOB_ID_BUFFER_WIDTH:0] ID = startID;
+    //Pixel to Blob
+    function automatic Blob pixelToBlob(Vector pos);
+        return '{
+            boundTopLeft:     '{x:pos.x  , y:pos.y  },
+            boundBottomRight: '{x:pos.x+1, y:pos.y+1},
+            quadTopLeft:      '{x:pos.x  , y:pos.y  },
+            quadTopRight:     '{x:pos.x+1, y:pos.y  },
+            quadBottomLeft:   '{x:pos.x  , y:pos.y+1},
+            quadBottomRight:  '{x:pos.x+1, y:pos.y+1},
+            area: 1,
+            pointer: 0,
+            valid: 1,
+            reserved: 0
+        };
+    endfunction
+
+    //Get Real Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
+    reg [BLOB_ID_BUFFER_WIDTH:0] currentID;
+    function automatic getRealBlobID(logic [BLOB_ID_BUFFER_WIDTH:0] startID);
+        currentID = startID;
         for (int i = 0; i < 5; i++) begin
-            if (blobs[ID].valid) begin
-                return ID;
+            if (blobs[currentID].valid) begin
+                return currentID;
             end
             else begin
-                ID = blobs[ID].pointer;
+                currentID = blobs[currentID].pointer;
             end
         end
         //TODO FAULT
@@ -163,22 +217,22 @@ module BlobProcessor(
     endfunction
 
     //Calculate Slope
-    // function real calculateSlope(Blob blob);
-    //     //calculates slope of bottom line of the quad
-    //     //instead of calculating the angle on the fpga with atand we do it on the roborio
-    //     //before setting the config setting
-    //     //bounded between -1 and 1
-    //     //todo handle different angles (the bottom line changes)
-    //     //todo division
-    //     return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
-    // endfunction
+    function automatic real calculateSlope(Blob blob);
+        //calculates slope of bottom line of the quad
+        //instead of calculating the angle on the fpga with atand we do it on the roborio
+        //before setting the config setting
+        //bounded between -1 and 1
+        //todo handle different angles (the bottom line changes)
+        return ((blob.cornerBottomLeft.y - blob.cornerBottomRight.y) / (blob.cornerBottomLeft.x - blob.cornerBottomRight.x));
+    endfunction
 
     //Range Functions
-    function logic [9:0] min(logic [9:0] num1, num2);
+    function automatic logic [9:0] min(logic [9:0] num1, num2);
         return num1 < num2 ? num1 : num2;
     endfunction
 
-    function logic [9:0] max(logic [9:0] num1, num2);
+    function automatic logic [9:0] max(logic [9:0] num1, num2);
         return num1 > num2 ? num1 : num2;
     endfunction
-endmodule
+endmodule /* synthesis keep */
+/* synthesis keep */

@@ -123,7 +123,7 @@ set_property DIFF_TERM TRUE [get_ports {PYTHON_DOUT_*}];
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_CLK_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_SYNC_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_DOUT_*}]
-create_clock -add -name PYTHON_CLK_P -period 2.7777777777778 [get_ports PYTHON_CLK_P]
+create_clock -add -name PYTHON_CLK_P -period 2.778 [get_ports PYTHON_CLK_P]
 
 # Python/Image Sensor IO
 set_property PACKAGE_PIN T10 [get_ports {PYTHON_SPI_CS}]

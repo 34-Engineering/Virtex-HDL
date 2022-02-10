@@ -1,0 +1,106 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Sun Jan 30 12:49:01 2022
+# Process ID: 11356
+# Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent24636 C:\Users\liams\Documents\GitHub\Virtex-Embedded-Code\Virtex-Embedded-Code.xpr
+# Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/vivado.log
+# Journal file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.xpr
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+set_param general.maxThreads 8
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs synth_1 -jobs 20
+wait_on_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+set_param drc.disableLUTOverUtilError 1
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+open_run impl_1
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+refresh_design
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+close_design
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+open_run impl_1
+report_utilization -name utilization_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+close_design
+set_param place.sliceLegEffortLimit limit 4000
+set_param place.sliceLegEffortLimit limit 2000
+set_param place.sliceLegEffortLimit 4000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+set_param place.sliceLegEffortLimit 10000
+reset_run impl_1 -prev_step 
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run impl_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+open_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 20
+wait_on_run impl_1
+refresh_design
+report_utilization -name utilization_1
