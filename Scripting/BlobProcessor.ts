@@ -11,8 +11,8 @@ const MAX_BLOBS = 1000;
 const NULL_BLOB_ID = MAX_BLOBS;
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
-const IMAGE_PATH = 'images/2019_Noise.png';
-const DRAW_BLOB_COLOR = false;
+const IMAGE_PATH = 'images/Test2.png';
+const DRAW_BLOB_COLOR = true;
 const DRAW_BOUND = true;
 const DRAW_QUAD = false;
 
@@ -32,12 +32,15 @@ interface BlobData {
     pointer: number,
     valid: boolean
 }
+interface Run {
+    start: number,
+    end: number,
+    blobID: number
+}
 
 //Variables
-let frameBuffer: boolean[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0));
+let frameBuffer: boolean[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH).fill(0));
 let blobColorBuffer: number[][] = Array.from(Array(IMAGE_WIDTH), () => Array(IMAGE_HEIGHT).fill(0)); //for coloring blobs (only for script version)
-let blobIDBuffer: number[] = Array(IMAGE_WIDTH * 2).fill(NULL_BLOB_ID); //stores last 2 lines of blob IDs
-let blobIDBufferHalf: boolean = false; //which section of the blobIDBuffer we are on [639:0] or [1279:640]
 let blobs: BlobData[] = Array(MAX_BLOBS).fill({
     boundTopLeft: {x:0, y:0},
     boundBottomRight: {x:0, y:0},
@@ -62,17 +65,10 @@ fs.createReadStream(IMAGE_PATH)
                 //@ts-ignore
                 const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
                 const threshold = value > 128;
-                frameBuffer[x][y] = threshold;
-
-                //push blobID to buffer for every pixel
-                blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)] = 
-                    threshold ? processPixel({ x, y }) : NULL_BLOB_ID;
-
-                blobColorBuffer[x][y] = blobIDBuffer[x + (blobIDBufferHalf?IMAGE_WIDTH:0)];
+                frameBuffer[y][x] = threshold;
             }
 
-            //swap which half of the buffer we are using every line
-            blobIDBufferHalf = !blobIDBufferHalf;
+            processLine(y);
         }
 
         //Log Data
@@ -154,29 +150,51 @@ fs.createReadStream(IMAGE_PATH)
         this.pack().pipe(fs.createWriteStream('out.png'));
     });
 
+//Process Line
+let lastRunBuffer: Run[] = Array(IMAGE_WIDTH / 8).fill({ start: 0, end: 0, blobID: NULL_BLOB_ID });
+let runBuffer: Run[] = Array(IMAGE_WIDTH / 8).fill({ start: 0, end: 0, blobID: NULL_BLOB_ID });
+function processLine(line: number) {
+    lastRunBuffer = runBuffer;
+
+    //encode line into runs
+    let inRun: boolean = false;
+    let start: number = 0, runBufferIndex: number = 0;
+    for (let x = 0; x < IMAGE_WIDTH; x++) {
+        if (frameBuffer[line][x]) {
+            if (!inRun) {
+                inRun = true;
+                start = x;
+            }
+        }
+        else if (inRun) {
+            inRun = false;
+            runBuffer[runBufferIndex] = { start: start, end: x-1, blobID: NULL_BLOB_ID };
+            processRun(line, runBuffer[runBufferIndex]);
+            runBufferIndex++;
+        }
+    }
+}
+
 //Process Pixel & Return BlobID
-let masterBlobID: number = NULL_BLOB_ID;
-function processPixel(pos: Vector): number {
+let masterBlobID = NULL_BLOB_ID;
+function processRun(line: number, run: Run): number {
     masterBlobID = NULL_BLOB_ID;
 
-    //pick out top left, top, top right, and left pixels from blobIDBuffer
-    //but only if they are in the bounding of the 640x480 image
-    if (pos.x > 0 && pos.y > 0) {
-        processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
-    }
-    if (pos.y > 0) {
-        processSurroundingPixel(blobIDBuffer[pos.x+0 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
-    }
-    if (pos.x < IMAGE_WIDTH-1 && pos.y > 0) {
-        processSurroundingPixel(blobIDBuffer[pos.x+1 + (blobIDBufferHalf?0:IMAGE_WIDTH)]);
-    }
-    if (pos.x > 0) {
-        processSurroundingPixel(blobIDBuffer[pos.x-1 + (blobIDBufferHalf?IMAGE_WIDTH:0)]);
-    }
+    // for (let i = 0; i < lastRunBuffer.length; i++) {
+    //     //widen run to join other runs its touching but not overlapping
+    //     let realStart = run.start - (run.start == 0 ?0:1);
+    //     let realEnd = run.end + (run.end == IMAGE_WIDTH-1 ?0:1);
+
+    //     //check if lines overlap
+    //     if ((lastRunBuffer[i].start >= realStart && lastRunBuffer[i].start <= realEnd) ||
+    //         (lastRunBuffer[i].end   >= realStart && lastRunBuffer[i].end   <= realEnd)) {
+    //         joinTopRun(line, run, lastRunBuffer[i]);
+    //     }
+    // }
 
     //add this pixel to blob if we have a valid blob to join
     if (masterBlobID !== NULL_BLOB_ID) {
-        blobs[masterBlobID] = mergeBlobs(pixelToBlob(pos), blobs[masterBlobID]);
+        blobs[masterBlobID] = mergeBlobs(runToBlob(line, run), blobs[masterBlobID]);
 
         return masterBlobID;
     }
@@ -184,7 +202,7 @@ function processPixel(pos: Vector): number {
     //not touching a blob => make new blob
     else {
         //create blob at next available index
-        blobs[blobIndex] = pixelToBlob(pos);
+        blobs[blobIndex] = runToBlob(line, run);
 
         //increment index for next blob
         blobIndex++;
@@ -195,31 +213,31 @@ function processPixel(pos: Vector): number {
 }
 
 
-function processSurroundingPixel(slaveBlobID: number) {
+function joinTopRun(line: number, run: Run, topRun: Run) {
     //find which blob to join, and merge blobs if it is touching mutliple
-    if (slaveBlobID !== NULL_BLOB_ID) {
+    if (topRun.blobID !== NULL_BLOB_ID) {
         //found master (1st valid blob)
         if (masterBlobID === NULL_BLOB_ID) {
-            masterBlobID = getRealBlobID(slaveBlobID);
+            masterBlobID = getRealBlobID(topRun.blobID);
         }
 
         //found another valid blob => merge with master
-        else if (getRealBlobID(slaveBlobID) !== masterBlobID) {
-            //merge slave into master
-            blobs[masterBlobID] = mergeBlobs(blobs[slaveBlobID], blobs[masterBlobID]);
+        else if (getRealBlobID(topRun.blobID) !== masterBlobID) {
+            // //merge slave into master
+            // blobs[masterBlobID] = mergeBlobs(blobs[topRun.blobID], blobs[masterBlobID]);
 
-            //mark slave as pointer to master
-            blobs[slaveBlobID] = {
-                boundTopLeft: {x:0, y:0},
-                boundBottomRight: {x:0, y:0},
-                quadTopLeft: {x:0, y:0},
-                quadTopRight: {x:0, y:0},
-                quadBottomLeft: {x:0, y:0},
-                quadBottomRight: {x:0, y:0},
-                area: 0,
-                pointer: masterBlobID,
-                valid: false
-            };
+            // //mark slave as pointer to master
+            // blobs[topRun.blobID] = {
+            //     boundTopLeft: {x:0, y:0},
+            //     boundBottomRight: {x:0, y:0},
+            //     quadTopLeft: {x:0, y:0},
+            //     quadTopRight: {x:0, y:0},
+            //     quadBottomLeft: {x:0, y:0},
+            //     quadBottomRight: {x:0, y:0},
+            //     area: 0,
+            //     pointer: masterBlobID,
+            //     valid: false
+            // };
         }
     }
 }
@@ -260,16 +278,18 @@ function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
     return (a.x - a.y < b.x - b.y) ? a : b;
 }
 
-//Pixel to Blob
-function pixelToBlob(pos: Vector): BlobData {
+//Run to Blob
+function runToBlob(line: number, run: Run): BlobData {
+    const width = (run.start-run.end)+1
+    ;
     return {
-        boundTopLeft:     {x:pos.x  , y:pos.y  },
-        boundBottomRight: {x:pos.x+1, y:pos.y+1},
-        quadTopLeft:      {x:pos.x  , y:pos.y  },
-        quadTopRight:     {x:pos.x+1, y:pos.y  },
-        quadBottomLeft:   {x:pos.x  , y:pos.y+1},
-        quadBottomRight:  {x:pos.x+1, y:pos.y+1},
-        area: 1,
+        boundTopLeft:     {x:run.start      , y:line      },
+        boundBottomRight: {x:run.start+width, y:line+width},
+        quadTopLeft:      {x:run.start      , y:line      },
+        quadTopRight:     {x:run.start+width, y:line      },
+        quadBottomLeft:   {x:run.start      , y:line+width},
+        quadBottomRight:  {x:run.start+width, y:line+width},
+        area: width,
         pointer: 0,
         valid: true
     };

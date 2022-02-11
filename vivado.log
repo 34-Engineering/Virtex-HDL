@@ -505,3 +505,5 @@ INFO: [Project 1-111] Unisim Transformation Summary:
   RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
 
 open_run: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 2882.168 ; gain = 53.551
+exit
+INFO: [Common 17-206] Exiting Vivado at Wed Feb  9 21:52:48 2022...
