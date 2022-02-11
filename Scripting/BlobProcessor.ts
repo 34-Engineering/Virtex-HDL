@@ -38,10 +38,10 @@ let masterBlobID = NULL_BLOB_ID;
 
 //RLE
 let runBuffer: Run[][] = Array.from(Array(2), () => Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID }));
-let runBufferPartion: number = 0;
+let runBufferIndex: number[] = [0, 0];
+let runBufferPartion: number = 0; //swap between using index 0 & 1 of runBuffer & runBufferIndex
 let runStart: number = 0;
 let inRun: boolean = false;
-let runBufferIndex: number = 0;
 
 //Read Image (Scripting)
 fs.createReadStream(IMAGE_PATH)
@@ -161,22 +161,20 @@ function processKernel(kernel: boolean[], kx: number, ky: number, endLine: boole
         //end run
         if (inRun && (kernel[x] ? (x == 7 && endLine) : true)) {
             inRun = false;
-            runBuffer[runBufferPartion][runBufferIndex] =  processRun(ky, {
+            runBuffer[runBufferPartion][runBufferIndex[runBufferPartion]] =  processRun(ky, {
                 start: runStart,
                 end: (kx * 8) + x - (kernel[x]?0:1),
                 blobID: NULL_BLOB_ID
             });
-            runBufferIndex++;
+            runBufferIndex[runBufferPartion]++;
         }
     }
 
     //end line
     if (endLine) {
         blobColorBuffer[ky] = runBuffer[runBufferPartion];
+        runBufferIndex[runBufferPartion==0?1:0] = 0; //zero new index
         runBufferPartion = runBufferPartion==0?1:0;
-        //TODO NO CLEARING with lastRunBufferIndex
-        runBuffer[runBufferPartion] = Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID });
-        runBufferIndex = 0;
     }
 }
 
@@ -184,7 +182,8 @@ function processKernel(kernel: boolean[], kx: number, ky: number, endLine: boole
 function processRun(line: number, run: Run): Run {
     masterBlobID = NULL_BLOB_ID;
 
-    for (let i = 0; i < runBuffer[0].length; i++) {
+    //loop through all runs that were filled up in the last run buffer (line above)
+    for (let i = 0; i < runBufferIndex[runBufferPartion==0?1:0]; i++) {
         const lastRunBufferI = runBuffer[runBufferPartion==0?1:0][i];
         if (lastRunBufferI.blobID !== NULL_BLOB_ID) {
             //widen run to join other runs its touching but not overlapping
