@@ -1,13 +1,13 @@
 //BlobProcessor.ts
 
-import { BlobData, BlobDataChunk1, BlobDataChunk2, min, max, Run, Vector } from "./Util";
+import { BlobData, min, max, Run, Vector } from "./Util";
 import * as fs from "fs";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
 //Constants
 const MIN_AREA = 0;
-const MAX_BLOBS = 1000;
+const MAX_BLOBS = 2000;
 const NULL_BLOB_ID = MAX_BLOBS;
 const IMAGE_PATH = 'images/2019_Noise2.png';
 const IMAGE_WIDTH = 640;
@@ -15,7 +15,7 @@ const IMAGE_HEIGHT = 480;
 const NULL_RUN_START = IMAGE_WIDTH;
 const DRAW_BLOB_COLOR = false;
 const DRAW_BOUND = true;
-const DRAW_QUAD = true;
+const DRAW_QUAD = false;
 
 //Scripting Only
 let frameBuffer: boolean[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH).fill(0));
@@ -24,11 +24,9 @@ let blobColorBuffer: Run[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE
 //Blobs
 let blobPointers: number[] = Array(MAX_BLOBS).fill(0);
 let blobValids: boolean[] = Array(MAX_BLOBS).fill(false);
-let BRAM1: BlobDataChunk1[] = Array(MAX_BLOBS).fill({
+let blobBRAM: BlobData[] = Array(MAX_BLOBS).fill({
     boundTopLeft: {x:0, y:0},
-    boundBottomRight: {x:0, y:0}
-});
-let BRAM2: BlobDataChunk2[] = Array(MAX_BLOBS).fill({
+    boundBottomRight: {x:0, y:0},
     quadTopLeft: {x:0, y:0},
     quadTopRight: {x:0, y:0},
     quadBottomLeft: {x:0, y:0},
@@ -50,19 +48,24 @@ fs.createReadStream(IMAGE_PATH)
     .pipe(new png())
     .on('parsed', function () {
         //PythonManager Sim
-        for (let y = 0; y < IMAGE_HEIGHT; y++) {
-            for (let x = 0; x < IMAGE_WIDTH; x++) {
-                const idx = (IMAGE_WIDTH * y + x) << 2;
-                //@ts-ignore
-                const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
-                frameBuffer[y][x] = value > 128;
+        for (let ky = 0; ky < IMAGE_HEIGHT; ky++) {
+            for (let kx = 0; kx < IMAGE_WIDTH / 8; kx++) {
+                let kernel: boolean[] = Array(8).fill(false);
+
+                //simulated kernel reading
+                for (let x = 0; x < 8; x++) {
+                    const px = (kx * 8) + x;
+                    const idx = (IMAGE_WIDTH * ky + px) << 2;
+                    //@ts-ignore
+                    const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
+                    const threshold = value > 128;
+                    frameBuffer[ky][px] = threshold;
+                    kernel[x] = threshold;
+                }
+
+                processKernel(kernel, kx, ky, kx == IMAGE_WIDTH / 8 - 1);
             }
-
-            processLine(y);
         }
-
-        //Blob Processing + RLE
-        // runBlobProcessing();
 
         //Draw Blob Color
         if (DRAW_BLOB_COLOR) {
@@ -146,49 +149,39 @@ fs.createReadStream(IMAGE_PATH)
     });
 
 //Run Blob Processing
-function runBlobProcessing() {
-
-}
-
-//Process Line
-function processLine(line: number) {
-    runBuffer[runBufferPartion] = Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID });
-    runBufferIndex = 0;
-
-    //encode line into runs
-    for (let x = 0; x < IMAGE_WIDTH; x++) {
-        if (frameBuffer[line][x]) {
-            if (!inRun) {
-                inRun = true;
-                runStart = x;
-            }
-            
-            if (x == IMAGE_WIDTH-1) {
-                endRun(line, runStart, x);
-            }
+function processKernel(kernel: boolean[], kx: number, ky: number, endLine: boolean) {
+    //RLE
+    for (let x = 0; x < 8; x++) {
+        //start run
+        if (!inRun && kernel[x]) {
+            inRun = true;
+            runStart = (kx * 8) + x;
         }
-        else if (inRun) {
-            endRun(line, runStart, x-1);
+        
+        //end run
+        if (inRun && (kernel[x] ? (x == 7 && endLine) : true)) {
+            inRun = false;
+            runBuffer[runBufferPartion][runBufferIndex] =  processRun(ky, {
+                start: runStart,
+                end: (kx * 8) + x - (kernel[x]?0:1),
+                blobID: NULL_BLOB_ID
+            });
+            runBufferIndex++;
         }
     }
 
-    blobColorBuffer[line] = runBuffer[runBufferPartion];
-
-    //Swap run buffer partion
-    runBufferPartion = runBufferPartion==0?1:0;
-}
-
-function endRun(line: number, start: number, end: number) {
-    inRun = false;
-    runBuffer[runBufferPartion][runBufferIndex] = {
-        start, end,
-        blobID: processRun(line, { start, end, blobID: NULL_BLOB_ID })
-    };
-    runBufferIndex++;
+    //end line
+    if (endLine) {
+        blobColorBuffer[ky] = runBuffer[runBufferPartion];
+        runBufferPartion = runBufferPartion==0?1:0;
+        //TODO NO CLEARING with lastRunBufferIndex
+        runBuffer[runBufferPartion] = Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID });
+        runBufferIndex = 0;
+    }
 }
 
 //Process Run & Return BlobID
-function processRun(line: number, run: Run): number {
+function processRun(line: number, run: Run): Run {
     masterBlobID = NULL_BLOB_ID;
 
     for (let i = 0; i < runBuffer[0].length; i++) {
@@ -211,7 +204,8 @@ function processRun(line: number, run: Run): number {
     if (masterBlobID !== NULL_BLOB_ID) {
         writeBlob(masterBlobID, mergeBlobs(runToBlob(line, run), readBlob(masterBlobID)));
 
-        return masterBlobID;
+        //return the run w/ the blobID of the blob we joined
+        return { start: run.start, end: run.end, blobID: masterBlobID };
     }
     
     //not touching a blob => make new blob
@@ -223,8 +217,8 @@ function processRun(line: number, run: Run): number {
         //increment index for next blob
         blobIndex++;
         
-        //return the index that we used
-        return blobIndex - 1;
+        //return the run w/ the ID of the blob we made
+        return { start: run.start, end: run.end, blobID: blobIndex - 1 };
     }
 }
 
@@ -290,7 +284,7 @@ function runToBlob(line: number, run: Run): BlobData {
         quadTopRight:     {x:run.end  , y:line  },
         quadBottomLeft:   {x:run.start, y:line  },
         quadBottomRight:  {x:run.end  , y:line  },
-        area: run.end - run.start + 1 //FIXME
+        area: run.end - run.start + 1
     };
 }
 
@@ -314,27 +308,8 @@ function getRealBlobID(startID: number) {
 
 //BRAM
 function readBlob (index: number): BlobData {
-    return {
-        boundTopLeft: BRAM1[index].boundTopLeft,
-        boundBottomRight: BRAM1[index].boundBottomRight,
-        quadTopLeft: BRAM2[index].quadTopLeft,
-        quadTopRight: BRAM2[index].quadTopRight,
-        quadBottomLeft: BRAM2[index].quadBottomLeft,
-        quadBottomRight: BRAM2[index].quadBottomRight,
-        area: BRAM2[index].area
-    };
+    return blobBRAM[index];
 }
 function writeBlob (index: number, blob: BlobData) {
-    BRAM1[index] = {
-        boundTopLeft: blob.boundTopLeft,
-        boundBottomRight: blob.boundBottomRight
-    };
-
-    BRAM2[index] = {
-        quadTopLeft: blob.quadTopLeft,
-        quadTopRight: blob.quadTopRight,
-        quadBottomLeft: blob.quadBottomLeft,
-        quadBottomRight: blob.quadBottomRight,
-        area: blob.area
-    };
+    blobBRAM[index] = blob;
 }

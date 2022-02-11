@@ -36,6 +36,7 @@ module BlobProcessor(
     localparam NULL_BLOB_ID = (2 ** BLOB_ID_BUFFER_WIDTH) - 1;
     reg [BLOB_ID_BUFFER_WIDTH:0] blobIDBuffer [IMAGE_WIDTH*2-1:0];
     reg blobIDBufferHalf = 0;
+    reg KERNEl QUEUE
     initial begin
         for (int q = 0; q < $size(blobIDBuffer); q++) begin
             blobIDBuffer[q] <= NULL_BLOB_ID;
@@ -51,6 +52,8 @@ module BlobProcessor(
         if (kernelValid & ~lastKernelValid) begin
             //Process all 8 Pixels
             for (int p = 0; p < 8; p++) begin
+                //TODO RLE + KERNEL QUEUE
+
                 // push blobID to buffer for every pixel
                 blobIDBuffer[kernelPos.x + 0 + (blobIDBufferHalf?IMAGE_WIDTH:0)] <= 
                     kernel[0] ? processPixel('{ x: kernelPos.x + 0, y: kernelPos.y }) : NULL_BLOB_ID;

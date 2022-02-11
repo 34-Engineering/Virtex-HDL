@@ -5,6 +5,7 @@ export interface Vector {
     x: number,
     y: number
 }
+
 export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
@@ -14,18 +15,7 @@ export interface BlobData {
     quadBottomRight: Vector,
     area: number
 }
-export interface BlobDataChunk1 {
-    boundTopLeft: Vector,
-    boundBottomRight: Vector
-}
 
-export interface BlobDataChunk2 {
-    quadTopLeft: Vector,
-    quadTopRight: Vector,
-    quadBottomLeft: Vector,
-    quadBottomRight: Vector,
-    area: number
-}
 export interface Run {
     start: number,
     end: number,
