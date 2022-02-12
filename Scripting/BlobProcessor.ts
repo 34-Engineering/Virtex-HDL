@@ -1,15 +1,14 @@
 //BlobProcessor.ts
 
-import { BlobData, min, max, Run, Vector } from "./Util";
+import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT } from "./Util";
 import * as fs from "fs";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
-//Constants
 const MIN_AREA = 0;
 const MAX_BLOBS = 2000;
 const NULL_BLOB_ID = MAX_BLOBS;
-const IMAGE_PATH = 'images/2019_Noise2.png';
+const IMAGE_PATH = 'images/Test.png';
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
 const NULL_RUN_START = IMAGE_WIDTH;
@@ -17,42 +16,43 @@ const DRAW_BLOB_COLOR = false;
 const DRAW_BOUND = true;
 const DRAW_QUAD = false;
 
-//Scripting Only
 let frameBuffer: boolean[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH).fill(0));
-let blobColorBuffer: Run[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })); //for coloring blobs (only for script version)
+let blobColorBuffer: Run[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH / 8)
+    .fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })); //for coloring blobs (only for script version)
 
-//Blobs
 let blobPointers: number[] = Array(MAX_BLOBS).fill(0);
 let blobValids: boolean[] = Array(MAX_BLOBS).fill(false);
-let blobBRAM: BlobData[] = Array(MAX_BLOBS).fill({
-    boundTopLeft: {x:0, y:0},
-    boundBottomRight: {x:0, y:0},
-    quadTopLeft: {x:0, y:0},
-    quadTopRight: {x:0, y:0},
-    quadBottomLeft: {x:0, y:0},
-    quadBottomRight: {x:0, y:0},
-    area: 0
-});
+let blobBRAM: BlobData[] = Array(MAX_BLOBS).fill(EMPTY_BLOB);
+let blobBRAMA: BlobBRAMPort = BLOB_BRAM_PORT_DEFAULT;
+let blobBRAMB: BlobBRAMPort = BLOB_BRAM_PORT_DEFAULT;
 let blobIndex = 0;
 let masterBlobID = NULL_BLOB_ID;
+let blobRunBufferIndex: number = 0, blobRunBufferPartion: number = 0; //where the blobProcessor is in the runBuffer
 
-//RLE
 let runBuffer: Run[][] = Array.from(Array(2), () => Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID }));
-let runBufferIndex: number[] = [0, 0];
+let runBufferIndex: number[] = [0, 0]; //where the RLE is in the runBuffer
 let runBufferPartion: number = 0; //swap between using index 0 & 1 of runBuffer & runBufferIndex
 let runStart: number = 0;
 let inRun: boolean = false;
 
-//Read Image (Scripting)
+let kernel: Kernel;
+let kernelValid: boolean = false, lastKernelValid: boolean = false;
+
+let loopCount: number = 0;
+
+//Read Image (scripting only)
 fs.createReadStream(IMAGE_PATH)
     .pipe(new png())
     .on('parsed', function () {
-        //PythonManager Sim
-        for (let ky = 0; ky < IMAGE_HEIGHT; ky++) {
-            for (let kx = 0; kx < IMAGE_WIDTH / 8; kx++) {
-                let kernel: boolean[] = Array(8).fill(false);
-
-                //simulated kernel reading
+        let kx: number = 0, ky: number = 0;
+        //"180MHz" Process Loop
+        while (ky < IMAGE_HEIGHT) {
+            //Simulate PythonManager; read new kernel at 36MHz (0.2 * 180MHz) clock cycles
+            if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
+                let tempKernel: Kernel = {
+                    value: Array(8).fill(false),
+                    pos: { x: kx, y: ky }
+                };
                 for (let x = 0; x < 8; x++) {
                     const px = (kx * 8) + x;
                     const idx = (IMAGE_WIDTH * ky + px) << 2;
@@ -60,11 +60,30 @@ fs.createReadStream(IMAGE_PATH)
                     const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
                     const threshold = value > 128;
                     frameBuffer[ky][px] = threshold;
-                    kernel[x] = threshold;
+                    tempKernel.value[x] = threshold;
                 }
+                kernel = tempKernel;
+                kernelValid = true;
 
-                processKernel(kernel, kx, ky, kx == IMAGE_WIDTH / 8 - 1);
+                if (kx == IMAGE_WIDTH / 8 - 1) {
+                    ky = ky + 1;
+                    kx = 0;
+                }
+                else {
+                    kx = kx + 1;
+                }
             }
+            else {
+                kernelValid = false;
+            }
+
+            //Call Blob Always Loop at 180MHz
+            alwaysLoop();
+
+            //Update Simulated BRAM
+            updateBRAM();
+
+            loopCount = loopCount + 1;
         }
 
         //Draw Blob Color
@@ -148,96 +167,154 @@ fs.createReadStream(IMAGE_PATH)
         this.pack().pipe(fs.createWriteStream('out.png'));
     });
 
-//Run Blob Processing
-function processKernel(kernel: boolean[], kx: number, ky: number, endLine: boolean) {
-    //RLE
+//Simulated 180MHz Always Loop
+function alwaysLoop() {
+    //New Kernel
+    if (kernelValid && !lastKernelValid) {
+        encodeKernel(kernel);
+    }
+    lastKernelValid = kernelValid;
+
+    //Process Loop
+    updateBlobProcessor();
+}
+
+//Encode Kernel (RLE)
+function encodeKernel(kernel: Kernel) {
+    const endLine = kernel.pos.x == IMAGE_WIDTH / 8 - 1;
+
+    //encode every pixel in kernel
     for (let x = 0; x < 8; x++) {
-        //start run
-        if (!inRun && kernel[x]) {
+        //start run @ white pixel
+        if (!inRun && kernel.value[x]) {
             inRun = true;
-            runStart = (kx * 8) + x;
+            
+            //set run start to the pixel coordinate
+            runStart = (kernel.pos.x * 8) + x;
         }
         
-        //end run
-        if (inRun && (kernel[x] ? (x == 7 && endLine) : true)) {
+        //end run @ end of line & black pixel
+        if (inRun && (kernel.value[x] ? (x == 7 && endLine) : true)) {
             inRun = false;
-            runBuffer[runBufferPartion][runBufferIndex[runBufferPartion]] =  processRun(ky, {
+
+            //push run to buffer
+            runBuffer[runBufferPartion][runBufferIndex[runBufferPartion]] = {
                 start: runStart,
-                end: (kx * 8) + x - (kernel[x]?0:1),
+                end: (kernel.pos.x * 8) + x - (kernel.value[x]?0:1),
                 blobID: NULL_BLOB_ID
-            });
-            runBufferIndex[runBufferPartion]++;
+            };
+
+            //increment our buffer index for next run
+            runBufferIndex[runBufferPartion] = runBufferIndex[runBufferPartion] + 1;
         }
     }
 
     //end line
     if (endLine) {
-        blobColorBuffer[ky] = runBuffer[runBufferPartion];
-        runBufferIndex[runBufferPartion==0?1:0] = 0; //zero new index
+        //zero index we are working on for next line
+        runBufferIndex[runBufferPartion==0?1:0] = 0;
+
+        //swap buffer partion for next line
         runBufferPartion = runBufferPartion==0?1:0;
     }
 }
 
-//Process Run & Return BlobID
-function processRun(line: number, run: Run): Run {
-    masterBlobID = NULL_BLOB_ID;
+//Blob Processor Loop
+enum State { NONE, MERGE, JOIN, WRITE };
+let state: State = State.NONE;
+function updateBlobProcessor() {
+    //blobBRAMA, blobBRAMB
+    if (blobRunBufferIndex <= runBufferIndex[blobRunBufferPartion]) {
+        switch(state) {
+            case State.NONE: {
+                //start run
+                masterBlobID = NULL_BLOB_ID;
+
+                break; 
+            } 
+            case State.MERGE: { 
+                
+
+                break; 
+            }
+            case State.JOIN: { 
+                readBlob(masterBlobID)
+
+                break; 
+            }
+            case State.WRITE: {
+                //add this pixel to blob if we have a valid blob to join
+                if (masterBlobID !== NULL_BLOB_ID) {
+                    //FIXME
+                    writeBlob(masterBlobID, mergeBlobs(runToBlob(line, run), ));
+
+                    //set ID of the blob we joined
+                    return masterBlobID;
+                }
+                
+                //not touching a blob => make new blob
+                else {
+                    //create blob at next available index
+                    //FIXME
+                    writeBlob(blobIndex, runToBlob(line, run));
+                    blobValids[blobIndex] = true;
+
+                    //set ID of the blob we made in runBuffer
+                    runBuffer[blobRunBufferPartion][blobRunBufferIndex].blobID = blobIndex;
+
+                    //increment index for next blob
+                    blobIndex = blobIndex + 1;
+                }
+
+                //end run
+                
+                blobRunBufferIndex = blobRunBufferIndex + 1;
+
+                //push to blob color buffer (scripting only)
+                // blobColorBuffer[kernel.pos.y] = runBuffer[runBufferPartion];
+
+                break;
+            }
+        } 
+    }
+    else if (blobRunBufferPartion !== runBufferPartion) {
+        //next line
+        blobRunBufferPartion = runBufferPartion;
+        blobRunBufferIndex = 0;
+    }
+
+    //runBuffer[runBufferPartion][i].blobID = processRun(kernel.pos.y, runBuffer[runBufferPartion][i]);
+    //blobRunBufferIndex
+    /*
+    let blobBRAMWriteAddress: number = 0, blobBRAMReadAddress: number = 0;
+    let blobBRAMWriteValid: boolean = false;
+    let blobBRAMReadData: BlobData = EMPTY_BLOB, blobBRAMWriteData: BlobData = EMPTY_BLOB;
+    */
 
     //loop through all runs that were filled up in the last run buffer (line above)
     for (let i = 0; i < runBufferIndex[runBufferPartion==0?1:0]; i++) {
         const lastRunBufferI = runBuffer[runBufferPartion==0?1:0][i];
         if (lastRunBufferI.blobID !== NULL_BLOB_ID) {
-            //widen run to join other runs its touching but not overlapping
-            let realStart = run.start - (run.start == 0 ?0:1);
-            let realEnd = run.end + 1;
+            if (runsOverlap(run, lastRunBufferI)) {
+                //find which blob to join, and merge blobs if it is touching mutliple
+                if (lastRunBufferI.blobID !== NULL_BLOB_ID) {
+                    //found master (1st valid blob)
+                    if (masterBlobID === NULL_BLOB_ID) {
+                        masterBlobID = getRealBlobID(lastRunBufferI.blobID);
+                    }
 
-            //check if lines overlap
-            if ((lastRunBufferI.start >= realStart && lastRunBufferI.start <= realEnd) ||
-                (lastRunBufferI.end   >= realStart && lastRunBufferI.end   <= realEnd) ||
-                (lastRunBufferI.start <  realStart && lastRunBufferI.end   > realEnd)) {
-                joinRun(line, run, lastRunBufferI);
+                    //found another valid blob => merge with master
+                    else if (getRealBlobID(lastRunBufferI.blobID) !== masterBlobID) {
+                        //merge slave into master
+                        //FIXME
+                        writeBlob(masterBlobID, mergeBlobs(readBlob(lastRunBufferI.blobID), readBlob(masterBlobID)));
+
+                        //mark slave as pointer to master
+                        blobPointers[lastRunBufferI.blobID] = masterBlobID;
+                        blobValids[lastRunBufferI.blobID] = false;
+                    }
+                }
             }
-        }
-    }
-
-    //add this pixel to blob if we have a valid blob to join
-    if (masterBlobID !== NULL_BLOB_ID) {
-        writeBlob(masterBlobID, mergeBlobs(runToBlob(line, run), readBlob(masterBlobID)));
-
-        //return the run w/ the blobID of the blob we joined
-        return { start: run.start, end: run.end, blobID: masterBlobID };
-    }
-    
-    //not touching a blob => make new blob
-    else {
-        //create blob at next available index
-        writeBlob(blobIndex, runToBlob(line, run));
-        blobValids[blobIndex] = true;
-
-        //increment index for next blob
-        blobIndex++;
-        
-        //return the run w/ the ID of the blob we made
-        return { start: run.start, end: run.end, blobID: blobIndex - 1 };
-    }
-}
-
-//Join Run (from row above)
-function joinRun(line: number, run: Run, topRun: Run) {
-    //find which blob to join, and merge blobs if it is touching mutliple
-    if (topRun.blobID !== NULL_BLOB_ID) {
-        //found master (1st valid blob)
-        if (masterBlobID === NULL_BLOB_ID) {
-            masterBlobID = getRealBlobID(topRun.blobID);
-        }
-
-        //found another valid blob => merge with master
-        else if (getRealBlobID(topRun.blobID) !== masterBlobID) {
-            //merge slave into master
-            writeBlob(masterBlobID, mergeBlobs(readBlob(topRun.blobID), readBlob(masterBlobID)));
-
-            //mark slave as pointer to master
-            blobPointers[topRun.blobID] = masterBlobID;
-            blobValids[topRun.blobID] = false;
         }
     }
 }
@@ -272,6 +349,14 @@ function mergeQuadBottomRight(a: Vector, b: Vector): Vector {
 }
 function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
     return (a.x - a.y < b.x - b.y) ? a : b;
+}
+
+//Overlap
+function runsOverlap(run1: Run, run2: Run): boolean {
+    //widen run1 to join diagonals, then check overlap
+    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.end+1) ||
+           (run2.end   >= run1.start-(run1.start==0?0:1) && run2.end   <= run1.end+1) ||
+           (run2.start <  run1.start-(run1.start==0?0:1) && run2.end   >  run1.end+1);
 }
 
 //Run to Blob
@@ -311,4 +396,11 @@ function readBlob (index: number): BlobData {
 }
 function writeBlob (index: number, blob: BlobData) {
     blobBRAM[index] = blob;
+}
+
+
+let blobBRAMWriteValidR: boolean[];
+function updateBRAM() {
+    //blobBRAMA, blobBRAMB
+
 }

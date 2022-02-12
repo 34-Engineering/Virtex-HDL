@@ -12,3 +12,5 @@ An image is read from the `images` folder, processed, and then output to `out.pn
 npm i
 npm start
 ```
+
+Note: requires NPM & Node 17.1

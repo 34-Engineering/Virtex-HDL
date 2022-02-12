@@ -56,3 +56,7 @@ All simulating, synthesis, implementation, and bitstream generation is done thro
     - Set `verilog.linting.linter` = `xvlog`
 
  5) (Optional) Run `set_param general.maxThreads 8` in the Vivado TCL console to reduce Synthesis time.
+
+## Questions
+
+If you have any questions feel free to contact [info@34engineering.com](mailto:info@34engineering.com)
