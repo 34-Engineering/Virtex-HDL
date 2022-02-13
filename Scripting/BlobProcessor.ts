@@ -243,7 +243,7 @@ function encodeKernel(kernel: Kernel) {
 }
 
 //Blob Processor Loop
-enum State { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE, JOIN, WRITE };
+enum State { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let state: State = State.IDLE;
 let masterBlobID = NULL_BLOB_ID;
 function updateBlobProcessor() {
@@ -335,7 +335,7 @@ function updateBlobProcessor() {
                             blobValids[lastRunRealBlobID] = false;
 
                             //go merge blobs & write once we read them
-                            state = State.MERGE_WRITE;
+                            state = State.MERGE_WRITE_1;
                             break;
                         }
                     }
@@ -344,20 +344,28 @@ function updateBlobProcessor() {
 
             //done looping last line => write blob
             if (state == State.LAST_LINE) {
-                state = masterBlobID == NULL_BLOB_ID ? State.WRITE : State.JOIN;
+                state = masterBlobID == NULL_BLOB_ID ? State.WRITE : State.JOIN_1;
             }
         }
 
-        else if (state == State.MERGE_WRITE) {
-            //TODO read delay
+        else if (state == State.MERGE_WRITE_1) {
+            //account for read delay
+            state = State.MERGE_WRITE_2;
+        }
+
+        else if (state == State.MERGE_WRITE_2) {
             blobBRAMPortB.din = mergeBlobs(blobBRAMPortA.dout, blobBRAMPortB.dout);
             blobBRAMPortB.wea = true;
             state = State.LAST_LINE;
         }
 
-        if (state == State.JOIN) {
-            //TODO read delay
+        if (state == State.JOIN_1) {
+            //account for read delay
             blobBRAMPortB.addr = masterBlobID;
+            state = State.JOIN_2;
+        }
+
+        else if (state == State.JOIN_2) {
             state = State.WRITE;
         }
 
@@ -481,11 +489,14 @@ function getRealBlobIDDebug(startID: number): number {
 }
 
 //BRAM
+let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
 
     //TODO read/write clock delay
-    for (const port of ports) {
+    for (const p in ports) {
+        const port = ports[p];
+
         if (port.wea) {
             //write from din
             blobBRAM[port.addr] = port.din;
@@ -493,7 +504,9 @@ function updateBRAM() {
 
         else {
             //read to dout
-            port.dout = blobBRAM[port.addr];
+            port.dout = blobBRAM[lastAddresses[p]];
         }
+
+        lastAddresses[p] = port.addr;
     }
 }

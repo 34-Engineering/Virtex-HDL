@@ -15,7 +15,7 @@
    */
 /* synthesis keep */
 module BlobProcessor(
-    input wire CLK,
+    input wire CLK180,
     input wire kernelValid, //active high
     input wire Vector kernelPos, //top left coord of the kernel
     input wire [7:0] kernel, //theshold of each pixel in the kernel
@@ -26,17 +26,12 @@ module BlobProcessor(
     
     //Blob BRAM
     localparam MAX_BLOBS = 100;
-    /* synthesis keep */
-    (* ram_style =  "block" *) Blob [0:MAX_BLOBS-1] blobs; /* synthesis keep */
-    /* synthesis keep */
-    reg [7:0] blobIndex = 0; /* synthesis keep */
 
     //Blob ID Buffer (stores the last two lines of blob IDs)
     localparam BLOB_ID_BUFFER_WIDTH = $clog2(MAX_BLOBS);
     localparam NULL_BLOB_ID = (2 ** BLOB_ID_BUFFER_WIDTH) - 1;
     reg [BLOB_ID_BUFFER_WIDTH:0] blobIDBuffer [IMAGE_WIDTH*2-1:0];
     reg blobIDBufferHalf = 0;
-    reg KERNEl QUEUE
     initial begin
         for (int q = 0; q < $size(blobIDBuffer); q++) begin
             blobIDBuffer[q] <= NULL_BLOB_ID;
@@ -47,7 +42,7 @@ module BlobProcessor(
     reg lastKernelValid = 0;/* synthesis keep */
     reg lastEndFrame = 0;
     /* synthesis keep */
-    always @(posedge CLK) begin /* synthesis keep */
+    always @(negedge CLK180) begin /* synthesis keep */
         //New Kernel
         if (kernelValid & ~lastKernelValid) begin
             //Process all 8 Pixels
