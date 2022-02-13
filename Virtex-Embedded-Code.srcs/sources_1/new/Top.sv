@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
-`include "./app/FrameBufferUtil.sv"
 `include "./blob/BlobUtil.sv"
-`include "./util/Fault.sv"
 `include "./config/VirtexConfig.sv"
+`include "./python/PythonUtil.sv"
+`include "./util/Fault.sv"
 
 /* Top - top (main) module for the FPGA source code
 
@@ -76,7 +76,7 @@ module Top(
 
     //PythonManager
     wire Blob targetBlob;
-    wire FrameBufferWriteRequest frameBufferWriteRequest;
+    wire Kernel frameBufferWriteRequest;
     PythonManager PythonManager(
         .CLK(CLK),
         .LVDS_CLK_P(PYTHON_CLK_P),

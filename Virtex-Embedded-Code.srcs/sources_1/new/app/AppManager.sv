@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `include "../config/VirtexConfig.sv"
-`include "FrameBufferUtil.sv"
+`include "../python/PythonUtil.sv"
 
 /* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
      1) Streams video & processed blobs to FT2232H
@@ -18,7 +18,7 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input wire FrameBufferWriteRequest frameBufferWriteRequest
+    input wire Kernel frameBufferWriteRequest
     );
 
     localparam GET_FRAME_CODE = 8'b00011111;

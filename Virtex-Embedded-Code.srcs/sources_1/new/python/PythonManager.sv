@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "../app/FrameBufferUtil.sv"
 `include "../blob/BlobUtil.sv"
 `include "../config/VirtexConfig.sv"
 `include "PythonUtil.sv"
@@ -55,7 +54,7 @@ module PythonManager(
     output wire RESET_SENSOR, //active low
     input wire enabled,
     input wire VirtexConfig virtexConfig,
-    output FrameBufferWriteRequest frameBufferWriteRequest,
+    output Kernel frameBufferWriteRequest,
     output wire Blob targetBlob,
     output wire Fault fault
     );
@@ -79,29 +78,17 @@ module PythonManager(
     );
 
     //Blob Processor
-    reg lastKernelValidR [2:0];
-    Vector lastKernelPosR [2:0];
-    reg [7:0] lastKernelR [2:0];
-    reg endFrameR [2:0];
-    always @(posedge CLK) begin
+    Kernel lastKernelR [2:0];
+    always @(posedge CLK180) begin
         //Cross clock domain w/ 2x dff
-        //r0 @ 72MHz -> r1 @ 100MHz (metastable) -> r2 @ 100MHz (stable)
-        lastKernelValidR[1] <= lastKernelValidR[0];
-        lastKernelValidR[2] <= lastKernelValidR[1];
-        lastKernelPosR[1] <= lastKernelPosR[0];
-        lastKernelPosR[2] <= lastKernelPosR[1];
+        //r0 @ 72MHz -> r1 @ 180MHz (metastable) -> r2 @ 180MHz (stable)
         lastKernelR[1] <= lastKernelR[0];
         lastKernelR[2] <= lastKernelR[1];
-        endFrameR[1] <= endFrameR[0];
-        endFrameR[2] <= endFrameR[1];
     end
     BlobProcessor BlobProcessor(
         .CLK180(CLK180),
-        .kernelValid(lastKernelValidR[2]),
-        .kernelPos(lastKernelPosR[2]),
         .kernel(lastKernelR[2]),
-        .targetBlob(targetBlob),
-        .endFrame(endFrameR[2])
+        .targetBlob(targetBlob)
     );
 
     //Python SPI Manager
@@ -184,18 +171,16 @@ module PythonManager(
     );
 
     //Loop
-    reg kernelOdd;
+    reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
     reg kernelPartion; //whether we are the start or end of kernel
-    Vector kernelPos; //(0, 0) to (79, 479)
-    reg [7:0] kernel;
+    Kernel kernel = '{ value: 0, pos: 0, valid: 1 };
     reg isInFrame;
     always @(posedge CLK72) begin
         if (SYNC == PYTHON_SYNC_FRAME_START) begin
             //Note: FS replaces LS
-            endFrameR[0] <= 0;
             isInFrame <= 1;
-            kernelPos.y <= 0;
-            kernelPos.x <= 0;
+            kernel.pos.y <= 0;
+            kernel.pos.x <= 0;
             kernelPartion <= 0;
             kernelOdd <= 0;
             processImageData();
@@ -204,12 +189,11 @@ module PythonManager(
         else if (SYNC == PYTHON_SYNC_FRAME_END) begin
             isInFrame <= 0;
             processImageData();
-            endFrameR[0] <= 1;
         end
 
         else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
             //check if in frame to make sure its not a black pixel
-            kernelPos.x <= 0;
+            kernel.pos.x <= 0;
             kernelPartion <= 0;
             kernelOdd <= 0;
             processImageData();
@@ -237,27 +221,28 @@ module PythonManager(
     end
 
     task processImageData();
+        kernel.valid <= kernelPartion; //FIXME dependants below?
+
         //load partion 2 of kernel (see page 40)
         if (kernelPartion) begin
             if (kernelOdd) begin
                 //load backwards
-                kernel[0] <= DOUT[3] > virtexConfig.threshold;
-                kernel[2] <= DOUT[2] > virtexConfig.threshold;
-                kernel[4] <= DOUT[1] > virtexConfig.threshold;
-                kernel[6] <= DOUT[0] > virtexConfig.threshold;
+                kernel.value[0] <= DOUT[3] > virtexConfig.threshold;
+                kernel.value[2] <= DOUT[2] > virtexConfig.threshold;
+                kernel.value[4] <= DOUT[1] > virtexConfig.threshold;
+                kernel.value[6] <= DOUT[0] > virtexConfig.threshold;
             end
             else begin
                 //load normally
-                kernel[1] <= DOUT[0] > virtexConfig.threshold;
-                kernel[3] <= DOUT[1] > virtexConfig.threshold;
-                kernel[5] <= DOUT[2] > virtexConfig.threshold;
-                kernel[7] <= DOUT[3] > virtexConfig.threshold;
+                kernel.value[1] <= DOUT[0] > virtexConfig.threshold;
+                kernel.value[3] <= DOUT[1] > virtexConfig.threshold;
+                kernel.value[5] <= DOUT[2] > virtexConfig.threshold;
+                kernel.value[7] <= DOUT[3] > virtexConfig.threshold;
             end
             
-            lastKernelPosR[0] <= kernelPos;
             lastKernelR[0] <= kernel;
-            kernelPos.x <= kernelPos.x + 1;
-            // frameBufferWriteRequest <= '{kernelPos, kernel, 1}; FIXME
+            kernel.pos.x <= kernel.pos.x + 1;
+            frameBufferWriteRequest <= kernel;
         end
 
         //load partion 1 of kernel (see page 40)
@@ -278,7 +263,6 @@ module PythonManager(
 
         kernelOdd <= ~kernelOdd;
         kernelPartion <= ~kernelPartion;
-        lastKernelValidR[0] <= kernelPartion;
         frameBufferWriteRequest.valid <= kernelPartion;
     endtask
 endmodule

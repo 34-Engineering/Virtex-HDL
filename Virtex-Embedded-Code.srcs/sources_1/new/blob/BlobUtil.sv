@@ -5,6 +5,7 @@
 `define BLOB_UTIL_DONE
 
 `include "../util/Math.sv"
+`include "BlobConstants.sv"
 
 //144-bit Blob
 typedef struct packed {
@@ -13,22 +14,22 @@ typedef struct packed {
     logic [23:0] area;
 } Blob;
 
-//30-bit Run
+//Run
 typedef struct packed {
     logic [9:0] start, stop;
-    logic [9:0] blobID; //FIXME
+    logic [MAX_BLOB_ID_SIZE-1:0] blobID;
 } Run;
 
-//
+//Run Buffer
 typedef struct packed {
-    Run [1:0] runs; //FIXME
-    logic [9:0] count; //number of runs
+    Run [MAX_RUNS_PER_LINE-1:0] runs;
+    logic [9:0] count; //number of runs filled
     logic [9:0] number;
 } RunBuffer;
 
 //Merge Blobs
 function automatic Blob mergeBlobs(Blob blob1, blob2);
-    return '{ //FIXME
+    return '{
         boundTopLeft: '{
             x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
             y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
@@ -60,16 +61,24 @@ function automatic Vector mergeQuadBottomLeft(Vector a, b);
     return (a.x - a.y < b.x - b.y) ? a : b;
 endfunction
 
+//Overlap
+function automatic logic runsOverlap(Run run1, run2);
+    //widen run1 to join diagonals, then check overlap
+    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
+           (run2.stop  >= run1.start-(run1.start==0?0:1) && run2.stop  <= run1.stop+1) ||
+           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop  >  run1.stop+1);
+endfunction
+
 //Run to Blob
-function automatic Blob runToBlob(Vector pos); //FIXME
+function automatic Blob runToBlob(Run run, logic [9:0] line);
     return '{
-        boundTopLeft:     '{x:pos.x  , y:pos.y  },
-        boundBottomRight: '{x:pos.x+1, y:pos.y+1},
-        quadTopLeft:      '{x:pos.x  , y:pos.y  },
-        quadTopRight:     '{x:pos.x+1, y:pos.y  },
-        quadBottomLeft:   '{x:pos.x  , y:pos.y+1},
-        quadBottomRight:  '{x:pos.x+1, y:pos.y+1},
-        area: 1
+        boundTopLeft:     '{x:run.start , y:line  },
+        boundBottomRight: '{x:run.stop+1, y:line+1},
+        quadTopLeft:      '{x:run.start , y:line  },
+        quadTopRight:     '{x:run.stop  , y:line  },
+        quadBottomLeft:   '{x:run.start , y:line  },
+        quadBottomRight:  '{x:run.stop  , y:line  },
+        area: run.stop - run.start + 1
     };
 endfunction
 

@@ -9,8 +9,8 @@
 
 //8-bit Kernel
 typedef struct packed {
-    logic [7:0] value;
-    Vector pos;
+    logic [7:0] value; //threshold
+    Vector pos; //(0, 0) to (79, 479)
     logic valid;
 } Kernel;
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;

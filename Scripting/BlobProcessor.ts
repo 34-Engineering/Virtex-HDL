@@ -1,19 +1,14 @@
 //BlobProcessor.ts
-
 import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_RUN_START, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION } from "./BlobConstants";
 import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
+import { IMAGE_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD } from "./Config";
 import * as fs from "fs";
 import { overflow } from "./util/Math";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
-
-const IMAGE_PATH = 'images/2019_Noise.png';
-const DRAW_BLOB_COLOR = true;
-const DRAW_BOUND = true;
-const DRAW_QUAD = true;
 
 let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
@@ -183,6 +178,8 @@ function alwaysLoop() {
 
     //Blob Processor Loop
     updateBlobProcessor();
+
+    //TODO Target Selection
 }
 
 //Encode Kernel (RLE)

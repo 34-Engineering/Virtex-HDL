@@ -56,18 +56,18 @@ export function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
 export function runsOverlap(run1: Run, run2: Run): boolean {
     //widen run1 to join diagonals, then check overlap
     return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
-           (run2.stop   >= run1.start-(run1.start==0?0:1) && run2.stop   <= run1.stop+1) ||
-           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop   >  run1.stop+1);
+           (run2.stop  >= run1.start-(run1.start==0?0:1) && run2.stop  <= run1.stop+1) ||
+           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop  >  run1.stop+1);
 }
 
 //Run to Blob
 export function runToBlob(run: Run, line: number): BlobData {
     return {
-        boundTopLeft:     {x:run.start, y:line  },
+        boundTopLeft:     {x:run.start , y:line  },
         boundBottomRight: {x:run.stop+1, y:line+1},
-        quadTopLeft:      {x:run.start, y:line  },
+        quadTopLeft:      {x:run.start , y:line  },
         quadTopRight:     {x:run.stop  , y:line  },
-        quadBottomLeft:   {x:run.start, y:line  },
+        quadBottomLeft:   {x:run.start , y:line  },
         quadBottomRight:  {x:run.stop  , y:line  },
         area: run.stop - run.start + 1
     };

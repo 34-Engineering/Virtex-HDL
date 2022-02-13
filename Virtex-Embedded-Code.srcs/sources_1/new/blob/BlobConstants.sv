@@ -19,4 +19,7 @@ localparam NULL_LINE_NUMBER = IMAGE_HEIGHT;
 localparam NULL_BLOB_ID = MAX_BLOBS;
 localparam NULL_RUN_BUFFER_PARTION = 3;
 
+//indexes
+localparam MAX_BLOB_ID_SIZE = $clog2(MAX_BLOBS) + 1; //13 -> [12:0]
+
 `endif
