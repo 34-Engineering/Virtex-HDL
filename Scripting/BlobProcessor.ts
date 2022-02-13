@@ -6,19 +6,19 @@ const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
 const MIN_AREA = 0;
-const MAX_BLOBS = 2000;
-const IMAGE_PATH = 'images/2019_Noise.png';
+const MAX_BLOBS = 10000;
+const IMAGE_PATH = 'images/2019_Noise2.png';
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
 const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
-const MAX_RUNS_PER_LINE = 40; //max needed ~26
+const MAX_RUNS_PER_LINE = 640; //max needed ~26
 const NULL_RUN_START = IMAGE_WIDTH;
 const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 const NULL_BLOB_ID = MAX_BLOBS;
 const NULL_RUN_BUFFER_PARTION = 3;
 const DRAW_BLOB_COLOR = true;
-const DRAW_BOUND = true;
-const DRAW_QUAD = true;
+const DRAW_BOUND = false;
+const DRAW_QUAD = false;
 
 let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
@@ -305,26 +305,25 @@ function updateBlobProcessor() {
                 const lastRun: Run = runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
                 if (lastRun.blobID !== NULL_BLOB_ID) {
                     if (runsOverlap(currentRun, lastRun)) {
-                        //find which blob to join, and merge blobs if it is touching mutliple
-                        if (lastRun.blobID !== NULL_BLOB_ID) {
-                            //found master (1st valid blob)
-                            if (masterBlobID === NULL_BLOB_ID) {
-                                masterBlobID = getRealBlobID(lastRun.blobID);
-                            }
-    
-                            //found another valid blob => merge with master
-                            else if (getRealBlobID(lastRun.blobID) !== masterBlobID) {
-                                //read slave & master blobs, then merge & write back to master
-                                blobBRAMPortA.addr = getRealBlobID(lastRun.blobID);
-                                blobBRAMPortB.addr = masterBlobID;
-                                state = State.MERGE_WRITE;
+                        const lastRunRealBlobID = getRealBlobID(lastRun.blobID);
 
-                                //mark slave as pointer to master
-                                blobPointers[lastRun.blobID] = masterBlobID;
-                                blobValids[lastRun.blobID] = false;
+                        //found master (1st valid blob)
+                        if (masterBlobID === NULL_BLOB_ID) {
+                            masterBlobID = lastRunRealBlobID;
+                        }
 
-                                break;
-                            }
+                        //found another valid blob => merge with master
+                        else if (lastRunRealBlobID !== masterBlobID) {
+                            //read slave & master blobs, then merge & write back to master
+                            blobBRAMPortA.addr = lastRunRealBlobID;
+                            blobBRAMPortB.addr = masterBlobID;
+                            state = State.MERGE_WRITE;
+
+                            //mark slave as pointer to master
+                            blobPointers[lastRunRealBlobID] = masterBlobID;
+                            blobValids[lastRunRealBlobID] = false;
+
+                            break;
                         }
                     }
                 }
@@ -449,7 +448,7 @@ function runToBlob(run: Run, line: number): BlobData {
 
 //Get Real Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
 let currentID: number;
-function getRealBlobID(startID: number) {
+function getRealBlobID(startID: number): number {
     currentID = startID;
 
     for (let i = 0; i < 5; i++) {
@@ -464,13 +463,8 @@ function getRealBlobID(startID: number) {
     console.error("ERROR: BLOB_POINTER_DEPTH_FAULT");
     return NULL_BLOB_ID;
 }
-function getRealBlobIDDebug(startID: number) {
-    if (blobValids[startID]) {
-        return startID;
-    }
-    else {
-        return blobPointers[startID];
-    } 
+function getRealBlobIDDebug(startID: number): number {
+    return blobValids[startID] ? startID : getRealBlobIDDebug(blobPointers[startID]);
 }
 
 //BRAM
