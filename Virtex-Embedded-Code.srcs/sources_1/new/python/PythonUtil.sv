@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 
-/** PythonManagerParams - 
+/** PythonUtil - 
 
 */
-`ifndef PYTHON_MANAGER_PARAMS_DONE
-`define PYTHON_MANAGER_PARAMS_DONE
-package PythonManagerParams;
+`ifndef PythonUtil_DONE
+`define PythonUtil_DONE
+package PythonUtil;
 
     //Default SYNC Channel Codes (Frame Sync + Data Classification)
     localparam PYTHON_SYNC_FRAME_START = 8'haa;
@@ -69,7 +69,7 @@ package PythonManagerParams;
         '{72, 1, 16'h0010},
         
         // black offset config
-        '{setBlackOffsetAddress, 1, {1'b0, 4'd8, 3'b0, 8'd8}}, //duplicated in Util
+        '{setBlackOffsetAddress, 1, {1'b0, 4'd8, 3'b0, 8'd8}}, //duplicated in DefaultVirtexConfig
         '{197, 1, 16'h0102},	// Black lines (2 black lines, 1 gated)
         '{129, 1, 16'h8001},	// 8-bit mode - auto_black cal
         
@@ -85,8 +85,8 @@ package PythonManagerParams;
         disableSequencer,
         '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
         '{194, 1, 16'h02e4},	// Integration control (ft_mode = 1)
-        '{setExposureAddress, 1, 41746},	// Exposure_0 1 ms (following frames) //duplicated in Util
-        '{232, 1, 41746},	// Exposure_1 1 ms (current frame) //duplicated in Util
+        '{setExposureAddress, 1, 41746},	// Exposure_0 1 ms (following frames) //duplicated in DefaultVirtexConfig
+        '{232, 1, 41746},	// Exposure_1 1 ms (current frame) //duplicated in DefaultVirtexConfig
         
         // fr_length & mult_timer config (Python 300}, ZROT
         //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"
@@ -96,10 +96,10 @@ package PythonManagerParams;
         '{231, 1, 16'd41500},	// Fr_length_1 (current frame)
         
         // gain config
-        '{setAnalogGainAddress, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_0 (following frames) //duplicated in Util
-        '{235, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_1 (current frame) //duplicated in Util
-        '{setDigitalGainAddress, 1, 128},	// Digital_gain_0 (following frames) //duplicated in Util
-        '{236, 1, 128},	// Digital_gain_1 (current frame) //duplicated in Util
+        '{setAnalogGainAddress, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+        '{235, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_1 (current frame) //duplicated in DefaultVirtexConfig
+        '{setDigitalGainAddress, 1, 128},	// Digital_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+        '{236, 1, 128},	// Digital_gain_1 (current frame) //duplicated in DefaultVirtexConfig
         
         //////// program space ////////
         '{211, 1, 16'h0e49},   // no mux
@@ -242,5 +242,5 @@ package PythonManagerParams;
 
 endpackage
 
-import PythonManagerParams::*;
+import PythonUtil::*;
 `endif

@@ -1,28 +1,17 @@
 //BlobProcessor.ts
 
-import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer, Fault } from "./Util";
+import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer, Fault, IMAGE_WIDTH, IMAGE_HEIGHT, KERNEL_MAX_X, NULL_BLOB_ID, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_RUN_BUFFER_PARTION, MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, NULL_RUN_START } from "./Util";
 import * as fs from "fs";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
-const MIN_AREA = 0;
-const MAX_BLOBS = 4000;
-const MAX_BLOB_POINTER_DEPTH = 5; //under normal cond: max needed ~3
-const IMAGE_PATH = 'images/2019_Noise2.png';
-const IMAGE_WIDTH = 640;
-const IMAGE_HEIGHT = 480;
-const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
-const MAX_RUNS_PER_LINE = 40; //under normal cond: max needed ~26
-const NULL_RUN_START = IMAGE_WIDTH;
-const NULL_LINE_NUMBER = IMAGE_HEIGHT;
-const NULL_BLOB_ID = MAX_BLOBS;
-const NULL_RUN_BUFFER_PARTION = 3;
-const DRAW_BLOB_COLOR = false;
+const IMAGE_PATH = 'images/2019_Noise.png';
+const DRAW_BLOB_COLOR = true;
 const DRAW_BOUND = true;
 const DRAW_QUAD = true;
 
 let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
-    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
     count: 0,
     line: NULL_LINE_NUMBER
 }));
@@ -38,7 +27,7 @@ let blobRunBuffersPartionCurrent: number = NULL_RUN_BUFFER_PARTION, blobRunBuffe
 let blobRunBufferIndexCurrent: number = 0, blobRunBufferIndexLast: number = 0;
 
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
-    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
     count: 0,
     line: NULL_LINE_NUMBER
 }));
@@ -54,7 +43,7 @@ fs.createReadStream(IMAGE_PATH)
         //"180MHz" Process Loop
         let kx: number = 0, ky: number = 0;
         let loopCount: number = 0;
-        while (ky < IMAGE_HEIGHT) { //TODO
+        while (loopCount / 5 < IMAGE_WIDTH * IMAGE_HEIGHT + 100) { //TODO check me
             //"36MHz" Kernel Reading (PythonManager)
             if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
                 let tempKernel: Kernel = {
@@ -106,7 +95,7 @@ fs.createReadStream(IMAGE_PATH)
             for (let y = 0; y < blobColorBuffer.length; y++) {
                 for (let i = 0; i < blobColorBuffer[y].count; i++) {
                     const run = blobColorBuffer[y].runs[i];
-                    for (let x = run.start; x <= run.end; x++) {
+                    for (let x = run.start; x <= run.stop; x++) {
                         const idx = (IMAGE_WIDTH * y + x) << 2;
                         const realBlobID = getRealBlobIDDebug(run.blobID);
                         //@ts-ignore
@@ -123,8 +112,7 @@ fs.createReadStream(IMAGE_PATH)
         //Draw Blob Bounding Box + Quad
         for (let i = 0; i <= blobIndex; i++) {
             const blob = blobBRAM[i];
-            const area = (blob?.boundBottomRight.x - blob?.boundTopLeft.x) * (blob?.boundBottomRight.y - blob?.boundTopLeft.y);
-            if (blobValids[i] && area >= MIN_AREA) {
+            if (blobValids[i]) {
                 if (DRAW_BOUND) {
                     // @ts-ignore
                     this.drawRect(
@@ -218,7 +206,7 @@ function encodeKernel(kernel: Kernel) {
             //push run to buffer
             runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = {
                 start: rleRunStart,
-                end: (kernel.pos.x * 8) + x - (kernel.value[x]?0:1),
+                stop: (kernel.pos.x * 8) + x - (kernel.value[x]?0:1),
                 blobID: NULL_BLOB_ID
             };
 
@@ -449,21 +437,21 @@ function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
 //Overlap
 function runsOverlap(run1: Run, run2: Run): boolean {
     //widen run1 to join diagonals, then check overlap
-    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.end+1) ||
-           (run2.end   >= run1.start-(run1.start==0?0:1) && run2.end   <= run1.end+1) ||
-           (run2.start <  run1.start-(run1.start==0?0:1) && run2.end   >  run1.end+1);
+    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
+           (run2.stop   >= run1.start-(run1.start==0?0:1) && run2.stop   <= run1.stop+1) ||
+           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop   >  run1.stop+1);
 }
 
 //Run to Blob
 function runToBlob(run: Run, line: number): BlobData {
     return {
         boundTopLeft:     {x:run.start, y:line  },
-        boundBottomRight: {x:run.end+1, y:line+1},
+        boundBottomRight: {x:run.stop+1, y:line+1},
         quadTopLeft:      {x:run.start, y:line  },
-        quadTopRight:     {x:run.end  , y:line  },
+        quadTopRight:     {x:run.stop  , y:line  },
         quadBottomLeft:   {x:run.start, y:line  },
-        quadBottomRight:  {x:run.end  , y:line  },
-        area: run.end - run.start + 1
+        quadBottomRight:  {x:run.stop  , y:line  },
+        area: run.stop - run.start + 1
     };
 }
 
@@ -493,7 +481,6 @@ let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
 
-    //TODO read/write clock delay
     for (const p in ports) {
         const port = ports[p];
 

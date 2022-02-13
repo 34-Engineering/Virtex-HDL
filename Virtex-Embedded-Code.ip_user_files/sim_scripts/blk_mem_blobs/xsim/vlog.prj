@@ -1,0 +1,6 @@
+verilog xil_defaultlib  \
+"../../../../Virtex-Embedded-Code.gen/sources_1/ip/blk_mem_blobs/sim/blk_mem_blobs.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+nosort
