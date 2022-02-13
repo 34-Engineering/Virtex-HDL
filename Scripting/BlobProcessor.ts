@@ -1,30 +1,32 @@
 //BlobProcessor.ts
 
-import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer } from "./Util";
+import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer, Fault } from "./Util";
 import * as fs from "fs";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
 const MIN_AREA = 0;
-const MAX_BLOBS = 10000;
+const MAX_BLOBS = 4000;
+const MAX_BLOB_POINTER_DEPTH = 5; //under normal cond: max needed ~3
 const IMAGE_PATH = 'images/2019_Noise2.png';
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
 const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
-const MAX_RUNS_PER_LINE = 640; //max needed ~26
+const MAX_RUNS_PER_LINE = 40; //under normal cond: max needed ~26
 const NULL_RUN_START = IMAGE_WIDTH;
 const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 const NULL_BLOB_ID = MAX_BLOBS;
 const NULL_RUN_BUFFER_PARTION = 3;
-const DRAW_BLOB_COLOR = true;
-const DRAW_BOUND = false;
-const DRAW_QUAD = false;
+const DRAW_BLOB_COLOR = false;
+const DRAW_BOUND = true;
+const DRAW_QUAD = true;
 
 let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
     count: 0,
     line: NULL_LINE_NUMBER
 }));
+let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
 
 let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
 let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
@@ -91,6 +93,12 @@ fs.createReadStream(IMAGE_PATH)
             loopCount = loopCount + 1;
         }
 
+        //Logging
+        for (const fault of faults) {
+            if (fault !== Fault.NO_FAULT) {
+                console.log(Fault[fault]);
+            }
+        }
         console.log({ blobIndex });
         
         //Draw Blob Color
@@ -216,7 +224,7 @@ function encodeKernel(kernel: Kernel) {
 
             //increment our buffer count for next run
             if (runBuffers[rleRunBuffersPartion].count == MAX_RUNS_PER_LINE) {
-                console.error("OUT_OF_RLE_MEM_FAULT");
+                faults[1] = Fault.OUT_OF_RLE_MEM_FAULT;
             }
             else {
                 runBuffers[rleRunBuffersPartion].count = runBuffers[rleRunBuffersPartion].count + 1;
@@ -259,7 +267,7 @@ function updateBlobProcessor() {
     if ((doneWithLine && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
         //Fault
         if (!(doneWithLine && nextLineAvailable) && (blobProcessorReallyTooSlow || blobProcessorTooSlow)) {
-            console.error(rlePartionValid, "BLOB PROCESSOR TOO SLOW");
+            faults[3] = Fault.BLOB_PROCESSOR_TOO_SLOW_FAULT;
         }
 
         //Get partions for new line
@@ -372,7 +380,7 @@ function updateBlobProcessor() {
                 
                 if (blobIndex == MAX_BLOBS-1) {
                     //fault
-                    console.error("OUT_OF OUT_OF_BLOB_MEM_FAULT");
+                    faults[0] = Fault.OUT_OF_BLOB_MEM_FAULT;
                     blobIndex = 0;
                 }
                 else {
@@ -446,12 +454,12 @@ function runToBlob(run: Run, line: number): BlobData {
     };
 }
 
-//Get Real Blob ID "Recursively" (max ~3 recursions, but 5 for safety)
+//Get Real Blob ID "Recursively"
 let currentID: number;
 function getRealBlobID(startID: number): number {
     currentID = startID;
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) {
         if (blobValids[currentID]) {
             return currentID;
         }
@@ -460,7 +468,7 @@ function getRealBlobID(startID: number): number {
         }
     }
     
-    console.error("ERROR: BLOB_POINTER_DEPTH_FAULT");
+    faults[2] = Fault.BLOB_POINTER_DEPTH_FAULT;
     return NULL_BLOB_ID;
 }
 function getRealBlobIDDebug(startID: number): number {
