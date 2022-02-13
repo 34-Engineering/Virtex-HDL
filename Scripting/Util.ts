@@ -29,15 +29,12 @@ export interface BlobBRAMPort {
     addr: number, 
     din: BlobData,
     dout: BlobData,
-    ena: boolean,
     wea: boolean,
 }
-
 export const BLOB_BRAM_PORT_DEFAULT: BlobBRAMPort = {
     addr: 0,
-    din: EMPTY_BLOB,
-    dout: EMPTY_BLOB,
-    ena: false,
+    din: Object.assign({}, EMPTY_BLOB),
+    dout: Object.assign({}, EMPTY_BLOB),
     wea: false
 }
 
@@ -45,6 +42,11 @@ export interface Run {
     start: number,
     end: number,
     blobID: number
+}
+export interface RunBuffer {
+    runs: Run[],
+    count: number //number of runs
+    line: number
 }
 
 export interface Kernel {
@@ -59,4 +61,8 @@ export function min(num1: number, num2: number): number {
 
 export function max(num1: number, num2: number): number {
     return num1 > num2 ? num1 : num2;
+}
+
+export function overflow(num: number, max: number): number { //overflow number between 0 & max by 1 increment max
+    return num > max ? 0 : (num < 0 ? max : num);
 }

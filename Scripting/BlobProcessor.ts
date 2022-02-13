@@ -1,53 +1,59 @@
 //BlobProcessor.ts
 
-import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT } from "./Util";
+import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer } from "./Util";
 import * as fs from "fs";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
 const MIN_AREA = 0;
 const MAX_BLOBS = 2000;
-const NULL_BLOB_ID = MAX_BLOBS;
-const IMAGE_PATH = 'images/Test.png';
+const IMAGE_PATH = 'images/2019_Noise.png';
 const IMAGE_WIDTH = 640;
 const IMAGE_HEIGHT = 480;
+const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
+const MAX_RUNS_PER_LINE = 40; //max needed ~26
 const NULL_RUN_START = IMAGE_WIDTH;
-const DRAW_BLOB_COLOR = false;
+const NULL_LINE_NUMBER = IMAGE_HEIGHT;
+const NULL_BLOB_ID = MAX_BLOBS;
+const NULL_RUN_BUFFER_PARTION = 3;
+const DRAW_BLOB_COLOR = true;
 const DRAW_BOUND = true;
-const DRAW_QUAD = false;
+const DRAW_QUAD = true;
 
-let frameBuffer: boolean[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH).fill(0));
-let blobColorBuffer: Run[][] = Array.from(Array(IMAGE_HEIGHT), () => Array(IMAGE_WIDTH / 8)
-    .fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })); //for coloring blobs (only for script version)
+let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
+    count: 0,
+    line: NULL_LINE_NUMBER
+}));
 
-let blobPointers: number[] = Array(MAX_BLOBS).fill(0);
-let blobValids: boolean[] = Array(MAX_BLOBS).fill(false);
-let blobBRAM: BlobData[] = Array(MAX_BLOBS).fill(EMPTY_BLOB);
-let blobBRAMA: BlobBRAMPort = BLOB_BRAM_PORT_DEFAULT;
-let blobBRAMB: BlobBRAMPort = BLOB_BRAM_PORT_DEFAULT;
-let blobIndex = 0;
-let masterBlobID = NULL_BLOB_ID;
-let blobRunBufferIndex: number = 0, blobRunBufferPartion: number = 0; //where the blobProcessor is in the runBuffer
+let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
+let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
+let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(EMPTY_BLOB));
+let blobBRAMPortA: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
+let blobBRAMPortB: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
+let blobIndex: number = 0;
+let blobRunBuffersPartionCurrent: number = NULL_RUN_BUFFER_PARTION, blobRunBuffersPartionLast: number = NULL_RUN_BUFFER_PARTION;
+let blobRunBufferIndexCurrent: number = 0, blobRunBufferIndexLast: number = 0;
 
-let runBuffer: Run[][] = Array.from(Array(2), () => Array(IMAGE_WIDTH / 8).fill({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID }));
-let runBufferIndex: number[] = [0, 0]; //where the RLE is in the runBuffer
-let runBufferPartion: number = 0; //swap between using index 0 & 1 of runBuffer & runBufferIndex
-let runStart: number = 0;
-let inRun: boolean = false;
+let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, end: 0, blobID: NULL_BLOB_ID })),
+    count: 0,
+    line: NULL_LINE_NUMBER
+}));
+let rleRunBuffersPartion: number = 0; //which run buffer we are on
 
 let kernel: Kernel;
 let kernelValid: boolean = false, lastKernelValid: boolean = false;
-
-let loopCount: number = 0;
 
 //Read Image (scripting only)
 fs.createReadStream(IMAGE_PATH)
     .pipe(new png())
     .on('parsed', function () {
-        let kx: number = 0, ky: number = 0;
         //"180MHz" Process Loop
-        while (ky < IMAGE_HEIGHT) {
-            //Simulate PythonManager; read new kernel at 36MHz (0.2 * 180MHz) clock cycles
+        let kx: number = 0, ky: number = 0;
+        let loopCount: number = 0;
+        while (ky < IMAGE_HEIGHT) { //TODO
+            //"36MHz" Kernel Reading (PythonManager)
             if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
                 let tempKernel: Kernel = {
                     value: Array(8).fill(false),
@@ -59,13 +65,12 @@ fs.createReadStream(IMAGE_PATH)
                     //@ts-ignore
                     const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
                     const threshold = value > 128;
-                    frameBuffer[ky][px] = threshold;
                     tempKernel.value[x] = threshold;
                 }
                 kernel = tempKernel;
                 kernelValid = true;
 
-                if (kx == IMAGE_WIDTH / 8 - 1) {
+                if (kx == KERNEL_MAX_X) {
                     ky = ky + 1;
                     kx = 0;
                 }
@@ -77,31 +82,31 @@ fs.createReadStream(IMAGE_PATH)
                 kernelValid = false;
             }
 
-            //Call Blob Always Loop at 180MHz
+            //"180MHz" Always Loop
             alwaysLoop();
 
-            //Update Simulated BRAM
+            //"180MHz" Sync BRAM
             updateBRAM();
 
             loopCount = loopCount + 1;
         }
 
+        console.log({ blobIndex });
+        
         //Draw Blob Color
         if (DRAW_BLOB_COLOR) {
             for (let y = 0; y < blobColorBuffer.length; y++) {
-                for (let i = 0; i < blobColorBuffer[y].length; i++) {
-                    const run = blobColorBuffer[y][i];
-                    if (run.start !== NULL_RUN_START) {
-                        for (let x = run.start; x <= run.end; x++) {
-                            const idx = (IMAGE_WIDTH * y + x) << 2;
-                            const realBlobID = getRealBlobID(run.blobID);
-                            //@ts-ignore
-                            this.data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
-                            //@ts-ignore
-                            this.data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
-                            //@ts-ignore
-                            this.data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
-                        }
+                for (let i = 0; i < blobColorBuffer[y].count; i++) {
+                    const run = blobColorBuffer[y].runs[i];
+                    for (let x = run.start; x <= run.end; x++) {
+                        const idx = (IMAGE_WIDTH * y + x) << 2;
+                        const realBlobID = getRealBlobIDDebug(run.blobID);
+                        //@ts-ignore
+                        this.data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
+                        //@ts-ignore
+                        this.data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
+                        //@ts-ignore
+                        this.data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
                     }
                 }
             }
@@ -109,7 +114,7 @@ fs.createReadStream(IMAGE_PATH)
 
         //Draw Blob Bounding Box + Quad
         for (let i = 0; i <= blobIndex; i++) {
-            const blob = readBlob(i);
+            const blob = blobBRAM[i];
             const area = (blob?.boundBottomRight.x - blob?.boundTopLeft.x) * (blob?.boundBottomRight.y - blob?.boundTopLeft.y);
             if (blobValids[i] && area >= MIN_AREA) {
                 if (DRAW_BOUND) {
@@ -175,146 +180,216 @@ function alwaysLoop() {
     }
     lastKernelValid = kernelValid;
 
-    //Process Loop
+    //Blob Processor Loop
     updateBlobProcessor();
 }
 
 //Encode Kernel (RLE)
+let rleRunStart: number = 0;
+let rleInRun: boolean = false;
 function encodeKernel(kernel: Kernel) {
-    const endLine = kernel.pos.x == IMAGE_WIDTH / 8 - 1;
-
+    //save line number
+    if (kernel.pos.x == 0) {
+        runBuffers[rleRunBuffersPartion].line = kernel.pos.y;
+    }
+    
     //encode every pixel in kernel
     for (let x = 0; x < 8; x++) {
         //start run @ white pixel
-        if (!inRun && kernel.value[x]) {
-            inRun = true;
+        if (!rleInRun && kernel.value[x]) {
+            rleInRun = true;
             
             //set run start to the pixel coordinate
-            runStart = (kernel.pos.x * 8) + x;
+            rleRunStart = (kernel.pos.x * 8) + x;
         }
         
         //end run @ end of line & black pixel
-        if (inRun && (kernel.value[x] ? (x == 7 && endLine) : true)) {
-            inRun = false;
+        if (rleInRun && (kernel.value[x] ? (x == 7 && kernel.pos.x == KERNEL_MAX_X) : true)) {
+            rleInRun = false;
 
             //push run to buffer
-            runBuffer[runBufferPartion][runBufferIndex[runBufferPartion]] = {
-                start: runStart,
+            runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = {
+                start: rleRunStart,
                 end: (kernel.pos.x * 8) + x - (kernel.value[x]?0:1),
                 blobID: NULL_BLOB_ID
             };
 
-            //increment our buffer index for next run
-            runBufferIndex[runBufferPartion] = runBufferIndex[runBufferPartion] + 1;
+            //increment our buffer count for next run
+            if (runBuffers[rleRunBuffersPartion].count == MAX_RUNS_PER_LINE) {
+                console.error("OUT_OF_RLE_MEM_FAULT");
+            }
+            else {
+                runBuffers[rleRunBuffersPartion].count = runBuffers[rleRunBuffersPartion].count + 1;
+            }
         }
     }
 
     //end line
-    if (endLine) {
-        //zero index we are working on for next line
-        runBufferIndex[runBufferPartion==0?1:0] = 0;
+    if (kernel.pos.x == KERNEL_MAX_X) {
+        //zero count we are working on for next line
+        runBuffers[overflow(rleRunBuffersPartion + 1, 2)].count = 0;
 
-        //swap buffer partion for next line
-        runBufferPartion = runBufferPartion==0?1:0;
+        //increment buffer partion for next line
+        rleRunBuffersPartion = overflow(rleRunBuffersPartion + 1, 2);
     }
 }
 
 //Blob Processor Loop
-enum State { NONE, MERGE, JOIN, WRITE };
-let state: State = State.NONE;
+enum State { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE, JOIN, WRITE };
+let state: State = State.IDLE;
+let masterBlobID = NULL_BLOB_ID;
 function updateBlobProcessor() {
-    //blobBRAMA, blobBRAMB
-    if (blobRunBufferIndex <= runBufferIndex[blobRunBufferPartion]) {
-        switch(state) {
-            case State.NONE: {
-                //start run
-                masterBlobID = NULL_BLOB_ID;
+    blobBRAMPortA.wea = false;
+    blobBRAMPortB.wea = false;
 
-                break; 
-            } 
-            case State.MERGE: { 
-                
+    const partionCurrentValid: boolean = blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
+    const nextPartionCurrent: number = overflow(blobRunBuffersPartionCurrent + 1, 2); //note: overflow(NULL+1)=0
 
-                break; 
-            }
-            case State.JOIN: { 
-                readBlob(masterBlobID)
+    const doneWithLine: boolean = !partionCurrentValid || //done with line @ all runs processed OR on NULL line
+                         blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
 
-                break; 
-            }
-            case State.WRITE: {
-                //add this pixel to blob if we have a valid blob to join
-                if (masterBlobID !== NULL_BLOB_ID) {
-                    //FIXME
-                    writeBlob(masterBlobID, mergeBlobs(runToBlob(line, run), ));
+    const nextLineAvailable: boolean = rleRunBuffersPartion !== nextPartionCurrent && //can move next line @ rle is done with it
+                              runBuffers[nextPartionCurrent].line !== NULL_LINE_NUMBER; //& its a valid location
 
-                    //set ID of the blob we joined
-                    return masterBlobID;
+    const rlePartionValid: boolean = rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
+    const blobProcessorTooSlow: boolean = rlePartionValid && rleRunBuffersPartion === blobRunBuffersPartionLast;
+    const blobProcessorReallyTooSlow: boolean = rlePartionValid && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
+    
+    //Next Line
+    if ((doneWithLine && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
+        //Fault
+        if (!(doneWithLine && nextLineAvailable) && (blobProcessorReallyTooSlow || blobProcessorTooSlow)) {
+            console.error(rlePartionValid, "BLOB PROCESSOR TOO SLOW");
+        }
+
+        //Get partions for new line
+        if (blobProcessorReallyTooSlow) {
+            //blob processor is so slow that we it caught up to our current position
+            // => skip 2 lines so we can still use the last line wo/ RLE overwriting it
+            //this can happen on the first line of the image, where blobRunBuffersPartionLast is NULL
+            //get partions for new line
+            const nextPartionLast = nextPartionCurrent;
+            blobRunBuffersPartionLast = 
+                (nextPartionLast !== overflow(nextPartionCurrent + 1, 2) && runBuffers[nextPartionLast].line !== NULL_LINE_NUMBER) ?
+                nextPartionLast : NULL_RUN_BUFFER_PARTION;
+            blobRunBuffersPartionCurrent = overflow(nextPartionCurrent + 1, 2);
+        }
+        else {
+            const nextPartionLast = overflow(blobRunBuffersPartionCurrent, 2);
+            blobRunBuffersPartionLast = 
+                (nextPartionLast !== nextPartionCurrent && runBuffers[nextPartionLast].line !== NULL_LINE_NUMBER) ?
+                nextPartionLast : NULL_RUN_BUFFER_PARTION;
+            blobRunBuffersPartionCurrent = nextPartionCurrent;
+        }
+
+        //Reset Intra-Buffer Indexes
+        blobRunBufferIndexCurrent = 0;
+        blobRunBufferIndexLast = 0;
+    }
+
+    //Process Run
+    if (partionCurrentValid && blobRunBufferIndexCurrent < runBuffers[blobRunBuffersPartionCurrent].count) {
+        const currentRun: Run = runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent];
+        const currentLine: number = runBuffers[blobRunBuffersPartionCurrent].line;
+
+        //start run (if done with last one, or last one timed out)
+        if (state == State.IDLE) {
+            masterBlobID = NULL_BLOB_ID;
+            blobRunBufferIndexLast = 0;
+            state = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? State.WRITE : State.LAST_LINE;
+        }
+
+        //loop through all runs that were filled up in the last run buffer (line above)
+        if (state == State.LAST_LINE) {
+            for (blobRunBufferIndexLast; blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count; blobRunBufferIndexLast++) {
+                const lastRun: Run = runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
+                if (lastRun.blobID !== NULL_BLOB_ID) {
+                    if (runsOverlap(currentRun, lastRun)) {
+                        //find which blob to join, and merge blobs if it is touching mutliple
+                        if (lastRun.blobID !== NULL_BLOB_ID) {
+                            //found master (1st valid blob)
+                            if (masterBlobID === NULL_BLOB_ID) {
+                                masterBlobID = getRealBlobID(lastRun.blobID);
+                            }
+    
+                            //found another valid blob => merge with master
+                            else if (getRealBlobID(lastRun.blobID) !== masterBlobID) {
+                                //read slave & master blobs, then merge & write back to master
+                                blobBRAMPortA.addr = getRealBlobID(lastRun.blobID);
+                                blobBRAMPortB.addr = masterBlobID;
+                                state = State.MERGE_WRITE;
+
+                                //mark slave as pointer to master
+                                blobPointers[lastRun.blobID] = masterBlobID;
+                                blobValids[lastRun.blobID] = false;
+
+                                break;
+                            }
+                        }
+                    }
                 }
+            }
+
+            //done looping last line => write blob
+            if (state == State.LAST_LINE) {
+                state = masterBlobID == NULL_BLOB_ID ? State.WRITE : State.JOIN;
+            }
+        }
+
+        else if (state == State.MERGE_WRITE) {
+            //TODO read delay
+            blobBRAMPortB.din = mergeBlobs(blobBRAMPortA.dout, blobBRAMPortB.dout);
+            blobBRAMPortB.wea = true;
+            state = State.LAST_LINE;
+        }
+
+        if (state == State.JOIN) {
+            //TODO read delay
+            blobBRAMPortB.addr = masterBlobID;
+            state = State.WRITE;
+        }
+
+        else if (state == State.WRITE) {
+            //add this pixel to blob if we have a valid blob to join
+            if (masterBlobID !== NULL_BLOB_ID) {
+                blobBRAMPortB.din = mergeBlobs(runToBlob(currentRun, currentLine), blobBRAMPortB.dout);
+                blobBRAMPortB.wea = true;
+
+                //set ID of the blob we joined
+                runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = masterBlobID;
+            }
+            
+            //not touching a blob => make new blob
+            else {
+                //create blob at next available index
+                blobBRAMPortA.addr = blobIndex;
+                blobBRAMPortA.din = runToBlob(currentRun, currentLine);
+                blobBRAMPortA.wea = true;
+                blobValids[blobIndex] = true;
+
+                //set ID of the blob we made in runBuffer
+                runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobIndex;
+
                 
-                //not touching a blob => make new blob
+                if (blobIndex == MAX_BLOBS-1) {
+                    //fault
+                    console.error("OUT_OF OUT_OF_BLOB_MEM_FAULT");
+                    blobIndex = 0;
+                }
                 else {
-                    //create blob at next available index
-                    //FIXME
-                    writeBlob(blobIndex, runToBlob(line, run));
-                    blobValids[blobIndex] = true;
-
-                    //set ID of the blob we made in runBuffer
-                    runBuffer[blobRunBufferPartion][blobRunBufferIndex].blobID = blobIndex;
-
                     //increment index for next blob
                     blobIndex = blobIndex + 1;
-                }
-
-                //end run
-                
-                blobRunBufferIndex = blobRunBufferIndex + 1;
-
-                //push to blob color buffer (scripting only)
-                // blobColorBuffer[kernel.pos.y] = runBuffer[runBufferPartion];
-
-                break;
+                }  
             }
-        } 
-    }
-    else if (blobRunBufferPartion !== runBufferPartion) {
-        //next line
-        blobRunBufferPartion = runBufferPartion;
-        blobRunBufferIndex = 0;
-    }
 
-    //runBuffer[runBufferPartion][i].blobID = processRun(kernel.pos.y, runBuffer[runBufferPartion][i]);
-    //blobRunBufferIndex
-    /*
-    let blobBRAMWriteAddress: number = 0, blobBRAMReadAddress: number = 0;
-    let blobBRAMWriteValid: boolean = false;
-    let blobBRAMReadData: BlobData = EMPTY_BLOB, blobBRAMWriteData: BlobData = EMPTY_BLOB;
-    */
+            //push to blob color buffer (scripting only)
+            blobColorBuffer[currentLine].runs[blobRunBufferIndexCurrent] = 
+                Object.assign({}, runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent]);
+            blobColorBuffer[currentLine].count = blobRunBufferIndexCurrent  + 1;
 
-    //loop through all runs that were filled up in the last run buffer (line above)
-    for (let i = 0; i < runBufferIndex[runBufferPartion==0?1:0]; i++) {
-        const lastRunBufferI = runBuffer[runBufferPartion==0?1:0][i];
-        if (lastRunBufferI.blobID !== NULL_BLOB_ID) {
-            if (runsOverlap(run, lastRunBufferI)) {
-                //find which blob to join, and merge blobs if it is touching mutliple
-                if (lastRunBufferI.blobID !== NULL_BLOB_ID) {
-                    //found master (1st valid blob)
-                    if (masterBlobID === NULL_BLOB_ID) {
-                        masterBlobID = getRealBlobID(lastRunBufferI.blobID);
-                    }
-
-                    //found another valid blob => merge with master
-                    else if (getRealBlobID(lastRunBufferI.blobID) !== masterBlobID) {
-                        //merge slave into master
-                        //FIXME
-                        writeBlob(masterBlobID, mergeBlobs(readBlob(lastRunBufferI.blobID), readBlob(masterBlobID)));
-
-                        //mark slave as pointer to master
-                        blobPointers[lastRunBufferI.blobID] = masterBlobID;
-                        blobValids[lastRunBufferI.blobID] = false;
-                    }
-                }
-            }
+            //end run
+            blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
+            state = State.IDLE;
         }
     }
 }
@@ -360,7 +435,7 @@ function runsOverlap(run1: Run, run2: Run): boolean {
 }
 
 //Run to Blob
-function runToBlob(line: number, run: Run): BlobData {
+function runToBlob(run: Run, line: number): BlobData {
     return {
         boundTopLeft:     {x:run.start, y:line  },
         boundBottomRight: {x:run.end+1, y:line+1},
@@ -389,18 +464,29 @@ function getRealBlobID(startID: number) {
     console.error("ERROR: BLOB_POINTER_DEPTH_FAULT");
     return NULL_BLOB_ID;
 }
+function getRealBlobIDDebug(startID: number) {
+    if (blobValids[startID]) {
+        return startID;
+    }
+    else {
+        return blobPointers[startID];
+    } 
+}
 
 //BRAM
-function readBlob (index: number): BlobData {
-    return blobBRAM[index];
-}
-function writeBlob (index: number, blob: BlobData) {
-    blobBRAM[index] = blob;
-}
-
-
-let blobBRAMWriteValidR: boolean[];
 function updateBRAM() {
-    //blobBRAMA, blobBRAMB
+    const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
 
+    //TODO read/write clock delay
+    for (const port of ports) {
+        if (port.wea) {
+            //write from din
+            blobBRAM[port.addr] = port.din;
+        }
+
+        else {
+            //read to dout
+            port.dout = blobBRAM[port.addr];
+        }
+    }
 }
