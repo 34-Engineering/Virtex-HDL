@@ -314,23 +314,28 @@ function updateBlobProcessor() {
                 if (lastRun.blobID !== NULL_BLOB_ID) {
                     if (runsOverlap(currentRun, lastRun)) {
                         const lastRunRealBlobID = getRealBlobID(lastRun.blobID);
+                        //pointer fault
+                        if (lastRunRealBlobID == NULL_BLOB_ID) {
+                            break;
+                        }
 
                         //found master (1st valid blob)
-                        if (masterBlobID === NULL_BLOB_ID) {
+                        else if (masterBlobID === NULL_BLOB_ID) {
                             masterBlobID = lastRunRealBlobID;
                         }
 
                         //found another valid blob => merge with master
                         else if (lastRunRealBlobID !== masterBlobID) {
-                            //read slave & master blobs, then merge & write back to master
+                            //read slave & master blobs
                             blobBRAMPortA.addr = lastRunRealBlobID;
                             blobBRAMPortB.addr = masterBlobID;
-                            state = State.MERGE_WRITE;
 
                             //mark slave as pointer to master
                             blobPointers[lastRunRealBlobID] = masterBlobID;
                             blobValids[lastRunRealBlobID] = false;
 
+                            //go merge blobs & write once we read them
+                            state = State.MERGE_WRITE;
                             break;
                         }
                     }
