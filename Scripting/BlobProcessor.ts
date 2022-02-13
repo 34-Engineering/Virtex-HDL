@@ -1,7 +1,12 @@
 //BlobProcessor.ts
 
-import { BlobData, min, max, Run, Vector, Kernel, EMPTY_BLOB, BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, overflow, RunBuffer, Fault, IMAGE_WIDTH, IMAGE_HEIGHT, KERNEL_MAX_X, NULL_BLOB_ID, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_RUN_BUFFER_PARTION, MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, NULL_RUN_START } from "./Util";
+import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
+import { Fault } from "./util/Fault";
+import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X } from "./util/OtherUtil";
+import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_RUN_START, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION } from "./BlobConstants";
+import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
 import * as fs from "fs";
+import { overflow } from "./util/Math";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
@@ -34,7 +39,7 @@ let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
 let rleRunBuffersPartion: number = 0; //which run buffer we are on
 
 let kernel: Kernel;
-let kernelValid: boolean = false, lastKernelValid: boolean = false;
+let lastKernelValid: boolean = false;
 
 //Read Image (scripting only)
 fs.createReadStream(IMAGE_PATH)
@@ -48,7 +53,8 @@ fs.createReadStream(IMAGE_PATH)
             if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
                 let tempKernel: Kernel = {
                     value: Array(8).fill(false),
-                    pos: { x: kx, y: ky }
+                    pos: { x: kx, y: ky },
+                    valid: true
                 };
                 for (let x = 0; x < 8; x++) {
                     const px = (kx * 8) + x;
@@ -59,7 +65,6 @@ fs.createReadStream(IMAGE_PATH)
                     tempKernel.value[x] = threshold;
                 }
                 kernel = tempKernel;
-                kernelValid = true;
 
                 if (kx == KERNEL_MAX_X) {
                     ky = ky + 1;
@@ -70,7 +75,7 @@ fs.createReadStream(IMAGE_PATH)
                 }
             }
             else {
-                kernelValid = false;
+                kernel.valid = false;
             }
 
             //"180MHz" Always Loop
@@ -171,10 +176,10 @@ fs.createReadStream(IMAGE_PATH)
 //Simulated 180MHz Always Loop
 function alwaysLoop() {
     //New Kernel
-    if (kernelValid && !lastKernelValid) {
+    if (kernel.valid && !lastKernelValid) {
         encodeKernel(kernel);
     }
-    lastKernelValid = kernelValid;
+    lastKernelValid = kernel.valid;
 
     //Blob Processor Loop
     updateBlobProcessor();
@@ -400,59 +405,6 @@ function updateBlobProcessor() {
             state = State.IDLE;
         }
     }
-}
-
-//Merging
-function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
-    return {
-        boundTopLeft: {
-            x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
-        },
-        boundBottomRight: {
-            x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
-        },
-        quadTopLeft: mergeQuadTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
-        quadTopRight: mergeQuadTopRight(blob1.quadTopRight, blob2.quadTopRight),
-        quadBottomLeft: mergeQuadBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
-        quadBottomRight: mergeQuadBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
-        area: blob1.area + blob2.area
-    };
-}
-function mergeQuadTopLeft(a: Vector, b: Vector): Vector {
-    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-    return (a.x + a.y < b.x + b.y) ? a : b;
-}
-function mergeQuadTopRight(a: Vector, b: Vector): Vector {
-    return (a.x - a.y > b.x - b.y) ? a : b;
-}
-function mergeQuadBottomRight(a: Vector, b: Vector): Vector {
-    return (a.x + a.y > b.x + b.y) ? a : b;
-}
-function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
-    return (a.x - a.y < b.x - b.y) ? a : b;
-}
-
-//Overlap
-function runsOverlap(run1: Run, run2: Run): boolean {
-    //widen run1 to join diagonals, then check overlap
-    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
-           (run2.stop   >= run1.start-(run1.start==0?0:1) && run2.stop   <= run1.stop+1) ||
-           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop   >  run1.stop+1);
-}
-
-//Run to Blob
-function runToBlob(run: Run, line: number): BlobData {
-    return {
-        boundTopLeft:     {x:run.start, y:line  },
-        boundBottomRight: {x:run.stop+1, y:line+1},
-        quadTopLeft:      {x:run.start, y:line  },
-        quadTopRight:     {x:run.stop  , y:line  },
-        quadBottomLeft:   {x:run.start, y:line  },
-        quadBottomRight:  {x:run.stop  , y:line  },
-        area: run.stop - run.start + 1
-    };
 }
 
 //Get Real Blob ID "Recursively"

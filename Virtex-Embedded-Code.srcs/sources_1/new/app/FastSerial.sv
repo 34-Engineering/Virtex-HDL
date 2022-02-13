@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "../Util.sv"
 
 /* FastSerial - Implementation of FTDI's Fast Serial Interface
     Fast Serial Docs: https://ftdichip.com/wp-content/uploads/2020/08/AN_131_FT2232D_H_Fast-Opto-Isolated-Serial-Interface-mode.pdf

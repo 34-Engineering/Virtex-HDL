@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
+`include "../config/VirtexConfig.sv"
+`include "FrameBufferUtil.sv"
 
 /* AppManager - Manages communication with the Virtex App through FTDI's Fast Serial
      1) Streams video & processed blobs to FT2232H
@@ -27,7 +28,7 @@ module AppManager(
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
-    (* ram_style =  "block" *) FrameBuffer frameBuffer;
+    // (* ram_style =  "block" *) FrameBuffer frameBuffer; FIXME
 
     //48MHz clock
     wire CLK48;
@@ -88,8 +89,8 @@ module AppManager(
                 end
 
                 GET_FRAME: begin
-                    //38,400 loops
-                    writeData <= frameBuffer[getFrameKernelPos.y][getFrameKernelPos.x +: 7];
+                    //38,400 loops //FIXME
+                    // writeData <= frameBuffer[getFrameKernelPos.y][getFrameKernelPos.x +: 7];
 
                     if (getFrameKernelPos.x > 79) begin
                         if (getFrameKernelPos.y > 478) begin
@@ -141,8 +142,8 @@ module AppManager(
         end
     end
 
-    //Add to Frame Buffer
-    always @(posedge frameBufferWriteRequest.valid) begin
-        frameBuffer[frameBufferWriteRequest.kernelPos.y][frameBufferWriteRequest.kernelPos.x +: 7] <= frameBufferWriteRequest.kernel;
-    end
+    //Add to Frame Buffer //FIXME
+    // always @(posedge frameBufferWriteRequest.valid) begin
+    //     frameBuffer[frameBufferWriteRequest.kernelPos.y][frameBufferWriteRequest.kernelPos.x +: 7] <= frameBufferWriteRequest.kernel;
+    // end
 endmodule

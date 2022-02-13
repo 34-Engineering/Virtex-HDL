@@ -1,6 +1,9 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
-`include "PythonManagerParams.sv"
+`include "../app/FrameBufferUtil.sv"
+`include "../blob/BlobUtil.sv"
+`include "../config/VirtexConfig.sv"
+`include "PythonUtil.sv"
+`include "../util/Fault.sv"
 
 /* PythonManager - Manages the Python 300 Image Sensor
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf
@@ -68,12 +71,12 @@ module PythonManager(
         .I(LVDS_CLK)
     );
 
-    //Generate 400MHz Global Clock
-    // wire CLK400;
-    // clk_wiz_2 clk_wiz_2(
-    //     .clk_in1(CLK),
-    //     .clk_out1(CLK400)
-    // );
+    //Generate 180MHz Blob Processor Clock
+    wire CLK180;
+    clk_wiz_2 clk_wiz_2(
+        .clk_in1(CLK),
+        .clk_out1(CLK180)
+    );
 
     //Blob Processor
     reg lastKernelValidR [2:0];
@@ -92,15 +95,14 @@ module PythonManager(
         endFrameR[1] <= endFrameR[0];
         endFrameR[2] <= endFrameR[1];
     end
-    /* synthesis keep */
-    BlobProcessor BlobProcessor( /* synthesis keep */
-        .CLK(CLK),
+    BlobProcessor BlobProcessor(
+        .CLK180(CLK180),
         .kernelValid(lastKernelValidR[2]),
         .kernelPos(lastKernelPosR[2]),
         .kernel(lastKernelR[2]),
         .targetBlob(targetBlob),
         .endFrame(endFrameR[2])
-    ); /* synthesis keep */
+    );
 
     //Python SPI Manager
     PythonSPIManager PythonSPIManager(
@@ -255,7 +257,7 @@ module PythonManager(
             lastKernelPosR[0] <= kernelPos;
             lastKernelR[0] <= kernel;
             kernelPos.x <= kernelPos.x + 1;
-            frameBufferWriteRequest <= '{kernelPos, kernel, 1};
+            // frameBufferWriteRequest <= '{kernelPos, kernel, 1}; FIXME
         end
 
         //load partion 1 of kernel (see page 40)

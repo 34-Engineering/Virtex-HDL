@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
+`include "../blob/BlobUtil.sv"
+`include "../util/Fault.sv"
 
 /* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs
 
@@ -24,8 +25,8 @@ module LEDManager(
     assign LED_PWR[1] = 1;
     assign LED_PWR[0] = USB_ON;
 
-    //TAR: blue when target valid
-    assign LED_TAR[2] = targetBlob.valid; 
+    //TAR: blue when target valid FIXME
+    // assign LED_TAR[2] = targetBlob.valid; 
 
     //COM: green when has coms
     assign LED_COM[1] = hasCommunication;

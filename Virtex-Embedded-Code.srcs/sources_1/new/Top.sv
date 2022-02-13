@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
-`include "PythonManagerParams.sv"
+`include "./app/FrameBufferUtil.sv"
+`include "./blob/BlobUtil.sv"
+`include "./util/Fault.sv"
+`include "./config/VirtexConfig.sv"
 
 /* Top - top (main) module for the FPGA source code
 

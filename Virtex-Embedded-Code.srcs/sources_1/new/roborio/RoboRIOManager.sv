@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
+`include "../blob/BlobUtil.sv"
+`include "../config/VirtexConfig.sv"
 
 /* RoboRIOManager - SPI Slave to the RoboRIO
     

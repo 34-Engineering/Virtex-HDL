@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
-`include "PythonManagerParams.sv"
+`include "../util/Fault.sv"
+`include "PythonUtil.sv"
 
 /* PythonSPIManager - manages register upload & enabling/disabling the sequencer over SPI to the Python 300
     Python 300 Docs: https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf

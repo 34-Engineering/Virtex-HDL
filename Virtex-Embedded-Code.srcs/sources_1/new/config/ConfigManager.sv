@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "Util.sv"
+`include "VirtexConfig.sv"
 
 /* ConfigManager
     Transfers config from EEPROM to FPGA fabric at boot

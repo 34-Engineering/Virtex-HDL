@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `include "../../sources_1/new/Util.sv"
-`include "../../sources_1/new/PythonManagerParams.sv"
+`include "../../sources_1/new/PythonManagerConstants.sv"
 
 /* Python300SPISim
 
