@@ -15,8 +15,6 @@ module Top(
     input CLK,
 
     //USB
-    input wire USB_TMS, USB_TCK, USB_TDI,
-    output wire USB_TDO,
     input wire USB_FSDO, USB_FSCTS,
     output wire USB_FSDI, USB_FSCLK,
     input wire USB_ON, USB_PWREN, USB_SUS,
@@ -30,8 +28,8 @@ module Top(
     input wire CONF_MISO,
 
     //Flash Memory
-    output wire FLASH_CLK, FLASH_CS,
-    output wire [3:0] FLASH_SIO,
+    output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_CLK, FLASH_MOSI,
+    input wire FLASH_MISO,
 
     //LEDs
     output wire LED_IR, LED_USER,
@@ -132,13 +130,12 @@ module Top(
     //FlashManager
     FlashManager FlashManager(
         .CLK(CLK),
-        .SPI_CLK(FLASH_CLK),
         .SPI_CS(FLASH_CS),
-        .SPI_Q(FLASH_SIO),
-        .TMS(USB_TMS),
-        .TCK(USB_TCK),
-        .TDO(USB_TDO),
-        .TDI(USB_TDI)
+        .SPI_WP(FLASH_WP),
+        .SPI_HOLD(FLASH_HOLD),
+        .SPI_CLK(FLASH_CLK),
+        .SPI_MOSI(FLASH_MOSI),
+        .SPI_MISO(FLASH_MISO)
     );
 
     //LEDManager

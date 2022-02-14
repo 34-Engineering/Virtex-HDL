@@ -22,10 +22,6 @@ set_property PACKAGE_PIN F15 [get_ports {USB_FSCLK}]
 set_property PACKAGE_PIN G16 [get_ports {USB_FSDO}]
 set_property PACKAGE_PIN H16 [get_ports {USB_FSCTS}]
 # error
-set_property PACKAGE_PIN M7 [get_ports {USB_TMS}]
-set_property PACKAGE_PIN L7 [get_ports {USB_TCK}]
-set_property PACKAGE_PIN N8 [get_ports {USB_TDO}]
-set_property PACKAGE_PIN N7 [get_ports {USB_TDI}]
 # set_property PACKAGE_PIN F14 [get_ports {USB_BD[0]}]
 # set_property PACKAGE_PIN F15 [get_ports {USB_BD[1]}]
 # set_property PACKAGE_PIN G16 [get_ports {USB_BD[2]}]
@@ -63,10 +59,10 @@ set_property IOSTANDARD LVCMOS33 [get_ports {CONF_*}]
 # Flash Memory
 set_property PACKAGE_PIN E8 [get_ports {FLASH_CLK}]
 set_property PACKAGE_PIN L12 [get_ports {FLASH_CS}]
-set_property PACKAGE_PIN K16 [get_ports {FLASH_SIO[3]}]
-set_property PACKAGE_PIN K15 [get_ports {FLASH_SIO[2]}]
-set_property PACKAGE_PIN J14 [get_ports {FLASH_SIO[1]}]
-set_property PACKAGE_PIN J13 [get_ports {FLASH_SIO[0]}]
+set_property PACKAGE_PIN K16 [get_ports {FLASH_HOLD}]
+set_property PACKAGE_PIN K15 [get_ports {FLASH_WP}]
+set_property PACKAGE_PIN J14 [get_ports {FLASH_MISO}]
+set_property PACKAGE_PIN J13 [get_ports {FLASH_MOSI}]
 set_property IOSTANDARD LVCMOS33 [get_ports {FLASH_*}]
 
 # LEDs (R = 0, G = 1, B = 2)
@@ -123,7 +119,7 @@ set_property DIFF_TERM TRUE [get_ports {PYTHON_DOUT_*}];
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_CLK_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_SYNC_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_DOUT_*}]
-create_clock -add -name PYTHON_CLK_P -period 2.778 [get_ports PYTHON_CLK_P]
+create_clock -add -name PYTHON_CLK_P -period (1/280) [get_ports PYTHON_CLK_P]
 
 # Python/Image Sensor IO
 set_property PACKAGE_PIN T10 [get_ports {PYTHON_SPI_CS}]

@@ -28,6 +28,7 @@ module AppManager(
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
+    ////blk_mem_frame_buffer
     // (* ram_style =  "block" *) FrameBuffer frameBuffer; FIXME
 
     //48MHz clock

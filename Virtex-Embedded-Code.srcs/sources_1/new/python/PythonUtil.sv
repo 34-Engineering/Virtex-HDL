@@ -92,8 +92,8 @@ localparam PythonSPICommand requiredRegisterUpload [133] = '{
     disableSequencer,
     '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
     '{194, 1, 16'h02e4},	// Integration control (ft_mode = 1)
-    '{setExposureAddress, 1, 41746},	// Exposure_0 1 ms (following frames) //duplicated in DefaultVirtexConfig
-    '{232, 1, 41746},	// Exposure_1 1 ms (current frame) //duplicated in DefaultVirtexConfig
+    '{setExposureAddress, 1, 30000},	// Exposure_0 1 ms (following frames) //duplicated in DefaultVirtexConfig
+    '{232, 1, 30000},	// Exposure_1 1 ms (current frame) //duplicated in DefaultVirtexConfig
     
     // fr_length & mult_timer config (Python 300}, ZROT
     //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"

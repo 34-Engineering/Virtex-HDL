@@ -180,6 +180,7 @@ function alwaysLoop() {
     updateBlobProcessor();
 
     //TODO Target Selection
+    updateTargetSelector();
 }
 
 //Encode Kernel (RLE)
@@ -403,6 +404,9 @@ function updateBlobProcessor() {
         }
     }
 }
+
+//Target Selector Loop
+
 
 //Get Real Blob ID "Recursively"
 let currentID: number;

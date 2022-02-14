@@ -6,8 +6,6 @@
 module FT2232HSim(
     input wire FSDI, FSCLK,
     output wire FSDO, FSCTS,
-    input wire TDO,
-    output wire TMS, TCK, TDI,
     output reg USB_ON, USB_PWREN, USB_SUS
     );
 

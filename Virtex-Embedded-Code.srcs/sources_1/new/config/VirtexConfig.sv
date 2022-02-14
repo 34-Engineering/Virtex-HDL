@@ -36,35 +36,35 @@ typedef struct packed { //32 x 16
     //camera params & python config
     /*00*/CameraOrientation cameraOrientation;
     /*01*/LEDSafety ledSafety;
-    /*02*/logic [15:0] threshold;
-    /*03*/logic [15:0] blackOffset;
-    /*04*/PythonAnalogGainConfig analogGain;
-    /*05*/logic [15:0] digitalGain;
-    /*06*/logic [15:0] exposure; // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms), max 41746 wo/ lowering fps
+    logic [15:0] threshold;
+    logic [15:0] blackOffset;
+    PythonAnalogGainConfig analogGain;
+    logic [15:0] digitalGain;
+    logic [15:0] exposure; // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms), max 41746 wo/ lowering fps
 
     //target params
-    /*07*/logic [15:0] targetBlobCountMin; //amount of blobs in target
-    /*08*/logic [15:0] targetBlobCountMax;
-    /*09*/logic [15:0] targetBlobGapMin; //distance between blobs
-    /*10*/logic [15:0] targetBlobGapMax;
-    /*11*/logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
-    /*12*/logic [15:0] targetBlobSlopeDiffMax;
-    /*13*/logic [15:0] targetCenterX; //choose blob thats closet to this point
-    /*14*/logic [15:0] targetCenterY;
+    logic [15:0] targetBlobCountMin; //amount of blobs in target
+    logic [15:0] targetBlobCountMax;
+    logic [15:0] targetBlobGapMin; //distance between blobs in target
+    logic [15:0] targetBlobGapMax;
+    logic [15:0] targetBlobAreaDiffMin; //difference between areas of blobs in target
+    logic [15:0] targetBlobAreaDiffMax;
+    logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
+    logic [15:0] targetBlobSlopeDiffMax;
+    logic [15:0] targetCenterX; //final target selection parameter; choose target thats closet to this point
+    logic [15:0] targetCenterY;
 
     //blob params
-    /*15*/logic [15:0] blobBoundAspectRatioMin; //boundWidth / boundHeight
-    /*16*/logic [15:0] blobBoundAspectRatioMax;
-    /*17*/logic [15:0] blobBoundAreaMin; //boundWidth * boundHeight
-    /*18*/logic [15:0] blobBoundAreaMax;
-    /*19*/logic [15:0] blobBoundFullnessMin; //blob.area / (boundWidth * boundHeight)
-    /*20*/logic [15:0] blobBoundFullnessMax;
-    /*21*/logic [15:0] blobQuadSlopeMin; //avg slope between left and right sides
-    /*22*/logic [15:0] blobQuadSlopeMax;
+    logic [15:0] blobBoundAspectRatioMin; //boundAspectRatio = boundWidth / boundHeight
+    logic [15:0] blobBoundAspectRatioMax;
+    logic [15:0] blobBoundAreaMin; //boundArea = boundWidth * boundHeight
+    logic [15:0] blobBoundAreaMax;
+    logic [15:0] blobBoundFullnessMin; //fullness = blob.area (true area) / boundArea
+    logic [15:0] blobBoundFullnessMax;
+    logic [15:0] blobQuadSlopeMin; //quadSlope = avg slope between left and right sides
+    logic [15:0] blobQuadSlopeMax;
     
     //reserved for future use
-    /*23*/logic [15:0] reserved23;
-    /*24*/logic [15:0] reserved24;
     /*25*/logic [15:0] reserved25;
     /*26*/logic [15:0] reserved26;
     /*27*/logic [15:0] reserved27;
@@ -81,13 +81,15 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blackOffset: 8,
     analogGain: '{0, 0, 15, 1},
     digitalGain: 128,
-    exposure: 41746,
+    exposure: 30000,
 
     //target params
     targetBlobCountMin: 1,
     targetBlobCountMax: 1,
     targetBlobGapMin: 0,
     targetBlobGapMax: 16'hffff,
+    targetBlobAreaDiffMin: 0,
+    targetBlobAreaDiffMax: 16'hffff,
     targetBlobSlopeDiffMin: 0,
     targetBlobSlopeDiffMax: 16'hffff,
     targetCenterX: IMAGE_WIDTH / 2,
@@ -104,8 +106,6 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobQuadSlopeMax: 16'hffff,
     
     //reserved for future use
-    reserved23: 16'd0,
-    reserved24: 16'd0,
     reserved25: 16'd0,
     reserved26: 16'd0,
     reserved27: 16'd0,

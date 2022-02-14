@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "../../sources_1/new/Util.sv"
+`include "../../sources_1/new/blob/BlobUtil.sv"
 
 /* TopSim - top simulation file for executing a global test of the entire FPGA
 
@@ -27,7 +27,6 @@ module TopSim;
 
     //LensSim for PythonManager
     wire Blob targetBlob;
-    wire FrameBuffer frameBuffer;
     wire PYTHON_CLK_P, PYTHON_CLK_N, PYTHON_SYNC_P, PYTHON_SYNC_N, PYTHON_DOUT_P, PYTHON_DOUT_N;
     wire PYTHON_SPI_CS, PYTHON_SPI_MOSI, PYTHON_SPI_MISO, PYTHON_SPI_CLK;
     wire PYTHON_TRIG, PYTHON_MON, PYTHON_RESET;
@@ -50,16 +49,11 @@ module TopSim;
     //FT2232HSim for AppManager
     wire USB_FSDI, USB_FSCLK, USB_FSDO, USB_FSCTS;
     wire USB_ON, USB_PWREN, USB_SUS;
-    wire USB_TMS, USB_TCK, USB_TDO, USB_TDI;
     FT2232HSim(
         .FSDI(USB_FSDI),
         .FSCLK(USB_FSCLK),
         .FSDO(USB_FSDO),
         .FSCTS(USB_FSCTS),
-        .TMS(USB_TMS),
-        .TCK(USB_TCK),
-        .TDO(USB_TDO),
-        .TDI(USB_TDI),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS)
@@ -92,10 +86,6 @@ module TopSim;
         .USB_FSCLK(USB_FSCLK),
         .USB_FSDO(USB_FSDO),
         .USB_FSCTS(USB_FSCTS),
-        .USB_TMS(USB_TMS),
-        .USB_TCK(USB_TCK),
-        .USB_TDO(USB_TDO),
-        .USB_TDI(USB_TDI),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS),

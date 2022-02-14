@@ -28,6 +28,6 @@ module BlobProcessor(
     output Blob targetBlob
     );
     
-    
+    //blk_mem_blobs
     
 endmodule
