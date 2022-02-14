@@ -29,7 +29,6 @@ let blobRunBuffersPartionLast: number = NULL_RUN_BUFFER_PARTION;
 let blobRunBufferIndexCurrent: number = 0;
 let blobRunBufferIndexLast: number = 0;
 let masterBlobID: number = NULL_BLOB_ID;
-let blobProcessorDoneWithLine: boolean = false;
 let targetSelectorDone: boolean = false;
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
@@ -45,7 +44,9 @@ let lastKernelValid: boolean = false;
 //Simulated 180MHz Always Loop
 function alwaysLoop() {
     //working on frame
-    if (kernel?.pos.y !== IMAGE_HEIGHT-1 || !blobProcessorDoneWithLine) {
+    if (kernel?.pos.y !== IMAGE_HEIGHT-1 || kernel?.pos.x !== KERNEL_MAX_X || 
+        !blobProcessorDoneWithLine() || runBuffers[blobRunBuffersPartionCurrent].line !== IMAGE_HEIGHT-1) {
+        
         //New Kernel
         if (kernel.valid && !lastKernelValid) {
             //Run Length Encoding Loop
@@ -107,8 +108,14 @@ function updateRunLengthEncoder(kernel: Kernel) {
         //zero count we are working on for next line
         runBuffers[overflow(rleRunBuffersPartion + 1, 2)].count = 0;
 
-        //increment buffer partion for next line
-        rleRunBuffersPartion = overflow(rleRunBuffersPartion + 1, 2);
+        if (runBuffers[rleRunBuffersPartion].line === IMAGE_HEIGHT-1) {
+            //done with frame => null
+            rleRunBuffersPartion = NULL_RUN_BUFFER_PARTION;
+        }
+        else {
+            //increment buffer partion for next line
+            rleRunBuffersPartion = overflow(rleRunBuffersPartion + 1, 2);
+        }
     }
 }
 
@@ -117,11 +124,9 @@ function updateBlobProcessor() {
     blobBRAMPortA.wea = false;
     blobBRAMPortB.wea = false;
 
+    //(verilog wires)
     const partionCurrentValid: boolean = blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
     const nextPartionCurrent: number = overflow(blobRunBuffersPartionCurrent + 1, 2); //note: overflow(NULL+1)=0
-
-    blobProcessorDoneWithLine = !partionCurrentValid || //done with line @ all runs processed OR on NULL line
-                         blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
 
     const nextLineAvailable: boolean = rleRunBuffersPartion !== nextPartionCurrent && //can move next line @ rle is done with it
                               runBuffers[nextPartionCurrent].line !== NULL_LINE_NUMBER; //& its a valid location
@@ -131,9 +136,9 @@ function updateBlobProcessor() {
     const blobProcessorReallyTooSlow: boolean = rlePartionValid && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
     
     //Next Line
-    if ((blobProcessorDoneWithLine && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
+    if ((blobProcessorDoneWithLine() && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
         //Fault
-        if ((blobProcessorReallyTooSlow || blobProcessorTooSlow) && !(blobProcessorDoneWithLine && nextLineAvailable)) {
+        if ((blobProcessorReallyTooSlow || blobProcessorTooSlow) && !(blobProcessorDoneWithLine() && nextLineAvailable)) {
             faults[3] = Fault.BLOB_PROCESSOR_TOO_SLOW_FAULT;
         }
 
@@ -166,6 +171,9 @@ function updateBlobProcessor() {
     if (partionCurrentValid && blobRunBufferIndexCurrent < runBuffers[blobRunBuffersPartionCurrent].count) {
         const currentRun: Run = runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent];
         const currentLine: number = runBuffers[blobRunBuffersPartionCurrent].line;
+
+        // if (currentLine == 479)
+        //     process.stdout.write(currentLine + ",");
 
         //start run (if done with last one, or last one timed out)
         if (blobState == BlobState.IDLE) {
@@ -280,6 +288,12 @@ function updateBlobProcessor() {
         }
     }
 }
+//(verilog wires)
+function blobProcessorDoneWithLine(): boolean {
+    //done with line @ on NULL line OR all runs processed
+    return blobRunBuffersPartionCurrent === NULL_RUN_BUFFER_PARTION ||
+           blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
+}
 
 //Target Selector Loop
 function updateTargetSelector() {
@@ -294,7 +308,6 @@ function resetForNewFrame() {
     blobRunBufferIndexCurrent = 0;
     blobRunBufferIndexLast = 0;
     masterBlobID = NULL_BLOB_ID;
-    blobProcessorDoneWithLine = false;
     targetSelectorDone = false;
     rleRunBuffersPartion = 0;
     rleRunStart = 0;
@@ -369,10 +382,11 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
         img.on('parsed', function () {
             //"180MHz" Process Loop
             let kx: number = 0, ky: number = 0;
+            let pythonDone: boolean = false;
             let loopCount: number = 0;
             while (!targetSelectorDone) {
                 //"36MHz" Kernel Reading (PythonManager)
-                if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
+                if (loopCount % 5 == 0 && !pythonDone) {
                     let tempKernel: Kernel = {
                         value: [...Array(8)].map(_=>false),
                         pos: { x: kx, y: ky },
@@ -386,13 +400,18 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         const threshold = value > 128;
                         tempKernel.value[x] = threshold;
                     }
-                    kernel = tempKernel;
+                    kernel = Object.assign({}, tempKernel);
 
-                    if (kx == KERNEL_MAX_X) {
-                        ky = ky + 1;
-                        kx = 0;
+                    if (kx === KERNEL_MAX_X) {
+                        if (ky !== IMAGE_HEIGHT - 1) {
+                            ky = ky + 1;
+                            kx = 0;
+                        }
+                        else {
+                            pythonDone = true;
+                        }
                     }
-                    else {
+                    else  {
                         kx = kx + 1;
                     }
                 }
@@ -408,7 +427,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
 
                 loopCount = loopCount + 1;
             }
-
+            
             //Logging
             console.log({ blobIndex });
             
@@ -497,6 +516,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
 (async function run() {
     if (SINGLE_IMAGE_MODE) {
         //process single image
+        console.log(path.basename(IMAGE_INPUT_PATH));
         await runImage(IMAGE_INPUT_PATH, IMAGE_OUTPUT_PATH);
     }
     else {
