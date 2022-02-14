@@ -21,7 +21,6 @@ set_property PACKAGE_PIN F14 [get_ports {USB_FSDI}]
 set_property PACKAGE_PIN F15 [get_ports {USB_FSCLK}]
 set_property PACKAGE_PIN G16 [get_ports {USB_FSDO}]
 set_property PACKAGE_PIN H16 [get_ports {USB_FSCTS}]
-# error
 # set_property PACKAGE_PIN F14 [get_ports {USB_BD[0]}]
 # set_property PACKAGE_PIN F15 [get_ports {USB_BD[1]}]
 # set_property PACKAGE_PIN G16 [get_ports {USB_BD[2]}]
@@ -119,7 +118,10 @@ set_property DIFF_TERM TRUE [get_ports {PYTHON_DOUT_*}];
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_CLK_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_SYNC_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_DOUT_*}]
-create_clock -add -name PYTHON_CLK_P -period (1/280) [get_ports PYTHON_CLK_P]
+# 280MHZ (8-bit Mode) Input Clock not on MRCC pin ❤️
+set PYTHON_CLK_FREQUENCY 280.0
+set PYTHON_CLK_PERIOD [expr 1000.0/$PYTHON_CLK_FREQUENCY]
+create_clock -add -name PYTHON_CLK_P -period PYTHON_CLK_PERIOD [get_ports PYTHON_CLK_P]
 
 # Python/Image Sensor IO
 set_property PACKAGE_PIN T10 [get_ports {PYTHON_SPI_CS}]
