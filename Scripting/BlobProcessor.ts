@@ -4,189 +4,68 @@ import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_RUN_START, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION } from "./BlobConstants";
 import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
-import { IMAGE_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD } from "./Config";
+import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, SINGLE_IMAGE_MODE, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH } from "./Config";
 import * as fs from "fs";
+import * as path from "path";
 import { overflow } from "./util/Math";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
-let blobColorBuffer: RunBuffer[] = [...Array(IMAGE_HEIGHT)].map(_=>({
-    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
-    count: 0,
-    line: NULL_LINE_NUMBER
-}));
+//Variables (scripting only)
+let blobColorBuffer: RunBuffer[];
 let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
-
-let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
-let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
 let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(EMPTY_BLOB));
 let blobBRAMPortA: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
 let blobBRAMPortB: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
-let blobIndex: number = 0;
-let blobRunBuffersPartionCurrent: number = NULL_RUN_BUFFER_PARTION, blobRunBuffersPartionLast: number = NULL_RUN_BUFFER_PARTION;
-let blobRunBufferIndexCurrent: number = 0, blobRunBufferIndexLast: number = 0;
 
+//Variables
+enum BlobState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
+let blobState: BlobState = BlobState.IDLE;
+let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
+let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
+let blobIndex: number = 0;
+let blobRunBuffersPartionCurrent: number = NULL_RUN_BUFFER_PARTION;
+let blobRunBuffersPartionLast: number = NULL_RUN_BUFFER_PARTION;
+let blobRunBufferIndexCurrent: number = 0;
+let blobRunBufferIndexLast: number = 0;
+let masterBlobID: number = NULL_BLOB_ID;
+let blobProcessorDoneWithLine: boolean = false;
+let targetSelectorDone: boolean = false;
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
     count: 0,
     line: NULL_LINE_NUMBER
 }));
-let rleRunBuffersPartion: number = 0; //which run buffer we are on
-
-let kernel: Kernel;
+let rleRunBuffersPartion: number = 0;
+let rleRunStart: number = 0;
+let rleInRun: boolean = false;
+let kernel: Kernel = { value: [...Array(8)].map(_=>false), pos: {x:0, y:0}, valid: false };
 let lastKernelValid: boolean = false;
-
-//Read Image (scripting only)
-fs.createReadStream(IMAGE_PATH)
-    .pipe(new png())
-    .on('parsed', function () {
-        //"180MHz" Process Loop
-        let kx: number = 0, ky: number = 0;
-        let loopCount: number = 0;
-        while (loopCount / 5 < IMAGE_WIDTH * IMAGE_HEIGHT + 100) { //TODO check me
-            //"36MHz" Kernel Reading (PythonManager)
-            if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
-                let tempKernel: Kernel = {
-                    value: Array(8).fill(false),
-                    pos: { x: kx, y: ky },
-                    valid: true
-                };
-                for (let x = 0; x < 8; x++) {
-                    const px = (kx * 8) + x;
-                    const idx = (IMAGE_WIDTH * ky + px) << 2;
-                    //@ts-ignore
-                    const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
-                    const threshold = value > 128;
-                    tempKernel.value[x] = threshold;
-                }
-                kernel = tempKernel;
-
-                if (kx == KERNEL_MAX_X) {
-                    ky = ky + 1;
-                    kx = 0;
-                }
-                else {
-                    kx = kx + 1;
-                }
-            }
-            else {
-                kernel.valid = false;
-            }
-
-            //"180MHz" Always Loop
-            alwaysLoop();
-
-            //"180MHz" Sync BRAM
-            updateBRAM();
-
-            loopCount = loopCount + 1;
-        }
-
-        //Logging
-        for (const fault of faults) {
-            if (fault !== Fault.NO_FAULT) {
-                console.log(Fault[fault]);
-            }
-        }
-        console.log({ blobIndex });
-        
-        //Draw Blob Color
-        if (DRAW_BLOB_COLOR) {
-            for (let y = 0; y < blobColorBuffer.length; y++) {
-                for (let i = 0; i < blobColorBuffer[y].count; i++) {
-                    const run = blobColorBuffer[y].runs[i];
-                    for (let x = run.start; x <= run.stop; x++) {
-                        const idx = (IMAGE_WIDTH * y + x) << 2;
-                        const realBlobID = getRealBlobIDDebug(run.blobID);
-                        //@ts-ignore
-                        this.data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
-                        //@ts-ignore
-                        this.data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
-                        //@ts-ignore
-                        this.data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
-                    }
-                }
-            }
-        }
-
-        //Draw Blob Bounding Box + Quad
-        for (let i = 0; i <= blobIndex; i++) {
-            const blob = blobBRAM[i];
-            if (blobValids[i]) {
-                if (DRAW_BOUND) {
-                    // @ts-ignore
-                    this.drawRect(
-                        blob.boundTopLeft.x,
-                        blob.boundTopLeft.y,
-                        blob.boundBottomRight.x - blob.boundTopLeft.x,
-                        blob.boundBottomRight.y - blob.boundTopLeft.y,
-                        [255, 0, 0, 100]
-                    );
-                }
-
-                if (DRAW_QUAD) {
-                    // @ts-ignore
-                    this.drawLine(
-                        blob.quadTopLeft.x,
-                        blob.quadTopLeft.y,
-                        blob.quadTopRight.x,
-                        blob.quadTopRight.y,
-                        [0, 255, 0, 100]
-                    );
-
-                    //@ts-ignore
-                    this.drawLine(
-                        blob.quadTopRight.x,
-                        blob.quadTopRight.y,
-                        blob.quadBottomRight.x,
-                        blob.quadBottomRight.y,
-                        [0, 255, 0, 100]
-                    );
-
-                    //@ts-ignore
-                    this.drawLine(
-                        blob.quadBottomRight.x,
-                        blob.quadBottomRight.y,
-                        blob.quadBottomLeft.x,
-                        blob.quadBottomLeft.y,
-                        [0, 255, 0, 100]
-                    );
-
-                    //@ts-ignore
-                    this.drawLine(
-                        blob.quadBottomLeft.x,
-                        blob.quadBottomLeft.y,
-                        blob.quadTopLeft.x,
-                        blob.quadTopLeft.y,
-                        [0, 255, 0, 100]
-                    );
-                }
-            }
-        }
-
-        //@ts-ignore
-        this.pack().pipe(fs.createWriteStream('out.png'));
-    });
 
 //Simulated 180MHz Always Loop
 function alwaysLoop() {
-    //New Kernel
-    if (kernel.valid && !lastKernelValid) {
-        encodeKernel(kernel);
+    //working on frame
+    if (kernel?.pos.y !== IMAGE_HEIGHT-1 || !blobProcessorDoneWithLine) {
+        //New Kernel
+        if (kernel.valid && !lastKernelValid) {
+            //Run Length Encoding Loop
+            updateRunLengthEncoder(kernel);
+        }
+        lastKernelValid = kernel.valid;
+
+        //Blob Processor Loop
+        updateBlobProcessor();
     }
-    lastKernelValid = kernel.valid;
 
-    //Blob Processor Loop
-    updateBlobProcessor();
-
-    //TODO Target Selection
-    updateTargetSelector();
+    //done with frame
+    else {
+        //Target Selection Loop
+        updateTargetSelector();
+    }
 }
 
-//Encode Kernel (RLE)
-let rleRunStart: number = 0;
-let rleInRun: boolean = false;
-function encodeKernel(kernel: Kernel) {
+//Run Length Encoding Loop
+function updateRunLengthEncoder(kernel: Kernel) {
     //save line number
     if (kernel.pos.x == 0) {
         runBuffers[rleRunBuffersPartion].line = kernel.pos.y;
@@ -234,9 +113,6 @@ function encodeKernel(kernel: Kernel) {
 }
 
 //Blob Processor Loop
-enum State { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
-let state: State = State.IDLE;
-let masterBlobID = NULL_BLOB_ID;
 function updateBlobProcessor() {
     blobBRAMPortA.wea = false;
     blobBRAMPortB.wea = false;
@@ -244,7 +120,7 @@ function updateBlobProcessor() {
     const partionCurrentValid: boolean = blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
     const nextPartionCurrent: number = overflow(blobRunBuffersPartionCurrent + 1, 2); //note: overflow(NULL+1)=0
 
-    const doneWithLine: boolean = !partionCurrentValid || //done with line @ all runs processed OR on NULL line
+    blobProcessorDoneWithLine = !partionCurrentValid || //done with line @ all runs processed OR on NULL line
                          blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
 
     const nextLineAvailable: boolean = rleRunBuffersPartion !== nextPartionCurrent && //can move next line @ rle is done with it
@@ -255,9 +131,9 @@ function updateBlobProcessor() {
     const blobProcessorReallyTooSlow: boolean = rlePartionValid && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
     
     //Next Line
-    if ((doneWithLine && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
+    if ((blobProcessorDoneWithLine && nextLineAvailable) || blobProcessorTooSlow || blobProcessorReallyTooSlow) {
         //Fault
-        if (!(doneWithLine && nextLineAvailable) && (blobProcessorReallyTooSlow || blobProcessorTooSlow)) {
+        if ((blobProcessorReallyTooSlow || blobProcessorTooSlow) && !(blobProcessorDoneWithLine && nextLineAvailable)) {
             faults[3] = Fault.BLOB_PROCESSOR_TOO_SLOW_FAULT;
         }
 
@@ -292,14 +168,14 @@ function updateBlobProcessor() {
         const currentLine: number = runBuffers[blobRunBuffersPartionCurrent].line;
 
         //start run (if done with last one, or last one timed out)
-        if (state == State.IDLE) {
+        if (blobState == BlobState.IDLE) {
             masterBlobID = NULL_BLOB_ID;
             blobRunBufferIndexLast = 0;
-            state = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? State.WRITE : State.LAST_LINE;
+            blobState = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? BlobState.WRITE : BlobState.LAST_LINE;
         }
 
         //loop through all runs that were filled up in the last run buffer (line above)
-        if (state == State.LAST_LINE) {
+        if (blobState == BlobState.LAST_LINE) {
             for (blobRunBufferIndexLast; blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count; blobRunBufferIndexLast++) {
                 const lastRun: Run = runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
                 if (lastRun.blobID !== NULL_BLOB_ID) {
@@ -326,7 +202,7 @@ function updateBlobProcessor() {
                             blobValids[lastRunRealBlobID] = false;
 
                             //go merge blobs & write once we read them
-                            state = State.MERGE_WRITE_1;
+                            blobState = BlobState.MERGE_WRITE_1;
                             break;
                         }
                     }
@@ -334,33 +210,33 @@ function updateBlobProcessor() {
             }
 
             //done looping last line => write blob
-            if (state == State.LAST_LINE) {
-                state = masterBlobID == NULL_BLOB_ID ? State.WRITE : State.JOIN_1;
+            if (blobState == BlobState.LAST_LINE) {
+                blobState = masterBlobID == NULL_BLOB_ID ? BlobState.WRITE : BlobState.JOIN_1;
             }
         }
 
-        else if (state == State.MERGE_WRITE_1) {
+        else if (blobState == BlobState.MERGE_WRITE_1) {
             //account for read delay
-            state = State.MERGE_WRITE_2;
+            blobState = BlobState.MERGE_WRITE_2;
         }
 
-        else if (state == State.MERGE_WRITE_2) {
+        else if (blobState == BlobState.MERGE_WRITE_2) {
             blobBRAMPortB.din = mergeBlobs(blobBRAMPortA.dout, blobBRAMPortB.dout);
             blobBRAMPortB.wea = true;
-            state = State.LAST_LINE;
+            blobState = BlobState.LAST_LINE;
         }
 
-        if (state == State.JOIN_1) {
+        if (blobState == BlobState.JOIN_1) {
             //account for read delay
             blobBRAMPortB.addr = masterBlobID;
-            state = State.JOIN_2;
+            blobState = BlobState.JOIN_2;
         }
 
-        else if (state == State.JOIN_2) {
-            state = State.WRITE;
+        else if (blobState == BlobState.JOIN_2) {
+            blobState = BlobState.WRITE;
         }
 
-        else if (state == State.WRITE) {
+        else if (blobState == BlobState.WRITE) {
             //add this pixel to blob if we have a valid blob to join
             if (masterBlobID !== NULL_BLOB_ID) {
                 blobBRAMPortB.din = mergeBlobs(runToBlob(currentRun, currentLine), blobBRAMPortB.dout);
@@ -400,13 +276,43 @@ function updateBlobProcessor() {
 
             //end run
             blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
-            state = State.IDLE;
+            blobState = BlobState.IDLE;
         }
     }
 }
 
 //Target Selector Loop
+function updateTargetSelector() {
+    targetSelectorDone = true;
+}
 
+//Resetting
+function resetForNewFrame() {
+    blobIndex = 0;
+    blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
+    blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
+    blobRunBufferIndexCurrent = 0;
+    blobRunBufferIndexLast = 0;
+    masterBlobID = NULL_BLOB_ID;
+    blobProcessorDoneWithLine = false;
+    targetSelectorDone = false;
+    rleRunBuffersPartion = 0;
+    rleRunStart = 0;
+    rleInRun = false;
+    kernel.valid = false;
+    lastKernelValid = false;
+    for (let i = 0; i < 3; i++) {
+        runBuffers[i].count = 0;
+        runBuffers[i].line = NULL_LINE_NUMBER;
+    }
+
+    //(scripting only)
+    blobColorBuffer = [...Array(IMAGE_HEIGHT)].map(_=>({
+        runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start: NULL_RUN_START, stop: 0, blobID: NULL_BLOB_ID })),
+        count: 0,
+        line: NULL_LINE_NUMBER
+    }));
+}
 
 //Get Real Blob ID "Recursively"
 let currentID: number;
@@ -426,10 +332,12 @@ function getRealBlobID(startID: number): number {
     return NULL_BLOB_ID;
 }
 function getRealBlobIDDebug(startID: number): number {
+    //(scripting only) real recursive version
+    //for drawing blob colors
     return blobValids[startID] ? startID : getRealBlobIDDebug(blobPointers[startID]);
 }
 
-//BRAM
+//BRAM Simulation (scripting only)
 let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
@@ -450,3 +358,163 @@ function updateBRAM() {
         lastAddresses[p] = port.addr;
     }
 }
+
+//Run Image (scripting only)
+function runImage(imageInputPath: string, imageOutputPath: string): Promise<void> {
+    resetForNewFrame();
+
+    return new Promise(function(resolve) {
+        const stream = fs.createReadStream(imageInputPath);
+        const img = stream.pipe(new png());
+        img.on('parsed', function () {
+            //"180MHz" Process Loop
+            let kx: number = 0, ky: number = 0;
+            let loopCount: number = 0;
+            while (!targetSelectorDone) {
+                //"36MHz" Kernel Reading (PythonManager)
+                if (loopCount % 5 == 0 && ky < IMAGE_HEIGHT) {
+                    let tempKernel: Kernel = {
+                        value: [...Array(8)].map(_=>false),
+                        pos: { x: kx, y: ky },
+                        valid: true
+                    };
+                    for (let x = 0; x < 8; x++) {
+                        const px = (kx * 8) + x;
+                        const idx = (IMAGE_WIDTH * ky + px) << 2;
+                        //@ts-ignore
+                        const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
+                        const threshold = value > 128;
+                        tempKernel.value[x] = threshold;
+                    }
+                    kernel = tempKernel;
+
+                    if (kx == KERNEL_MAX_X) {
+                        ky = ky + 1;
+                        kx = 0;
+                    }
+                    else {
+                        kx = kx + 1;
+                    }
+                }
+                else {
+                    kernel.valid = false;
+                }
+
+                //"180MHz" Always Loop
+                alwaysLoop();
+
+                //"180MHz" Sync BRAM
+                updateBRAM();
+
+                loopCount = loopCount + 1;
+            }
+
+            //Logging
+            console.log({ blobIndex });
+            
+            //Draw Blob Color
+            if (DRAW_BLOB_COLOR) {
+                for (let y = 0; y < blobColorBuffer.length; y++) {
+                    for (let i = 0; i < blobColorBuffer[y].count; i++) {
+                        const run = blobColorBuffer[y].runs[i];
+                        for (let x = run.start; x <= run.stop; x++) {
+                            const idx = (IMAGE_WIDTH * y + x) << 2;
+                            const realBlobID = getRealBlobIDDebug(run.blobID);
+                            //@ts-ignore
+                            this.data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
+                            //@ts-ignore
+                            this.data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
+                            //@ts-ignore
+                            this.data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
+                        }
+                    }
+                }
+            }
+
+            //Draw Blob Bounding Box + Quad
+            for (let i = 0; i <= blobIndex; i++) {
+                const blob = blobBRAM[i];
+                if (blobValids[i]) {
+                    if (DRAW_BOUND) {
+                        // @ts-ignore
+                        this.drawRect(
+                            blob.boundTopLeft.x,
+                            blob.boundTopLeft.y,
+                            blob.boundBottomRight.x - blob.boundTopLeft.x,
+                            blob.boundBottomRight.y - blob.boundTopLeft.y,
+                            [255, 0, 0, 100]
+                        );
+                    }
+
+                    if (DRAW_QUAD) {
+                        // @ts-ignore
+                        this.drawLine(
+                            blob.quadTopLeft.x,
+                            blob.quadTopLeft.y,
+                            blob.quadTopRight.x,
+                            blob.quadTopRight.y,
+                            [0, 255, 0, 100]
+                        );
+
+                        //@ts-ignore
+                        this.drawLine(
+                            blob.quadTopRight.x,
+                            blob.quadTopRight.y,
+                            blob.quadBottomRight.x,
+                            blob.quadBottomRight.y,
+                            [0, 255, 0, 100]
+                        );
+
+                        //@ts-ignore
+                        this.drawLine(
+                            blob.quadBottomRight.x,
+                            blob.quadBottomRight.y,
+                            blob.quadBottomLeft.x,
+                            blob.quadBottomLeft.y,
+                            [0, 255, 0, 100]
+                        );
+
+                        //@ts-ignore
+                        this.drawLine(
+                            blob.quadBottomLeft.x,
+                            blob.quadBottomLeft.y,
+                            blob.quadTopLeft.x,
+                            blob.quadTopLeft.y,
+                            [0, 255, 0, 100]
+                        );
+                    }
+                }
+            }
+
+            //@ts-ignore
+            this.pack().pipe(fs.createWriteStream(imageOutputPath));
+
+            resolve();
+        });
+    });
+}
+
+(async function run() {
+    if (SINGLE_IMAGE_MODE) {
+        //process single image
+        await runImage(IMAGE_INPUT_PATH, IMAGE_OUTPUT_PATH);
+    }
+    else {
+        //process all images
+        const images = fs.readdirSync(IMAGES_INPUT_PATH);
+        for (const image of images) {
+            console.log(image);
+            await runImage(
+                path.join(IMAGES_INPUT_PATH, image),
+                path.join(IMAGES_OUTPUT_PATH, image)
+            );
+        }
+    }
+
+    //Log Faults
+    for (const fault of faults) {
+        if (fault !== Fault.NO_FAULT) {
+            console.log(Fault[fault]);
+        }
+    }
+})();

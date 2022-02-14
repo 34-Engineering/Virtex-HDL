@@ -4,7 +4,7 @@ This folder is for scripting the functionality of the Blob Processor before writ
 
 This code is focuses on being easy to translate to System Verilog and has no emphasis on Typescript performance.
 
-An image is read from the `images` folder, processed, and then output to `out.png`.
+Based on `Config.ts`, image(s) are read from the `images` folder, processed, and then output to `output.png` or `output`.
 
 ## Running
 

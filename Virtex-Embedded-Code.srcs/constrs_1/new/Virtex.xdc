@@ -2,15 +2,6 @@
 # this file connects the ports from Top.sv to physical BGA pads
 # this file should always match `34-Engineering/Virtex-PCBs`
 
-#config
-set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
-set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
-set_property CONFIG_VOLTAGE 3.3 [current_design]
-set_property CFGBVS VCCO [current_design]
-set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR NO [current_design]
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]
-set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]
-
 # Master (100MHz) Clock N14
 set_property PACKAGE_PIN N14 [get_ports CLK]
 set_property IOSTANDARD LVCMOS33 [get_ports CLK]
@@ -21,6 +12,7 @@ set_property PACKAGE_PIN F14 [get_ports {USB_FSDI}]
 set_property PACKAGE_PIN F15 [get_ports {USB_FSCLK}]
 set_property PACKAGE_PIN G16 [get_ports {USB_FSDO}]
 set_property PACKAGE_PIN H16 [get_ports {USB_FSCTS}]
+# The other USB ports on Bus B (if you don't want to use fast serial)
 # set_property PACKAGE_PIN F14 [get_ports {USB_BD[0]}]
 # set_property PACKAGE_PIN F15 [get_ports {USB_BD[1]}]
 # set_property PACKAGE_PIN G16 [get_ports {USB_BD[2]}]
@@ -41,7 +33,7 @@ set_property PACKAGE_PIN A9 [get_ports {USB_PWREN}]
 set_property PACKAGE_PIN B12 [get_ports {USB_ON}]
 set_property IOSTANDARD LVCMOS33 [get_ports {USB_*}]
 
-# RoboRIO
+# RoboRIO (I2C Interface on REV 2, SPI on REV 3)
 set_property PACKAGE_PIN N12 [get_ports {RIO_SDA}]
 set_property PACKAGE_PIN N11 [get_ports {RIO_SCL}]
 set_property IOSTANDARD LVCMOS33 [get_ports {RIO_*}]
@@ -63,6 +55,16 @@ set_property PACKAGE_PIN K15 [get_ports {FLASH_WP}]
 set_property PACKAGE_PIN J14 [get_ports {FLASH_MISO}]
 set_property PACKAGE_PIN J13 [get_ports {FLASH_MOSI}]
 set_property IOSTANDARD LVCMOS33 [get_ports {FLASH_*}]
+
+#Flash Config (https://www.xilinx.com/support/documentation/application_notes/xapp1233-spi-config-ultrascale.pdf)
+set_property BITSTREAM.CONFIG.CONFIGRATE 80 [current_design]
+set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR NO [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property CFGBVS VCCO [current_design]
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+write_bitstream -verbose -force -bin_file virtex.bit
 
 # LEDs (R = 0, G = 1, B = 2)
 set_property PACKAGE_PIN A10 [get_ports {LED_TAR[0]}]
@@ -93,6 +95,11 @@ set_property PACKAGE_PIN P13 [get_ports {LED_IR}]
 set_property PACKAGE_PIN P14 [get_ports {LED_IR}]
 set_property PACKAGE_PIN B16 [get_ports {LED_USER}]
 set_property PACKAGE_PIN T13 [get_ports {LED_FAULT}]
+# Signal LEDs power LEDs directly so they need max drive stength (16mA)
+set_property DRIVE 16 [get_ports {LED_TAR}]
+set_property DRIVE 16 [get_ports {LED_COM}]
+set_property DRIVE 16 [get_ports {LED_PWR}]
+set_property DRIVE 16 [get_ports {LED_EN}]
 set_property IOSTANDARD LVCMOS33 [get_ports {LED_*}]
 
 # Power Data
@@ -119,8 +126,7 @@ set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_CLK_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_SYNC_*}]
 set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_DOUT_*}]
 # 280MHZ (8-bit Mode) Input Clock not on MRCC pin ❤️
-set PYTHON_CLK_FREQUENCY 280.0
-set PYTHON_CLK_PERIOD [expr 1000.0/$PYTHON_CLK_FREQUENCY]
+set PYTHON_CLK_PERIOD [expr 1000.0/280.0]
 create_clock -add -name PYTHON_CLK_P -period PYTHON_CLK_PERIOD [get_ports PYTHON_CLK_P]
 
 # Python/Image Sensor IO

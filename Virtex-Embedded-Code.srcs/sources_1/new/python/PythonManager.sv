@@ -189,6 +189,7 @@ module PythonManager(
         else if (SYNC == PYTHON_SYNC_FRAME_END) begin
             isInFrame <= 0;
             processImageData();
+            //TODO resetting logic?
         end
 
         else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin

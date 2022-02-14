@@ -39,7 +39,6 @@ module RoboRIOManager(
     );
 
     localparam GET_BLOB = 8'b00000010;
-    localparam GET_ALL_BLOBS = 8'b00000110;
     localparam GET_ENABLED = 8'b01000010;
     localparam GET_FAULTS = 8'b00100000;
     localparam SET_ENABLED = 8'b01000011;
@@ -90,11 +89,6 @@ module RoboRIOManager(
         end
         else if (command == GET_BLOB) begin
             endTransaction();
-        end
-
-        //Get All Blobs
-        if (command == GET_ALL_BLOBS) begin
-            //TODO
         end
 
         //Get Enabled
