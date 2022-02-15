@@ -7,7 +7,7 @@ export const MAX_BLOBS = 2000; //288,000-bits
 export const MAX_BLOB_POINTER_DEPTH = 5;
 
 //max runs RLE can create per line (under normal cond: max needed ~26)
-export const MAX_RUNS_PER_LINE = 40;
+export const MAX_RUNS_PER_LINE = 60;
 
 //null values
 export const NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;

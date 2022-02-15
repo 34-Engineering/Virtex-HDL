@@ -67,7 +67,6 @@ function alwaysLoop() {
 }
 
 //Run Length Encoding Loop
-// let xc = 0; //FIXME
 function updateRunLengthEncoder(kernel: Kernel) {
     //start of line
     if (kernel.pos.x == 0) {
@@ -76,8 +75,6 @@ function updateRunLengthEncoder(kernel: Kernel) {
 
         //zero count of our RunBuffer
         runBuffers[rleRunBuffersPartion].count = 0;
-
-        // xc = 0; //FIXME
     }
     
     //encode every pixel in kernel
@@ -85,19 +82,6 @@ function updateRunLengthEncoder(kernel: Kernel) {
         //new run @ start of line OR color transition
         if ((kernel.pos.x == 0 && x == 0) ||
             kernel.value[x] !== (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobID !== NULL_BLACK_RUN_BLOB_ID)) {
-            
-            //FIXME
-            // const lastRun = runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1];
-            // if (lastRun) {
-            //     if (!kernel.value[x]) {
-            //         for (let i = xc; i < xc + lastRun.length; i++) {
-            //             const idx = (IMAGE_WIDTH * kernel?.pos.y + i) << 2;
-            //             data[idx] /= 2;
-            //             data[idx+1] = 120;
-            //         }
-            //     }
-            //     xc += lastRun.length;
-            // }
 
             //push run to buffer
             runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = {
@@ -180,8 +164,6 @@ function updateBlobProcessor() {
         //Reset Intra-Buffer Indexes
         blobRunBufferIndexCurrent = 0;
         blobRunBufferXCurrent = 0;
-        blobRunBufferIndexLast = 0;
-        blobRunBufferXLast = 0;
         blobState = BlobState.IDLE;
     }
 
@@ -206,8 +188,14 @@ function updateBlobProcessor() {
         else {
             //start run (if done with last one, or last one timed out)
             if (blobState == BlobState.IDLE) {
+                //mark this run as doesn't have another run to join
                 masterBlobID = NULL_BLOB_ID;
+
+                //reset last run buffer indexes
                 blobRunBufferIndexLast = 0;
+                blobRunBufferXLast = 0;
+
+                //proceed to look for runs to join OR go straight to writing if on the first line of image
                 blobState = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? BlobState.WRITE : BlobState.LAST_LINE;
             }
 
@@ -215,13 +203,12 @@ function updateBlobProcessor() {
             if (blobState == BlobState.LAST_LINE) {
                 for (blobRunBufferIndexLast; blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count; blobRunBufferIndexLast++) {
                     const lastRun: Run = runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
-                    blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length;
                     if (lastRun.blobID !== NULL_BLACK_RUN_BLOB_ID) {
                         if (runsOverlap(currentRun, blobRunBufferXCurrent, lastRun, blobRunBufferXLast)) {
                             const lastRunRealBlobID = getRealBlobID(lastRun.blobID);
                             //pointer fault
                             if (lastRunRealBlobID == NULL_BLOB_ID) {
-                                break;
+                                // break;
                             }
 
                             //found master (1st valid blob)
@@ -241,10 +228,11 @@ function updateBlobProcessor() {
 
                                 //go merge blobs & write once we read them
                                 blobState = BlobState.MERGE_WRITE_1;
-                                break;
+                                // break;
                             }
                         }
                     }
+                    blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length;
                 }
 
                 //done looping last line => write blob
@@ -470,8 +458,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         const run = blobColorBuffer[y].runs[i];
 
                         if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
-                            const runStop = runBufferX + run.length - 1;
-                            for (let x = runBufferX; x <= runStop; x++) {
+                            for (let x = runBufferX; x < runBufferX + run.length; x++) {
                                 const idx = (IMAGE_WIDTH * y + x) << 2;
                                 const realBlobID = getRealBlobIDDebug(run.blobID);
                                 data[idx] = Math.sin(realBlobID * 50) * 200 + 55;

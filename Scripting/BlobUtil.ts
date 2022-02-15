@@ -56,9 +56,9 @@ export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number
     //widen run1 to join diagonals, then check overlap
     const stop1 = run1.length + start1 - 1;
     const stop2 = run2.length + start2 - 1;
-    return (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) ||
-           (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) ||
-           (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1);
+    return (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) || //start2 inside run1
+           (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) || //stop2 inside run1
+           (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1);   //run2 covers all of run1
 }
 
 //Run to Blob
@@ -68,9 +68,9 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
         boundTopLeft:     {x:start , y:line  },
         boundBottomRight: {x:stop+1, y:line+1},
         quadTopLeft:      {x:start , y:line  },
-        quadTopRight:     {x:stop  , y:line  },
+        quadTopRight:     {x:stop+1, y:line+1}, //TODO
         quadBottomLeft:   {x:start , y:line  },
-        quadBottomRight:  {x:stop  , y:line  },
+        quadBottomRight:  {x:stop+1, y:line+1}, //TODO
         area: run.length
     };
 }
