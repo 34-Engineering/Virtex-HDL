@@ -4,7 +4,7 @@ import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
-import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, SINGLE_IMAGE_MODE, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH } from "./Config";
+import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH } from "./Config";
 import * as fs from "fs";
 import * as path from "path";
 import { overflow } from "./util/Math";
@@ -536,12 +536,9 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
 }
 
 (async function run() {
-    if (SINGLE_IMAGE_MODE) {
-        //process single image
-        console.log(path.basename(IMAGE_INPUT_PATH));
-        await runImage(IMAGE_INPUT_PATH, IMAGE_OUTPUT_PATH);
-    }
-    else {
+    const runAllMode = process.argv.includes("--all");
+
+    if (runAllMode) {
         //process all images
         const images = fs.readdirSync(IMAGES_INPUT_PATH);
         for (const image of images) {
@@ -551,6 +548,11 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                 path.join(IMAGES_OUTPUT_PATH, image)
             );
         }
+    }
+    else {
+        //process single image
+        console.log(path.basename(IMAGE_INPUT_PATH));
+        await runImage(IMAGE_INPUT_PATH, IMAGE_OUTPUT_PATH);
     }
 
     //Log Faults

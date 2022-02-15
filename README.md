@@ -35,9 +35,9 @@ The FPGA handles the following tasks:
 
 All simulating, synthesis, implementation, and bitstream generation is done through Vivado 2021.
 
-## IDE Setup
+## VSCode Setup (Windows 10/11)
 
- 1) Install VSCode, add it to PATH (ex  `C:\Users\liams\AppData\Local\Programs\Microsoft VS Code\bin`), and ensure `code .` works in the command line
+ 1) Add VSCode to PATH (ex  `C:\Users\liams\AppData\Local\Programs\Microsoft VS Code\bin`), and ensure `code .` works in the command line
 
  2) Download [Universal Ctags](https://github.com/universal-ctags/ctags), add it to PATH (ex `D:\Program Files (x86)\ctags`), and ensure `ctags` works in the command line
 

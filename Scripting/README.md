@@ -8,9 +8,10 @@ Based on `Config.ts`, image(s) are read from the `images` folder, processed, and
 
 ## Running
 
-```
-npm i
-npm start
-```
+Install Dependencies: `npm i`
+
+Run Single Image: `npm run single`
+
+Run All Images: `npm run all`
 
 Note: requires NPM & Node 17.1
