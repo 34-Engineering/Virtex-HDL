@@ -323,6 +323,7 @@ function updateTargetSelector() {
 
 //Resetting
 function resetForNewFrame() {
+    //FIXME
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
     blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
@@ -473,7 +474,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
             }
 
             //Draw Blob Bounding Box + Quad
-            for (let i = 0; i <= blobIndex; i++) {
+            for (let i = 0; i < blobIndex; i++) {
                 const blob = blobBRAM[i];
                 if (blobValids[i]) {
                     if (DRAW_BOUND) {

@@ -16,7 +16,7 @@ typedef struct packed {
 
 //Run
 typedef struct packed {
-    logic [9:0] start, stop;
+    logic [9:0] length;
     logic [MAX_BLOB_ID_SIZE-1:0] blobID;
 } Run;
 
@@ -62,23 +62,26 @@ function automatic Vector mergeQuadBottomLeft(Vector a, b);
 endfunction
 
 //Overlap
-function automatic logic runsOverlap(Run run1, run2);
+function automatic logic runsOverlap(Run run1, logic [9:0] start1, Run run2, logic [9:0] start2);
     //widen run1 to join diagonals, then check overlap
-    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
-           (run2.stop  >= run1.start-(run1.start==0?0:1) && run2.stop  <= run1.stop+1) ||
-           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop  >  run1.stop+1);
+    reg stop1 = run1.length + start1 - 1;
+    reg stop2 = run2.length + start2 - 1;
+    return (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) || //start2 inside run1
+           (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) || //stop2 inside run1
+           (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1);   //run2 covers all of run1
 endfunction
 
 //Run to Blob
-function automatic Blob runToBlob(Run run, logic [9:0] line);
+function automatic Blob runToBlob(Run run, logic [9:0] start, logic [9:0] line);
+    reg stop = run.length + start - 1;
     return '{
-        boundTopLeft:     '{x:run.start , y:line  },
-        boundBottomRight: '{x:run.stop+1, y:line+1},
-        quadTopLeft:      '{x:run.start , y:line  },
-        quadTopRight:     '{x:run.stop  , y:line  },
-        quadBottomLeft:   '{x:run.start , y:line  },
-        quadBottomRight:  '{x:run.stop  , y:line  },
-        area: run.stop - run.start + 1
+        boundTopLeft:     '{x:start , y:line  },
+        boundBottomRight: '{x:stop+1, y:line+1},
+        quadTopLeft:      '{x:start , y:line  },
+        quadTopRight:     '{x:stop  , y:line  },
+        quadBottomLeft:   '{x:start , y:line  },
+        quadBottomRight:  '{x:stop  , y:line  },
+        area: run.length
     };
 endfunction
 

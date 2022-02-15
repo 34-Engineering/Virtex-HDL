@@ -6,7 +6,7 @@ export const MAX_BLOBS = 2000; //288,000-bits
 //max depth getRealBlobID() will follow a pointer (under normal cond: max needed ~3)
 export const MAX_BLOB_POINTER_DEPTH = 5;
 
-//max runs RLE can create per line (under normal cond: max needed ~26)
+//max runs RLE can create per line (under normal cond: max needed ~40)
 export const MAX_RUNS_PER_LINE = 60;
 
 //null values

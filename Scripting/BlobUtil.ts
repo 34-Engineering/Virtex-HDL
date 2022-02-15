@@ -68,9 +68,9 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
         boundTopLeft:     {x:start , y:line  },
         boundBottomRight: {x:stop+1, y:line+1},
         quadTopLeft:      {x:start , y:line  },
-        quadTopRight:     {x:stop+1, y:line+1}, //TODO
+        quadTopRight:     {x:stop  , y:line  },
         quadBottomLeft:   {x:start , y:line  },
-        quadBottomRight:  {x:stop+1, y:line+1}, //TODO
+        quadBottomRight:  {x:stop  , y:line  },
         area: run.length
     };
 }
