@@ -323,7 +323,6 @@ function updateTargetSelector() {
 
 //Resetting
 function resetForNewFrame() {
-    //FIXME
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
     blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
