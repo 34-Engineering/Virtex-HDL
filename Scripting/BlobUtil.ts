@@ -10,8 +10,7 @@ export interface BlobData {
     area: number
 }
 export interface Run {
-    start: number,
-    stop: number,
+    length: number,
     blobID: number
 }
 export interface RunBuffer {
@@ -53,22 +52,25 @@ export function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
 }
 
 //Overlap
-export function runsOverlap(run1: Run, run2: Run): boolean {
+export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number): boolean {
     //widen run1 to join diagonals, then check overlap
-    return (run2.start >= run1.start-(run1.start==0?0:1) && run2.start <= run1.stop+1) ||
-           (run2.stop  >= run1.start-(run1.start==0?0:1) && run2.stop  <= run1.stop+1) ||
-           (run2.start <  run1.start-(run1.start==0?0:1) && run2.stop  >  run1.stop+1);
+    const stop1 = run1.length + start1 - 1;
+    const stop2 = run2.length + start2 - 1;
+    return (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) ||
+           (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) ||
+           (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1);
 }
 
 //Run to Blob
-export function runToBlob(run: Run, line: number): BlobData {
+export function runToBlob(run: Run, start: number, line: number): BlobData {
+    const stop = run.length + start - 1;
     return {
-        boundTopLeft:     {x:run.start , y:line  },
-        boundBottomRight: {x:run.stop+1, y:line+1},
-        quadTopLeft:      {x:run.start , y:line  },
-        quadTopRight:     {x:run.stop  , y:line  },
-        quadBottomLeft:   {x:run.start , y:line  },
-        quadBottomRight:  {x:run.stop  , y:line  },
-        area: run.stop - run.start + 1
+        boundTopLeft:     {x:start , y:line  },
+        boundBottomRight: {x:stop+1, y:line+1},
+        quadTopLeft:      {x:start , y:line  },
+        quadTopRight:     {x:stop  , y:line  },
+        quadBottomLeft:   {x:start , y:line  },
+        quadBottomRight:  {x:stop  , y:line  },
+        area: run.length
     };
 }

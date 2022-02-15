@@ -10,7 +10,7 @@ export const MAX_BLOB_POINTER_DEPTH = 5;
 export const MAX_RUNS_PER_LINE = 40;
 
 //null values
-export const NULL_RUN_START = IMAGE_WIDTH;
+export const NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 export const NULL_BLOB_ID = MAX_BLOBS;
 export const NULL_RUN_BUFFER_PARTION = 3;

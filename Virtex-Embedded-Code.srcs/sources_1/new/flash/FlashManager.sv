@@ -16,6 +16,8 @@ module FlashManager(
     input wire SPI_MISO
     );
     
+    //TODO check if this works with our OpenOCD cfg
+
     //Connect to internal JTAG
     wire BSCAN_TDI, BSCAN_TCK, BSCAN_TMS;
     wire BSCAN_DRCK1, BSCAN_SEL1, BSCAN_SHIFT;
