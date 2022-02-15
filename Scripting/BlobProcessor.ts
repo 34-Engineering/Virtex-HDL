@@ -297,6 +297,7 @@ function blobProcessorDoneWithLine(): boolean {
 
 //Target Selector Loop
 function updateTargetSelector() {
+    //TODO
     targetSelectorDone = true;
 }
 
@@ -430,6 +431,13 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
             
             //Logging
             console.log({ blobIndex });
+            let counter = 0;
+            for (let i = 0; i < blobIndex; i++) {
+                if (blobValids[i]) {
+                    counter++;
+                }
+            }
+            console.log({ counter });
             
             //Draw Blob Color
             if (DRAW_BLOB_COLOR) {

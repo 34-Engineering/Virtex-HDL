@@ -1,7 +1,7 @@
 import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
-export const MAX_BLOBS = 4000; //576,000-bits
+export const MAX_BLOBS = 2000; //288,000-bits
 
 //max depth getRealBlobID() will follow a pointer (under normal cond: max needed ~3)
 export const MAX_BLOB_POINTER_DEPTH = 5;

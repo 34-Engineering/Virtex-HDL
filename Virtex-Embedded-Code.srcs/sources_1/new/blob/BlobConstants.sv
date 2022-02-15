@@ -5,7 +5,7 @@
 `define BLOB_CONSTANTS_DONE
 
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
-localparam MAX_BLOBS = 4000; //576,000-bits
+localparam MAX_BLOBS = 2000; //288,000-bits
 
 //max depth getRealBlobID() will follow a pointer (under normal cond: max needed ~3)
 localparam MAX_BLOB_POINTER_DEPTH = 5;
