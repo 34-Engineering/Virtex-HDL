@@ -315,8 +315,46 @@ function blobProcessorDoneWithLine(): boolean {
            blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
 }
 
-//Target Selector Loop
+//Garbage Collector Loop //TODO
+function updateGarbageCollector() {
+    /*
+    Garbage collector
+     - blobs that are "done" & don't match min criteria are invalidated
+     - run inside blobProcessor (if it has free BRAM port) & in targetSelector (if garbage is not done yet gbIndex < blobIndex)
+    
+     */
+}
+
+//Target Selector Loop //TODO
 function updateTargetSelector() {
+
+    /*
+    Now Target Selector has a list of clean blobs (blobValids)
+     - Run thru all combinatations listed below
+     - TARGET_SELECTOR_TOO_SLOW_FAULT (aka garbage criteria isnt precise enough for targetBlobs)
+
+    */
+
+    /*
+    (blobs, targetBlobs) => # blob combinations for target selection (max 4000)
+
+    (2,2) => 1 = 1
+    (3,2) => 2 + 1 = 3
+    (4,2) => 3 + 2 + 1 = 6
+    (5,2) => 4 + 3 + 2 + 1 = 10
+    (6,2) => 5 + 4 + 3 + 2 + 1 = 15
+    (b,2) => (b * (b-1)) / 2 (nth triangle number)
+
+    (3,3) => 1 = 1
+    (4,3) => 3 + 1 = 4
+    (5,3) => 6 + 3 + 1 = 10
+    (6,3) => 8 + 6 + 3 + 1 = 18
+    (7,3) => 10 + 8 + 6 + 3 + 1 = 28
+    (b,3) => ?
+
+    (b,t) => ?
+    */
+
     //TODO
     targetSelectorDone = true;
 }

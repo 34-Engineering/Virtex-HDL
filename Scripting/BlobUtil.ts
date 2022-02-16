@@ -38,17 +38,20 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
     };
 }
 export function mergeQuadTopLeft(a: Vector, b: Vector): Vector {
-    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-    return (a.x + a.y < b.x + b.y) ? a : b;
+    return isVectorSmaller({x: a.x, y: a.y}, {x: b.x, y: b.y}) ? a : b;
 }
 export function mergeQuadTopRight(a: Vector, b: Vector): Vector {
-    return (a.x - a.y > b.x - b.y) ? a : b;
+    return isVectorSmaller({x: a.x, y: -a.y}, {x: b.x, y: -b.y}) ? b : a;
 }
 export function mergeQuadBottomRight(a: Vector, b: Vector): Vector {
-    return (a.x + a.y > b.x + b.y) ? a : b;
+    return isVectorSmaller({x: a.x, y: a.y}, {x: b.x, y: b.y}) ? b : a;
 }
 export function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
-    return (a.x - a.y < b.x - b.y) ? a : b;
+    return isVectorSmaller({x: a.x, y: -a.y}, {x: b.x, y: -b.y}) ? a : b;
+}
+export function isVectorSmaller(a: Vector, b: Vector): boolean {
+    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
+    return a.x + a.y < b.x + b.y;
 }
 
 //Overlap

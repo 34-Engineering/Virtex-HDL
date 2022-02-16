@@ -6,14 +6,30 @@ This repository contains the Xilinx Vivado project for the Artix-7 (XC7A35T-1FTG
 
 The FPGA handles the following tasks:
 
- 1) Reading data from the [Python 300 Image Sensor](https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf) through the Onsemi's LVDS protocol
- 2) Processing Blobs from image sensor data
- 3) Configuring the image sensor over 10MHz SPI
- 4) 4MHz SPI communication with RoboRIO
- 5) [FTDI's Fast Serial](https://ftdichip.com/wp-content/uploads/2020/08/AN_131_FT2232D_H_Fast-Opto-Isolated-Serial-Interface-mode.pdf) communication over USB with [34-Engineering/Virtex-App](https://github.com/34-Engineering/Virtex-App)
- 6) Controlling IR and signal LEDs
- 7) Reading and saving camera configurations to EEPROM memory with 10MHz SPI
- 8) Writing bit file sent over JTAG to flash memory with SPI 
+ 1) 576Mb/s LVDS & SPI Interface with the [Python 300 Image Sensor](https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf)
+ 2) Real-time Run Length Encoding & Blob Processing
+ 3) Target Selection
+ 4) SPI Communication with the RoboRIO
+ 5) Fast Serial Communication over USB 2.0 with [34-Engineering/Virtex-App](https://github.com/34-Engineering/Virtex-App)
+ 6) Controlling IR and Signal LEDs
+ 7) EEPROM SPI Interface for Saving Virtex Configurations
+ 8) JTAG Boundry Scan to Flash Memory Interface
+
+## Terminology
+
+Blob: a group of touching pixels
+
+- Bounding Box: the minimum non-rotated rectangle that covers all pixels in the blob
+- Quad: a quadrilateral made from the four most extreme points in the blob (used for rotation/slope calculations)
+
+Target: a blob or group of blobs that represent the entire physical target
+
+Kernel: a group of 8 horizontal pixels (native to Python 300)
+
+- White Pixel: a pixel that has a value >  threshold
+- Black Pixel: a pixel that has a value <= threshold
+
+Run: a 1-tall horizontal line of similarly colored pixels that is represented by only it's length (and blobID). Calculating its x-coordinate requires looking at the runs before it in the run buffer.
 
 ## Source
 

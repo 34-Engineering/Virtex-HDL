@@ -49,24 +49,24 @@ typedef struct packed { //32 x 16
     logic [15:0] targetBlobGapMax;
     logic [15:0] targetBlobAreaDiffMin; //difference between areas of blobs in target
     logic [15:0] targetBlobAreaDiffMax;
-    logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
-    logic [15:0] targetBlobSlopeDiffMax;
-    logic [15:0] targetCenterX; //final target selection parameter; choose target thats closet to this point
-    logic [15:0] targetCenterY;
+    logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother
+    logic [15:0] targetBlobSlopeDiffMax; //TODO how does the work if blobs are not in a clear line?
+    logic [15:0] targetAspectRatioMin;
+    logic [15:0] targetAspectRatioMax;
+    logic [15:0] targetCenterX; //final target selection parameter
+    logic [15:0] targetCenterY; //choose target thats closet to this point
 
     //blob params
-    logic [15:0] blobBoundAspectRatioMin; //boundAspectRatio = boundWidth / boundHeight
-    logic [15:0] blobBoundAspectRatioMax;
-    logic [15:0] blobBoundAreaMin; //boundArea = boundWidth * boundHeight
-    logic [15:0] blobBoundAreaMax;
-    logic [15:0] blobBoundFullnessMin; //fullness = blob.area (true area) / boundArea
-    logic [15:0] blobBoundFullnessMax;
-    logic [15:0] blobQuadSlopeMin; //quadSlope = avg slope between left and right sides
-    logic [15:0] blobQuadSlopeMax;
+    logic [15:0] blobAspectRatioMin; //aspectRatio = boundWidth / boundHeight
+    logic [15:0] blobAspectRatioMax;
+    logic [15:0] blobSizeMin; //size = boundWidth * boundHeight
+    logic [15:0] blobSizeMax;
+    logic [15:0] blobFullnessMin; //fullness = blob.area (true area) / boundArea
+    logic [15:0] blobFullnessMax;
+    logic [15:0] blobSlopeMin; //slope = avg slope between left and right sides
+    logic [15:0] blobSlopeMax;
     
     //reserved for future use
-    /*25*/logic [15:0] reserved25;
-    /*26*/logic [15:0] reserved26;
     /*27*/logic [15:0] reserved27;
     /*28*/logic [15:0] reserved28;
     /*29*/logic [15:0] reserved29;
@@ -92,22 +92,22 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     targetBlobAreaDiffMax: 16'hffff,
     targetBlobSlopeDiffMin: 0,
     targetBlobSlopeDiffMax: 16'hffff,
+    targetAspectRatioMin: 0,
+    targetAspectRatioMax: 16'hffff,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 
     //blob params
-    blobBoundAspectRatioMin: 0,
-    blobBoundAspectRatioMax: 16'hffff,
-    blobBoundAreaMin: 0,
-    blobBoundAreaMax: 16'hffff,
-    blobBoundFullnessMin: 0,
-    blobBoundFullnessMax: 16'hffff,
-    blobQuadSlopeMin: 0,
-    blobQuadSlopeMax: 16'hffff,
+    blobAspectRatioMin: 0,
+    blobAspectRatioMax: 16'hffff,
+    blobSizeMin: 16'd16,
+    blobSizeMax: 16'hffff,
+    blobFullnessMin: 0,
+    blobFullnessMax: 16'hffff,
+    blobSlopeMin: 0,
+    blobSlopeMax: 16'hffff,
     
     //reserved for future use
-    reserved25: 16'd0,
-    reserved26: 16'd0,
     reserved27: 16'd0,
     reserved28: 16'd0,
     reserved29: 16'd0,

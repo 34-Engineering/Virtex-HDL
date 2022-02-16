@@ -14,6 +14,17 @@ typedef struct packed {
     logic [23:0] area;
 } Blob;
 
+//?-bit Target
+typedef struct packed {
+    Vector center;
+    Vector boundTopLeft, boundBottomRight;
+    logic [15:0] latency; //FIXME
+    logic [3:0] blobCount; //FIXME
+    logic [15:0] slope; //FIXME
+    logic [15:0] fullness; //FIXME
+    //TODO
+} Target;
+
 //Run
 typedef struct packed {
     logic [9:0] length;
@@ -24,7 +35,7 @@ typedef struct packed {
 typedef struct packed {
     Run [MAX_RUNS_PER_LINE-1:0] runs;
     logic [9:0] count; //number of runs filled
-    logic [9:0] number;
+    logic [9:0] line;
 } RunBuffer;
 
 //Merge Blobs
