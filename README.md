@@ -29,7 +29,7 @@ Kernel: a group of 8 horizontal pixels (native to Python 300)
 - White Pixel: a pixel that has a value >  threshold
 - Black Pixel: a pixel that has a value <= threshold
 
-Run: a 1-tall horizontal line of similarly colored pixels that is represented by only it's length (and blobID). Calculating its x-coordinate requires looking at the runs before it in the run buffer.
+Run: a 1-pixel-tall horizontal line of similarly colored pixels that is represented by only it's length (and blobID). Calculating its x-coordinate requires looking at the runs before it in the run buffer.
 
 ## Source
 

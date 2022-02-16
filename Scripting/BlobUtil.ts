@@ -3,10 +3,10 @@ import { max, min, Vector } from "./util/Math";
 export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
-    quadTopLeft: Vector,
-    quadTopRight: Vector,
-    quadBottomLeft: Vector,
-    quadBottomRight: Vector,
+    extremeTopLeft: Vector,
+    extremeTopRight: Vector,
+    extremeBottomLeft: Vector,
+    extremeBottomRight: Vector,
     area: number
 }
 export interface Run {
@@ -30,23 +30,24 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        quadTopLeft: mergeQuadTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
-        quadTopRight: mergeQuadTopRight(blob1.quadTopRight, blob2.quadTopRight),
-        quadBottomLeft: mergeQuadBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
-        quadBottomRight: mergeQuadBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
+        extremeTopLeft: mergeExtremeTopLeft(blob1.extremeTopLeft, blob2.extremeTopLeft),
+        extremeTopRight: mergeExtremeTopRight(blob1.extremeTopRight, blob2.extremeTopRight),
+        extremeBottomLeft: mergeExtremeBottomLeft(blob1.extremeBottomLeft, blob2.extremeBottomLeft),
+        extremeBottomRight: mergeExtremeBottomRight(blob1.extremeBottomRight, blob2.extremeBottomRight),
         area: blob1.area + blob2.area
     };
 }
-export function mergeQuadTopLeft(a: Vector, b: Vector): Vector {
+//FIXME FIXME FIXME
+export function mergeExtremeTopLeft(a: Vector, b: Vector): Vector {
     return isVectorSmaller({x: a.x, y: a.y}, {x: b.x, y: b.y}) ? a : b;
 }
-export function mergeQuadTopRight(a: Vector, b: Vector): Vector {
+export function mergeExtremeTopRight(a: Vector, b: Vector): Vector {
     return isVectorSmaller({x: a.x, y: -a.y}, {x: b.x, y: -b.y}) ? b : a;
 }
-export function mergeQuadBottomRight(a: Vector, b: Vector): Vector {
+export function mergeExtremeBottomRight(a: Vector, b: Vector): Vector {
     return isVectorSmaller({x: a.x, y: a.y}, {x: b.x, y: b.y}) ? b : a;
 }
-export function mergeQuadBottomLeft(a: Vector, b: Vector): Vector {
+export function mergeExtremeBottomLeft(a: Vector, b: Vector): Vector {
     return isVectorSmaller({x: a.x, y: -a.y}, {x: b.x, y: -b.y}) ? a : b;
 }
 export function isVectorSmaller(a: Vector, b: Vector): boolean {
@@ -70,10 +71,10 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
     return {
         boundTopLeft:     {x:start , y:line  },
         boundBottomRight: {x:stop+1, y:line+1},
-        quadTopLeft:      {x:start , y:line  },
-        quadTopRight:     {x:stop  , y:line  },
-        quadBottomLeft:   {x:start , y:line  },
-        quadBottomRight:  {x:stop  , y:line  },
+        extremeTopLeft:      {x:start , y:line  },
+        extremeTopRight:     {x:stop  , y:line  },
+        extremeBottomLeft:   {x:start , y:line  },
+        extremeBottomRight:  {x:stop  , y:line  },
         area: run.length
     };
 }

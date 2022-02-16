@@ -1,13 +1,14 @@
 //BlobProcessor.ts
 import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
-import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X } from "./util/OtherUtil";
+import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
-import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH } from "./Config";
+import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_POLYGON, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE } from "./Config";
 import * as fs from "fs";
 import * as path from "path";
 import { overflow } from "./util/Math";
+import { DefaultVirtexConfig } from "./util/VirtexConfig";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
@@ -17,13 +18,14 @@ let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
 let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(EMPTY_BLOB));
 let blobBRAMPortA: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
 let blobBRAMPortB: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
+let data: any;
 
 //Variables
 enum BlobState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobState: BlobState = BlobState.IDLE;
 let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
 let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
-let blobIndex: number = 0;
+let blobIndex: number;
 let blobRunBuffersPartionCurrent: number;
 let blobRunBuffersPartionLast: number;
 let blobRunBufferIndexCurrent: number;
@@ -32,15 +34,15 @@ let blobRunBufferIndexLast: number;
 let blobRunBufferXLast: number;
 let masterBlobID: number;
 let targetSelectorDone: boolean;
+let garbageIndex: number;
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ length: 0, blobID: NULL_BLOB_ID })),
     count: 0,
     line: NULL_LINE_NUMBER
 }));
-let rleRunBuffersPartion: number = 0;
+let rleRunBuffersPartion: number;
 let kernel: Kernel = { value: [...Array(8)].map(_=>false), pos: {x:0, y:0}, valid: false };
 let lastKernelValid: boolean;
-let data: any;
 
 //Simulated 180MHz Always Loop
 function alwaysLoop() {
@@ -60,7 +62,11 @@ function alwaysLoop() {
     }
 
     //done with frame
-    else {
+    else if (!garbageCollectorDone()) {
+        //Garbage Collection Loop
+        updateGarbageCollector();
+    }
+    else if (!targetSelectorDone) {
         //Target Selection Loop
         updateTargetSelector();
     }
@@ -121,7 +127,6 @@ function updateRunLengthEncoder(kernel: Kernel) {
 //Blob Processor Loop
 function updateBlobProcessor() {
     blobBRAMPortA.wea = false;
-    blobBRAMPortB.wea = false;
 
     //(verilog wires)
     const partionCurrentValid: boolean = blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
@@ -208,7 +213,7 @@ function updateBlobProcessor() {
                             const lastRunRealBlobID = getRealBlobID(lastRun.blobID);
                             //pointer fault
                             if (lastRunRealBlobID == NULL_BLOB_ID) {
-                                // break;
+                                faults[2] = Fault.BLOB_POINTER_DEPTH_FAULT;
                             }
 
                             //found master (1st valid blob)
@@ -219,8 +224,8 @@ function updateBlobProcessor() {
                             //found another valid blob => merge with master
                             else if (lastRunRealBlobID !== masterBlobID) {
                                 //read slave & master blobs
-                                blobBRAMPortA.addr = lastRunRealBlobID;
-                                blobBRAMPortB.addr = masterBlobID;
+                                blobBRAMPortA.addr = masterBlobID;
+                                blobBRAMPortB.addr = lastRunRealBlobID;
 
                                 //mark slave as pointer to master
                                 blobPointers[lastRunRealBlobID] = masterBlobID;
@@ -228,7 +233,6 @@ function updateBlobProcessor() {
 
                                 //go merge blobs & write once we read them
                                 blobState = BlobState.MERGE_WRITE_1;
-                                // break;
                             }
                         }
                     }
@@ -247,14 +251,15 @@ function updateBlobProcessor() {
             }
 
             else if (blobState == BlobState.MERGE_WRITE_2) {
-                blobBRAMPortB.din = mergeBlobs(blobBRAMPortA.dout, blobBRAMPortB.dout);
-                blobBRAMPortB.wea = true;
+                blobBRAMPortA.din = mergeBlobs(blobBRAMPortB.dout, blobBRAMPortA.dout);
+                blobBRAMPortA.wea = true;
+                //TODO blobBRAMPortB.wea = false;
                 blobState = BlobState.LAST_LINE;
             }
 
             if (blobState == BlobState.JOIN_1) {
                 //account for read delay
-                blobBRAMPortB.addr = masterBlobID;
+                blobBRAMPortA.addr = masterBlobID;
                 blobState = BlobState.JOIN_2;
             }
 
@@ -265,8 +270,8 @@ function updateBlobProcessor() {
             else if (blobState == BlobState.WRITE) {
                 //add this pixel to blob if we have a valid blob to join
                 if (masterBlobID !== NULL_BLOB_ID) {
-                    blobBRAMPortB.din = mergeBlobs(runToBlob(currentRun, blobRunBufferXCurrent, currentLine), blobBRAMPortB.dout);
-                    blobBRAMPortB.wea = true;
+                    blobBRAMPortA.din = mergeBlobs(runToBlob(currentRun, blobRunBufferXCurrent, currentLine), blobBRAMPortA.dout);
+                    blobBRAMPortA.wea = true;
 
                     //set ID of the blob we joined
                     runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = masterBlobID;
@@ -298,7 +303,7 @@ function updateBlobProcessor() {
                 //push to blob color buffer (scripting only)
                 blobColorBuffer[currentLine].runs[blobRunBufferIndexCurrent] = 
                     Object.assign({}, runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent]);
-                blobColorBuffer[currentLine].count = blobRunBufferIndexCurrent  + 1;
+                blobColorBuffer[currentLine].count = blobRunBufferIndexCurrent + 1;
 
                 //continue to next run
                 blobRunBufferXCurrent = blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
@@ -308,8 +313,8 @@ function updateBlobProcessor() {
         }
     }
 }
-//(verilog wire)
 function blobProcessorDoneWithLine(): boolean {
+    //(verilog wire)
     //done with line @ on NULL line OR all runs processed
     return blobRunBuffersPartionCurrent === NULL_RUN_BUFFER_PARTION ||
            blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
@@ -317,18 +322,27 @@ function blobProcessorDoneWithLine(): boolean {
 
 //Garbage Collector Loop //TODO
 function updateGarbageCollector() {
+    garbageIndex++;
     /*
+    DefaultVirtexConfig
+
     Garbage collector
      - blobs that are "done" & don't match min criteria are invalidated
      - run inside blobProcessor (if it has free BRAM port) & in targetSelector (if garbage is not done yet gbIndex < blobIndex)
     
      */
 }
+function garbageCollectorDone(): boolean {
+    //(verilog wire)
+    return garbageIndex == blobIndex;
+}
 
 //Target Selector Loop //TODO
 function updateTargetSelector() {
 
     /*
+    DefaultVirtexConfig
+
     Now Target Selector has a list of clean blobs (blobValids)
      - Run thru all combinatations listed below
      - TARGET_SELECTOR_TOO_SLOW_FAULT (aka garbage criteria isnt precise enough for targetBlobs)
@@ -338,21 +352,7 @@ function updateTargetSelector() {
     /*
     (blobs, targetBlobs) => # blob combinations for target selection (max 4000)
 
-    (2,2) => 1 = 1
-    (3,2) => 2 + 1 = 3
-    (4,2) => 3 + 2 + 1 = 6
-    (5,2) => 4 + 3 + 2 + 1 = 10
-    (6,2) => 5 + 4 + 3 + 2 + 1 = 15
-    (b,2) => (b * (b-1)) / 2 (nth triangle number)
-
-    (3,3) => 1 = 1
-    (4,3) => 3 + 1 = 4
-    (5,3) => 6 + 3 + 1 = 10
-    (6,3) => 8 + 6 + 3 + 1 = 18
-    (7,3) => 10 + 8 + 6 + 3 + 1 = 28
-    (b,3) => ?
-
-    (b,t) => ?
+    (b,t) => (b!)/((t!)(b-t)!)
     */
 
     //TODO
@@ -366,6 +366,7 @@ function resetForNewFrame() {
     blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
     targetSelectorDone = false;
     rleRunBuffersPartion = 0;
+    garbageIndex = 0;
     kernel.valid = false;
     lastKernelValid = false;
     for (let i = 0; i < 3; i++) {
@@ -395,7 +396,6 @@ function getRealBlobID(startID: number): number {
         }
     }
     
-    faults[2] = Fault.BLOB_POINTER_DEPTH_FAULT;
     return NULL_BLOB_ID;
 }
 function getRealBlobIDDebug(startID: number): number {
@@ -408,7 +408,6 @@ function getRealBlobIDDebug(startID: number): number {
 let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
-
     for (const p in ports) {
         const port = ports[p];
 
@@ -450,11 +449,10 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         valid: true
                     };
                     for (let x = 0; x < 8; x++) {
-                        const px = (kx * 8) + x;
-                        const idx = (IMAGE_WIDTH * ky + px) << 2;
+                        const idx = calculateIDX(kx * 8 + x, ky);
                         //@ts-ignore
                         const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
-                        const threshold = value > 128;
+                        const threshold = value > DefaultVirtexConfig.threshold;
                         tempKernel.value[x] = threshold;
                     }
                     kernel = Object.assign({}, tempKernel);
@@ -497,7 +495,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
 
                         if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
                             for (let x = runBufferX; x < runBufferX + run.length; x++) {
-                                const idx = (IMAGE_WIDTH * y + x) << 2;
+                                const idx = calculateIDX(x, y);
                                 const realBlobID = getRealBlobIDDebug(run.blobID);
                                 data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
                                 data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
@@ -510,7 +508,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                 }
             }
 
-            //Draw Blob Bounding Box + Quad
+            //Draw Blob Bounding Box + Polygon + Ellipse
             for (let i = 0; i < blobIndex; i++) {
                 const blob = blobBRAM[i];
                 if (blobValids[i]) {
@@ -525,41 +523,48 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         );
                     }
 
-                    if (DRAW_QUAD) {
+                    if (DRAW_POLYGON) {
                         // @ts-ignore
-                        this.drawLine(
-                            blob.quadTopLeft.x,
-                            blob.quadTopLeft.y,
-                            blob.quadTopRight.x,
-                            blob.quadTopRight.y,
+                        drawLine(
+                            data,
+                            blob.extremeTopLeft,
+                            blob.extremeTopRight,
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
-                        this.drawLine(
-                            blob.quadTopRight.x,
-                            blob.quadTopRight.y,
-                            blob.quadBottomRight.x,
-                            blob.quadBottomRight.y,
+                        drawLine(
+                            data,
+                            blob.extremeTopRight,
+                            blob.extremeBottomRight,
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
-                        this.drawLine(
-                            blob.quadBottomRight.x,
-                            blob.quadBottomRight.y,
-                            blob.quadBottomLeft.x,
-                            blob.quadBottomLeft.y,
+                        drawLine(
+                            data,
+                            blob.extremeBottomRight,
+                            blob.extremeBottomLeft,
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
-                        this.drawLine(
-                            blob.quadBottomLeft.x,
-                            blob.quadBottomLeft.y,
-                            blob.quadTopLeft.x,
-                            blob.quadTopLeft.y,
+                        drawLine(
+                            data,
+                            blob.extremeBottomLeft,
+                            blob.extremeTopLeft,
                             [0, 255, 0, 100]
+                        );
+                    }
+
+                    if (DRAW_ELLIPSE) {
+                        drawEllipse(
+                            data,
+                            blob.extremeTopRight,
+                            blob.extremeTopLeft,
+                            blob.extremeBottomRight,
+                            blob.extremeBottomLeft,
+                            [0, 0, 255, 100]
                         );
                     }
                 }
