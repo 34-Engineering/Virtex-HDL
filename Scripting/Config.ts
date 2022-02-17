@@ -5,5 +5,5 @@ export const IMAGE_INPUT_PATH = 'images/2019_Noise2.png';
 export const IMAGE_OUTPUT_PATH = 'out.png';
 export const DRAW_BLOB_COLOR = true;
 export const DRAW_BOUND = true;
-export const DRAW_POLYGON = true;
+export const DRAW_POLYGON = false;
 export const DRAW_ELLIPSE = false;

@@ -20,7 +20,7 @@ let blobBRAMPortA: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
 let blobBRAMPortB: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
 let data: any;
 
-//Variables
+//Blob Processor
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE;
 let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
@@ -34,10 +34,20 @@ let blobRunBufferIndexLast: number;
 let blobRunBufferXLast: number;
 let blobMasterBlobID: number;
 let blobUsingPortB: boolean;
+
+//Target Selector
 let targetSelectorDone: boolean;
-enum GarbageRunState { IDLE_READ_A_WAIT_B, WAIT_A_PROCESS_B, PROCESS_A_READ_B };
-let garbageRunState: GarbageRunState = GarbageRunState.IDLE_READ_A_WAIT_B;
-let garbageIndex: number;
+
+//Garbage
+let nonGarbage: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
+let garbagePartion: boolean; //flip flop
+let garbageIndex: number; //blob index
+let lastGarbageIndex: number[] = [0, 0];
+let garbageCollectorWasUsingPortA: boolean; //blob BRAM port
+let garbageCollectorWasUsingPortB: boolean;
+let garbageCollectorDone: boolean;
+
+//RLE
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ length: 0, blobID: NULL_BLOB_ID })),
     count: 0,
@@ -48,8 +58,9 @@ let kernel: Kernel = { value: [...Array(8)].map(_=>false), pos: {x:0, y:0}, vali
 let lastKernelValid: boolean;
 
 //"180MHz" Always Loop
+let lastIsWorkingOnFrame: boolean = false;
 function alwaysLoop() {
-    //working on frame
+    //Working on Frame
     if (isWorkingOnFrame()) {
         //New Kernel
         if (kernel.valid && !lastKernelValid) {
@@ -62,14 +73,27 @@ function alwaysLoop() {
         updateBlobProcessor();
     }
 
-    //done with frame
-    else if (!targetSelectorDone && !garbageCollectorDone()) {
+    //Done with Frame
+    else if (!targetSelectorDone && garbageCollectorDone) {
         //Target Selection Loop
         updateTargetSelector();
     }
 
+    //Just Finished Frame
+    if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
+        //reset garbage collector (make sure all blobs are accounted for)
+        //FORK
+        garbagePartion = false;
+        garbageIndex = 0;
+        lastGarbageIndex = [0, 0];
+        garbageCollectorWasUsingPortA = false;
+        garbageCollectorWasUsingPortB = false;
+        //JOIN
+    }
+    lastIsWorkingOnFrame = isWorkingOnFrame();
+
     //Garbage Collection Loop
-    if (!garbageCollectorDone()) {
+    if (!garbageCollectorDone) {
         updateGarbageCollector();
     }
 }
@@ -238,6 +262,7 @@ function updateBlobProcessor() {
                                 //mark slave as pointer to master
                                 blobPointers[blobLastLineRunRealBlobID()] = blobMasterBlobID;
                                 blobValids[blobLastLineRunRealBlobID()] = false;
+                                nonGarbage[blobLastLineRunRealBlobID()] = false;
 
                                 //go merge blobs & write once we read them
                                 blobRunState = BlobRunState.MERGE_WRITE_1;
@@ -251,13 +276,17 @@ function updateBlobProcessor() {
 
                 //done looping last line => write blob
                 if (blobRunState == BlobRunState.LAST_LINE) {
-                    blobRunState = blobMasterBlobID == NULL_BLOB_ID ? BlobRunState.WRITE : BlobRunState.JOIN_1; //BLOCKING
+                    //FORK
+                    blobRunState = blobMasterBlobID == NULL_BLOB_ID ? BlobRunState.WRITE : BlobRunState.JOIN_1;
+                    //JOIN
                 }
             }
 
             else if (blobRunState == BlobRunState.MERGE_WRITE_1) {
                 //account for read delay
-                blobRunState = BlobRunState.MERGE_WRITE_2; //BLOCKING
+                //FORK
+                blobRunState = BlobRunState.MERGE_WRITE_2;
+                //JOIN
             }
 
             else if (blobRunState == BlobRunState.MERGE_WRITE_2) {
@@ -278,7 +307,9 @@ function updateBlobProcessor() {
             }
 
             else if (blobRunState == BlobRunState.JOIN_2) {
-                blobRunState = BlobRunState.WRITE; //BLOCKING
+                //FORK
+                blobRunState = BlobRunState.WRITE;
+                //JOIN
             }
 
             else if (blobRunState == BlobRunState.WRITE) {
@@ -299,6 +330,7 @@ function updateBlobProcessor() {
                     blobBRAMPortA.din = runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine());
                     blobBRAMPortA.wea = true;
                     blobValids[blobIndex] = true;
+                    nonGarbage[blobIndex] = false;
 
                     //set ID of the blob we made in runBuffer
                     runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobIndex;
@@ -376,77 +408,93 @@ function blobProcessorOnLastLine(): boolean {
 }
 
 //Garbage Collector Loop
-let garbageCollectorWasUsingPortA = false;
-let garbageCollectorWasUsingPortB = false;
-let lastGarbageIndex: number;
 function updateGarbageCollector() {
-    if (garbageRunState == GarbageRunState.IDLE_READ_A_WAIT_B) {
-        //Read Port A
-        if (garbageCollectorCanUsePortA()) {
-            lastGarbageIndex = garbageIndex; //BLOCKING?
-            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
-            //TODO getNextValidGarbageIndex returned -1 what now?
-            blobBRAMPortA.addr = garbageIndex;
-            blobBRAMPortA.wea = false;
-            garbageCollectorWasUsingPortA = true;
-            garbageRunState = GarbageRunState.WAIT_A_PROCESS_B;
-        }
-
-        //Port A Unavailble => Process Port B
-        else if (garbageCollectorUsingPortB()) {
-            garbageRunState = GarbageRunState.WAIT_A_PROCESS_B;
-        }
-
-        //Port A Unavailble & Port B not in Use => Read Port B 
-        else if (garbageCollectorCanUsePortB()) {
-            garbageRunState = GarbageRunState.PROCESS_A_READ_B;
-        }
-    }
-
-    else if (garbageRunState == GarbageRunState.WAIT_A_PROCESS_B) {
-        //Process Port B
-        if (garbageCollectorUsingPortB()) {
-            blobValids[lastGarbageIndex] = garbageCollectBlob(blobBRAMPortB.din);
-        }
-
-        //Port B is not in use => Let Port A do its thing
-        else if (garbageCollectorUsingPortA()) {
-            garbageRunState = GarbageRunState.PROCESS_A_READ_B;
-        }
-
-        //Neither Ports are in use => Idle
-        else {
-            garbageRunState = GarbageRunState.IDLE_READ_A_WAIT_B;
-        }
-    }
-    
-    else if (garbageRunState == GarbageRunState.PROCESS_A_READ_B) {
-        //Process Port A
+    if (garbagePartion) {
+        //Process Port A (if read from)
         if (garbageCollectorUsingPortA()) {
-            blobValids[garbageIndex] = garbageCollectBlob(blobBRAMPortA.din);
+            // console.log("PROC", lastGarbageIndex[1], blobBRAMPortA.dout);
+            garbageCollectBlob(lastGarbageIndex[1], blobBRAMPortA.dout);
         }
 
-        //Read Port B
+        //Read Port A (if available)
+        if (garbageCollectorCanUsePortA()) {
+            //Next Garbage Index
+            setNextGarbageIndex();
+
+            //Read Port A
+            if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
+                // console.log("READING", garbageIndex);
+                blobBRAMPortA.addr = garbageIndex;
+                blobBRAMPortA.wea = false;
+                garbageCollectorWasUsingPortA = true;
+            }
+            else {
+                garbageCollectorWasUsingPortA = false;
+            }
+        }
+    }
+
+    else {
+        //Process Port B (if read from)
+        if (garbageCollectorUsingPortB()) {
+            // console.log("PROC", lastGarbageIndex[1], blobBRAMPortB.dout);
+            garbageCollectBlob(lastGarbageIndex[1], blobBRAMPortB.dout);
+        }
+
+        //Read Port B (if available)
         if (garbageCollectorCanUsePortB()) {
-            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
-            //TODO getNextValidGarbageIndex returned -1 what now?
-            blobBRAMPortB.addr = garbageIndex;
-            blobBRAMPortB.wea = false;
-            garbageCollectorWasUsingPortB = true;
+            //Next Garbage Index
+            setNextGarbageIndex();
+
+            //Read Port B
+            if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
+                // console.log("READING", garbageIndex);
+                blobBRAMPortB.addr = garbageIndex;
+                blobBRAMPortB.wea = false;
+                garbageCollectorWasUsingPortB = true;
+            }
+            else {
+                garbageCollectorWasUsingPortB = false;
+            }
+        }
+    }
+
+    // console.log(`[0] (${lastGarbageIndex[0]}) => [1], gb (${garbageIndex}) => [0]`);
+    lastGarbageIndex[1] = lastGarbageIndex[0];
+    lastGarbageIndex[0] = garbageIndex;
+    garbagePartion = !garbagePartion;
+}
+function garbageCollectBlob(index: number, blob: BlobData): void {
+    //if blob is finished adding to
+    if (blobPartionCurrentValid() && blob.boundBottomRight.y + 4 < blobCurrentLine()) {
+        // console.log(index, blob.boundBottomRight.y, blob.boundBottomRight.y + 4, blobCurrentLine());
+        if (blob.area > 100) {
+            blobValids[index] = true;
+            nonGarbage[index] = true;
+        }
+        else {
+            blobValids[index] = false;
+            nonGarbage[index] = false;
         }
     }
 }
-function garbageCollectBlob(blob: BlobData): boolean {
-    return true;
-}
-function getNextValidGarbageIndex(): number {
-    //not automatic
-    for (let i = 0; i < MAX_BLOBS; i++) {
-        if (i > garbageIndex && i < blobIndex && blobValids[i]) {
-            return i;
+function setNextGarbageIndex(): void {
+    //FORK
+    if (garbageIndex === NULL_BLOB_ID || nextValidGarbageIndex(garbageIndex + 1) === NULL_BLOB_ID) {
+        //still on frame => keep doing garbage duty :(
+        if (isWorkingOnFrame()) {
+            garbageIndex = nextValidGarbageIndex(0);
+        }
+
+        //done with frame => stop garbage duty :)
+        else {
+            garbageCollectorDone = true;
         }
     }
-    return -1;
+    else {
+        garbageIndex = nextValidGarbageIndex(garbageIndex + 1);
+    }
+    //JOIN
 }
 //(verilog wires)
 function garbageCollectorCanUsePortA(): boolean {
@@ -463,9 +511,17 @@ function garbageCollectorUsingPortB(): boolean {
     //if read from Port B & can still use it
     return garbageCollectorWasUsingPortB && garbageCollectorCanUsePortB();
 }
-function garbageCollectorDone(): boolean {
-    //(verilog wire)
-    return garbageIndex == blobIndex;
+function nextValidGarbageIndex(startIndex: number): number {
+    //find a valid index
+    //meaning is it true in the blobValids list
+    //but not true in the nonGarbage list
+    for (let i = 0; i < MAX_BLOBS; i++) {
+        if (i >= startIndex && i < blobIndex && 
+            blobValids[i] && !nonGarbage[i]) {
+            return i;
+        }
+    }
+    return NULL_BLOB_ID;
 }
 
 //Target Selector Loop //TODO
@@ -499,8 +555,12 @@ function resetForNewFrame() {
     blobUsingPortB = false;
     targetSelectorDone = false;
     rleRunBuffersPartion = 0;
-    garbageRunState = GarbageRunState.IDLE_READ_A_WAIT_B;
+    garbagePartion = false;
     garbageIndex = 0;
+    lastGarbageIndex = [0, 0];
+    garbageCollectorWasUsingPortA = false;
+    garbageCollectorWasUsingPortB = false;
+    garbageCollectorDone = false;
     kernel.valid = false;
     lastKernelValid = false;
     for (let i = 0; i < 3; i++) {
@@ -548,12 +608,12 @@ function updateBRAM() {
 
         if (port.wea) {
             //write from din
-            blobBRAM[port.addr] = port.din;
+            blobBRAM[port.addr] = Object.assign({}, port.din);
         }
 
         else {
             //read to dout
-            port.dout = blobBRAM[lastAddresses[p]];
+            port.dout = Object.assign({}, blobBRAM[lastAddresses[p]]);
         }
 
         lastAddresses[p] = port.addr;
@@ -628,7 +688,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                     for (let i = 0; i < blobColorBuffer[y].count; i++) {
                         const run = blobColorBuffer[y].runs[i];
 
-                        if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
+                        if (run.blobID !== NULL_BLACK_RUN_BLOB_ID && nonGarbage[run.blobID] && blobValids[run.blobID]) {
                             for (let x = runBufferX; x < runBufferX + run.length; x++) {
                                 const idx = calculateIDX(x, y);
                                 const realBlobID = getRealBlobIDDebug(run.blobID);
