@@ -378,11 +378,14 @@ function blobProcessorOnLastLine(): boolean {
 //Garbage Collector Loop
 let garbageCollectorWasUsingPortA = false;
 let garbageCollectorWasUsingPortB = false;
+let lastGarbageIndex: number;
 function updateGarbageCollector() {
     if (garbageRunState == GarbageRunState.IDLE_READ_A_WAIT_B) {
         //Read Port A
         if (garbageCollectorCanUsePortA()) {
-            //TODO garbageIndex needs be split or smt
+            lastGarbageIndex = garbageIndex; //BLOCKING?
+            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
+            //TODO getNextValidGarbageIndex returned -1 what now?
             blobBRAMPortA.addr = garbageIndex;
             blobBRAMPortA.wea = false;
             garbageCollectorWasUsingPortA = true;
@@ -403,9 +406,7 @@ function updateGarbageCollector() {
     else if (garbageRunState == GarbageRunState.WAIT_A_PROCESS_B) {
         //Process Port B
         if (garbageCollectorUsingPortB()) {
-            //FIXME wait this garbageIndex is now bad => 
-            blobValids[garbageIndex] = garbageCollectBlob(blobBRAMPortB.din);
-            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
+            blobValids[lastGarbageIndex] = garbageCollectBlob(blobBRAMPortB.din);
         }
 
         //Port B is not in use => Let Port A do its thing
@@ -423,11 +424,12 @@ function updateGarbageCollector() {
         //Process Port A
         if (garbageCollectorUsingPortA()) {
             blobValids[garbageIndex] = garbageCollectBlob(blobBRAMPortA.din);
-            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
         }
 
         //Read Port B
         if (garbageCollectorCanUsePortB()) {
+            garbageIndex = getNextValidGarbageIndex(); //BLOCKING
+            //TODO getNextValidGarbageIndex returned -1 what now?
             blobBRAMPortB.addr = garbageIndex;
             blobBRAMPortB.wea = false;
             garbageCollectorWasUsingPortB = true;
@@ -438,7 +440,12 @@ function garbageCollectBlob(blob: BlobData): boolean {
     return true;
 }
 function getNextValidGarbageIndex(): number {
-    //TODO
+    //not automatic
+    for (let i = 0; i < MAX_BLOBS; i++) {
+        if (i > garbageIndex && i < blobIndex && blobValids[i]) {
+            return i;
+        }
+    }
     return -1;
 }
 //(verilog wires)
