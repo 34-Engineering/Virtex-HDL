@@ -32,7 +32,8 @@ let blobRunBufferIndexCurrent: number;
 let blobRunBufferXCurrent: number;
 let blobRunBufferIndexLast: number;
 let blobRunBufferXLast: number;
-let masterBlobID: number;
+let blobMasterBlobID: number;
+let blobUsingPortB: boolean;
 let targetSelectorDone: boolean;
 let garbageIndex: number;
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
@@ -44,10 +45,10 @@ let rleRunBuffersPartion: number;
 let kernel: Kernel = { value: [...Array(8)].map(_=>false), pos: {x:0, y:0}, valid: false };
 let lastKernelValid: boolean;
 
-//Simulated 180MHz Always Loop
+//"180MHz" Always Loop
 function alwaysLoop() {
     //working on frame
-    if (!isLastKernel() || !blobProcessorDoneWithLine() || !blobProcessorOnLastLine()) {
+    if (isWorkingOnFrame()) {
         //New Kernel
         if (kernel.valid && !lastKernelValid) {
             //Run Length Encoding Loop
@@ -57,17 +58,26 @@ function alwaysLoop() {
 
         //Blob Processor Loop
         updateBlobProcessor();
+
+        //Garbage Collection Loop (half speed)
+        if (!garbageCollectorDone()) {
+            updateGarbageCollector(false);
+        }
     }
 
     //done with frame
     else if (!garbageCollectorDone()) {
-        //Garbage Collection Loop
-        updateGarbageCollector();
+        //Garbage Collection Loop (full speed)
+        updateGarbageCollector(true);
     }
     else if (!targetSelectorDone) {
         //Target Selection Loop
         updateTargetSelector();
     }
+}
+function isWorkingOnFrame(): boolean {
+    //(verilog wire)
+    return !isLastKernel() || !blobProcessorDoneWithLine() || !blobProcessorOnLastLine();
 }
 
 //Run Length Encoding Loop
@@ -80,7 +90,7 @@ function updateRunLengthEncoder(kernel: Kernel) {
 
         //zero count of our RunBuffer
         runBuffers[rleRunBuffersPartion].count = 0;
-        //JOIN_LAST
+        //JOIN
     }
     
     //encode every pixel in kernel
@@ -110,7 +120,7 @@ function updateRunLengthEncoder(kernel: Kernel) {
             runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length = 
             runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length + 1;
         }
-        //JOIN_LAST
+        //JOIN
     }
 
     //end line
@@ -124,7 +134,7 @@ function updateRunLengthEncoder(kernel: Kernel) {
             //increment buffer partion for next line
             rleRunBuffersPartion = overflow(rleRunBuffersPartion + 1, 2);
         }
-        //JOIN_LAST
+        //JOIN
     }
 }
 function isLastKernel() {
@@ -168,7 +178,7 @@ function updateBlobProcessor() {
         blobRunBufferIndexCurrent = 0;
         blobRunBufferXCurrent = 0;
         blobRunState = BlobRunState.IDLE;
-        //JOIN_LAST
+        //JOIN
     }
 
     //Handle Run (if we are on a valid partion of the RunBuffer & there are more Runs to handle)
@@ -191,7 +201,7 @@ function updateBlobProcessor() {
             if (blobRunState == BlobRunState.IDLE) {
                 //FORK
                 //mark this run as doesn't have another run to join
-                masterBlobID = NULL_BLOB_ID;
+                blobMasterBlobID = NULL_BLOB_ID;
 
                 //reset last run buffer indexes
                 blobRunBufferIndexLast = 0;
@@ -199,7 +209,7 @@ function updateBlobProcessor() {
 
                 //proceed to look for runs to join OR go straight to writing if on the first line of image
                 blobRunState = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? BlobRunState.WRITE : BlobRunState.LAST_LINE;
-                //JOIN_LAST
+                //JOIN
             }
 
             //loop through all runs that were filled up in the last run buffer (line above)
@@ -215,18 +225,19 @@ function updateBlobProcessor() {
                             }
 
                             //found master (1st valid blob)
-                            else if (masterBlobID === NULL_BLOB_ID) {
-                                masterBlobID = blobLastLineRunRealBlobID();
+                            else if (blobMasterBlobID === NULL_BLOB_ID) {
+                                blobMasterBlobID = blobLastLineRunRealBlobID();
                             }
 
                             //found another valid blob => merge with master
-                            else if (blobLastLineRunRealBlobID() !== masterBlobID) {
+                            else if (blobLastLineRunRealBlobID() !== blobMasterBlobID) {
                                 //read slave & master blobs
-                                blobBRAMPortA.addr = masterBlobID;
+                                blobBRAMPortA.addr = blobMasterBlobID;
                                 blobBRAMPortB.addr = blobLastLineRunRealBlobID();
+                                blobUsingPortB = true;
 
                                 //mark slave as pointer to master
-                                blobPointers[blobLastLineRunRealBlobID()] = masterBlobID;
+                                blobPointers[blobLastLineRunRealBlobID()] = blobMasterBlobID;
                                 blobValids[blobLastLineRunRealBlobID()] = false;
 
                                 //go merge blobs & write once we read them
@@ -234,14 +245,14 @@ function updateBlobProcessor() {
                             }
                         }
                     }
-                    //JOIN_LAST
+                    //JOIN
                     blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length; //BLOCKING
                 }
-                //JOIN_LAST
+                //JOIN
 
                 //done looping last line => write blob
                 if (blobRunState == BlobRunState.LAST_LINE) {
-                    blobRunState = masterBlobID == NULL_BLOB_ID ? BlobRunState.WRITE : BlobRunState.JOIN_1; //BLOCKING
+                    blobRunState = blobMasterBlobID == NULL_BLOB_ID ? BlobRunState.WRITE : BlobRunState.JOIN_1; //BLOCKING
                 }
             }
 
@@ -254,16 +265,17 @@ function updateBlobProcessor() {
                 //FORK
                 blobBRAMPortA.din = mergeBlobs(blobBRAMPortB.dout, blobBRAMPortA.dout);
                 blobBRAMPortA.wea = true;
+                blobUsingPortB = false;
                 blobRunState = BlobRunState.LAST_LINE;
-                //JOIN_LAST
+                //JOIN
             }
 
             if (blobRunState == BlobRunState.JOIN_1) {
                 //FORK
                 //account for read delay
-                blobBRAMPortA.addr = masterBlobID;
+                blobBRAMPortA.addr = blobMasterBlobID;
                 blobRunState = BlobRunState.JOIN_2;
-                //JOIN_LAST
+                //JOIN
             }
 
             else if (blobRunState == BlobRunState.JOIN_2) {
@@ -273,12 +285,12 @@ function updateBlobProcessor() {
             else if (blobRunState == BlobRunState.WRITE) {
                 //FORK
                 //add this pixel to blob if we have a valid blob to join
-                if (masterBlobID !== NULL_BLOB_ID) {
+                if (blobMasterBlobID !== NULL_BLOB_ID) {
                     blobBRAMPortA.din = mergeBlobs(runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine()), blobBRAMPortA.dout);
                     blobBRAMPortA.wea = true;
 
                     //set ID of the blob we joined
-                    runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = masterBlobID;
+                    runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobMasterBlobID;
                 }
                 
                 //not touching a blob => make new blob
@@ -303,7 +315,7 @@ function updateBlobProcessor() {
                         blobIndex = blobIndex + 1;
                     }  
                 }
-                //JOIN_LAST
+                //JOIN
 
                 //push to blob color buffer (scripting only)
                 blobColorBuffer[blobCurrentLine()].runs[blobRunBufferIndexCurrent] = 
@@ -315,7 +327,7 @@ function updateBlobProcessor() {
                 blobRunBufferXCurrent = blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
                 blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
                 blobRunState = BlobRunState.IDLE;
-                //JOIN_LAST
+                //JOIN
             }
         }
     }
@@ -361,20 +373,31 @@ function blobCurrentLine(): number {
     return runBuffers[blobRunBuffersPartionCurrent].line;
 }
 function blobProcessorOnLastLine(): boolean {
-    return runBuffers[blobRunBuffersPartionCurrent].line === IMAGE_HEIGHT-1;
+    return runBuffers[blobRunBuffersPartionCurrent]?.line === IMAGE_HEIGHT-1;
 }
 
 //Garbage Collector Loop //TODO
-function updateGarbageCollector() {
-    garbageIndex++;
-    /*
-    DefaultVirtexConfig
+function updateGarbageCollector(canUsePortA: boolean) {
+    const line = kernel.pos.y;
 
-    Garbage collector
-     - blobs that are "done" & don't match min criteria are invalidated
-     - run inside blobProcessor (if it has free BRAM port) & in targetSelector (if garbage is not done yet gbIndex < blobIndex)
+    /*
     
-     */
+    
+
+    */
+
+    if (canUsePortA) {
+
+    }
+
+    if (!blobUsingPortB) {
+
+    }
+    else {
+        //reset B Port logic
+    }
+
+    garbageIndex++;
 }
 function garbageCollectorDone(): boolean {
     //(verilog wire)
@@ -409,6 +432,7 @@ function resetForNewFrame() {
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
     blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
+    blobUsingPortB = false;
     targetSelectorDone = false;
     rleRunBuffersPartion = 0;
     garbageIndex = 0;
@@ -418,7 +442,7 @@ function resetForNewFrame() {
         runBuffers[i].count = 0;
         runBuffers[i].line = NULL_LINE_NUMBER;
     }
-    //JOIN_LAST
+    //JOIN
 
     //(scripting only)
     blobColorBuffer = [...Array(IMAGE_HEIGHT)].map(_=>({
