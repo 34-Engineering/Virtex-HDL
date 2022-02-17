@@ -11,17 +11,17 @@ export interface BlobData {
 }
 export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE };
 export interface BlobMetadata {
-    status: BlobStatus;
-    pointer: number;
+    status: BlobStatus; //[1:0]
+    pointer: number; //[MAX_BLOB_ID_SIZE-1:0]
 }
 export interface Run {
-    length: number,
-    blobID: number
+    length: number, //[9:0]
+    blobID: number //[MAX_BLOB_ID_SIZE-1:0]
 }
 export interface RunBuffer {
     runs: Run[],
     count: number //number of runs
-    line: number
+    line: number //[9:0]
 }
 
 //Merging

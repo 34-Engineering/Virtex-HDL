@@ -12,40 +12,38 @@ import { DefaultVirtexConfig } from "./util/VirtexConfig";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
-//Variables (scripting only)
+//(scripting only)
 let blobColorBuffer: RunBuffer[];
 let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
-let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(EMPTY_BLOB));
-let blobBRAMPortA: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
-let blobBRAMPortB: BlobBRAMPort = Object.assign({}, BLOB_BRAM_PORT_DEFAULT);
+let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
+let blobBRAMPorts: BlobBRAMPort[] = [...Array(2)].map(_=>(Object.assign({}, BLOB_BRAM_PORT_DEFAULT)));
 let data: any;
 
 //Blob Processor
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
-let blobRunState: BlobRunState = BlobRunState.IDLE;
+let blobRunState: BlobRunState = BlobRunState.IDLE; //[1:0]
 let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
-let blobIndex: number;
-let blobRunBuffersPartionCurrent: number;
+let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
+let blobRunBuffersPartionCurrent: number; //partion of run buffer (0-2)
 let blobRunBuffersPartionLast: number;
-let blobRunBufferIndexCurrent: number;
-let blobRunBufferXCurrent: number;
+let blobRunBufferIndexCurrent: number; //index in run buffer [0-MAX_RUNS_PER_LINE]
 let blobRunBufferIndexLast: number;
+let blobRunBufferXCurrent: number; //[9:0] counter for RLE x position
 let blobRunBufferXLast: number;
-let blobMasterBlobID: number;
-let blobUsingPortB: boolean;
+let blobMasterBlobID: number; //master blob for run to join into (following joining runs are slaves)
+let blobUsingPort1: boolean; //whether blobProcessor is using port1 (so garbage collector won't)
 
 //Target Selector
-let targetSelectorDone: boolean;
+let targetSelectorDone: boolean; //1-bit
 
-//Garbage
-let garbagePartion: boolean; //flip flop
-let garbageIndex: number; //blob index
-let lastGarbageIndex: number[] = [0, 0];
-let garbageCollectorWasUsingPortA: boolean; //blob BRAM port
-let garbageCollectorWasUsingPortB: boolean;
+//Garbage Collector
+let garbagePort: number; //1-bit
+let garbageIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
+let lastGarbageIndex: number[] = [0, 0]; //2 x [MAX_BLOB_ID_SIZE-1:0]
+let garbageCollectorWasUsingPorts: boolean[] = [false, false]; //BRAM ports
 let garbageCollectorDone: boolean;
 
-//RLE
+//Run Length Encoding
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ length: 0, blobID: NULL_BLOB_ID })),
     count: 0,
@@ -61,11 +59,10 @@ function alwaysLoop() {
     //Reset Garbage Collector (when frame finished)
     if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
         //FORK
-        garbagePartion = false;
+        garbagePort = 0;
         garbageIndex = 0;
         lastGarbageIndex = [0, 0];
-        garbageCollectorWasUsingPortA = false;
-        garbageCollectorWasUsingPortB = false;
+        garbageCollectorWasUsingPorts = [false, false];
         //JOIN
     }
     lastIsWorkingOnFrame = isWorkingOnFrame();
@@ -160,10 +157,13 @@ function isLastKernel() {
     //(verilog wire)
     return kernel?.pos.y === IMAGE_HEIGHT-1 && kernel?.pos.x === KERNEL_MAX_X;
 }
+function rlePartionValid(): boolean {
+    return rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
+}
 
 //Blob Processor Loop
 function updateBlobProcessor() {
-    blobBRAMPortA.wea = false;
+    blobBRAMPorts[0].wea = false;
 
     //Next Line
     if ((blobProcessorDoneWithLine() && blobNextLineAvailable()) || blobProcessorTooSlow() || blobProcessorReallyTooSlow()) {
@@ -252,9 +252,9 @@ function updateBlobProcessor() {
                             //found another valid blob => merge with master
                             else if (blobLastLineRunRealBlobID() !== blobMasterBlobID) {
                                 //read slave & master blobs
-                                blobBRAMPortA.addr = blobMasterBlobID;
-                                blobBRAMPortB.addr = blobLastLineRunRealBlobID();
-                                blobUsingPortB = true;
+                                blobBRAMPorts[0].addr = blobMasterBlobID;
+                                blobBRAMPorts[1].addr = blobLastLineRunRealBlobID();
+                                blobUsingPort1 = true;
 
                                 //mark slave as pointer to master
                                 blobMetadatas[blobLastLineRunRealBlobID()] = {
@@ -289,9 +289,9 @@ function updateBlobProcessor() {
 
             else if (blobRunState == BlobRunState.MERGE_WRITE_2) {
                 //FORK
-                blobBRAMPortA.din = mergeBlobs(blobBRAMPortB.dout, blobBRAMPortA.dout);
-                blobBRAMPortA.wea = true;
-                blobUsingPortB = false;
+                blobBRAMPorts[0].din = mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout);
+                blobBRAMPorts[0].wea = true;
+                blobUsingPort1 = false;
                 blobRunState = BlobRunState.LAST_LINE;
                 //JOIN
             }
@@ -299,7 +299,7 @@ function updateBlobProcessor() {
             if (blobRunState == BlobRunState.JOIN_1) {
                 //FORK
                 //account for read delay
-                blobBRAMPortA.addr = blobMasterBlobID;
+                blobBRAMPorts[0].addr = blobMasterBlobID;
                 blobRunState = BlobRunState.JOIN_2;
                 //JOIN
             }
@@ -314,8 +314,8 @@ function updateBlobProcessor() {
                 //FORK
                 //add this pixel to blob if we have a valid blob to join
                 if (blobMasterBlobID !== NULL_BLOB_ID) {
-                    blobBRAMPortA.din = mergeBlobs(runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine()), blobBRAMPortA.dout);
-                    blobBRAMPortA.wea = true;
+                    blobBRAMPorts[0].din = mergeBlobs(runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine()), blobBRAMPorts[0].dout);
+                    blobBRAMPorts[0].wea = true;
 
                     //set ID of the blob we joined
                     runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobMasterBlobID;
@@ -324,9 +324,9 @@ function updateBlobProcessor() {
                 //not touching a blob => make new blob
                 else {
                     //create blob at next available index
-                    blobBRAMPortA.addr = blobIndex;
-                    blobBRAMPortA.din = runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine());
-                    blobBRAMPortA.wea = true;
+                    blobBRAMPorts[0].addr = blobIndex;
+                    blobBRAMPorts[0].din = runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine());
+                    blobBRAMPorts[0].wea = true;
                     blobMetadatas[blobIndex].status = BlobStatus.UNSCANED; //tell garbage collector to check this once it is done
 
                     //set ID of the blob we made in runBuffer
@@ -379,14 +379,11 @@ function blobNextLineAvailable(): boolean {
     //& its a valid location
     runBuffers[blobNextPartionCurrent()].line !== NULL_LINE_NUMBER; 
 }
-function blobRLEPartionValid(): boolean {
-    return rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
-}
 function blobProcessorTooSlow(): boolean {
-    return blobRLEPartionValid() && rleRunBuffersPartion === blobRunBuffersPartionLast;
+    return rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionLast;
 }
 function blobProcessorReallyTooSlow(): boolean {
-    return blobRLEPartionValid() && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
+    return rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
 }
 function blobLastLineRun(): Run {
     return runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
@@ -406,60 +403,31 @@ function blobProcessorOnLastLine(): boolean {
 
 //Garbage Collector Loop
 function updateGarbageCollector() {
-    if (garbagePartion) {
-        //Process Port A (if read from)
-        if (garbageCollectorUsingPortA()) {
-            // console.log("PROC", lastGarbageIndex[1], blobBRAMPortA.dout);
-            garbageCollectBlob(lastGarbageIndex[1], blobBRAMPortA.dout);
-        }
-
-        //Read Port A (if available)
-        if (garbageCollectorCanUsePortA()) {
-            //Next Garbage Index
-            setNextGarbageIndex();
-
-            //Read Port A
-            if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
-                // console.log("READING", garbageIndex);
-                blobBRAMPortA.addr = garbageIndex;
-                blobBRAMPortA.wea = false;
-                garbageCollectorWasUsingPortA = true;
-            }
-            else {
-                garbageCollectorWasUsingPortA = false;
-            }
-        }
+    //Process Port X (if read from)
+    if (garbageCollectorUsingPorts()[garbagePort]) {
+        garbageCollectBlob(lastGarbageIndex[1], blobBRAMPorts[garbagePort].dout);
     }
 
-    else {
-        //Process Port B (if read from)
-        if (garbageCollectorUsingPortB()) {
-            // console.log("PROC", lastGarbageIndex[1], blobBRAMPortB.dout);
-            garbageCollectBlob(lastGarbageIndex[1], blobBRAMPortB.dout);
+    //Read Port X (if available)
+    if (garbageCollectorCanUsePorts()[garbagePort]) {
+        //Next Garbage Index
+        setNextGarbageIndex();
+
+        //Read Port X
+        if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
+            blobBRAMPorts[garbagePort].addr = garbageIndex;
+            blobBRAMPorts[garbagePort].wea = false;
+            garbageCollectorWasUsingPorts[garbagePort] = true;
         }
-
-        //Read Port B (if available)
-        if (garbageCollectorCanUsePortB()) {
-            //Next Garbage Index
-            setNextGarbageIndex();
-
-            //Read Port B
-            if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
-                // console.log("READING", garbageIndex);
-                blobBRAMPortB.addr = garbageIndex;
-                blobBRAMPortB.wea = false;
-                garbageCollectorWasUsingPortB = true;
-            }
-            else {
-                garbageCollectorWasUsingPortB = false;
-            }
+        else {
+            garbageCollectorWasUsingPorts[garbagePort] = false;
         }
     }
 
     // console.log(`[0] (${lastGarbageIndex[0]}) => [1], gb (${garbageIndex}) => [0]`);
     lastGarbageIndex[1] = lastGarbageIndex[0];
     lastGarbageIndex[0] = garbageIndex;
-    garbagePartion = !garbagePartion;
+    garbagePort = garbagePort == 1 ? 0 : 1;
 }
 function garbageCollectBlob(index: number, blob: BlobData): void {
     //if blob is finished adding to
@@ -492,19 +460,13 @@ function setNextGarbageIndex(): void {
     //JOIN
 }
 //(verilog wires)
-function garbageCollectorCanUsePortA(): boolean {
-    return !isWorkingOnFrame();
+function garbageCollectorCanUsePorts(): boolean[] {
+    return [!isWorkingOnFrame(), !blobUsingPort1];
 }
-function garbageCollectorCanUsePortB(): boolean {
-    return !blobUsingPortB;
-}
-function garbageCollectorUsingPortA(): boolean {
+function garbageCollectorUsingPorts(): boolean[] {
     //if read from Port A & can still use it
-    return garbageCollectorWasUsingPortA && garbageCollectorCanUsePortA();
-}
-function garbageCollectorUsingPortB(): boolean {
-    //if read from Port B & can still use it
-    return garbageCollectorWasUsingPortB && garbageCollectorCanUsePortB();
+    return [garbageCollectorWasUsingPorts[0] && garbageCollectorCanUsePorts()[0],
+            garbageCollectorWasUsingPorts[1] && garbageCollectorCanUsePorts()[1]];
 }
 function nextValidGarbageIndex(startIndex: number): number {
     //find next unscaned blob
@@ -544,14 +506,14 @@ function resetForNewFrame() {
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
     blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
-    blobUsingPortB = false;
+    blobUsingPort1 = false;
     targetSelectorDone = false;
     rleRunBuffersPartion = 0;
-    garbagePartion = false;
+    garbagePort = 0;
     garbageIndex = 0;
     lastGarbageIndex = [0, 0];
-    garbageCollectorWasUsingPortA = false;
-    garbageCollectorWasUsingPortB = false;
+    garbageCollectorWasUsingPorts[0] = false;
+    garbageCollectorWasUsingPorts[1] = false;
     garbageCollectorDone = false;
     kernel.valid = false;
     lastKernelValid = false;
@@ -591,9 +553,8 @@ function getRealBlobIDDebug(startID: number): number {
 //BRAM Simulation (scripting only)
 let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
-    const ports: BlobBRAMPort[] = [blobBRAMPortA, blobBRAMPortB];
-    for (const p in ports) {
-        const port = ports[p];
+    for (const p in blobBRAMPorts) {
+        const port = blobBRAMPorts[p];
 
         if (port.wea) {
             //write from din
