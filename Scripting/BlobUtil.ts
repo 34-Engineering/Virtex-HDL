@@ -9,6 +9,11 @@ export interface BlobData {
     extremeBottomRight: Vector,
     area: number
 }
+export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE };
+export interface BlobMetadata {
+    status: BlobStatus;
+    pointer: number;
+}
 export interface Run {
     length: number,
     blobID: number

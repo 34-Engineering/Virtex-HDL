@@ -3,7 +3,7 @@ import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
-import { BlobData, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
 import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_POLYGON, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE } from "./Config";
 import * as fs from "fs";
 import * as path from "path";
@@ -23,8 +23,7 @@ let data: any;
 //Blob Processor
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE;
-let blobPointers: number[] = [...Array(MAX_BLOBS)].map(_=>(0));
-let blobValids: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
+let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
 let blobIndex: number;
 let blobRunBuffersPartionCurrent: number;
 let blobRunBuffersPartionLast: number;
@@ -39,7 +38,6 @@ let blobUsingPortB: boolean;
 let targetSelectorDone: boolean;
 
 //Garbage
-let nonGarbage: boolean[] = [...Array(MAX_BLOBS)].map(_=>(false));
 let garbagePartion: boolean; //flip flop
 let garbageIndex: number; //blob index
 let lastGarbageIndex: number[] = [0, 0];
@@ -60,6 +58,23 @@ let lastKernelValid: boolean;
 //"180MHz" Always Loop
 let lastIsWorkingOnFrame: boolean = false;
 function alwaysLoop() {
+    //Reset Garbage Collector (when frame finished)
+    if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
+        //FORK
+        garbagePartion = false;
+        garbageIndex = 0;
+        lastGarbageIndex = [0, 0];
+        garbageCollectorWasUsingPortA = false;
+        garbageCollectorWasUsingPortB = false;
+        //JOIN
+    }
+    lastIsWorkingOnFrame = isWorkingOnFrame();
+
+    //Garbage Collection Loop
+    if (!garbageCollectorDone) {
+        updateGarbageCollector();
+    }
+
     //Working on Frame
     if (isWorkingOnFrame()) {
         //New Kernel
@@ -77,24 +92,6 @@ function alwaysLoop() {
     else if (!targetSelectorDone && garbageCollectorDone) {
         //Target Selection Loop
         updateTargetSelector();
-    }
-
-    //Just Finished Frame
-    if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
-        //reset garbage collector (make sure all blobs are accounted for)
-        //FORK
-        garbagePartion = false;
-        garbageIndex = 0;
-        lastGarbageIndex = [0, 0];
-        garbageCollectorWasUsingPortA = false;
-        garbageCollectorWasUsingPortB = false;
-        //JOIN
-    }
-    lastIsWorkingOnFrame = isWorkingOnFrame();
-
-    //Garbage Collection Loop
-    if (!garbageCollectorDone) {
-        updateGarbageCollector();
     }
 }
 function isWorkingOnFrame(): boolean {
@@ -260,9 +257,10 @@ function updateBlobProcessor() {
                                 blobUsingPortB = true;
 
                                 //mark slave as pointer to master
-                                blobPointers[blobLastLineRunRealBlobID()] = blobMasterBlobID;
-                                blobValids[blobLastLineRunRealBlobID()] = false;
-                                nonGarbage[blobLastLineRunRealBlobID()] = false;
+                                blobMetadatas[blobLastLineRunRealBlobID()] = {
+                                    status: BlobStatus.POINTER,
+                                    pointer: blobMasterBlobID
+                                };
 
                                 //go merge blobs & write once we read them
                                 blobRunState = BlobRunState.MERGE_WRITE_1;
@@ -329,8 +327,7 @@ function updateBlobProcessor() {
                     blobBRAMPortA.addr = blobIndex;
                     blobBRAMPortA.din = runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine());
                     blobBRAMPortA.wea = true;
-                    blobValids[blobIndex] = true;
-                    nonGarbage[blobIndex] = false;
+                    blobMetadatas[blobIndex].status = BlobStatus.UNSCANED; //tell garbage collector to check this once it is done
 
                     //set ID of the blob we made in runBuffer
                     runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobIndex;
@@ -469,12 +466,10 @@ function garbageCollectBlob(index: number, blob: BlobData): void {
     if (blobPartionCurrentValid() && blob.boundBottomRight.y + 4 < blobCurrentLine()) {
         // console.log(index, blob.boundBottomRight.y, blob.boundBottomRight.y + 4, blobCurrentLine());
         if (blob.area > 100) {
-            blobValids[index] = true;
-            nonGarbage[index] = true;
+            blobMetadatas[index].status = BlobStatus.VALID;
         }
         else {
-            blobValids[index] = false;
-            nonGarbage[index] = false;
+            blobMetadatas[index].status = BlobStatus.GARBAGE;
         }
     }
 }
@@ -512,12 +507,9 @@ function garbageCollectorUsingPortB(): boolean {
     return garbageCollectorWasUsingPortB && garbageCollectorCanUsePortB();
 }
 function nextValidGarbageIndex(startIndex: number): number {
-    //find a valid index
-    //meaning is it true in the blobValids list
-    //but not true in the nonGarbage list
+    //find next unscaned blob
     for (let i = 0; i < MAX_BLOBS; i++) {
-        if (i >= startIndex && i < blobIndex && 
-            blobValids[i] && !nonGarbage[i]) {
+        if (i >= startIndex && i <= blobIndex && blobMetadatas[i].status == BlobStatus.UNSCANED) {
             return i;
         }
     }
@@ -578,16 +570,13 @@ function resetForNewFrame() {
 }
 
 //Get Real Blob ID "Recursively"
-let currentID: number;
 function getRealBlobID(startID: number): number {
-    currentID = startID;
-
     for (let i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) {
-        if (blobValids[currentID]) {
-            return currentID;
+        if (blobMetadatas[startID].status == BlobStatus.POINTER) {
+            startID = blobMetadatas[startID].pointer; //BLOCKING
         }
         else {
-            currentID = blobPointers[currentID]; //BLOCKING
+            return startID;
         }
     }
     
@@ -596,7 +585,7 @@ function getRealBlobID(startID: number): number {
 function getRealBlobIDDebug(startID: number): number {
     //(scripting only) real recursive version
     //for drawing blob colors
-    return blobValids[startID] ? startID : getRealBlobIDDebug(blobPointers[startID]);
+    return blobMetadatas[startID].status == BlobStatus.POINTER ? getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
 }
 
 //BRAM Simulation (scripting only)
@@ -688,13 +677,19 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                     for (let i = 0; i < blobColorBuffer[y].count; i++) {
                         const run = blobColorBuffer[y].runs[i];
 
-                        if (run.blobID !== NULL_BLACK_RUN_BLOB_ID && nonGarbage[run.blobID] && blobValids[run.blobID]) {
-                            for (let x = runBufferX; x < runBufferX + run.length; x++) {
-                                const idx = calculateIDX(x, y);
-                                const realBlobID = getRealBlobIDDebug(run.blobID);
-                                data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
-                                data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
-                                data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
+                        //if run is black ignore it
+                        if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
+                            //if run has pointer blobID => follow it
+                            const realBlobID = blobMetadatas[run.blobID].status == BlobStatus.POINTER ? getRealBlobIDDebug(run.blobID) : run.blobID;
+
+                            //if run has valid blobID (or valid pointer blobID) => draw it
+                            if (blobMetadatas[realBlobID].status == BlobStatus.VALID) {
+                                for (let x = runBufferX; x < runBufferX + run.length; x++) {
+                                    const idx = calculateIDX(x, y);
+                                    data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
+                                    data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
+                                    data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
+                                }
                             }
                         }
                         
@@ -706,7 +701,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
             //Draw Blob Bounding Box + Polygon + Ellipse
             for (let i = 0; i < blobIndex; i++) {
                 const blob = blobBRAM[i];
-                if (blobValids[i]) {
+                if (blobMetadatas[i].status == BlobStatus.VALID) {
                     if (DRAW_BOUND) {
                         // @ts-ignore
                         this.drawRect(
