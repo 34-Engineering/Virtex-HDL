@@ -405,7 +405,10 @@ function blobProcessorOnLastLine(): boolean {
 function updateGarbageCollector() {
     //Process Port X (if read from)
     if (garbageCollectorUsingPorts()[garbagePort]) {
-        garbageCollectBlob(lastGarbageIndex[1], blobBRAMPorts[garbagePort].dout);
+        //if blob is finished adding to
+        if (blobPartionCurrentValid() && blobBRAMPorts[garbagePort].dout.boundBottomRight.y + 1 < blobCurrentLine()) {
+            blobMetadatas[lastGarbageIndex[1]].status = doesBlobMatchCriteria(blobBRAMPorts[garbagePort].dout) ? BlobStatus.VALID : BlobStatus.GARBAGE;
+        }
     }
 
     //Read Port X (if available)
@@ -429,18 +432,6 @@ function updateGarbageCollector() {
     lastGarbageIndex[0] = garbageIndex;
     garbagePort = garbagePort == 1 ? 0 : 1;
 }
-function garbageCollectBlob(index: number, blob: BlobData): void {
-    //if blob is finished adding to
-    if (blobPartionCurrentValid() && blob.boundBottomRight.y + 4 < blobCurrentLine()) {
-        // console.log(index, blob.boundBottomRight.y, blob.boundBottomRight.y + 4, blobCurrentLine());
-        if (blob.area > 100) {
-            blobMetadatas[index].status = BlobStatus.VALID;
-        }
-        else {
-            blobMetadatas[index].status = BlobStatus.GARBAGE;
-        }
-    }
-}
 function setNextGarbageIndex(): void {
     //FORK
     if (garbageIndex === NULL_BLOB_ID || nextValidGarbageIndex(garbageIndex + 1) === NULL_BLOB_ID) {
@@ -458,6 +449,9 @@ function setNextGarbageIndex(): void {
         garbageIndex = nextValidGarbageIndex(garbageIndex + 1);
     }
     //JOIN
+}
+function doesBlobMatchCriteria(blob: BlobData): boolean {
+    return blob.area > 100;
 }
 //(verilog wires)
 function garbageCollectorCanUsePorts(): boolean[] {
