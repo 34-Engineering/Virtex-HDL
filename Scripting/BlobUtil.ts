@@ -1,5 +1,7 @@
-import { max, min, Vector } from "./util/Math";
+import { virtexConfig } from "./Config";
+import { inRangeInclusive, max, min, Vector } from "./util/Math";
 
+//Types
 export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
@@ -24,7 +26,35 @@ export interface RunBuffer {
     line: number //[9:0]
 }
 
-//Merging
+//Blob Criteria
+export function doesBlobMatchCriteria(blob: BlobData): boolean {
+    const boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
+    const boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
+
+    //boundWidth / boundHeight = (1/640) to 640
+    //10.6
+    const aspectRatio = boundWidth / boundHeight;
+    const size = boundWidth * boundHeight;
+    const fullness = blob.area / size;
+    const slope = 100;//(slopeLeft + slopeRight) / 2.0;
+
+    if (inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
+    inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
+    inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   )) {
+        const slopeRight = (blob.extremeBottomRight.y - blob.extremeTopRight.y) / (blob.extremeBottomRight.x - blob.extremeTopRight.x);
+        const test = Math.atan2(
+            blob.extremeBottomLeft.y - blob.extremeTopLeft.y, 
+            blob.extremeBottomLeft.x - blob.extremeTopLeft.x) * 180 / Math.PI;
+        console.log(test);
+    }
+
+    return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
+           inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
+           inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   ) &&
+           inRangeInclusive(slope      , virtexConfig.blobSlopeMin      , virtexConfig.blobSlopeMax      );
+}
+
+//Merging Blobs
 export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
     return {
         boundTopLeft: {
@@ -60,7 +90,7 @@ export function isVectorSmaller(a: Vector, b: Vector): boolean {
     return a.x + a.y < b.x + b.y;
 }
 
-//Overlap
+//Runs Overlap
 export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number): boolean {
     //widen run1 to join diagonals, then check overlap
     const stop1 = run1.length + start1 - 1;

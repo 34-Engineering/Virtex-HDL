@@ -3,12 +3,11 @@ import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
-import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob } from "./BlobUtil";
-import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_POLYGON, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE } from "./Config";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
+import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_POLYGON, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE, virtexConfig } from "./Config";
 import * as fs from "fs";
 import * as path from "path";
 import { overflow } from "./util/Math";
-import { DefaultVirtexConfig } from "./util/VirtexConfig";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
@@ -450,9 +449,6 @@ function setNextGarbageIndex(): void {
     }
     //JOIN
 }
-function doesBlobMatchCriteria(blob: BlobData): boolean {
-    return blob.area > 100;
-}
 //(verilog wires)
 function garbageCollectorCanUsePorts(): boolean[] {
     return [!isWorkingOnFrame(), !blobUsingPort1];
@@ -591,7 +587,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         const idx = calculateIDX(kx * 8 + x, ky);
                         //@ts-ignore
                         const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
-                        const threshold = value > DefaultVirtexConfig.threshold;
+                        const threshold = value > virtexConfig.threshold;
                         tempKernel.value[x] = threshold;
                     }
                     kernel = Object.assign({}, tempKernel);
