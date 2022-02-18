@@ -15,8 +15,8 @@ export interface VirtexConfig { //32 x 16
     targetBlobGapMax: number;
     targetBlobAreaDiffMin: number; //difference between areas of blobs in target
     targetBlobAreaDiffMax: number;
-    targetBlobSlopeDiffMin: number; //difference in slope between each blob next to eachother
-    targetBlobSlopeDiffMax: number; //TODO how does the work if blobs are not in a clear line?
+    targetBlobAngleRadsDiffMin: number; //difference in slope between each blob next to eachother
+    targetBlobAngleRadsDiffMax: number; //TODO how does the work if blobs are not in a clear line?
     targetAspectRatioMin: number;
     targetAspectRatioMax: number;
     targetCenterX: number; //final target selection parameter
@@ -29,8 +29,8 @@ export interface VirtexConfig { //32 x 16
     blobSizeMax: number;
     blobFullnessMin: number; //fullness = blob.area (true area) / size
     blobFullnessMax: number;
-    blobSlopeMin: number; //slope = avg slope between left and right sides
-    blobSlopeMax: number;
+    blobAngleRadsMin: number; //angle of polygon (-PI to PI)
+    blobAngleRadsMax: number; //avg line between two longest sides of quad
     
     //reserved for future use
     // /*27*/reserved27;

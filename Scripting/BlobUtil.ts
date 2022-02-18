@@ -1,14 +1,20 @@
 import { virtexConfig } from "./Config";
-import { inRangeInclusive, max, min, Vector } from "./util/Math";
+import { calcPolygonArea, inRangeInclusive, max, min, Vector } from "./util/Math";
+import { drawPixel } from "./util/OtherUtil";
 
 //Types
 export interface BlobData {
+    /*Note: relative side of pixel
+    ex) top left (0, 0) means pixel #(0, 0) whereas
+        top right (1, 1) means pixel #(1, 0)
+        bottom right (2, 2) means pixel #(1, 1)
+    this makes area calculations easier*/
     boundTopLeft: Vector,
     boundBottomRight: Vector,
-    extremeTopLeft: Vector,
-    extremeTopRight: Vector,
-    extremeBottomLeft: Vector,
-    extremeBottomRight: Vector,
+    quadTopLeft: Vector,
+    quadTopRight: Vector,
+    quadBottomRight: Vector,
+    quadBottomLeft: Vector,
     area: number
 }
 export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE };
@@ -32,30 +38,31 @@ export function doesBlobMatchCriteria(blob: BlobData): boolean {
     const boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
     //boundWidth / boundHeight = (1/640) to 640
-    //10.6
+    //10.6?
     const aspectRatio = boundWidth / boundHeight;
     const size = boundWidth * boundHeight;
     const fullness = blob.area / size;
-    const slope = 100;//(slopeLeft + slopeRight) / 2.0;
 
-    if (inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
-    inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
-    inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   )) {
-        const slopeRight = (blob.extremeBottomRight.y - blob.extremeTopRight.y) / (blob.extremeBottomRight.x - blob.extremeTopRight.x);
-        const test = Math.atan2(
-            blob.extremeBottomLeft.y - blob.extremeTopLeft.y, 
-            blob.extremeBottomLeft.x - blob.extremeTopLeft.x) * 180 / Math.PI;
-        console.log(test);
-    }
+    const avgDy = ((blob.quadBottomLeft.y + blob.quadBottomRight.y) / 2.0) - ((blob.quadTopLeft.y + blob.quadTopRight.y) / 2.0);
+    const avgDx = ((blob.quadTopLeft.x + blob.quadTopRight.x) / 2.0) - ((blob.quadBottomLeft.x + blob.quadBottomRight.x) / 2.0);
+    const angleRads = Math.atan2(avgDy, avgDx);
+
+    // if (inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
+    //     inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
+    //     inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   ) &&
+    //     inRangeInclusive(angleRads  , virtexConfig.blobAngleRadsMin  , virtexConfig.blobAngleRadsMax  )) {
+    //     console.log({ avgDy, avgDx, angleRads });
+    // }
 
     return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
            inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
            inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   ) &&
-           inRangeInclusive(slope      , virtexConfig.blobSlopeMin      , virtexConfig.blobSlopeMax      );
+           inRangeInclusive(angleRads  , virtexConfig.blobAngleRadsMin  , virtexConfig.blobAngleRadsMax  );
 }
 
 //Merging Blobs
 export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
+    const quad = makeBiggestQuad(blob1, blob2);
     return {
         boundTopLeft: {
             x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
@@ -65,15 +72,49 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        extremeTopLeft: mergeExtremeTopLeft(blob1.extremeTopLeft, blob2.extremeTopLeft),
-        extremeTopRight: mergeExtremeTopRight(blob1.extremeTopRight, blob2.extremeTopRight),
-        extremeBottomLeft: mergeExtremeBottomLeft(blob1.extremeBottomLeft, blob2.extremeBottomLeft),
-        extremeBottomRight: mergeExtremeBottomRight(blob1.extremeBottomRight, blob2.extremeBottomRight),
+        // quadTopLeft: quad[0],
+        // quadTopRight: quad[1],
+        // quadBottomRight: quad[2],
+        // quadBottomLeft: quad[3],
+        quadTopLeft: mergeExtremeTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
+        quadTopRight: mergeExtremeTopRight(blob1.quadTopRight, blob2.quadTopRight),
+        quadBottomRight: mergeExtremeBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
+        quadBottomLeft: mergeExtremeBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
         area: blob1.area + blob2.area
     };
 }
+function makeBiggestQuad(blob1: BlobData, blob2: BlobData): Vector[] {
+    const quads: Vector[][] = [
+        [ blob1.quadTopLeft, blob1.quadTopRight, blob1.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob1.quadTopRight, blob1.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob1.quadTopRight, blob2.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob1.quadTopRight, blob2.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob2.quadTopRight, blob1.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob2.quadTopRight, blob1.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob2.quadTopRight, blob2.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob1.quadTopLeft, blob2.quadTopRight, blob2.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob1.quadTopRight, blob1.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob1.quadTopRight, blob1.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob1.quadTopRight, blob2.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob1.quadTopRight, blob2.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob2.quadTopRight, blob1.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob2.quadTopRight, blob1.quadBottomRight, blob2.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob2.quadTopRight, blob2.quadBottomRight, blob1.quadBottomLeft ],
+        [ blob2.quadTopLeft, blob2.quadTopRight, blob2.quadBottomRight, blob2.quadBottomLeft ],
+    ];
+
+    let biggestQuadIndex = 0;
+    for (let i = 1; i < quads.length; i++) {
+        if (calcPolygonArea(quads[i]) > calcPolygonArea(quads[biggestQuadIndex])) {
+            biggestQuadIndex = i;
+        }
+    }
+
+    return quads[biggestQuadIndex];
+}
 //FIXME FIXME FIXME
 export function mergeExtremeTopLeft(a: Vector, b: Vector): Vector {
+    //note: these need to be signed
     return isVectorSmaller({x: a.x, y: a.y}, {x: b.x, y: b.y}) ? a : b;
 }
 export function mergeExtremeTopRight(a: Vector, b: Vector): Vector {
@@ -106,10 +147,10 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
     return {
         boundTopLeft:     {x:start , y:line  },
         boundBottomRight: {x:stop+1, y:line+1},
-        extremeTopLeft:      {x:start , y:line  },
-        extremeTopRight:     {x:stop  , y:line  },
-        extremeBottomLeft:   {x:start , y:line  },
-        extremeBottomRight:  {x:stop  , y:line  },
+        quadTopLeft:      {x:start , y:line  },
+        quadTopRight:     {x:stop+1, y:line  },
+        quadBottomRight:  {x:stop+1, y:line+1},
+        quadBottomLeft:   {x:start , y:line+1},
         area: run.length
     };
 }

@@ -14,10 +14,10 @@ export const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 export const EMPTY_BLOB: BlobData = {
     boundTopLeft: {x:0, y:0},
     boundBottomRight: {x:0, y:0},
-    extremeTopLeft: {x:0, y:0},
-    extremeTopRight: {x:0, y:0},
-    extremeBottomLeft: {x:0, y:0},
-    extremeBottomRight: {x:0, y:0},
+    quadTopLeft: {x:0, y:0},
+    quadTopRight: {x:0, y:0},
+    quadBottomRight: {x:0, y:0},
+    quadBottomLeft: {x:0, y:0},
     area: 0
 };
 

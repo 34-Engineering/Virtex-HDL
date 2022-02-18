@@ -1,13 +1,13 @@
 //BlobProcessor.ts
 import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
-import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine } from "./util/OtherUtil";
+import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine, drawPixel } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
-import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_POLYGON, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE, virtexConfig } from "./Config";
+import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE, virtexConfig, DRAW_QUAD_CENTER_LINES, DRAW_QUAD_CORNERS } from "./Config";
 import * as fs from "fs";
 import * as path from "path";
-import { overflow } from "./util/Math";
+import { overflow, Vector } from "./util/Math";
 const drawing = require('pngjs-draw');
 const png = drawing(require('pngjs').PNG);
 
@@ -664,49 +664,78 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                         );
                     }
 
-                    if (DRAW_POLYGON) {
+                    if (DRAW_ELLIPSE) {
+                        drawEllipse(
+                            data,
+                            blob.quadTopLeft,
+                            blob.quadTopRight,
+                            blob.quadBottomRight,
+                            blob.quadBottomLeft,
+                            [0, 0, 255, 100]
+                        );
+                    }
+
+                    if (DRAW_QUAD) {
                         // @ts-ignore
                         drawLine(
                             data,
-                            blob.extremeTopLeft,
-                            blob.extremeTopRight,
+                            { x: blob.quadTopLeft.x   , y: blob.quadTopLeft.y },
+                            { x: blob.quadTopRight.x-1, y: blob.quadTopRight.y },
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
                         drawLine(
                             data,
-                            blob.extremeTopRight,
-                            blob.extremeBottomRight,
+                            { x: blob.quadTopRight.x-1   , y: blob.quadTopRight.y     },
+                            { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1},
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
                         drawLine(
                             data,
-                            blob.extremeBottomRight,
-                            blob.extremeBottomLeft,
+                            { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1},
+                            { x: blob.quadBottomLeft.x   , y: blob.quadBottomLeft.y-1 },
                             [0, 255, 0, 100]
                         );
 
                         //@ts-ignore
                         drawLine(
                             data,
-                            blob.extremeBottomLeft,
-                            blob.extremeTopLeft,
+                            { x: blob.quadBottomLeft.x, y: blob.quadBottomLeft.y-1},
+                            { x: blob.quadTopLeft.x   , y: blob.quadTopLeft.y   },
                             [0, 255, 0, 100]
                         );
                     }
 
-                    if (DRAW_ELLIPSE) {
-                        drawEllipse(
-                            data,
-                            blob.extremeTopRight,
-                            blob.extremeTopLeft,
-                            blob.extremeBottomRight,
-                            blob.extremeBottomLeft,
-                            [0, 0, 255, 100]
-                        );
+                    if (DRAW_QUAD_CENTER_LINES) {
+                        const midTop: Vector = {
+                            x: ((blob.quadTopLeft.x + blob.quadTopRight.x-1) / 2.0),
+                            y: ((blob.quadTopLeft.y + blob.quadTopRight.y) / 2.0)
+                        };
+                        const midBottom: Vector = {
+                            x: ((blob.quadBottomLeft.x + blob.quadBottomRight.x-1) / 2.0),
+                            y: ((blob.quadBottomLeft.y-1 + blob.quadBottomRight.y-1) / 2.0)
+                        };
+                        const midLeft: Vector = {
+                            x: ((blob.quadTopLeft.x + blob.quadBottomLeft.x) / 2.0),
+                            y: ((blob.quadTopLeft.y + blob.quadBottomLeft.y-1) / 2.0)
+                        };
+                        const midRight: Vector = {
+                            x: ((blob.quadTopRight.x-1 + blob.quadBottomRight.x-1) / 2.0),
+                            y: ((blob.quadTopRight.y + blob.quadBottomRight.y-1) / 2.0)
+                        };
+
+                        drawLine(data, midTop, midBottom, [0, 0, 255, 255]);
+                        drawLine(data, midLeft, midRight, [255, 0, 255, 255]);
+                    }
+
+                    if (DRAW_QUAD_CORNERS) {
+                        drawPixel(data, { x: blob.quadTopLeft.x      , y: blob.quadTopLeft.y       }, [255, 255, 0, 255]); //yellow
+                        drawPixel(data, { x: blob.quadTopRight.x-1   , y: blob.quadTopRight.y      }, [0, 255, 255, 255]); //cyan
+                        drawPixel(data, { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1 }, [0,   0, 255, 255]); //blue
+                        drawPixel(data, { x: blob.quadBottomLeft.x   , y: blob.quadBottomLeft.y-1  }, [255, 0, 255, 255]); //purple
                     }
                 }
             }
