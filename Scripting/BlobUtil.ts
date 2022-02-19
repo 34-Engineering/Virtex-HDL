@@ -1,8 +1,8 @@
-import { virtexConfig } from "./Config";
+import { virtexConfig } from "./util/VirtexConfig";
 import { calcPolygonArea, inRangeInclusive, max, min, Vector } from "./util/Math";
 import { drawPixel } from "./util/OtherUtil";
 
-//Types
+//144-bit Blob Data
 export interface BlobData {
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -17,15 +17,33 @@ export interface BlobData {
     quadBottomLeft: Vector,
     area: number
 }
+
+//Blob Metadata
 export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE };
 export interface BlobMetadata {
     status: BlobStatus; //[1:0]
     pointer: number; //[MAX_BLOB_ID_SIZE-1:0]
 }
+
+//?-bit Target
+export interface Target {
+    center: Vector;
+    boundTopLeft: Vector;
+    boundBottomRight: Vector;
+    latency: number;
+    blobCount: number;
+    slope: number;
+    fullness: number;
+    //TODO
+};
+
+//Run
 export interface Run {
     length: number, //[9:0]
     blobID: number //[MAX_BLOB_ID_SIZE-1:0]
 }
+
+//Run Buffer
 export interface RunBuffer {
     runs: Run[],
     count: number //number of runs
@@ -72,14 +90,14 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        // quadTopLeft: quad[0],
-        // quadTopRight: quad[1],
-        // quadBottomRight: quad[2],
-        // quadBottomLeft: quad[3],
-        quadTopLeft: mergeExtremeTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
-        quadTopRight: mergeExtremeTopRight(blob1.quadTopRight, blob2.quadTopRight),
-        quadBottomRight: mergeExtremeBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
-        quadBottomLeft: mergeExtremeBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
+        quadTopLeft: quad[0],
+        quadTopRight: quad[1],
+        quadBottomRight: quad[2],
+        quadBottomLeft: quad[3],
+        // quadTopLeft: mergeExtremeTopLeft(blob1.quadTopLeft, blob2.quadTopLeft),
+        // quadTopRight: mergeExtremeTopRight(blob1.quadTopRight, blob2.quadTopRight),
+        // quadBottomRight: mergeExtremeBottomRight(blob1.quadBottomRight, blob2.quadBottomRight),
+        // quadBottomLeft: mergeExtremeBottomLeft(blob1.quadBottomLeft, blob2.quadBottomLeft),
         area: blob1.area + blob2.area
     };
 }
@@ -105,12 +123,18 @@ function makeBiggestQuad(blob1: BlobData, blob2: BlobData): Vector[] {
 
     let biggestQuadIndex = 0;
     for (let i = 1; i < quads.length; i++) {
-        if (calcPolygonArea(quads[i]) > calcPolygonArea(quads[biggestQuadIndex])) {
+        if (calcPolygonArea(quads[i]) > calcPolygonArea(quads[biggestQuadIndex]) && //pick max area
+            isValidQuad(quads[i])) { 
             biggestQuadIndex = i;
         }
     }
 
     return quads[biggestQuadIndex];
+}
+function isValidQuad(points: Vector[]): boolean {
+    //0 = topLeft, 1 = topRight, 2 = bottomRight, 3 = bottomLeft
+    return points[0].x < points[1].x && points[3].x < points[2].x && //make sure left < right
+           points[0].y < points[3].y && points[1].y < points[2].y; //& bottom > top
 }
 //FIXME FIXME FIXME
 export function mergeExtremeTopLeft(a: Vector, b: Vector): Vector {

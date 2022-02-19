@@ -7,12 +7,14 @@
 `include "../util/Math.sv"
 `include "BlobConstants.sv"
 
-//144-bit Blob
+//144-bit Blob Data
 typedef struct packed {
     Vector boundTopLeft, boundBottomRight;
     Vector quadTopLeft, quadTopRight, quadBottomRight, quadBottomLeft;
     logic [23:0] area;
-} Blob;
+} BlobData;
+
+//?-bit Blob Metadata
 
 //?-bit Target
 typedef struct packed {

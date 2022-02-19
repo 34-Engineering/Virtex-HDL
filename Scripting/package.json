@@ -4,14 +4,21 @@
   "description": "",
   "main": "BlobProcessor.js",
   "scripts": {
-    "single": "ts-node BlobProcessor.ts",
-    "all": "ts-node BlobProcessor.ts --all"
+    "single": "ts-node Image.ts",
+    "all": "ts-node Image.ts --all",
+    "app": "ts-node App/App.ts"
   },
   "author": "34 Engineering, LLC",
   "license": "GPL-3.0",
   "dependencies": {
+    "canvas": "^2.9.0",
+    "express": "^4.17.3",
     "pngjs": "^6.0.0",
     "pngjs-draw": "^0.0.6",
     "ts-node": "^10.5.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.18"
   }
 }

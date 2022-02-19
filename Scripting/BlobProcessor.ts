@@ -4,25 +4,20 @@ import { Fault } from "./util/Fault";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine, drawPixel } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
-import { IMAGE_INPUT_PATH, DRAW_BLOB_COLOR, DRAW_BOUND, DRAW_QUAD, IMAGE_OUTPUT_PATH, IMAGES_INPUT_PATH, IMAGES_OUTPUT_PATH, DRAW_ELLIPSE, virtexConfig, DRAW_QUAD_CENTER_LINES, DRAW_QUAD_CORNERS } from "./Config";
-import * as fs from "fs";
-import * as path from "path";
 import { overflow, Vector } from "./util/Math";
-const drawing = require('pngjs-draw');
-const png = drawing(require('pngjs').PNG);
 
 //(scripting only)
-let blobColorBuffer: RunBuffer[];
-let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
-let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
+export let blobColorBuffer: RunBuffer[];
+export let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
+export let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
 let blobBRAMPorts: BlobBRAMPort[] = [...Array(2)].map(_=>(Object.assign({}, BLOB_BRAM_PORT_DEFAULT)));
 let data: any;
 
 //Blob Processor
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE; //[1:0]
-let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
-let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
+export let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
+export let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
 let blobRunBuffersPartionCurrent: number; //partion of run buffer (0-2)
 let blobRunBuffersPartionLast: number;
 let blobRunBufferIndexCurrent: number; //index in run buffer [0-MAX_RUNS_PER_LINE]
@@ -54,7 +49,7 @@ let lastKernelValid: boolean;
 
 //"180MHz" Always Loop
 let lastIsWorkingOnFrame: boolean = false;
-function alwaysLoop() {
+export function alwaysLoop() {
     //Reset Garbage Collector (when frame finished)
     if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
         //FORK
@@ -490,8 +485,8 @@ function updateTargetSelector() {
     targetSelectorDone = true;
 }
 
-//Resetting
-function resetForNewFrame() {
+//Resetting for New Frame
+export function reset() {
     //FORK
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
@@ -534,244 +529,34 @@ function getRealBlobID(startID: number): number {
     
     return NULL_BLOB_ID;
 }
-function getRealBlobIDDebug(startID: number): number {
+
+//Module (scripting only)
+export function sendKernel(newKernel: Kernel) {
+    kernel = Object.assign({}, newKernel);
+}
+export function isDone() {
+    return targetSelectorDone;
+}
+export function importData(newData: any) {
+    data = newData;
+}
+export function getRealBlobIDDebug(startID: number): number {
     //(scripting only) real recursive version
     //for drawing blob colors
     return blobMetadatas[startID].status == BlobStatus.POINTER ? getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
 }
-
-//BRAM Simulation (scripting only)
 let lastAddresses: number[] = [0, 0];
-function updateBRAM() {
+export function updateBRAM() {
     for (const p in blobBRAMPorts) {
         const port = blobBRAMPorts[p];
-
         if (port.wea) {
             //write from din
             blobBRAM[port.addr] = Object.assign({}, port.din);
         }
-
         else {
             //read to dout
             port.dout = Object.assign({}, blobBRAM[lastAddresses[p]]);
         }
-
         lastAddresses[p] = port.addr;
     }
 }
-
-//Run Image (scripting only)
-function runImage(imageInputPath: string, imageOutputPath: string): Promise<void> {
-    resetForNewFrame();
-
-    return new Promise(function(resolve) {
-        const stream = fs.createReadStream(imageInputPath);
-        const img = stream.pipe(new png());
-        img.on('parsed', function () {
-            //@ts-ignore
-            data = this.data;
-
-            //"180MHz" Process Loop
-            let kx: number = 0, ky: number = 0;
-            let pythonDone: boolean = false;
-            let loopCount: number = 0;
-            while (!targetSelectorDone) {
-                //"36MHz" Kernel Reading (PythonManager)
-                if (loopCount % 5 == 0 && !pythonDone) {
-                    let tempKernel: Kernel = {
-                        value: [...Array(8)].map(_=>false),
-                        pos: { x: kx, y: ky },
-                        valid: true
-                    };
-                    for (let x = 0; x < 8; x++) {
-                        const idx = calculateIDX(kx * 8 + x, ky);
-                        //@ts-ignore
-                        const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
-                        const threshold = value > virtexConfig.threshold;
-                        tempKernel.value[x] = threshold;
-                    }
-                    kernel = Object.assign({}, tempKernel);
-
-                    if (kx === KERNEL_MAX_X) {
-                        if (ky !== IMAGE_HEIGHT - 1) {
-                            ky = ky + 1;
-                            kx = 0;
-                        }
-                        else {
-                            pythonDone = true;
-                        }
-                    }
-                    else  {
-                        kx = kx + 1;
-                    }
-                }
-                else {
-                    kernel.valid = false;
-                }
-
-                //"180MHz" Always Loop
-                alwaysLoop();
-
-                //"180MHz" Sync BRAM
-                updateBRAM();
-
-                loopCount = loopCount + 1;
-            }
-            
-            //Logging
-            console.log({ blobIndex });
-            
-            //Draw Blob Color
-            if (DRAW_BLOB_COLOR) {
-                for (let y = 0; y < blobColorBuffer.length; y++) {
-                    let runBufferX = 0;
-                    for (let i = 0; i < blobColorBuffer[y].count; i++) {
-                        const run = blobColorBuffer[y].runs[i];
-
-                        //if run is black ignore it
-                        if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
-                            //if run has pointer blobID => follow it
-                            const realBlobID = blobMetadatas[run.blobID].status == BlobStatus.POINTER ? getRealBlobIDDebug(run.blobID) : run.blobID;
-
-                            //if run has valid blobID (or valid pointer blobID) => draw it
-                            if (blobMetadatas[realBlobID].status == BlobStatus.VALID) {
-                                for (let x = runBufferX; x < runBufferX + run.length; x++) {
-                                    const idx = calculateIDX(x, y);
-                                    data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
-                                    data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
-                                    data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
-                                }
-                            }
-                        }
-                        
-                        runBufferX = runBufferX + run.length;
-                    }
-                }
-            }
-
-            //Draw Blob Bounding Box + Polygon + Ellipse
-            for (let i = 0; i < blobIndex; i++) {
-                const blob = blobBRAM[i];
-                if (blobMetadatas[i].status == BlobStatus.VALID) {
-                    if (DRAW_BOUND) {
-                        // @ts-ignore
-                        this.drawRect(
-                            blob.boundTopLeft.x,
-                            blob.boundTopLeft.y,
-                            blob.boundBottomRight.x - blob.boundTopLeft.x,
-                            blob.boundBottomRight.y - blob.boundTopLeft.y,
-                            [255, 0, 0, 100]
-                        );
-                    }
-
-                    if (DRAW_ELLIPSE) {
-                        drawEllipse(
-                            data,
-                            blob.quadTopLeft,
-                            blob.quadTopRight,
-                            blob.quadBottomRight,
-                            blob.quadBottomLeft,
-                            [0, 0, 255, 100]
-                        );
-                    }
-
-                    if (DRAW_QUAD) {
-                        // @ts-ignore
-                        drawLine(
-                            data,
-                            { x: blob.quadTopLeft.x   , y: blob.quadTopLeft.y },
-                            { x: blob.quadTopRight.x-1, y: blob.quadTopRight.y },
-                            [0, 255, 0, 100]
-                        );
-
-                        //@ts-ignore
-                        drawLine(
-                            data,
-                            { x: blob.quadTopRight.x-1   , y: blob.quadTopRight.y     },
-                            { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1},
-                            [0, 255, 0, 100]
-                        );
-
-                        //@ts-ignore
-                        drawLine(
-                            data,
-                            { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1},
-                            { x: blob.quadBottomLeft.x   , y: blob.quadBottomLeft.y-1 },
-                            [0, 255, 0, 100]
-                        );
-
-                        //@ts-ignore
-                        drawLine(
-                            data,
-                            { x: blob.quadBottomLeft.x, y: blob.quadBottomLeft.y-1},
-                            { x: blob.quadTopLeft.x   , y: blob.quadTopLeft.y   },
-                            [0, 255, 0, 100]
-                        );
-                    }
-
-                    if (DRAW_QUAD_CENTER_LINES) {
-                        const midTop: Vector = {
-                            x: ((blob.quadTopLeft.x + blob.quadTopRight.x-1) / 2.0),
-                            y: ((blob.quadTopLeft.y + blob.quadTopRight.y) / 2.0)
-                        };
-                        const midBottom: Vector = {
-                            x: ((blob.quadBottomLeft.x + blob.quadBottomRight.x-1) / 2.0),
-                            y: ((blob.quadBottomLeft.y-1 + blob.quadBottomRight.y-1) / 2.0)
-                        };
-                        const midLeft: Vector = {
-                            x: ((blob.quadTopLeft.x + blob.quadBottomLeft.x) / 2.0),
-                            y: ((blob.quadTopLeft.y + blob.quadBottomLeft.y-1) / 2.0)
-                        };
-                        const midRight: Vector = {
-                            x: ((blob.quadTopRight.x-1 + blob.quadBottomRight.x-1) / 2.0),
-                            y: ((blob.quadTopRight.y + blob.quadBottomRight.y-1) / 2.0)
-                        };
-
-                        drawLine(data, midTop, midBottom, [0, 0, 255, 255]);
-                        drawLine(data, midLeft, midRight, [255, 0, 255, 255]);
-                    }
-
-                    if (DRAW_QUAD_CORNERS) {
-                        drawPixel(data, { x: blob.quadTopLeft.x      , y: blob.quadTopLeft.y       }, [255, 255, 0, 255]); //yellow
-                        drawPixel(data, { x: blob.quadTopRight.x-1   , y: blob.quadTopRight.y      }, [0, 255, 255, 255]); //cyan
-                        drawPixel(data, { x: blob.quadBottomRight.x-1, y: blob.quadBottomRight.y-1 }, [0,   0, 255, 255]); //blue
-                        drawPixel(data, { x: blob.quadBottomLeft.x   , y: blob.quadBottomLeft.y-1  }, [255, 0, 255, 255]); //purple
-                    }
-                }
-            }
-
-            //@ts-ignore
-            this.pack().pipe(fs.createWriteStream(imageOutputPath));
-
-            resolve();
-        });
-    });
-}
-
-(async function run() {
-    const runAllMode = process.argv.includes("--all");
-
-    if (runAllMode) {
-        //process all images
-        const images = fs.readdirSync(IMAGES_INPUT_PATH);
-        for (const image of images) {
-            console.log(image);
-            await runImage(
-                path.join(IMAGES_INPUT_PATH, image),
-                path.join(IMAGES_OUTPUT_PATH, image)
-            );
-        }
-    }
-    else {
-        //process single image
-        console.log(path.basename(IMAGE_INPUT_PATH));
-        await runImage(IMAGE_INPUT_PATH, IMAGE_OUTPUT_PATH);
-    }
-
-    //Log Faults
-    for (const fault of faults) {
-        if (fault !== Fault.NO_FAULT) {
-            console.log(Fault[fault]);
-        }
-    }
-})();
