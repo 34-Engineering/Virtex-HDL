@@ -9,6 +9,7 @@
     <meta name="title" content="Virtex Blob App">
 
     <style>
+        /* generic */
         body {
             display: flex;
             height: 100vh;
@@ -20,28 +21,14 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
-
         *, *::before, *::after {
             box-sizing: border-box;
         }
 
-        .canvas-wrapper {
-            height: 100%;
-            border-right: 1px white solid;
-        }
-        #canvas {
-            display: block;
-            height: 100%;
-        }
-
-        .sidebar {
-            margin: 5px 0 0 10px;
-        }
-
-        button {
-            display: block;
+        /* generic ui */
+        button, select {
             margin: 8px 0;
-            border: 1px solid white;
+            border: 2px solid white;
             border-radius: 5px;
             background-color: black;
             color: white;
@@ -51,25 +38,31 @@
             text-align: center;
             text-decoration: none;
             transition: background 250ms linear, color 250ms linear;
+            user-select: none;
+            outline: none;
+            white-space: nowrap;
         }
-        button:hover {
+        button.white, select.white {
             background-color: white;
             color: black;
         }
-        button.reset {
-            color: red;
+        button:hover, select:hover {
+            background-color: white;
+            color: black;
         }
-
-        select {
-            display: block;
-            margin: 20px 0;
+        button.white:hover, select.white:hover {
+            background-color: black;
+            color: white;
         }
-
+        .header > button.reset:hover {
+            background: black;
+        }
         .checkbox {
             display: block;
             margin: 5px 0;
             cursor: pointer;
             user-select: none;
+            white-space: nowrap;
         }
         .checkbox > input {
             cursor: pointer;
@@ -77,6 +70,53 @@
         .checkbox > label {
             color: white;
             font-size: 16px;
+        }
+
+        /* canvas */
+        .canvas-wrapper {
+            height: 100%;
+            border-right: 2px white solid;
+        }
+        #canvas {
+            display: block;
+            height: 100%;
+        }
+
+        /* sidebar */
+        .sidebar {
+            margin: 6px 0 0 0;
+            width: 100%;
+        }
+
+        .header {
+            width: 100%;
+            padding: 0 0 5px 13px;
+            border-bottom: 2px white solid;
+        }
+        .header > button.reset {
+            color: red;
+            margin-left: 6px;
+        }
+
+        .sidebar-container {
+            width: 100%;
+            padding: 6px 0 0 13px;
+            display: flex;
+        }
+        .step-container > {
+            display: block;
+            margin: 100px;
+        }
+        .step-container > * {
+            display: block;
+            margin-right: 20px;
+        }
+        .draw-option-container {
+            display: block;
+            width: 100%;
+        }
+        .draw-option-container > * {
+            display: block;
         }
 
         .faults {
@@ -92,35 +132,49 @@
     </div>
 
     <div class="sidebar">
-        <button onclick="postAndUpdateUI('/reset')" class="reset">Reset</button>
-        
-        <button data-count="<%=5%>" class="step">Step Kernel</button>
-        <button data-count="<%=2*5%>" class="step">Step 2 Kernels</button>
-        <button data-count="<%=5*5%>" class="step">Step 5 Kernels</button>
-        <button data-count="<%=20*5%>" class="step">Step Quarter Line</button>
-        <button data-count="<%=40*5%>" class="step">Step Half Line</button>
-        <button data-count="<%=80*5%>" class="step">Step Line</button>
-        <button data-count="<%=80*2*5%>" class="step">Step 2 Lines</button>
-        <button data-count="<%=80*15*5%>" class="step">Step 15 Lines</button>
-        <button data-count="<%=80*15*5%>" class="step">Step 30 Lines</button>
-        <button data-count="<%=80*15*5%>" class="step">Step 60 Lines</button>
-        <button data-count="<%=80*120*5%>" class="step">Step 120 Lines</button>
-        <button data-count="<%=80*240*5%>" class="step">Step Half Frame</button>
-        <button data-count="<%=80*480*5%>" class="step">Step Frame</button>
-        
-        <select name="image" onchange="if (this.selectedIndex) postAndUpdateUI('/changeImageFile', { file: this.value })">
-            <% for (const image of imageFiles) { %>
-                <option value="<%= image %>"><%= image %></option>
-            <% } %>
-        </select>
-
-        <% for (const property in drawOptions) { %>
-        <div class="checkbox">
-            <input type="checkbox" id="<%= property %>" <%= drawOptions[property] ? 'checked' : '' %>
-                onchange="postAndUpdateUI('/changeDrawOption', { option: '<%= property %>', enabled: this.checked})">
-            <label for="<%= property %>"><%= property %></label>
+        <div class="header">
+            <select name="image" class="white"
+                onchange="if (this.selectedIndex) postAndUpdateUI('/changeImageFile', { file: this.value })">
+                <% for (const image of imageFiles) { %>
+                    <option value="<%= image %>" <%= image == imageFile ? 'selected' : '' %>><%= image %></option>
+                <% } %>
+            </select>
+            
+            <button onclick="postAndUpdateUI('/reset')" class="reset white">
+                Reset
+            </button>
         </div>
-        <% } %>
+        
+        <div class="sidebar-container">
+            <div class="step-container">
+                <button data-count="<%=5%>" class="step">Step Kernel</button>
+                <button data-count="<%=2*5%>" class="step">Step 2 Kernels</button>
+                <button data-count="<%=5*5%>" class="step">Step 5 Kernels</button>
+                <button data-count="<%=10*5%>" class="step">Step 10 Kernels</button>
+                <button data-count="<%=20*5%>" class="step">Step Quarter Line</button>
+                <button data-count="<%=40*5%>" class="step">Step Half Line</button>
+                <button data-count="<%=80*5%>" class="step">Step Line</button>
+                <button data-count="<%=80*2*5%>" class="step">Step 2 Lines</button>
+                <button data-count="<%=80*4*5%>" class="step">Step 4 Lines</button>
+                <button data-count="<%=80*8*5%>" class="step">Step 8 Lines</button>
+                <button data-count="<%=80*15*5%>" class="step">Step 15 Lines</button>
+                <button data-count="<%=80*30*5%>" class="step">Step 30 Lines</button>
+                <button data-count="<%=80*60*5%>" class="step">Step 60 Lines</button>
+                <button data-count="<%=80*120*5%>" class="step">Step 120 Lines</button>
+                <button data-count="<%=80*240*5%>" class="step">Step Half Frame</button>
+                <button data-count="<%=80*480*5%>" class="step">Step Frame</button>
+            </div>
+
+            <div class="draw-option-container">
+                <% for (const property in drawOptions) { %>
+                <div class="checkbox">
+                    <input type="checkbox" id="<%= property %>" <%= drawOptions[property] ? 'checked' : '' %>
+                        onchange="postAndUpdateUI('/changeDrawOption', { option: '<%= property %>', enabled: this.checked})">
+                    <label for="<%= property %>"><%= property %></label>
+                </div>
+                <% } %>
+            </div>
+        </div>
 
         <div class="faults"></div>
     </div>

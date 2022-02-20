@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as v8 from 'v8';
 import * as BlobProcessor from "./BlobProcessor";
 import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
-import { IMAGE_HEIGHT } from './util/Constants';
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawEllipse, drawLine, drawPixel, drawQuad } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobStatus } from './BlobUtil';
@@ -17,10 +17,12 @@ const app: express.Application = express();
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
     bound: true,
-    quad: false,
+    quad: true,
     quadCenterLines: true,
-    quadCorners: false,
-    ellipse: false
+    quadCorners: true,
+    ellipse: false,
+    kernelPos: true,
+    kernelLine: true
 };
 let imageFile = '2016.png';
 const IMAGES_INPUT_PATH = 'images';
@@ -30,7 +32,7 @@ const imageFiles = fs.readdirSync('images');
 app.use('/assets', express.static('assets', {maxAge: '1d'}));
 app.set('view engine', 'ejs');
 app.get('/', (req: express.Request, res: express.Response) => {
-    res.render(path.join(__dirname, '/App'), { drawOptions, imageFiles });
+    res.render(path.join(__dirname, '/App'), { drawOptions, imageFile, imageFiles });
 });
 
 //Blob Processor + Python Sim
@@ -190,7 +192,24 @@ function drawImage(): any {
     }
 
     //Draw Kernel Pos
-    drawPixel(tempImage.data, { x: kx*8, y: ky }, [255, 215, 0, 255]);
+    if (drawOptions.kernelPos) {
+        const kernelPosSize = 1;
+        drawQuad(tempImage.data,
+            { topLeft: { x: kx*8-kernelPosSize, y: ky-kernelPosSize },
+              topRight: { x: kx*8+kernelPosSize, y: ky-kernelPosSize },
+              bottomRight: { x: kx*8+kernelPosSize, y: ky+kernelPosSize },
+              bottomLeft: { x: kx*8-kernelPosSize, y: ky+kernelPosSize }
+            },
+            [255, 215, 0, 128]
+        );
+    }
+    if (drawOptions.kernelLine) {
+        drawLine(tempImage.data,
+            { x: 0, y: ky },
+            { x: IMAGE_WIDTH-1, y: ky },
+            [255, 215, 0, 128]
+        );
+    }
 
     return tempImage;
 }
