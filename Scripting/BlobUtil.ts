@@ -86,8 +86,8 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        quad: mergeQuadsMaxArea(blob1.quad, blob2.quad),
-        // quad: mergeQuadsDistance(blob1.quad, blob2.quad),
+        // quad: mergeQuadsMaxArea(blob1.quad, blob2.quad),
+        quad: mergeQuadsDistance(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
     };
 }

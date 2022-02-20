@@ -265,6 +265,10 @@ function getFaults() {
 }
 
 //Host Webapp
+console.log(4);
+app.post('/ping', (req: express.Request, res: express.Response) => {
+    res.send({ pid: process.pid });
+});
 const port: number = 34;
 app.listen(port, () => {
   return console.log(`Blob App @ http://localhost:${port}`);

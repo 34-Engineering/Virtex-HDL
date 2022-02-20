@@ -208,7 +208,6 @@
         postAndUpdateUI('/reset');
 
         //Handle Step Button (which repeat if you hold them)
-        //postAndUpdateUI('/step', { count:5 })
         let stepButtonHoldInterval, stepButtonHoldCounter;
         [].forEach.call(document.querySelectorAll('button.step'), function(button) {
             button.onmousedown = () => {
@@ -226,6 +225,17 @@
                 clearInterval(stepButtonHoldInterval);
             };
         });
+
+        //Ping (keep track of what process we were using
+        //and if a new process spawns, reload page)
+        let pid;
+        post('/ping').then((res) => pid = res.pid);
+        setInterval(async () => {
+            const res = await post('/ping');
+            if (res.pid !== pid) {
+                window.location.reload();
+            }
+        }, 250);
 
         //HTTP POST Request
         async function post(url, data = {}) {
