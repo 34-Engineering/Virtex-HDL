@@ -1,5 +1,5 @@
 import { virtexConfig } from "./util/VirtexConfig";
-import { calcPolygonArea, calcQuadArea, inRangeInclusive, invertY, isSmaller, isValidQuad, max, min, pickLarger, pickSmaller, Quad, Vector } from "./util/Math";
+import { calcPolygonArea, calcQuadArea, inRangeInclusive, invertY, isSmaller, isValidQuad, max, min, pickLarger, pickLargerInverseY, pickSmaller, pickSmallerInverseY, Quad, Vector } from "./util/Math";
 import { drawPixel } from "./util/OtherUtil";
 
 //144-bit Blob Data
@@ -86,8 +86,8 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        // quad: mergeQuadsMaxArea(blob1.quad, blob2.quad),
-        quad: mergeQuadsDistance(blob1.quad, blob2.quad),
+        quad: mergeQuadsMaxArea(blob1.quad, blob2.quad),
+        // quad: mergeQuadsDistance(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
     };
 }
@@ -117,9 +117,9 @@ function mergeQuadsWithIndex(index: number, quad0: Quad, quad1: Quad): Quad {
 function mergeQuadsDistance(quad1: Quad, quad2: Quad): Quad {
     return {
         topLeft: pickSmaller(quad1.topLeft, quad2.topLeft),
-        topRight: pickLarger(invertY(quad1.topRight), invertY(quad2.topRight)),
+        topRight: pickLargerInverseY(quad1.topRight, quad2.topRight),
         bottomRight: pickLarger(quad1.bottomRight, quad2.bottomRight),
-        bottomLeft: pickSmaller(invertY(quad1.bottomLeft), invertY(quad2.bottomLeft)),
+        bottomLeft: pickSmallerInverseY(quad1.bottomLeft, quad2.bottomLeft),
     }
 }
 

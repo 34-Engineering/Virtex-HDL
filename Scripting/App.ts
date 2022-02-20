@@ -24,7 +24,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: true,
     kernelLine: true
 };
-let imageFile = '2016.png';
+let imageFile = 'Angles.png';
 const IMAGES_INPUT_PATH = 'images';
 
 //EJS Page
@@ -265,7 +265,6 @@ function getFaults() {
 }
 
 //Host Webapp
-console.log(4);
 app.post('/ping', (req: express.Request, res: express.Response) => {
     res.send({ pid: process.pid });
 });
