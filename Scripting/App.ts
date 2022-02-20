@@ -10,11 +10,10 @@ import { virtexConfig } from './util/VirtexConfig';
 import { BlobStatus } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
-const png = require('pngjs').PNG;
+import { PNG } from 'pngjs';
 const app: express.Application = express();
-const port: number = 34;
 
-//Options
+//Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
     blobColor: false,
     bound: false,
@@ -23,9 +22,8 @@ let drawOptions: {[index: string]: boolean} = {
     quadCorners: false,
     ellipse: false
 };
-const IMAGES_INPUT_PATH = 'images';
 let imageFile = 'Angles.png';
-let imageUrl = () => path.join(IMAGES_INPUT_PATH, imageFile);
+const IMAGES_INPUT_PATH = 'images';
 
 //EJS Page
 const imageFiles = fs.readdirSync('images');
@@ -93,7 +91,8 @@ function reset() {
     };
 
     //read image
-    image = png.sync.read(fs.readFileSync(imageUrl()));
+    const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
+    image = PNG.sync.read(fs.readFileSync(imageUrl));
 }
 
 //Image
@@ -241,7 +240,8 @@ function getFaults() {
     return arr;
 }
 
-//Host
+//Host Webapp
+const port: number = 34;
 app.listen(port, () => {
   return console.log(`Blob App @ http://localhost:${port}`);
 });

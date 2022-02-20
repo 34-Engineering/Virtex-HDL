@@ -8,10 +8,6 @@ This code is focuses on being easy to translate to System Verilog and has no emp
 
 Install Dependencies: `npm i`
 
-Run Single Image: `npm run single`
-
-Run All Images: `npm run all`
-
-Run Webapp (steps): `npm run app`
+Run Webapp: `npm start`
 
 Note: requires NPM & Node 17.1
