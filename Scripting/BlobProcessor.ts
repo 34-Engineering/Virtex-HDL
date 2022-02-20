@@ -8,16 +8,16 @@ import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOve
 import { overflow } from "./util/Math";
 
 //(scripting only)
-export let blobColorBuffer: RunBuffer[];
-export let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
-export let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
+let blobColorBuffer: RunBuffer[];
+let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
+let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
 let blobBRAMPorts: BlobBRAMPort[] = [...Array(2)].map(_=>(Object.assign({}, BLOB_BRAM_PORT_DEFAULT)));
 
 //Blob Processor (registers + wires)
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE; //[1:0]
-export let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
-export let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
+let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
+let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
 let blobRunBuffersPartionCurrent: number; //partion of run buffer (0-2)
 let blobRunBuffersPartionLast: number;
 let blobRunBufferIndexCurrent: number; //index in run buffer [0-MAX_RUNS_PER_LINE]
@@ -70,7 +70,7 @@ let isLastKernel = () => kernel?.pos.y === IMAGE_HEIGHT-1 && kernel?.pos.x === K
 let rlePartionValid = () => rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
 
 //"180MHz" Always Loop
-export function alwaysLoop() {
+function alwaysLoop() {
     //Reset Garbage Collector (when frame finished)
     if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
         //FORK
@@ -448,7 +448,7 @@ function updateTargetSelector() {
 }
 
 //Resetting for New Frame
-export function reset() {
+function reset() {
     //FORK
     blobIndex = 0;
     blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
@@ -493,12 +493,12 @@ function getRealBlobID(startID: number): number {
 }
 
 //Module (scripting only)
-export let sendKernel = (newKernel: Kernel) => kernel = Object.assign({}, newKernel);
-export let isDone = () => targetSelectorDone;
-export let getRealBlobIDDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
+let sendKernel = (newKernel: Kernel) => kernel = Object.assign({}, newKernel);
+let isDone = () => targetSelectorDone;
+let getRealBlobIDDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
     getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
 let lastAddresses: number[] = [0, 0];
-export function updateBRAM() {
+function updateBRAM() {
     for (const p in blobBRAMPorts) {
         if (blobBRAMPorts[p].wea) {
             //write to din
@@ -511,3 +511,6 @@ export function updateBRAM() {
         lastAddresses[p] = blobBRAMPorts[p].addr;
     }
 }
+export { sendKernel, isDone, getRealBlobIDDebug, updateBRAM };
+export { blobColorBuffer, faults, blobBRAM, blobMetadatas, blobIndex };
+export { alwaysLoop, reset };
