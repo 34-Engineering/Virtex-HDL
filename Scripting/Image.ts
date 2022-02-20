@@ -1,3 +1,5 @@
+//Image.ts - Reads image(s)
+
 import * as fs from "fs";
 import * as path from "path";
 import { calculateIDX, drawEllipse, drawLine, drawPixel, Kernel, KERNEL_MAX_X } from "./util/OtherUtil";
@@ -34,7 +36,6 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
         img.on('parsed', function () {
             //@ts-ignore
             data = this.data;
-            BlobProcessor.importData(data);
 
             //"180MHz" Process Loop
             let kx: number = 0, ky: number = 0;

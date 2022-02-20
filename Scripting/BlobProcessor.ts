@@ -1,19 +1,19 @@
-//BlobProcessor.ts
-import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
+// BlobProcessor.ts
+
+import { IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
-import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X, drawEllipse, calculateIDX, drawLine, drawPixel } from "./util/OtherUtil";
+import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
-import { overflow, Vector } from "./util/Math";
+import { overflow } from "./util/Math";
 
 //(scripting only)
 export let blobColorBuffer: RunBuffer[];
 export let faults: Fault[] = [...Array(4)].map(_=>Fault.NO_FAULT);
 export let blobBRAM: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, EMPTY_BLOB)));
 let blobBRAMPorts: BlobBRAMPort[] = [...Array(2)].map(_=>(Object.assign({}, BLOB_BRAM_PORT_DEFAULT)));
-let data: any;
 
-//Blob Processor
+//Blob Processor (registers + wires)
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE; //[1:0]
 export let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
@@ -26,18 +26,38 @@ let blobRunBufferXCurrent: number; //[9:0] counter for RLE x position
 let blobRunBufferXLast: number;
 let blobMasterBlobID: number; //master blob for run to join into (following joining runs are slaves)
 let blobUsingPort1: boolean; //whether blobProcessor is using port1 (so garbage collector won't)
+let lastIsWorkingOnFrame: boolean = false;
+let blobProcessorDoneWithLine = () => blobRunBuffersPartionCurrent === NULL_RUN_BUFFER_PARTION ||
+    blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count; //done with line @ on NULL line OR all runs processed
+let blobPartionCurrentValid = () => blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
+let blobNextPartionCurrent = () => overflow(blobRunBuffersPartionCurrent + 1, 2); //note: overflow(NULL+1)=0
+let blobNextLineAvailable = () => rleRunBuffersPartion !== blobNextPartionCurrent() &&
+    runBuffers[blobNextPartionCurrent()].line !== NULL_LINE_NUMBER; //can move next line @ rle is done with it & its a valid location
+let blobProcessorTooSlow = () => rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionLast;
+let blobProcessorReallyTooSlow = () => rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
+let blobLastLineRun = () => runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
+let blobLastLineRunRealBlobID = () => getRealBlobID(blobLastLineRun().blobID);
+let blobCurrentRun = () => runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent];
+let blobCurrentLine = () => runBuffers[blobRunBuffersPartionCurrent].line;
+let blobProcessorOnLastLine = () => runBuffers[blobRunBuffersPartionCurrent]?.line === IMAGE_HEIGHT-1;
+let isWorkingOnFrame = () => !isLastKernel() || !blobProcessorDoneWithLine() || !blobProcessorOnLastLine();
 
-//Target Selector
+//Target Selector (registers + wires)
 let targetSelectorDone: boolean; //1-bit
 
-//Garbage Collector
+//Garbage Collector (registers + wires)
 let garbagePort: number; //1-bit
 let garbageIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
 let lastGarbageIndex: number[] = [0, 0]; //2 x [MAX_BLOB_ID_SIZE-1:0]
 let garbageCollectorWasUsingPorts: boolean[] = [false, false]; //BRAM ports
 let garbageCollectorDone: boolean;
+let garbageCollectorCanUsePorts = () => [!isWorkingOnFrame(), !blobUsingPort1];
+let garbageCollectorUsingPorts = () => [garbageCollectorWasUsingPorts[0] && garbageCollectorCanUsePorts()[0],
+    garbageCollectorWasUsingPorts[1] && garbageCollectorCanUsePorts()[1]]; //if read from Port A & can still use it
+let nextValidGarbageIndex = () => getNextValidGarbageIndex(garbageIndex + 1);
+let firstValidGarbageIndex = () => getNextValidGarbageIndex(0);
 
-//Run Length Encoding
+//Run Length Encoding (registers + wires)
 let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ length: 0, blobID: NULL_BLOB_ID })),
     count: 0,
@@ -46,9 +66,10 @@ let runBuffers: RunBuffer[] = [...Array(3)].map(_=>({
 let rleRunBuffersPartion: number;
 let kernel: Kernel = { value: [...Array(8)].map(_=>false), pos: {x:0, y:0}, valid: false };
 let lastKernelValid: boolean;
+let isLastKernel = () => kernel?.pos.y === IMAGE_HEIGHT-1 && kernel?.pos.x === KERNEL_MAX_X;
+let rlePartionValid = () => rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
 
 //"180MHz" Always Loop
-let lastIsWorkingOnFrame: boolean = false;
 export function alwaysLoop() {
     //Reset Garbage Collector (when frame finished)
     if (!isWorkingOnFrame() && lastIsWorkingOnFrame) {
@@ -84,10 +105,6 @@ export function alwaysLoop() {
         //Target Selection Loop
         updateTargetSelector();
     }
-}
-function isWorkingOnFrame(): boolean {
-    //(verilog wire)
-    return !isLastKernel() || !blobProcessorDoneWithLine() || !blobProcessorOnLastLine();
 }
 
 //Run Length Encoding Loop
@@ -146,13 +163,6 @@ function updateRunLengthEncoder(kernel: Kernel) {
         }
         //JOIN
     }
-}
-function isLastKernel() {
-    //(verilog wire)
-    return kernel?.pos.y === IMAGE_HEIGHT-1 && kernel?.pos.x === KERNEL_MAX_X;
-}
-function rlePartionValid(): boolean {
-    return rleRunBuffersPartion !== NULL_RUN_BUFFER_PARTION;
 }
 
 //Blob Processor Loop
@@ -354,46 +364,6 @@ function updateBlobProcessor() {
         }
     }
 }
-//(verilog wires)
-function blobProcessorDoneWithLine(): boolean {
-    //done with line @ on NULL line OR all runs processed
-    return blobRunBuffersPartionCurrent === NULL_RUN_BUFFER_PARTION ||
-           blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count;
-}
-function blobPartionCurrentValid(): boolean {
-    return blobRunBuffersPartionCurrent !== NULL_RUN_BUFFER_PARTION;
-}
-function blobNextPartionCurrent(): number {
-    //note: overflow(NULL+1)=0
-    return overflow(blobRunBuffersPartionCurrent + 1, 2);
-}
-function blobNextLineAvailable(): boolean {
-    //can move next line @ rle is done with it
-    return rleRunBuffersPartion !== blobNextPartionCurrent() &&
-    //& its a valid location
-    runBuffers[blobNextPartionCurrent()].line !== NULL_LINE_NUMBER; 
-}
-function blobProcessorTooSlow(): boolean {
-    return rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionLast;
-}
-function blobProcessorReallyTooSlow(): boolean {
-    return rlePartionValid() && rleRunBuffersPartion === blobRunBuffersPartionCurrent;
-}
-function blobLastLineRun(): Run {
-    return runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
-}
-function blobLastLineRunRealBlobID(): number {
-    return getRealBlobID(blobLastLineRun().blobID);
-}
-function blobCurrentRun(): Run {
-    return runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent];
-}
-function blobCurrentLine(): number {
-    return runBuffers[blobRunBuffersPartionCurrent].line;
-}
-function blobProcessorOnLastLine(): boolean {
-    return runBuffers[blobRunBuffersPartionCurrent]?.line === IMAGE_HEIGHT-1;
-}
 
 //Garbage Collector Loop
 function updateGarbageCollector() {
@@ -428,10 +398,10 @@ function updateGarbageCollector() {
 }
 function setNextGarbageIndex(): void {
     //FORK
-    if (garbageIndex === NULL_BLOB_ID || nextValidGarbageIndex(garbageIndex + 1) === NULL_BLOB_ID) {
+    if (garbageIndex === NULL_BLOB_ID || nextValidGarbageIndex() === NULL_BLOB_ID) {
         //still on frame => keep doing garbage duty :(
         if (isWorkingOnFrame()) {
-            garbageIndex = nextValidGarbageIndex(0);
+            garbageIndex = firstValidGarbageIndex();
         }
 
         //done with frame => stop garbage duty :)
@@ -440,21 +410,13 @@ function setNextGarbageIndex(): void {
         }
     }
     else {
-        garbageIndex = nextValidGarbageIndex(garbageIndex + 1);
+        garbageIndex = nextValidGarbageIndex();
     }
     //JOIN
 }
-//(verilog wires)
-function garbageCollectorCanUsePorts(): boolean[] {
-    return [!isWorkingOnFrame(), !blobUsingPort1];
-}
-function garbageCollectorUsingPorts(): boolean[] {
-    //if read from Port A & can still use it
-    return [garbageCollectorWasUsingPorts[0] && garbageCollectorCanUsePorts()[0],
-            garbageCollectorWasUsingPorts[1] && garbageCollectorCanUsePorts()[1]];
-}
-function nextValidGarbageIndex(startIndex: number): number {
-    //find next unscaned blob
+function getNextValidGarbageIndex(startIndex: number): number {
+    //find next unscaned blob >= startIndex
+    //(and < blobIndex because anything above that is invalid)
     for (let i = 0; i < MAX_BLOBS; i++) {
         if (i >= startIndex && i <= blobIndex && blobMetadatas[i].status == BlobStatus.UNSCANED) {
             return i;
@@ -516,8 +478,9 @@ export function reset() {
     }));
 }
 
-//Get Real Blob ID "Recursively"
+//Get Real Blob ID
 function getRealBlobID(startID: number): number {
+    //without recursion for FPGA :(
     for (let i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) {
         if (blobMetadatas[startID].status == BlobStatus.POINTER) {
             startID = blobMetadatas[startID].pointer; //BLOCKING
@@ -526,37 +489,25 @@ function getRealBlobID(startID: number): number {
             return startID;
         }
     }
-    
     return NULL_BLOB_ID;
 }
 
 //Module (scripting only)
-export function sendKernel(newKernel: Kernel) {
-    kernel = Object.assign({}, newKernel);
-}
-export function isDone() {
-    return targetSelectorDone;
-}
-export function importData(newData: any) {
-    data = newData;
-}
-export function getRealBlobIDDebug(startID: number): number {
-    //(scripting only) real recursive version
-    //for drawing blob colors
-    return blobMetadatas[startID].status == BlobStatus.POINTER ? getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
-}
+export let sendKernel = (newKernel: Kernel) => kernel = Object.assign({}, newKernel);
+export let isDone = () => targetSelectorDone;
+export let getRealBlobIDDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
+    getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
 let lastAddresses: number[] = [0, 0];
 export function updateBRAM() {
     for (const p in blobBRAMPorts) {
-        const port = blobBRAMPorts[p];
-        if (port.wea) {
-            //write from din
-            blobBRAM[port.addr] = Object.assign({}, port.din);
+        if (blobBRAMPorts[p].wea) {
+            //write to din
+            blobBRAM[blobBRAMPorts[p].addr] = Object.assign({}, blobBRAMPorts[p].din);
         }
         else {
             //read to dout
-            port.dout = Object.assign({}, blobBRAM[lastAddresses[p]]);
+            blobBRAMPorts[p].dout = Object.assign({}, blobBRAM[lastAddresses[p]]);
         }
-        lastAddresses[p] = port.addr;
+        lastAddresses[p] = blobBRAMPorts[p].addr;
     }
 }

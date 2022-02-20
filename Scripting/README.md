@@ -4,8 +4,6 @@ This folder is for scripting the functionality of the Blob Processor before writ
 
 This code is focuses on being easy to translate to System Verilog and has no emphasis on Typescript performance.
 
-Based on `Config.ts`, image(s) are read from the `images` folder, processed, and then output to `output.png` or `output`.
-
 ## Running
 
 Install Dependencies: `npm i`
@@ -13,5 +11,7 @@ Install Dependencies: `npm i`
 Run Single Image: `npm run single`
 
 Run All Images: `npm run all`
+
+Run Webapp (steps): `npm run app`
 
 Note: requires NPM & Node 17.1
