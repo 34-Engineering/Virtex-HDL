@@ -1,0 +1,149 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US" prefix="og: http://ogp.me/ns#">
+<head>
+    <title>Virtex Blob App</title>
+    <meta charset="utf-8">
+    <meta content="text/html" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="assets/34E_square128.png">
+    <meta name="title" content="Virtex Blob App">
+
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            background: black;
+            font-family: Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .canvas-wrapper {
+            height: 100%;
+            border-right: 1px white solid;
+        }
+        #canvas {
+            display: block;
+            height: 100%;
+        }
+
+        .sidebar {
+            margin: 20px 0 0 20px;
+        }
+
+        button {
+            display: block;
+            margin: 8px 0;
+            border: 1px solid white;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 250ms linear, color 250ms linear;
+        }
+        button:hover {
+            background-color: white;
+            color: black;
+        }
+        button.reset {
+            color: red;
+        }
+
+        select {
+            display: block;
+            margin: 20px 0;
+        }
+
+        .checkbox {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox > input {
+            cursor: pointer;
+        }
+        .checkbox > label {
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-wrapper">
+        <canvas id="canvas" width="640" height="480"></canvas>
+    </div>
+
+    <div class="sidebar">
+        <button onclick="postAndUpdateUI('/reset')" class="reset">Reset</button>
+        <button onclick="postAndUpdateUI('/step', { count:1 })">Step 1</button>
+        <button onclick="postAndUpdateUI('/step', { count:10 })">Step 10</button>
+        <button onclick="postAndUpdateUI('/step', { count:100 })">Step 100</button>
+        <button onclick="postAndUpdateUI('/step', { count:1000 })">Step 1000</button>
+        <button onclick="postAndUpdateUI('/step', { count:10000 })">Step 10000</button>
+        <button onclick="postAndUpdateUI('/step', { count:20000 })">Step 20000</button>
+        <button onclick="postAndUpdateUI('/step', { count:30000 })">Step 30000</button>
+        <button onclick="postAndUpdateUI('/step', { count:50000 })">Step 50000</button>
+        <button onclick="postAndUpdateUI('/step', { count:Number.MAX_SAFE_INTEGER })">Step Max</button>
+        <select name="image" onchange="if (this.selectedIndex) postAndUpdateUI('/changeImageFile', { file: this.value })">
+            <% for (const image of imageFiles) { %>
+                <option value="<%= image %>"><%= image %></option>
+            <% } %>
+        </select>
+
+        <% for (const property in drawOptions) { %>
+        <div class="checkbox">
+            <input type="checkbox" id="<%= property %>" <%= drawOptions[property] ? 'checked' : '' %>
+                onchange="postAndUpdateUI('/changeDrawOption', { option: '<%= property %>', enabled: this.checked})">
+            <label for="<%= property %>"><%= property %></label>
+        </div>
+        <% } %>
+
+        <div class="faults"></div>
+    </div>
+
+    <script>
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+
+        async function postAndUpdateUI(url, data = {}) {
+            const res = await post(url, data);
+            if (!res.error) {
+                document.querySelector('.faults').innerText = res.faults.join(', ');
+                const frame = ctx.createImageData(res.image.width, res.image.height);
+                // frame.data = res.image.data.data;
+                for (let i = 0; i < frame.data.length; i++) {
+                    frame.data[i+0] = res.image.data.data[i+0];
+                    frame.data[i+1] = res.image.data.data[i+1];
+                    frame.data[i+2] = res.image.data.data[i+2];
+                    frame.data[i+3] = res.image.data.data[i+3];
+                }
+                ctx.putImageData(frame, 0, 0);  
+            }
+        }
+        postAndUpdateUI('/reset');
+
+        async function post(url, data = {}) {
+            const res = await (await fetch(url, {
+                method: 'POST',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })).json();
+            if (res.error) {
+                console.error(res.error);
+            }
+            return res;
+        }
+
+    </script>
+</body>
+</html>

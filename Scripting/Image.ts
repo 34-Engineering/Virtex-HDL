@@ -16,15 +16,14 @@ const IMAGES_INPUT_PATH = 'images';
 const IMAGES_OUTPUT_PATH = 'output';
 const IMAGE_INPUT_PATH = 'images/Angles.png';
 const IMAGE_OUTPUT_PATH = 'out.png';
-const DRAW_BLOB_COLOR = false;
+const DRAW_BLOB_COLOR = true;
 const DRAW_BOUND = false;
 const DRAW_QUAD = true;
 const DRAW_QUAD_CENTER_LINES = true;
 const DRAW_QUAD_CORNERS = false;
 const DRAW_ELLIPSE = false;
 
-const drawing = require('pngjs-draw');
-const png = drawing(require('pngjs').PNG);
+const png = require('pngjs').PNG;
 let data: any;
 
 //Run Image (scripting only)
@@ -54,8 +53,7 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                     tempKernel.valid = true;
                     for (let x = 0; x < 8; x++) {
                         const idx = calculateIDX(kx * 8 + x, ky);
-                        //@ts-ignore
-                        const value = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
+                        const value = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
                         const threshold = value > virtexConfig.threshold;
                         tempKernel.value[x] = threshold;
                     }
@@ -107,10 +105,13 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                             //if run has valid blobID (or valid pointer blobID) => draw it
                             if (BlobProcessor.blobMetadatas[realBlobID].status == BlobStatus.VALID) {
                                 for (let x = runBufferX; x < runBufferX + run.length; x++) {
-                                    const idx = calculateIDX(x, y);
-                                    data[idx] = Math.sin(realBlobID * 50) * 200 + 55;
-                                    data[idx + 1] = Math.sin(realBlobID * 100) * 200 + 55;
-                                    data[idx + 2] = Math.sin(realBlobID * 200) * 200 + 55;
+                                    drawPixel(data, { x, y }, [
+                                        //generate unique color based on pos
+                                        Math.sin(realBlobID * 50) * 200 + 55,
+                                        Math.sin(realBlobID * 100) * 200 + 55,
+                                        Math.sin(realBlobID * 200) * 200 + 55,
+                                        255
+                                    ]);
                                 }
                             }
                         }
@@ -125,12 +126,14 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                 const blob = BlobProcessor.blobBRAM[i];
                 if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID) {
                     if (DRAW_BOUND) {
-                        // @ts-ignore
-                        this.drawRect(
-                            blob.boundTopLeft.x,
-                            blob.boundTopLeft.y,
-                            blob.boundBottomRight.x - blob.boundTopLeft.x,
-                            blob.boundBottomRight.y - blob.boundTopLeft.y,
+                        drawQuad(
+                            data,
+                            {
+                                topLeft: blob.boundTopLeft,
+                                topRight: { x: blob.boundBottomRight.x, y: blob.boundTopLeft.y },
+                                bottomRight: blob.boundBottomRight,
+                                bottomLeft: { x: blob.boundTopLeft.x, y: blob.boundBottomRight.y }
+                            },
                             [255, 0, 0, 100]
                         );
                     }
@@ -151,24 +154,20 @@ function runImage(imageInputPath: string, imageOutputPath: string): Promise<void
                     }
 
                     if (DRAW_QUAD_CENTER_LINES) {
-                        const midTop: Vector = {
-                            x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) / 2.0),
-                            y: ((blob.quad.topLeft.y + blob.quad.topRight.y) / 2.0)
-                        };
-                        const midBottom: Vector = {
-                            x: ((blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) / 2.0),
-                            y: ((blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) / 2.0)
-                        };
-                        const midLeft: Vector = {
-                            x: ((blob.quad.topLeft.x + blob.quad.bottomLeft.x) / 2.0),
-                            y: ((blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) / 2.0)
-                        };
-                        const midRight: Vector = {
-                            x: ((blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) / 2.0),
-                            y: ((blob.quad.topRight.y + blob.quad.bottomRight.y-1) / 2.0)
-                        };
-                        drawLine(data, midTop, midBottom, [0, 0, 255, 255]);
-                        drawLine(data, midLeft, midRight, [255, 0, 255, 255]);
+                        drawLine(data,
+                            { x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) / 2.0),
+                              y: ((blob.quad.topLeft.y + blob.quad.topRight.y) / 2.0) },
+                            { x: ((blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) / 2.0),
+                              y: ((blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) / 2.0) },
+                            [0, 0, 255, 255]
+                        );
+                        drawLine(data,
+                            { x: ((blob.quad.topLeft.x + blob.quad.bottomLeft.x) / 2.0),
+                              y: ((blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) / 2.0) },
+                            { x: ((blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) / 2.0),
+                              y: ((blob.quad.topRight.y + blob.quad.bottomRight.y-1) / 2.0)},
+                            [255, 0, 255, 255]
+                        );
                     }
 
                     if (DRAW_QUAD_CORNERS) {
