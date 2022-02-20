@@ -2,7 +2,8 @@
 
 import { IMAGE_HEIGHT } from "./util/Constants";
 import { Fault } from "./util/Fault";
-import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, Kernel, EMPTY_BLOB, KERNEL_MAX_X  } from "./util/OtherUtil";
+import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
+import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, EMPTY_BLOB  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
 import { overflow } from "./util/Math";

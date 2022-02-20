@@ -1,23 +1,18 @@
+//OtherUtil.ts (scripting only)
+
 import { BlobData } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
-import { Vector } from "./Math";
+import { Quad, Vector } from "./Math";
 
-//PythonUtil
-export interface Kernel {
-    value: boolean[],
-    pos: Vector,
-    valid: boolean
-}
-export const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
-
-//(scripting only)
 export const EMPTY_BLOB: BlobData = {
     boundTopLeft: {x:0, y:0},
     boundBottomRight: {x:0, y:0},
-    quadTopLeft: {x:0, y:0},
-    quadTopRight: {x:0, y:0},
-    quadBottomRight: {x:0, y:0},
-    quadBottomLeft: {x:0, y:0},
+    quad: {
+        topLeft: {x:0, y:0},
+        topRight: {x:0, y:0},
+        bottomRight: {x:0, y:0},
+        bottomLeft: {x:0, y:0},
+    },
     area: 0
 };
 
@@ -87,6 +82,33 @@ export function drawPixel(data: any, p: Vector, color: number[]) {
     data[idx]   = Math.round(color[0] * alpha + data[idx  ] * (1-alpha));
     data[idx+1] = Math.round(color[1] * alpha + data[idx+1] * (1-alpha));
     data[idx+2] = Math.round(color[2] * alpha + data[idx+2] * (1-alpha));
+}
+
+export function drawQuad(data: any, quad: Quad, color: number[]) {
+    drawLine(
+        data,
+        { x: quad.topLeft.x   , y: quad.topLeft.y },
+        { x: quad.topRight.x-1, y: quad.topRight.y },
+        color
+    );
+    drawLine(
+        data,
+        { x: quad.topRight.x-1   , y: quad.topRight.y     },
+        { x: quad.bottomRight.x-1, y: quad.bottomRight.y-1},
+        color
+    );
+    drawLine(
+        data,
+        { x: quad.bottomRight.x-1, y: quad.bottomRight.y-1},
+        { x: quad.bottomLeft.x   , y: quad.bottomLeft.y-1 },
+        color
+    );
+    drawLine(
+        data,
+        { x: quad.bottomLeft.x, y: quad.bottomLeft.y-1},
+        { x: quad.topLeft.x   , y: quad.topLeft.y   },
+        color
+    );
 }
 
 export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {

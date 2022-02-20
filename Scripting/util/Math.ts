@@ -1,10 +1,4 @@
-
-
-//20-bit Vector
-export interface Vector {
-    x: number,
-    y: number
-}
+//Math.ts
 
 //Range Functions
 export function min(num1: number, num2: number): number {
@@ -27,7 +21,57 @@ export function inRangeInclusive(num: number, min: number, max: number): boolean
     return num >= min && num <= max;
 }
 
-//Polygon
+//Vectors
+export interface Vector { //20-bit
+    x: number,
+    y: number
+}
+export function invertX(vector: Vector): Vector {
+    return { x: -vector.x, y: vector.y }
+}
+export function invertY(vector: Vector): Vector {
+    return { x: vector.x, y: -vector.y }
+}
+export function invert(vector: Vector): Vector {
+    return { x: -vector.x, y: -vector.y }
+}
+export function isSmaller(a: Vector, b: Vector): boolean {
+    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
+    return a.x + a.y < b.x + b.y;
+}
+export function pickSmaller(a: Vector, b: Vector): Vector {
+    return isSmaller(a, b) ? a : b;
+}
+export function pickLarger(a: Vector, b: Vector): Vector {
+    return isSmaller(a, b) ? b : a;
+}
+
+//Polygons
+export interface Quad { //80-bit
+    /*Note: relative side of pixel
+    ex) top left (0, 0) means pixel #(0, 0) whereas
+        top right (1, 1) means pixel #(1, 0)
+        bottom right (2, 2) means pixel #(1, 1)
+    this makes area calculations easier*/
+    topLeft: Vector,
+    topRight: Vector,
+    bottomRight: Vector,
+    bottomLeft: Vector
+}
+export function quadToVectorArray(quad: Quad): Vector[] {
+    return [ quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft ];
+}
+export function vectorArrayToQuad(points: Vector[]): Quad {
+    return {
+        topLeft: points[0],
+        topRight: points[1],
+        bottomRight: points[2],
+        bottomLeft: points[3]
+    };
+}
+export function calcQuadArea(quad: Quad): number {
+    return calcPolygonArea(quadToVectorArray(quad));
+}
 export function calcPolygonArea(points: Vector[]): number {
     let total = 0;
     for (let i = 0; i < points.length; i++) {
@@ -35,7 +79,15 @@ export function calcPolygonArea(points: Vector[]): number {
         const addY = points[i === points.length - 1 ? 0 : i + 1].y;
         const subX = points[i === points.length - 1 ? 0 : i + 1].x;
         const subY = points[i].y;
-        total += (addX * addY * 0.5) - (subX * subY * 0.5);
+        total += ((addX * addY) >> 1) - ((subX * subY) >> 1);
     }
     return Math.abs(total);
+}
+export function isValidQuad(quad: Quad): boolean {
+    return (
+        quad.topLeft.x < quad.topRight.x && //left < right
+        quad.bottomLeft.x < quad.bottomRight.x &&
+        quad.topLeft.y < quad.bottomLeft.y && //bottom > top
+        quad.topRight.y < quad.bottomRight.y
+    );
 }
