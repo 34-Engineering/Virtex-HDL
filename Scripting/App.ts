@@ -15,14 +15,14 @@ const app: express.Application = express();
 
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
-    blobColor: false,
-    bound: false,
-    quad: true,
+    blobColor: true,
+    bound: true,
+    quad: false,
     quadCenterLines: true,
     quadCorners: false,
     ellipse: false
 };
-let imageFile = 'Angles.png';
+let imageFile = '2016.png';
 const IMAGES_INPUT_PATH = 'images';
 
 //EJS Page
@@ -81,6 +81,7 @@ function update() {
 function reset() {
     //reset sim
     BlobProcessor.reset();
+    BlobProcessor.resetFaults();
     kx = 0, ky = 0;
     pythonDone = false;
     loopCount = 0;
@@ -113,7 +114,7 @@ function drawImage(): any {
                         BlobStatus.POINTER ? BlobProcessor.getRealBlobIDDebug(run.blobID) : run.blobID;
 
                     //if run has valid blobID (or valid pointer blobID) => draw it
-                    if (BlobProcessor.blobMetadatas[realBlobID].status == BlobStatus.VALID) {
+                    if (BlobProcessor.blobMetadatas[realBlobID].status !== BlobStatus.GARBAGE) {
                         for (let x = runBufferX; x < runBufferX + run.length; x++) {
                             drawPixel(tempImage.data, { x, y }, [
                                 //generate unique color based on pos
@@ -134,33 +135,8 @@ function drawImage(): any {
     //Draw Blob Bounding Box + Polygon + Ellipse
     for (let i = 0; i < BlobProcessor.blobIndex; i++) {
         const blob = BlobProcessor.blobBRAM[i];
-        if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID) {
-            if (drawOptions.bound) {
-                drawQuad(tempImage.data,
-                    {
-                        topLeft: blob.boundTopLeft,
-                        topRight: { x: blob.boundBottomRight.x, y: blob.boundTopLeft.y },
-                        bottomRight: blob.boundBottomRight,
-                        bottomLeft: { x: blob.boundTopLeft.x, y: blob.boundBottomRight.y }
-                    },
-                    [255, 0, 0, 100]
-                );
-            }
-
-            if (drawOptions.ellipse) {
-                drawEllipse(tempImage.data,
-                    blob.quad.topLeft,
-                    blob.quad.topRight,
-                    blob.quad.bottomRight,
-                    blob.quad.bottomLeft,
-                    [0, 0, 255, 100]
-                );
-            }
-
-            if (drawOptions.quad) {
-                drawQuad(tempImage.data, blob.quad, [0, 255, 0, 100]);
-            }
-
+        if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
+            BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
             if (drawOptions.quadCenterLines) {
                 drawLine(tempImage.data,
                     { x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) / 2.0),
@@ -178,14 +154,43 @@ function drawImage(): any {
                 );
             }
 
+            if (drawOptions.ellipse) {
+                drawEllipse(tempImage.data,
+                    blob.quad.topLeft,
+                    blob.quad.topRight,
+                    blob.quad.bottomRight,
+                    blob.quad.bottomLeft,
+                    [0, 0, 255, 100]
+                );
+            }
+
+            if (drawOptions.quad) {
+                drawQuad(tempImage.data, blob.quad, [0, 255, 0, 100]);
+            }
+
+            if (drawOptions.bound) {
+                drawQuad(tempImage.data,
+                    {
+                        topLeft: blob.boundTopLeft,
+                        topRight: { x: blob.boundBottomRight.x, y: blob.boundTopLeft.y },
+                        bottomRight: blob.boundBottomRight,
+                        bottomLeft: { x: blob.boundTopLeft.x, y: blob.boundBottomRight.y }
+                    },
+                    [255, 0, 0, 100]
+                );
+            }
+
             if (drawOptions.quadCorners) {
                 drawPixel(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, [255, 255, 0, 255]); //yellow
                 drawPixel(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, [0, 255, 255, 255]); //cyan
                 drawPixel(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, [0,   0, 255, 255]); //blue
                 drawPixel(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, [255, 0, 255, 255]); //purple
-            }
+            } 
         }
     }
+
+    //Draw Kernel Pos
+    drawPixel(tempImage.data, { x: kx*8, y: ky }, [255, 215, 0, 255]);
 
     return tempImage;
 }

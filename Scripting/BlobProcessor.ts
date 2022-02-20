@@ -498,6 +498,7 @@ let sendKernel = (newKernel: Kernel) => kernel = Object.assign({}, newKernel);
 let isDone = () => targetSelectorDone;
 let getRealBlobIDDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
     getRealBlobIDDebug(blobMetadatas[startID].pointer) : startID;
+let resetFaults = () => faults = [...Array(4)].map(_=>Fault.NO_FAULT);
 let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     for (const p in blobBRAMPorts) {
@@ -512,6 +513,6 @@ function updateBRAM() {
         lastAddresses[p] = blobBRAMPorts[p].addr;
     }
 }
-export { sendKernel, isDone, getRealBlobIDDebug, updateBRAM };
+export { sendKernel, isDone, getRealBlobIDDebug, resetFaults, updateBRAM };
 export { blobColorBuffer, faults, blobBRAM, blobMetadatas, blobIndex };
 export { alwaysLoop, reset };

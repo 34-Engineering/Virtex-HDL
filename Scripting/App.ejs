@@ -21,6 +21,10 @@
             overflow-y: auto;
         }
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         .canvas-wrapper {
             height: 100%;
             border-right: 1px white solid;
@@ -31,7 +35,7 @@
         }
 
         .sidebar {
-            margin: 20px 0 0 20px;
+            margin: 5px 0 0 10px;
         }
 
         button {
@@ -74,6 +78,12 @@
             color: white;
             font-size: 16px;
         }
+
+        .faults {
+            display: block;
+            margin: 5px 0;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -83,15 +93,21 @@
 
     <div class="sidebar">
         <button onclick="postAndUpdateUI('/reset')" class="reset">Reset</button>
-        <button onclick="postAndUpdateUI('/step', { count:1 })">Step 1</button>
-        <button onclick="postAndUpdateUI('/step', { count:10 })">Step 10</button>
-        <button onclick="postAndUpdateUI('/step', { count:100 })">Step 100</button>
-        <button onclick="postAndUpdateUI('/step', { count:1000 })">Step 1000</button>
-        <button onclick="postAndUpdateUI('/step', { count:10000 })">Step 10000</button>
-        <button onclick="postAndUpdateUI('/step', { count:20000 })">Step 20000</button>
-        <button onclick="postAndUpdateUI('/step', { count:30000 })">Step 30000</button>
-        <button onclick="postAndUpdateUI('/step', { count:50000 })">Step 50000</button>
-        <button onclick="postAndUpdateUI('/step', { count:Number.MAX_SAFE_INTEGER })">Step Max</button>
+        
+        <button data-count="<%=5%>" class="step">Step Kernel</button>
+        <button data-count="<%=2*5%>" class="step">Step 2 Kernels</button>
+        <button data-count="<%=5*5%>" class="step">Step 5 Kernels</button>
+        <button data-count="<%=20*5%>" class="step">Step Quarter Line</button>
+        <button data-count="<%=40*5%>" class="step">Step Half Line</button>
+        <button data-count="<%=80*5%>" class="step">Step Line</button>
+        <button data-count="<%=80*2*5%>" class="step">Step 2 Lines</button>
+        <button data-count="<%=80*15*5%>" class="step">Step 15 Lines</button>
+        <button data-count="<%=80*15*5%>" class="step">Step 30 Lines</button>
+        <button data-count="<%=80*15*5%>" class="step">Step 60 Lines</button>
+        <button data-count="<%=80*120*5%>" class="step">Step 120 Lines</button>
+        <button data-count="<%=80*240*5%>" class="step">Step Half Frame</button>
+        <button data-count="<%=80*480*5%>" class="step">Step Frame</button>
+        
         <select name="image" onchange="if (this.selectedIndex) postAndUpdateUI('/changeImageFile', { file: this.value })">
             <% for (const image of imageFiles) { %>
                 <option value="<%= image %>"><%= image %></option>
@@ -110,16 +126,20 @@
     </div>
 
     <script>
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
 
-        var canvas = document.getElementById('canvas');
-        var ctx = canvas.getContext('2d');
-
+        //POST Request + Update UI based on Response
         async function postAndUpdateUI(url, data = {}) {
             const res = await post(url, data);
             if (!res.error) {
+                //Update Faults
                 document.querySelector('.faults').innerText = res.faults.join(', ');
+                
+                //Draw Image to Canvas
                 const frame = ctx.createImageData(res.image.width, res.image.height);
-                // frame.data = res.image.data.data;
+                // this should work but doesn't :l
+                frame.data = new Uint8ClampedArray(res.image.data.data);
                 for (let i = 0; i < frame.data.length; i++) {
                     frame.data[i+0] = res.image.data.data[i+0];
                     frame.data[i+1] = res.image.data.data[i+1];
@@ -129,8 +149,31 @@
                 ctx.putImageData(frame, 0, 0);  
             }
         }
+
+        //Draw Image at Start
         postAndUpdateUI('/reset');
 
+        //Handle Step Button (which repeat if you hold them)
+        //postAndUpdateUI('/step', { count:5 })
+        let stepButtonHoldInterval, stepButtonHoldCounter;
+        [].forEach.call(document.querySelectorAll('button.step'), function(button) {
+            button.onmousedown = () => {
+                postAndUpdateUI('/step', { count: button.dataset.count });
+                stepButtonHoldCounter = 0;
+                stepButtonHoldInterval = setInterval(() => {
+                    stepButtonHoldCounter++;
+
+                    if (stepButtonHoldCounter > 3) {
+                        postAndUpdateUI('/step', { count: button.dataset.count });
+                    }
+                }, 100);
+            };
+            button.onmouseup = () => {
+                clearInterval(stepButtonHoldInterval);
+            };
+        });
+
+        //HTTP POST Request
         async function post(url, data = {}) {
             const res = await (await fetch(url, {
                 method: 'POST',
@@ -139,11 +182,11 @@
                 body: JSON.stringify(data)
             })).json();
             if (res.error) {
+                //log error
                 console.error(res.error);
             }
             return res;
         }
-
     </script>
 </body>
 </html>
