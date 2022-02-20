@@ -2,14 +2,14 @@ import express from 'express';
 import path from 'path';
 import * as fs from 'fs';
 import * as v8 from 'v8';
-import * as BlobProcessor from "../BlobProcessor";
-import { Kernel, KERNEL_MAX_X } from '../util/PythonUtil';
-import { IMAGE_HEIGHT } from '../util/Constants';
-import { calculateIDX, drawEllipse, drawLine, drawPixel, drawQuad } from '../util/OtherUtil';
-import { virtexConfig } from '../util/VirtexConfig';
-import { BlobStatus } from '../BlobUtil';
-import { NULL_BLACK_RUN_BLOB_ID } from '../BlobConstants';
-import { Fault } from '../util/Fault';
+import * as BlobProcessor from "./BlobProcessor";
+import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
+import { IMAGE_HEIGHT } from './util/Constants';
+import { calculateIDX, drawEllipse, drawLine, drawPixel, drawQuad } from './util/OtherUtil';
+import { virtexConfig } from './util/VirtexConfig';
+import { BlobStatus } from './BlobUtil';
+import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
+import { Fault } from './util/Fault';
 const png = require('pngjs').PNG;
 const app: express.Application = express();
 const port: number = 34;
@@ -29,7 +29,7 @@ let imageUrl = () => path.join(IMAGES_INPUT_PATH, imageFile);
 
 //EJS Page
 const imageFiles = fs.readdirSync('images');
-app.use('/assets', express.static('app/assets', {maxAge: '1d'}));
+app.use('/assets', express.static('assets', {maxAge: '1d'}));
 app.set('view engine', 'ejs');
 app.get('/', (req: express.Request, res: express.Response) => {
     res.render(path.join(__dirname, '/App'), { drawOptions, imageFiles });

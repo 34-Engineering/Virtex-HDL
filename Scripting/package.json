@@ -4,9 +4,7 @@
   "description": "",
   "main": "BlobProcessor.js",
   "scripts": {
-    "single": "ts-node Image.ts",
-    "all": "ts-node Image.ts --all",
-    "app": "ts-node App/App.ts"
+    "start": "ts-node App.ts"
   },
   "author": "34 Engineering, LLC",
   "license": "GPL-3.0",
