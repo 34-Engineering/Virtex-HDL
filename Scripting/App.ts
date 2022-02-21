@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, test } from './BlobUtil';
+import { BlobStatus } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -96,8 +96,6 @@ function reset() {
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
-
-    test(image);
 }
 
 //Image
@@ -181,6 +179,13 @@ function drawImage(): any {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
             }
+
+            drawCenterFillSquare(tempImage.data, blob.centerGravity, 4, [255, 255, 0, 255]);
+            drawCenterFillSquare(tempImage.data, {
+                x: (blob.boundBottomRight.x+blob.boundTopLeft.x)>>1,
+                y: (blob.boundBottomRight.y+blob.boundTopLeft.y)>>1 
+            }, 4, [0, 255, 255, 255]
+            );
         }
     }
 
