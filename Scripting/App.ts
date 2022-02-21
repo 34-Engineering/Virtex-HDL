@@ -5,7 +5,7 @@ import * as v8 from 'v8';
 import * as BlobProcessor from "./BlobProcessor";
 import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
-import { calculateIDX, drawEllipse, drawLine, drawPixel, drawQuad } from './util/OtherUtil';
+import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobStatus } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
@@ -171,37 +171,21 @@ function drawImage(): any {
             }
 
             if (drawOptions.bound) {
-                drawQuad(tempImage.data,
-                    {
-                        topLeft: blob.boundTopLeft,
-                        topRight: { x: blob.boundBottomRight.x, y: blob.boundTopLeft.y },
-                        bottomRight: blob.boundBottomRight,
-                        bottomLeft: { x: blob.boundTopLeft.x, y: blob.boundBottomRight.y }
-                    },
-                    [255, 0, 0, 100]
-                );
+                drawRect(tempImage.data, blob.boundTopLeft, blob.boundBottomRight, [255, 0, 0, 100]);
             }
 
             if (drawOptions.quadCorners) {
-                drawPixel(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, [255, 255, 0, 255]); //yellow
-                drawPixel(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, [0, 255, 255, 255]); //cyan
-                drawPixel(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, [0,   0, 255, 255]); //blue
-                drawPixel(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, [255, 0, 255, 255]); //purple
-            } 
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, 2, [255, 255, 0, 255]); //yellow
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
+            }
         }
     }
 
     //Draw Kernel Pos
     if (drawOptions.kernelPos) {
-        const kernelPosSize = 1;
-        drawQuad(tempImage.data,
-            { topLeft: { x: kx*8-kernelPosSize, y: ky-kernelPosSize },
-              topRight: { x: kx*8+kernelPosSize, y: ky-kernelPosSize },
-              bottomRight: { x: kx*8+kernelPosSize, y: ky+kernelPosSize },
-              bottomLeft: { x: kx*8-kernelPosSize, y: ky+kernelPosSize }
-            },
-            [255, 215, 0, 128]
-        );
+        drawCenterFillSquare(tempImage.data, { x: kx*8, y: ky }, 2, [255, 215, 0, 128]);
     }
     if (drawOptions.kernelLine) {
         drawLine(tempImage.data,

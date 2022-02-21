@@ -4,6 +4,7 @@ import { BlobData } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 import { Quad, Vector } from "./Math";
 
+//Blob Data
 export const EMPTY_BLOB: BlobData = {
     boundTopLeft: {x:0, y:0},
     boundBottomRight: {x:0, y:0},
@@ -16,6 +17,7 @@ export const EMPTY_BLOB: BlobData = {
     area: 0
 };
 
+//BRAM
 export interface BlobBRAMPort {
     addr: number, 
     din: BlobData,
@@ -29,6 +31,7 @@ export const BLOB_BRAM_PORT_DEFAULT: BlobBRAMPort = {
     wea: false
 }
 
+//Drawing on Raw Image Data
 export function calculateIDX(x: number, y: number): number {
     return (IMAGE_WIDTH * Math.round(y) + Math.round(x)) << 2;
 }
@@ -84,6 +87,27 @@ export function drawPixel(data: any, p: Vector, color: number[]) {
     data[idx+2] = Math.round(color[2] * alpha + data[idx+2] * (1-alpha));
 }
 
+export function drawCenterFillSquare(data: any, p: Vector, offset: number, color: number[]) {
+    drawFillRect(data, { x: p.x-offset, y: p.y-offset }, { x: p.x+offset, y: p.y+offset }, color);
+}
+
+export function drawFillRect(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
+    for (let y = topLeft.y; y < bottomRight.y; y++) {
+        for (let x = topLeft.x; x < bottomRight.x; x++) {
+            drawPixel(data, {x, y}, color);
+        }
+    }
+}
+
+export function drawRect(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
+    drawQuad(data, {
+        topLeft: topLeft,
+        topRight: { x: bottomRight.x, y: topLeft.y },
+        bottomRight: bottomRight,
+        bottomLeft: { x: topLeft.x, y: bottomRight.y }
+    }, color);
+}
+
 export function drawQuad(data: any, quad: Quad, color: number[]) {
     drawLine(
         data,
@@ -112,22 +136,22 @@ export function drawQuad(data: any, quad: Quad, color: number[]) {
 }
 
 export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {
-    let x0 = Math.round(p1.x), y0 = Math.round(p1.y);
-    let x1 = Math.round(p2.x), y1 = Math.round(p2.y);
-
-    // source: https://github.com/aloisdeniel/node-pngjs-draw/blob/master/index.js
-    var dx = Math.abs(x1-x0);
-    var dy = Math.abs(y1-y0);
-    var sx = (x0 < x1) ? 1 : -1;
-    var sy = (y0 < y1) ? 1 : -1;
-    var err = dx-dy;
-
-    while(true){
-        drawPixel(data, {x: x0, y: y0}, color);
-
-        if ((x0==x1) && (y0==y1)) break;
-        var e2 = 2*err;
-        if (e2 >-dy){ err -= dy; x0  += sx; }
-        if (e2 < dx){ err += dx; y0  += sy; }
+    // derived from https://github.com/aloisdeniel/node-pngjs-draw/blob/master/index.js
+    let x = Math.round(p1.x), y = Math.round(p1.y);
+    const x1 = Math.round(p2.x), y1 = Math.round(p2.y);
+    const dx = Math.abs(x1-x), dy = Math.abs(y1-y);
+    const sx = (x < x1)?1:-1, sy = (y < y1)?1:-1;
+    let err = dx-dy;
+    while (x !== x1 || y !== y1) {
+        drawPixel(data, {x, y}, color);
+        let e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y += sy;
+        }
     }
 }
