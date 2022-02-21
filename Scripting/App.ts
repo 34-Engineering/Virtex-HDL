@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus } from './BlobUtil';
+import { BlobStatus, test } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -16,15 +16,15 @@ const app: express.Application = express();
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
-    bound: true,
+    bound: false,
     quad: true,
     quadCenterLines: true,
     quadCorners: true,
     ellipse: false,
-    kernelPos: true,
-    kernelLine: true
+    kernelPos: false,
+    kernelLine: false
 };
-let imageFile = 'Angles.png';
+let imageFile = '2016.png';
 const IMAGES_INPUT_PATH = 'images';
 
 //EJS Page
@@ -96,10 +96,13 @@ function reset() {
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
+
+    test(image);
 }
 
 //Image
 function drawImage(): any {
+    //Copy Image
     let tempImage = v8.deserialize(v8.serialize(image));
 
     //Draw Blob Color
@@ -141,27 +144,25 @@ function drawImage(): any {
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
             if (drawOptions.quadCenterLines) {
                 drawLine(tempImage.data,
-                    { x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) / 2.0),
-                      y: ((blob.quad.topLeft.y + blob.quad.topRight.y) / 2.0) },
-                    { x: ((blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) / 2.0),
-                      y: ((blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) / 2.0) },
+                    { x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1),
+                      y: ((blob.quad.topLeft.y + blob.quad.topRight.y) >> 1) },
+                    { x: ((blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) >> 1),
+                      y: ((blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) >> 1) },
                     [0, 0, 255, 255]
                 );
                 drawLine(tempImage.data,
-                    { x: ((blob.quad.topLeft.x + blob.quad.bottomLeft.x) / 2.0),
-                      y: ((blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) / 2.0) },
-                    { x: ((blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) / 2.0),
-                      y: ((blob.quad.topRight.y + blob.quad.bottomRight.y-1) / 2.0)},
+                    { x: ((blob.quad.topLeft.x + blob.quad.bottomLeft.x) >> 1),
+                      y: ((blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) >> 1) },
+                    { x: ((blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1),
+                      y: ((blob.quad.topRight.y + blob.quad.bottomRight.y-1) >> 1)},
                     [255, 0, 255, 255]
                 );
             }
 
             if (drawOptions.ellipse) {
                 drawEllipse(tempImage.data,
-                    blob.quad.topLeft,
-                    blob.quad.topRight,
-                    blob.quad.bottomRight,
-                    blob.quad.bottomLeft,
+                    blob.boundTopLeft,
+                    blob.boundBottomRight,
                     [0, 0, 255, 100]
                 );
             }
@@ -183,7 +184,7 @@ function drawImage(): any {
         }
     }
 
-    //Draw Kernel Pos
+    //Draw Kernel Pos & Line
     if (drawOptions.kernelPos) {
         drawCenterFillSquare(tempImage.data, { x: kx*8, y: ky }, 2, [255, 215, 0, 128]);
     }
@@ -195,8 +196,11 @@ function drawImage(): any {
         );
     }
 
+    //Return Drawn Image
     return tempImage;
 }
+
+//Step
 function step(count: number) {
     //update sim "count" times
     for (let i = 0; i < count; i++) {

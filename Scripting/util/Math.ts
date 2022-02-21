@@ -82,8 +82,8 @@ export function calcPolygonArea(points: Vector[]): number {
     let total = 0;
     for (let i = 0; i < points.length; i++) {
         const addX = points[i].x;
-        const addY = points[i === points.length - 1 ? 0 : i + 1].y;
-        const subX = points[i === points.length - 1 ? 0 : i + 1].x;
+        const addY = points[i === points.length- 1 ? 0 : i+1].y;
+        const subX = points[i === points.length- 1 ? 0 : i+1].x;
         const subY = points[i].y;
         total += ((addX * addY) >> 1) - ((subX * subY) >> 1);
     }

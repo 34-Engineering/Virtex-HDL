@@ -36,29 +36,24 @@ export function calculateIDX(x: number, y: number): number {
     return (IMAGE_WIDTH * Math.round(y) + Math.round(x)) << 2;
 }
 
-export function drawEllipse(data: any, p1: Vector, p2: Vector, p3: Vector, p4: Vector, color: number[]) {
-    //FIXME
-    let points: Vector[] = [ p1, p2, p3, p4 ];
-    let left: Vector = points.reduce((a, b) => Math.min(a.x, b.x) ? a : b);
-    let right: Vector = points.reduce((a, b) => Math.max(a.x, b.x) ? a : b);
-    let top: Vector = points.reduce((a, b) => Math.min(a.y, b.y) ? a : b);
-    let bottom: Vector = points.reduce((a, b) => Math.max(a.y, b.y) ? a : b);
-
+export function drawEllipse(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
     const center: Vector = {
-        x: (left.x + right.x)/2.0,
-        y: (p1.y + p4.y)/2.0
+        x: (topLeft.x + bottomRight.x) >> 1,
+        y: (topLeft.y + bottomRight.y) >> 1
     };
-
-    const radius = Math.sqrt((p1.x - center.x)**2 + (p1.y - center.y)**2);
+    const radius: Vector = {
+        x: center.x - topLeft.x + 1,
+        y: center.y - topLeft.y + 1
+    };
 
     drawPixel(data, center, color);
 
     let lv1: Vector | undefined = undefined, lv2: Vector | undefined = undefined;
 
-    for (let x: number = center.x - radius; x <= 1 + center.x + radius; x++) {
-        const dy: number = Math.sqrt(Math.max(0, radius**2 - (x - center.x)**2));
-        const y1: number = center.y + dy;
-        const y2: number = center.y - dy;
+    for (let x: number = center.x - radius.x; x <= center.x + radius.x; x++) {
+        const q: number = radius.y*Math.sqrt((radius.x+center.x-x)*(radius.x-center.x+x));
+        const y1: number = (radius.x*center.y + q) / radius.x;
+        const y2: number = (radius.x*center.y - q) / radius.x;
 
         const v1: Vector = {x, y: y1};
         const v2: Vector = {x, y: y2};
