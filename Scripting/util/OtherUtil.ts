@@ -14,7 +14,6 @@ export const EMPTY_BLOB: BlobData = {
         bottomRight: {x:0, y:0},
         bottomLeft: {x:0, y:0},
     },
-    centerGravity: {x:0,y:0},
     area: 0
 };
 
@@ -131,7 +130,7 @@ export function drawQuad(data: any, quad: Quad, color: number[]) {
     );
 }
 
-export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {
+export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {    
     // derived from https://github.com/aloisdeniel/node-pngjs-draw/blob/master/index.js
     let x = Math.round(p1.x), y = Math.round(p1.y);
     const x1 = Math.round(p2.x), y1 = Math.round(p2.y);

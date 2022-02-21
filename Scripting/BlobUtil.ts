@@ -12,7 +12,6 @@ export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
     quad: Quad,
-    centerGravity: Vector,
     area: number
 }
 
@@ -90,7 +89,6 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
         // quad: mergeQuadsMaxArea(blob1.quad, blob2.quad),
         quad: mergeQuadsDistance(blob1.quad, blob2.quad),
         // quad: mergeQuads(blob1.quad, blob2.quad),
-        centerGravity: mergeCenterGravity(blob1, blob2),
         area: blob1.area + blob2.area
     };
 }
@@ -124,7 +122,6 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
             bottomRight:  {x:stop+1, y:line+1},
             bottomLeft:   {x:start , y:line+1},
         },
-        centerGravity: { x: start + (run.length >> 1), y: line},
         area: run.length
     };
 }

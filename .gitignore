@@ -3,3 +3,6 @@
 /Virtex-Embedded-Code.runs
 /Virtex-Embedded-Code.sim
 Scripting/node_modules
+.DS_Store
+.DS_Store
+Scripting/.DS_Store

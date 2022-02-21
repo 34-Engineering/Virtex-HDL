@@ -17,14 +17,14 @@ const app: express.Application = express();
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
     bound: false,
-    quad: true,
-    quadCenterLines: true,
-    quadCorners: true,
+    quad: false,
+    quadCenterLines: false,
+    quadCorners: false,
     ellipse: false,
     kernelPos: false,
-    kernelLine: false
+    kernelLine: true
 };
-let imageFile = '2016.png';
+let imageFile = 'Test.png';
 const IMAGES_INPUT_PATH = 'images';
 
 //EJS Page
@@ -105,15 +105,21 @@ function drawImage(): any {
 
     //Draw Blob Color
     if (drawOptions.blobColor) {
-        for (let y = 0; y < BlobProcessor.blobColorBuffer.length; y++) {
-            let runBufferX = 0;
+        let angles = [];
+        let lastCGX = 0;
+        for (let y = 0/*175*/; y < /*Math.min(*/BlobProcessor.blobColorBuffer.length/*, 275)*/; y++) {
+            let runBufferX: number = 0;
+            let cgX: number = 0;
             for (let i = 0; i < BlobProcessor.blobColorBuffer[y].count; i++) {
                 const run = BlobProcessor.blobColorBuffer[y].runs[i];
 
                 //if run is black ignore it
                 if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
+                    //TODO multiple runs in a line
+                    cgX += runBufferX + (run.length>>1);
+
                     //if run has pointer blobID => follow it
-                    const realBlobID = BlobProcessor.blobMetadatas[run.blobID].status == 
+                    const realBlobID: number = BlobProcessor.blobMetadatas[run.blobID].status == 
                         BlobStatus.POINTER ? BlobProcessor.getRealBlobIDDebug(run.blobID) : run.blobID;
 
                     //if run has valid blobID (or valid pointer blobID) => draw it
@@ -132,6 +138,40 @@ function drawImage(): any {
                 
                 runBufferX = runBufferX + run.length;
             }
+
+            if (y > 0 && cgX > 0 && lastCGX > 0) {
+                const angle = Math.atan2(1, lastCGX-cgX);
+                angles.push(cgX);
+            }
+            drawPixel(tempImage.data,
+                { x: cgX, y },
+                [255, 255, 0, 255]);
+            lastCGX = cgX;
+        }
+
+        if (angles.length > 0) {
+            // angles.sort((a,b)=>a-b);
+            // let half = Math.floor(angles.length >> 1);
+            // let median;
+            // if (angles.length % 2)
+            //     median = angles[half];
+            // else median = (angles[half - 1] + angles[half]) >> 1;
+
+            let str = '[', total = 0;
+            for (let i = 0; i < angles.length; i++) {
+                str += angles[i].toFixed(2) + ", ";
+                total += angles[i];
+            }
+            const avg = total/angles.length;
+            console.log(str.slice(0,-2)+']');
+            // console.log(avg, avg * (180.0/Math.PI));
+
+            // const ang = avg;
+
+            // drawLine(tempImage.data,
+            //     {x:320,y:240},
+            //     {x:320+Math.cos(ang)*100,y:240+Math.sin(-ang)*100},
+            //     [255,0,0,255]);
         }
     }
 
@@ -179,13 +219,6 @@ function drawImage(): any {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
             }
-
-            drawCenterFillSquare(tempImage.data, blob.centerGravity, 4, [255, 255, 0, 255]);
-            drawCenterFillSquare(tempImage.data, {
-                x: (blob.boundBottomRight.x+blob.boundTopLeft.x)>>1,
-                y: (blob.boundBottomRight.y+blob.boundTopLeft.y)>>1 
-            }, 4, [0, 255, 255, 255]
-            );
         }
     }
 
