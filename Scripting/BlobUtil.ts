@@ -119,6 +119,7 @@ export function test(img: any) {
 
     drawQuad(image.data, mergeQuads(q1, q2), [255, 255, 0, 255]);
 }
+//merge quads by drawing the smallest rotated rect that encapsulates them
 function mergeQuads(quad1: Quad, quad2: Quad): Quad {
     //pick most extreme points
     let extremes: Vector[] = [
@@ -198,6 +199,31 @@ function mergeQuadsDistance(quad1: Quad, quad2: Quad): Quad {
         bottomRight: pickLarger(quad1.bottomRight, quad2.bottomRight),
         bottomLeft: pickSmallerInverseY(quad1.bottomLeft, quad2.bottomLeft),
     }
+}
+
+export function calcAngle(frameBuffer: boolean[][], centroid: Vector, area: number): number {
+    //implementation from http://rcsstewa.com/wp-content/documents/books/Digital%20image.pdf
+    //μ_pq = central moment of order p, q
+    let u20_m_u02 = 0; //μ_20 - μ_02
+    let u11 = 0; //μ_11
+    
+    const normCentroid: Vector = {
+        x: centroid.x / area,
+        y: centroid.y / area
+    }
+
+    for (let v = 0; v < frameBuffer.length; v++) {
+        for (let u = 0; u < frameBuffer[v].length; u++) {
+            if (frameBuffer[v][u]) {
+                u20_m_u02 += Math.pow(u-normCentroid.x, 2) - Math.pow(v-normCentroid.y, 2); //
+                u11 += (u-normCentroid.x) * (v-normCentroid.y);
+            }
+        }
+    }
+
+    console.log(u20_m_u02, u11);
+
+    return Math.atan2(u20_m_u02, u11 << 1) >> 1;
 }
 
 //Merge Centroid

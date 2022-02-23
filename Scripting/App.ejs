@@ -125,8 +125,10 @@
 
         .faults {
             display: block;
-            margin: 5px 0;
-            color: white;
+            color: red;
+            margin: 10px 0 0 0;
+            font-size: 12px;
+            text-align: center;
         }
     </style>
 </head>
@@ -174,10 +176,9 @@
                 <button class="toggle <%=drawOptions[property]?'white':''%>"
                     onclick="changeDrawOption(this, '<%= property %>')"><%= property %></button>
                 <% } %>
+                <div class="faults"></div>
             </div>
         </div>
-
-        <div class="faults"></div>
     </div>
 
     <script>

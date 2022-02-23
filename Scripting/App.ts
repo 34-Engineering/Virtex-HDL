@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, test } from './BlobUtil';
+import { BlobStatus, calcAngle, test } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -37,21 +37,27 @@ app.get('/', (req: express.Request, res: express.Response) => {
 });
 
 //Blob Processor + Python Sim
-let kx: number, ky: number;
+let kx: number, ky: number; //(0,0) to (79,479)
 let pythonDone: boolean;
 let loopCount: number;
 let tempKernel: Kernel;
+let frameBuffer: boolean[][] = [...Array(480)].map(_=>([...Array(640)].map(_=>false)));
 let image: any;
 function update() {
     //"36MHz" Kernel Reading (PythonManager)
     if (loopCount % 5 == 0 && !pythonDone) {
         tempKernel.pos = { x: kx, y: ky };
         tempKernel.valid = true;
-        for (let x = 0; x < 8; x++) {
-            const idx = calculateIDX(kx * 8 + x, ky);
+        for (let ix = 0; ix < 8; ix++) {
+            //kx is kernel pos & ix is interkernel pos
+            //so px (pixel x) = kx * kernelSize + ix
+            //& kernels are 1 tall so ky == py
+            const px = kx * 8 + ix;
+            const idx = calculateIDX(px, ky);
             const value = (image.data[idx] + image.data[idx + 1] + image.data[idx + 2]) / 3;
             const threshold = value > virtexConfig.threshold;
-            tempKernel.value[x] = threshold;
+            frameBuffer[ky][px] = threshold;
+            tempKernel.value[ix] = threshold;
         }
         BlobProcessor.sendKernel(tempKernel);
 
@@ -191,6 +197,8 @@ function drawImage(): any {
                 }, 2, [255,255,0,255]);
                 drawCenterFillSquare(tempImage.data, blob.centroid, 2, [0,255,255,255]);
             }
+
+            console.log(calcAngle(frameBuffer, blob.centroid, blob.area));
         }
     }
 
