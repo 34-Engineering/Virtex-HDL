@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus } from './BlobUtil';
+import { BlobStatus, test } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -21,6 +21,7 @@ let drawOptions: {[index: string]: boolean} = {
     quadCenterLines: false,
     quadCorners: false,
     ellipse: false,
+    centroid: true,
     kernelPos: false,
     kernelLine: true
 };
@@ -96,6 +97,8 @@ function reset() {
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
+
+    // test(image);
 }
 
 //Image
@@ -105,18 +108,13 @@ function drawImage(): any {
 
     //Draw Blob Color
     if (drawOptions.blobColor) {
-        let cgxs: number[][] = [];
         for (let y = 0; y < BlobProcessor.blobColorBuffer.length; y++) {
             let runBufferX: number = 0;
-            let cgx: number = 0;
             for (let i = 0; i < BlobProcessor.blobColorBuffer[y].count; i++) {
                 const run = BlobProcessor.blobColorBuffer[y].runs[i];
 
                 //if run is black ignore it
-                if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {
-                    //TODO multiple runs in a line
-                    cgx += runBufferX + (run.length>>1);
-
+                if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {                    
                     //if run has pointer blobID => follow it
                     const realBlobID: number = BlobProcessor.blobMetadatas[run.blobID].status == 
                         BlobStatus.POINTER ? BlobProcessor.getRealBlobIDDebug(run.blobID) : run.blobID;
@@ -137,21 +135,6 @@ function drawImage(): any {
                 
                 runBufferX = runBufferX + run.length;
             }      
-        }
-
-        if (cgxs.length > 0) {
-            const avgSize = 1;
-            for (let i = avgSize-1; i < cgxs.length; i++) {
-                let total = 0;
-                for (let s = 0; s < avgSize; s++) {
-                    total += cgxs[i-s][0];
-                }
-                const avgX = total/avgSize;
-
-                drawPixel(tempImage.data,
-                    { x: avgX, y: cgxs[i][1] },
-                    [255, 255, 0, 255]);
-            }
         }
     }
 
@@ -198,6 +181,15 @@ function drawImage(): any {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
+            }
+
+            if (drawOptions.centroid) {
+                //draw bound center + centroid
+                drawCenterFillSquare(tempImage.data, {
+                    x: (blob.boundTopLeft.x + blob.boundBottomRight.x) >> 1,
+                    y: (blob.boundTopLeft.y + blob.boundBottomRight.y) >> 1
+                }, 2, [255,255,0,255]);
+                drawCenterFillSquare(tempImage.data, blob.centroid, 2, [0,255,255,255]);
             }
         }
     }
