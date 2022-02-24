@@ -117,6 +117,7 @@ export function test(img: any) {
     drawQuad(image.data, q1, [255, 0, 125, 128]);
     drawQuad(image.data, q2, [128, 255, 0, 128]);
 
+    mergeQuads(q1, q2);
     drawQuad(image.data, mergeQuads(q1, q2), [255, 255, 0, 255]);
 }
 function mergeQuads(quad1: Quad, quad2: Quad): Quad {
@@ -149,10 +150,11 @@ function mergeQuads(quad1: Quad, quad2: Quad): Quad {
                 bestComboIndex = i;
         }
     }
-    let center1: Vector = points[combos[bestComboIndex][0]]; //center end point #1
-    let center2: Vector = points[combos[bestComboIndex][1]]; //center end point #2
-    let m = (center2.y - center1.y) / (center2.x - center1.x); //center slope
-    let mInv = -(1.0 / m); //inverse of center slope
+    const center1: Vector = points[combos[bestComboIndex][0]]; //center end point #1
+    const center2: Vector = points[combos[bestComboIndex][1]]; //center end point #2
+    const m = (center2.y - center1.y) / (center2.x - center1.x); //center slope
+    const mInv = -(1.0 / m); //inverse of center slope
+    const b = center1.y - m * center1.x;
 
     //pick points furthest perpendictular to center line
     let perp1: Vector = {x:0,y:0}; //above cl
@@ -165,14 +167,24 @@ function mergeQuads(quad1: Quad, quad2: Quad): Quad {
         //find distance between a point and line segment
         //with sign of whether the point is above or below the line
         //& assuming the point is between the lineStart & lineEnd if they were extended via invSlope
+        const p = point.x;
+        const q = point.y;
+        const m1 = mInv;
 
-        const dist = 0;
+        const b2 = q-m1*p;
+
+        const x1 = (b2-b)/(m-m1);
+        const y1 = m*x1+b;
+
+        const dist = Math.sqrt((p-x1)**2+(q-y1)**2);
+
+        const aboveLine = (p-x1)<0;
         
-        if (dist > 0 && dist > perp1Dist) {
+        if (aboveLine && dist > perp1Dist) {
             perp1Dist = dist;
             perp1 = point;
         }
-        else if (dist < 0 && dist < perp2Dist) {
+        else if (!aboveLine && dist > perp2Dist) {
             perp2Dist = dist;
             perp2 = point;
         }
