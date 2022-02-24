@@ -79,11 +79,13 @@
 
         /* canvas */
         .canvas-wrapper {
-            flex: 1;
+            width: min(calc(100vw - 450px), 133.333vh);
+            position: relative;
             border-right: 2px white solid;
         }
         #canvas {
-            width: min(100%, 133.333vh);
+            width: 100%;
+            border-bottom: 2px white solid;
         }
 
         /* sidebar */
