@@ -119,58 +119,75 @@ export function test(img: any) {
 
     drawQuad(image.data, mergeQuads(q1, q2), [255, 255, 0, 255]);
 }
-//merge quads by drawing the smallest rotated rect that encapsulates them
 function mergeQuads(quad1: Quad, quad2: Quad): Quad {
-    //pick most extreme points
-    let extremes: Vector[] = [
-        pickSmaller(quad1.topLeft, quad2.topLeft),
-        pickLargerInverseY(quad1.topRight, quad2.topRight),
-        pickSmallerInverseY(quad1.bottomLeft, quad2.bottomLeft),
-        pickLarger(quad1.bottomRight, quad2.bottomRight)
+    //merge quads by drawing the smallest rotated rect that encapsulates them
+    
+    const points: Vector[] = [
+        quad1.topLeft, quad2.topLeft,
+        quad1.topRight, quad2.topRight,
+        quad1.bottomLeft, quad2.bottomLeft,
+        quad1.bottomRight, quad2.bottomRight
     ];
-
-    drawCenterFillSquare(image.data, extremes[0], 2, [0,255,255,255]);
-    drawCenterFillSquare(image.data, extremes[1], 2, [0,255,255,255]);
-    drawCenterFillSquare(image.data, extremes[2], 2, [0,255,255,255]);
-    drawCenterFillSquare(image.data, extremes[3], 2, [0,255,255,255]);
-
-    let avg: Vector = {
-        x: (extremes[0].x+extremes[1].x+extremes[2].x+extremes[3].x)>>2,
-        y: (extremes[0].y+extremes[1].y+extremes[2].y+extremes[3].y)>>2
-    };
-    drawCenterFillSquare(image.data, avg, 2, [255, 255, 0, 255]);
-
+    
     //pick center line from two furthest points
-    let maxInd = 0;
-    let combos = [ //1001, 1010, 1100, 0101, 0110, 0011
-        [0,3, 2,1], //last two numbers are just for pP
-        [0,2, 1,3],
-        [0,1, 2,3],
-        [1,3, 0,2],
-        [1,2, 0,3],
-        [2,3, 0,1]
+    let bestComboIndex = 0;
+    let combos = [
+        [0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],
+        [1,2],[1,3],[1,4],[1,5],[1,6],[1,7],
+        [2,3],[2,4],[2,5],[2,6],[2,7],
+        [3,4],[3,5],[3,6],[3,7],
+        [4,5],[4,6],[4,7],
+        [5,6],[5,7],
+        [6,7]
     ];
-    for (let i = 1; i < 6; i++) {
+    for (let i = 1; i < combos.length; i++) {
         function dist(a: Vector, b: Vector): number {
             return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
         }
-        if (dist(extremes[combos[i][1]], extremes[combos[i][0]]) > 
-            dist(extremes[combos[maxInd][1]], extremes[combos[maxInd][0]])) {
-            maxInd = i;
+        if (dist(points[combos[i][1]], points[combos[i][0]]) > 
+            dist(points[combos[bestComboIndex][1]], points[combos[bestComboIndex][0]])) {
+                bestComboIndex = i;
         }
     }
-    let pF1: Vector = extremes[combos[maxInd][0]]; //start center line
-    let pF2: Vector = extremes[combos[maxInd][1]]; //end
-    let pP1: Vector = extremes[combos[maxInd][2]]; //perp1 to cl
-    let pP2: Vector = extremes[combos[maxInd][3]]; //perp2
+    let center1: Vector = points[combos[bestComboIndex][0]]; //center end point #1
+    let center2: Vector = points[combos[bestComboIndex][1]]; //center end point #2
+    let m = (center2.y - center1.y) / (center2.x - center1.x); //center slope
+    let mInv = -(1.0 / m); //inverse of center slope
 
-    //calculate center line & offsets
-    let m = (pF2.y - pF1.y) / (pF2.x - pF1.x); //center slope
-    let mInv = -(1.0 / m);
-    let bPF1Inv = pF1.y - mInv * pF1.x;
-    let bPF2Inv = pF2.y - mInv * pF2.x;
-    let bPP1 = pP1.y - m * pP1.x; //edge offsets from center line
-    let bPP2 = pP2.y - m * pP2.x; //y=mx+b => b=y-mx
+    //pick points furthest perpendictular to center line
+    let perp1: Vector = {x:0,y:0}; //above cl
+    let perp2: Vector = {x:0,y:0}; //below cl
+    let perp1Dist: number = 0; //cached dist
+    let perp2Dist: number = 0;
+    for (let i = 0; i < points.length; i++) {
+        const point = points[i];
+
+        //find distance between a point and line segment
+        //with sign of whether the point is above or below the line
+        //& assuming the point is between the lineStart & lineEnd if they were extended via invSlope
+
+        const dist = 0;
+        
+        if (dist > 0 && dist > perp1Dist) {
+            perp1Dist = dist;
+            perp1 = point;
+        }
+        else if (dist < 0 && dist < perp2Dist) {
+            perp2Dist = dist;
+            perp2 = point;
+        }
+    }
+
+    drawCenterFillSquare(image.data, center1, 2, [255,0,255,255]);
+    drawCenterFillSquare(image.data, center2, 2, [255,0,255,255]);
+    drawCenterFillSquare(image.data, perp1, 2, [0,255,255,255]);
+    drawCenterFillSquare(image.data, perp2, 2, [0,255,255,255]);
+
+    //calculate center line & offsets ("b" of y=mx+b)
+    let bPF1Inv = center1.y - mInv * center1.x;
+    let bPF2Inv = center2.y - mInv * center2.x;
+    let bPP1 = perp1.y - m * perp1.x; //edge offsets from center line
+    let bPP2 = perp2.y - m * perp2.x; //y=mx+b => b=y-mx
 
     //calculate 4 corners
     let x0 = (bPF1Inv - bPP1) / ((m**2 + 1) / (m));
@@ -199,31 +216,6 @@ function mergeQuadsDistance(quad1: Quad, quad2: Quad): Quad {
         bottomRight: pickLarger(quad1.bottomRight, quad2.bottomRight),
         bottomLeft: pickSmallerInverseY(quad1.bottomLeft, quad2.bottomLeft),
     }
-}
-
-export function calcAngle(frameBuffer: boolean[][], centroid: Vector, area: number): number {
-    //implementation from http://rcsstewa.com/wp-content/documents/books/Digital%20image.pdf
-    //μ_pq = central moment of order p, q
-    let u20_m_u02 = 0; //μ_20 - μ_02
-    let u11 = 0; //μ_11
-    
-    const normCentroid: Vector = {
-        x: centroid.x / area,
-        y: centroid.y / area
-    }
-
-    for (let v = 0; v < frameBuffer.length; v++) {
-        for (let u = 0; u < frameBuffer[v].length; u++) {
-            if (frameBuffer[v][u]) {
-                u20_m_u02 += Math.pow(u-normCentroid.x, 2) - Math.pow(v-normCentroid.y, 2); //
-                u11 += (u-normCentroid.x) * (v-normCentroid.y);
-            }
-        }
-    }
-
-    console.log(u20_m_u02, u11);
-
-    return Math.atan2(u20_m_u02, u11 << 1) >> 1;
 }
 
 //Merge Centroid

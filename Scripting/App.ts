@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, calcAngle, test } from './BlobUtil';
+import { BlobStatus, test } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -41,7 +41,6 @@ let kx: number, ky: number; //(0,0) to (79,479)
 let pythonDone: boolean;
 let loopCount: number;
 let tempKernel: Kernel;
-let frameBuffer: boolean[][] = [...Array(480)].map(_=>([...Array(640)].map(_=>false)));
 let image: any;
 function update() {
     //"36MHz" Kernel Reading (PythonManager)
@@ -56,7 +55,6 @@ function update() {
             const idx = calculateIDX(px, ky);
             const value = (image.data[idx] + image.data[idx + 1] + image.data[idx + 2]) / 3;
             const threshold = value > virtexConfig.threshold;
-            frameBuffer[ky][px] = threshold;
             tempKernel.value[ix] = threshold;
         }
         BlobProcessor.sendKernel(tempKernel);
@@ -104,7 +102,7 @@ function reset() {
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
 
-    // test(image);
+    test(image);
 }
 
 //Image
@@ -197,8 +195,6 @@ function drawImage(): any {
                 }, 2, [255,255,0,255]);
                 drawCenterFillSquare(tempImage.data, blob.centroid, 2, [0,255,255,255]);
             }
-
-            console.log(calcAngle(frameBuffer, blob.centroid, blob.area));
         }
     }
 
