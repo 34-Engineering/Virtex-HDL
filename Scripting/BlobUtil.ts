@@ -12,7 +12,7 @@ export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
     quad: Quad,
-    centroid: Vector, //"center of gravity",
+    centroid: Vector, //"center of area/mass",
     area: number
 }
 
@@ -28,7 +28,7 @@ export interface Target {
     center: Vector;
     boundTopLeft: Vector;
     boundBottomRight: Vector;
-    timestamp: number;
+    timestamp: number; //timestamp is replaced with latency at delivery
     blobCount: number;
     angleRads: number;
     fullness: number;
@@ -55,9 +55,9 @@ export function doesBlobMatchCriteria(blob: BlobData): boolean {
 
     //boundWidth / boundHeight = (1/640) to 640
     //10.6?
-    const aspectRatio = boundWidth / boundHeight;
-    const size = boundWidth * boundHeight;
-    const fullness = blob.area / size;
+    const aspectRatio = boundWidth / boundHeight; //
+    const size = boundWidth * boundHeight; //16-bit
+    const fullness = blob.area / size; //16-bit (Q1.15)
     const angleRads = calcBlobAngleRads(blob);
 
     return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
@@ -132,8 +132,8 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
         y: start1.y - end1.y,
     };
     const delta2: Vector = {
-        x: start2.x - end2.x, //TODO check sign
-        y: start2.y - end2.y,
+        x: end2.x - start2.x, //TODO check sign
+        y: end2.y - start2.y,
     };
 
     //put center line segments into y=mx+b
@@ -180,7 +180,7 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
     }
 
     //find if the distance is negligable
-    const sqCentDistEpsilon = 5;
+    const sqCentDistEpsilon = 5; //FIXME ??
     const centInLine1 = centDistSq1 < sqCentDistEpsilon;
     const centInLine2 = centDistSq2 < sqCentDistEpsilon;
 

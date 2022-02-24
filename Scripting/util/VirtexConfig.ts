@@ -5,25 +5,25 @@ export const virtexConfig = {
 
     //target params
     targetBlobCountMin: 1, //amount of blobs in target
-    targetBlobCountMax: 1,
+    targetBlobCountMax: 1, //16-bit integer
     targetBlobGapMin: 0, //distance between blobs in target
-    targetBlobGapMax: 0xffff,
+    targetBlobGapMax: 0xffff, //16-bit integer
     targetBlobAreaDiffMin: 0, //difference between areas of blobs in target
-    targetBlobAreaDiffMax: 0xffff,
-    targetBlobAngleRadsDiffMin: 0, //difference in slope between each blob next to eachother
-    targetBlobAngleRadsDiffMax: 0xffff, //TODO how does the work if blobs are not in a clear line?
-    targetAspectRatioMin: 0,
-    targetAspectRatioMax: 0xffff,
+    targetBlobAreaDiffMax: 0xffff, //16-bit integer
+    targetBlobAngleDiffMin: 0, //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
+    targetBlobAngleDiffMax: 0xffff, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
+    targetAspectRatioMin: 0, //aspectRatio = boundWidth / boundHeight
+    targetAspectRatioMax: 0xffff, //Q9.7 floating point
     targetCenterX: IMAGE_WIDTH / 2, //final target selection parameter
     targetCenterY: IMAGE_HEIGHT / 2, //choose target thats closet to this point
 
     //blob params
     blobAspectRatioMin: Number.MIN_SAFE_INTEGER, //aspectRatio = boundWidth / boundHeight
-    blobAspectRatioMax: Number.MAX_SAFE_INTEGER,
+    blobAspectRatioMax: Number.MAX_SAFE_INTEGER, //Q9.7 floating point
     blobSizeMin: 100, //size = boundWidth * boundHeight
-    blobSizeMax: Number.MAX_SAFE_INTEGER,
+    blobSizeMax: Number.MAX_SAFE_INTEGER, //16-bit integer
     blobFullnessMin: Number.MIN_SAFE_INTEGER, //fullness = blob.area (true area) / size
-    blobFullnessMax: Number.MAX_SAFE_INTEGER,
-    blobAngleRadsMin: Number.MIN_SAFE_INTEGER, //angle of polygon (-PI to PI)
-    blobAngleRadsMax: Number.MAX_SAFE_INTEGER, //avg line between two longest sides of quad
+    blobFullnessMax: Number.MAX_SAFE_INTEGER, //Q1.15 floating point
+    blobAngleMin: Number.MIN_SAFE_INTEGER, //angle of quad
+    blobAngleMax: Number.MAX_SAFE_INTEGER, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
 };

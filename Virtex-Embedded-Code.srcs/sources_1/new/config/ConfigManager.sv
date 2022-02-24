@@ -242,6 +242,7 @@ module ConfigManager(
         writeQueue[writeQueueWritePointer] <= address;
         if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
             writeQueueWritePointer <= 0;
+            //TODO write queue overflow fault?
         end
         else begin
             writeQueueWritePointer <= writeQueueWritePointer + 1;
