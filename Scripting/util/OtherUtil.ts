@@ -151,3 +151,10 @@ export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {
         }
     }
 }
+
+export function drawSILine(data: any, m: number, b: number, color: number[]) {
+    for (let x = 0; x < 640; x++) {
+        const y = m*x + b;
+        drawPixel(data, { x, y }, color);
+    }
+}

@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus } from './BlobUtil';
+import { BlobStatus, calcBlobAngleRads } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -17,16 +17,17 @@ const app: express.Application = express();
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
     bound: true,
-    quad: true,
-    quadCenterLines: true,
+    quad: false,
+    quadCenterLine: true,
     quadCorners: true,
     ellipse: false,
-    centroid: true,
+    centroid: false,
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = 'Test.png';
+let imageFile = 'Angles.png';
 const IMAGES_INPUT_PATH = 'images';
+const autoStepFrame = true;
 
 //EJS Page
 const imageFiles = fs.readdirSync('images');
@@ -145,21 +146,8 @@ function drawImage(): any {
         const blob = BlobProcessor.blobBRAM[i];
         if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
-            if (drawOptions.quadCenterLines) {
-                drawLine(tempImage.data,
-                    { x: ((blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1),
-                      y: ((blob.quad.topLeft.y + blob.quad.topRight.y) >> 1) },
-                    { x: ((blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) >> 1),
-                      y: ((blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) >> 1) },
-                    [0, 0, 255, 255]
-                );
-                drawLine(tempImage.data,
-                    { x: ((blob.quad.topLeft.x + blob.quad.bottomLeft.x) >> 1),
-                      y: ((blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) >> 1) },
-                    { x: ((blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1),
-                      y: ((blob.quad.topRight.y + blob.quad.bottomRight.y-1) >> 1)},
-                    [255, 0, 255, 255]
-                );
+            if (drawOptions.quadCenterLine) {
+                calcBlobAngleRads(blob, tempImage.data);
             }
 
             if (drawOptions.ellipse) {
@@ -235,6 +223,9 @@ app.post('/step', (req: express.Request, res: express.Response) => {
 app.post('/reset', (req: express.Request, res: express.Response) => {
     try {
         reset();
+        if (autoStepFrame) {
+            step(Number.MAX_SAFE_INTEGER);
+        }
         res.send({ image: drawImage(), faults: getFaults(), error: false });
     }
     catch (e) { res.send({ error: e }); }
