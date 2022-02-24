@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, test } from './BlobUtil';
+import { BlobStatus } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -16,10 +16,10 @@ const app: express.Application = express();
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
-    bound: false,
-    quad: false,
-    quadCenterLines: false,
-    quadCorners: false,
+    bound: true,
+    quad: true,
+    quadCenterLines: true,
+    quadCorners: true,
     ellipse: false,
     centroid: true,
     kernelPos: false,
@@ -101,8 +101,6 @@ function reset() {
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
-
-    test(image);
 }
 
 //Image
