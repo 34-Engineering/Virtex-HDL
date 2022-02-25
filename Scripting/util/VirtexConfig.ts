@@ -6,14 +6,14 @@ export const virtexConfig = {
     //target params
     targetBlobCountMin: 1, //amount of blobs in target
     targetBlobCountMax: 1, //16-bit integer
-    targetBlobGapMin: 0, //distance between blobs in target
-    targetBlobGapMax: 0xffff, //16-bit integer
-    targetBlobAreaDiffMin: 0, //difference between areas of blobs in target
+    targetBlobXGapMin: 0, //distance between blobs in target
+    targetBlobXGapMax: 0xffff, //16-bit integer
+    targetBlobYGapMin: 0, //distance between blobs in target
+    targetBlobYGapMax: 0xffff, //16-bit integer
+    targetBlobAreaDiffMin: 0, //difference between areas of blobs in target //TODO what?? shouldn't this scale on blob size?
     targetBlobAreaDiffMax: 0xffff, //16-bit integer
-    targetBlobAngleDiffMin: 0, //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
-    targetBlobAngleDiffMax: 0xffff, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
-    targetAspectRatioMin: 0, //aspectRatio = boundWidth / boundHeight
-    targetAspectRatioMax: 0xffff, //Q9.7 floating point
+    targetBlobAngleMin: 0, //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
+    targetBlobAngleMax: 0xffff, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
     targetCenterX: IMAGE_WIDTH / 2, //final target selection parameter
     targetCenterY: IMAGE_HEIGHT / 2, //choose target thats closet to this point
 
