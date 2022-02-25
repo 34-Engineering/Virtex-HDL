@@ -225,9 +225,9 @@
                     }
                 }, 100);
             };
-            button.onmouseup = () => {
-                clearInterval(stepButtonHoldInterval);
-            };
+        });
+        window.addEventListener('mouseup', (e) => {
+            clearInterval(stepButtonHoldInterval);
         });
 
         //Ping (keep track of what process we were using
