@@ -30,7 +30,7 @@ export interface Target {
     boundBottomRight: Vector;
     timestamp: number; //timestamp is replaced with latency at delivery
     blobCount: number;
-    angleRads: number;
+    angle: number;
     fullness: number;
     //TODO
 };
@@ -58,12 +58,12 @@ export function doesBlobMatchCriteria(blob: BlobData): boolean {
     const aspectRatio = boundWidth / boundHeight; //
     const size = boundWidth * boundHeight; //16-bit
     const fullness = blob.area / size; //16-bit (Q1.15)
-    const angleRads = calcBlobAngleRads(blob);
+    const angle = calcBlobAngle(blob);
 
     return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
            inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
            inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   ) &&
-           inRangeInclusive(angleRads  , virtexConfig.blobAngleRadsMin  , virtexConfig.blobAngleRadsMax  );
+           inRangeInclusive(angle  , virtexConfig.blobAngleMin  , virtexConfig.blobAngleMax  );
 }
 
 //Merging Blobs
@@ -105,7 +105,7 @@ function mergeCentroids(blob1: BlobData, blob2: BlobData): Vector {
 }
 
 //Calc Blob Angle
-export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
+export function calcBlobAngle(blob: BlobData, data: any = false): number {
     //the forming of quads is not perfect BUT
     //we can correct for the majority of the fault by checking
     //whether the center lines travel through the centroid (within a tolerance--epsilon)
@@ -141,12 +141,12 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
     const m2 = (delta2.y)/(delta2.x);
     const b1 = start1.y - m1 * start1.x; //y-intercept
     const b2 = start2.y - m2 * start2.x;
-    const mInv1 = -1/m1; //inverse slope
-    const mInv2 = -1/m2;
+    const mInv1 = -(delta1.x)/(delta1.y); //inverse slope
+    const mInv2 = -(delta2.x)/(delta2.y);
 
     //angle of lines from slope
-    const angleRads1 = Math.atan(m1);
-    const angleRads2 = Math.atan(m2);
+    const angle1 = Math.atan2(delta1.y, delta1.x);
+    const angle2 = Math.atan2(delta2.y, delta2.x);
 
     //length of line segments (for selection)
     const lengthSq1 = Math.abs(delta1.x**2 + delta1.y**2); //using length^2 because
@@ -163,7 +163,7 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
     else { //normal line; using dist^2 because sqrt cancels
         const bCent1 = blob.centroid.y - mInv1 * blob.centroid.x; //y-intercept
         const intCentX1 = (bCent1 - b1)/(m1 - mInv1); //intersection between line & centroid
-        const intCentY1 = m1 * intCentX1 + b1;
+        const intCentY1 = mInv1 * intCentX1 + bCent1;
         centDistSq1 = (blob.centroid.x-intCentX1)**2 + (blob.centroid.y-intCentY1)**2;
     }
     if (delta2.x == 0) { //vertical line
@@ -190,7 +190,7 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
             drawLine(data, start1, end1, [255, 255, 0, 255]);
         }
         
-        return angleRads1;
+        return angle1;
     }
     else if (!centInLine1 && !centInLine2) {
     //FAULT? no valid angle...
@@ -201,7 +201,7 @@ export function calcBlobAngleRads(blob: BlobData, data: any = false): number {
         if (data) {
             drawLine(data, start2, end2, [255, 255, 0, 255]);
         }
-        return angleRads2;
+        return angle2;
     }
 }
 

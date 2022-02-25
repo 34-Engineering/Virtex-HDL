@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, calcBlobAngleRads } from './BlobUtil';
+import { BlobStatus, calcBlobAngle } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -25,7 +25,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = 'Test.png';
+let imageFile = 'Angles.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -147,7 +147,7 @@ function drawImage(): any {
         if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
             if (drawOptions.quadCenterLine) {
-                console.log(calcBlobAngleRads(blob, tempImage.data) * (180 / Math.PI));
+                console.log(calcBlobAngle(blob, tempImage.data) * (180 / Math.PI));
             }
 
             if (drawOptions.ellipse) {
