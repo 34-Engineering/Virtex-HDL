@@ -13,6 +13,7 @@ export interface BlobData {
     boundBottomRight: Vector,
     quad: Quad,
     centroid: Vector, //"center of area/mass",
+    angle: number, //16-bit (sign + 15-bit int), [-32767, 32767] where 32767 = 360°
     area: number
 }
 
@@ -35,6 +36,15 @@ export interface Target {
     //TODO
 };
 
+//Angle
+export enum BlobAngle {
+    //bound in range [0°, 180°] (angles increase counter-clockwise)
+    HORIZONTAL, //[0, 10°], [170°, 180°]
+    VERTICAL, //[80°, 100°]
+    DIAGONAL_FORWARD, //(10°, 80°)
+    DIAGONAL_BACKWARD //(100°, 170°)
+}
+
 //Run
 export interface Run {
     length: number, //[9:0]
@@ -49,7 +59,7 @@ export interface RunBuffer {
 }
 
 //Blob Criteria
-export function doesBlobMatchCriteria(blob: BlobData): boolean {
+export function doesBlobMatchCriteria(blob: BlobData, angle: number): boolean {
     const boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
     const boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
@@ -58,7 +68,6 @@ export function doesBlobMatchCriteria(blob: BlobData): boolean {
     const aspectRatio = boundWidth / boundHeight; //
     const size = boundWidth * boundHeight; //16-bit
     const fullness = blob.area / size; //16-bit (Q1.15)
-    const angle = calcBlobAngle(blob);
 
     return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
            inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
@@ -79,6 +88,7 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
         },
         quad: mergeQuadsDistance(blob1.quad, blob2.quad),
         centroid: mergeCentroids(blob1, blob2),
+        angle: 0, //angle is only saved once a blob is "done" & at that point no merges can occur
         area: blob1.area + blob2.area
     };
 }
@@ -104,13 +114,13 @@ function mergeCentroids(blob1: BlobData, blob2: BlobData): Vector {
     }
 }
 
-//Calc Blob Angle
+//Calculate Blob Angle
 export function calcBlobAngle(blob: BlobData, data: any = false): number {
     //the forming of quads is not perfect BUT
     //we can correct for the majority of the fault by checking
     //whether the center lines travel through the centroid (within a tolerance--epsilon)
 
-    //two center lines drawn from quad centers
+    //make two center lines from quad centers
     const start1: Vector = {
         x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1,
         y: (blob.quad.topLeft.y + blob.quad.topRight.y) >> 1
@@ -127,82 +137,41 @@ export function calcBlobAngle(blob: BlobData, data: any = false): number {
         x: (blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.topRight.y + blob.quad.bottomRight.y-1) >> 1
     };
-    const delta1: Vector = {
-        x: start1.x - end1.x, //TODO check sign
-        y: start1.y - end1.y,
-    };
-    const delta2: Vector = {
-        x: end2.x - start2.x, //TODO check sign
-        y: end2.y - start2.y,
-    };
 
-    //put center line segments into y=mx+b
-    const m1 = (delta1.y)/(delta1.x); //slope
-    const m2 = (delta2.y)/(delta2.x);
-    const b1 = start1.y - m1 * start1.x; //y-intercept
-    const b2 = start2.y - m2 * start2.x;
-    const mInv1 = -(delta1.x)/(delta1.y); //inverse slope
-    const mInv2 = -(delta2.x)/(delta2.y);
+    //find angle of center lines //TODO CORDIC
+    const angle1 = Math.atan2(start1.y - end1.y, start1.x - end1.x);
+    const angle2 = Math.atan2(end2.y - start2.y, end2.x - start2.x);
 
-    //angle of lines from slope
-    const angle1 = Math.atan2(delta1.y, delta1.x);
-    const angle2 = Math.atan2(delta2.y, delta2.x);
+    //calculate distance^2 between line & centroid (& length^2 of line while your at it)
+    const { distSq: centDistSq1, lengthSq: lengthSq1 } = calcPointToLineParams(blob.centroid, start1, end1);
+    const { distSq: centDistSq2, lengthSq: lengthSq2 } = calcPointToLineParams(blob.centroid, start2, end2);
 
-    //length of line segments (for selection)
-    const lengthSq1 = Math.abs(delta1.x**2 + delta1.y**2); //using length^2 because
-    const lengthSq2 = Math.abs(delta2.x**2 + delta2.y**2); //the sqrts cancel in comparison
-
-    //distance between centroid and line
-    let centDistSq1, centDistSq2;
-    if (delta1.x == 0) { //vertical line
-        centDistSq1 = (blob.centroid.x - start1.x)**2;
-    }
-    else if (delta1.y == 0) { //horizontal line
-        centDistSq1 = (blob.centroid.y - start1.y)**2;
-    }
-    else { //normal line; using dist^2 because sqrt cancels
-        const bCent1 = blob.centroid.y - mInv1 * blob.centroid.x; //y-intercept
-        const intCentX1 = (bCent1 - b1)/(m1 - mInv1); //intersection between line & centroid
-        const intCentY1 = mInv1 * intCentX1 + bCent1;
-        centDistSq1 = (blob.centroid.x-intCentX1)**2 + (blob.centroid.y-intCentY1)**2;
-    }
-    if (delta2.x == 0) { //vertical line
-        centDistSq2 = (blob.centroid.x - start2.x)**2;
-    }
-    else if (delta2.y == 0) { //horizontal line
-        centDistSq2 = (blob.centroid.y - start2.y)**2;
-    }
-    else { //normal line
-        const bCent2 = blob.centroid.y - mInv2 * blob.centroid.x;
-        const intCentX2 = (bCent2 - b2)/(m2 - mInv2);
-        const intCentY2 = m2 * intCentX2 + b2;
-        centDistSq2 = (blob.centroid.x-intCentX2)**2 + (blob.centroid.y-intCentY2)**2;
-    }
-
-    //find if the distance is negligable
-    const sqCentDistEpsilon = 5; //FIXME ??
+    //find if the distance touching line (within epsilon/tolerance)
+    const sqCentDistEpsilon = 16; //FIXME should this be a parameter?
     const centInLine1 = centDistSq1 < sqCentDistEpsilon;
     const centInLine2 = centDistSq2 < sqCentDistEpsilon;
 
-    if (centInLine1 && (!centInLine2 || (lengthSq1 > lengthSq2))) {
-        //(scripting only)
-        if (data) {
+    //draw lines (scripting only)
+    if (data) {
+        if (centInLine1 && (!centInLine2 || (lengthSq1 > lengthSq2))) {
             drawLine(data, start1, end1, [255, 255, 0, 255]);
         }
-        
-        return angle1;
-    }
-    else if (!centInLine1 && !centInLine2) {
-    //FAULT? no valid angle...
-        return 0; //FIXME?
-    }
-    else {
-        //(scripting only)
-        if (data) {
+        else if (centInLine1 || centInLine2) {
             drawLine(data, start2, end2, [255, 255, 0, 255]);
         }
-        return angle2;
     }
+
+    //return best angle
+    return (centInLine1 && (!centInLine2 || (lengthSq1 > lengthSq2))) ? angle1 : (centInLine1 || centInLine2) ? angle2 : 0;
+}
+function calcPointToLineParams(point: Vector, lineStart: Vector, lineEnd: Vector): { distSq: number, lengthSq: number } {
+    //derived from: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+    const dot = (point.x - lineStart.x) * (lineEnd.x - lineStart.x) + (point.y - lineStart.y) * (lineEnd.y - lineStart.y);
+    const lengthSq = (lineEnd.x - lineStart.x)**2 + (lineEnd.y - lineStart.y)**2;
+    const param = (lengthSq !== 0) ? dot / lengthSq : -1; //TODO DIVISIONJ???????????
+    const xx = (param < 0) ? lineStart.x : (param > 1) ? lineEnd.x : lineStart.x + param * (lineEnd.x - lineStart.x);
+    const yy = (param < 0) ? lineStart.y : (param > 1) ? lineEnd.y : lineStart.y + param * (lineEnd.y - lineStart.y);
+    return { distSq: (point.x - xx)**2 + (point.y - yy)**2, lengthSq };
 }
 
 //Runs Overlap
@@ -228,6 +197,7 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
             bottomLeft:   {x:start , y:line+1},
         },
         centroid: { x: start + (run.length >> 1), y: line },
+        angle: 0, //angle is calculated later, once the blob is "done"
         area: run.length
     };
 }

@@ -10,7 +10,7 @@ export const virtexConfig = {
     targetBlobXGapMax: 0xffff, //16-bit integer
     targetBlobYGapMin: 0, //distance between blobs in target
     targetBlobYGapMax: 0xffff, //16-bit integer
-    targetBlobAreaDiffMin: 0, //difference between areas of blobs in target //TODO what?? shouldn't this scale on blob size?
+    targetBlobAreaDiffMin: 0, //difference between areas of blobs in target
     targetBlobAreaDiffMax: 0xffff, //16-bit integer
     targetBlobAngleMin: 0, //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
     targetBlobAngleMax: 0xffff, //signed 15-bit integer [-32767, 32767] where 32767 = 360°

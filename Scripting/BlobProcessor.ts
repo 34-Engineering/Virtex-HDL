@@ -5,7 +5,7 @@ import { Fault } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, EMPTY_BLOB  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
-import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria } from "./BlobUtil";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle } from "./BlobUtil";
 import { overflow } from "./util/Math";
 
 //(scripting only)
@@ -368,17 +368,40 @@ function updateBlobProcessor() {
 
 //Garbage Collector Loop
 function updateGarbageCollector() {
+    //FORK
+    let writingAngle = false;
     //Process Port X (if read from)
     if (garbageCollectorUsingPorts()[garbagePort]) {
         //if blob is finished adding to
-        if (blobPartionCurrentValid() && blobBRAMPorts[garbagePort].dout.boundBottomRight.y + 1 < blobCurrentLine()) {
-            blobMetadatas[lastGarbageIndex[1]].status = doesBlobMatchCriteria(blobBRAMPorts[garbagePort].dout) ? BlobStatus.VALID : BlobStatus.GARBAGE;
+        if (blobPartionCurrentValid() && blobBRAMPorts[garbagePort].dout.boundBottomRight.y + 2 < blobCurrentLine()) {
+            const blob = blobBRAMPorts[garbagePort].dout;
+            const angle = calcBlobAngle(blob);
+
+            //Mark blob as Valid or Garbage
+            blobMetadatas[lastGarbageIndex[1]].status = doesBlobMatchCriteria(blob, angle) ? BlobStatus.VALID : BlobStatus.GARBAGE;
+
+            //Save blob angle if its valid (for target selector)
+            if (doesBlobMatchCriteria(blob, angle)) {
+                // writingAngle = true;
+                // blobBRAMPorts[garbagePort].addr = lastGarbageIndex[1];
+                // blobBRAMPorts[garbagePort].din = {
+                //     boundTopLeft: blob.boundTopLeft,
+                //     boundBottomRight: blob.boundBottomRight,
+                //     quad: blob.quad,
+                //     centroid: blob.centroid,
+                //     angle,
+                //     area: blob.angle
+                // };
+                // blobBRAMPorts[garbagePort].wea = true;
+            }
         }
     }
+    //JOIN
 
-    //Read Port X (if available)
-    if (garbageCollectorCanUsePorts()[garbagePort]) {
-        //Next Garbage Index
+    //FORK
+    //Read Port X (if available & not writing angle)
+    if (garbageCollectorCanUsePorts()[garbagePort] && !writingAngle) {
+        //Go To Next Garbage Index
         setNextGarbageIndex();
 
         //Read Port X
@@ -391,8 +414,8 @@ function updateGarbageCollector() {
             garbageCollectorWasUsingPorts[garbagePort] = false;
         }
     }
+    //JOIN
 
-    // console.log(`[0] (${lastGarbageIndex[0]}) => [1], gb (${garbageIndex}) => [0]`);
     lastGarbageIndex[1] = lastGarbageIndex[0];
     lastGarbageIndex[0] = garbageIndex;
     garbagePort = garbagePort == 1 ? 0 : 1;
