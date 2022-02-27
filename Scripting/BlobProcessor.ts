@@ -5,7 +5,7 @@ import { Fault } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, EMPTY_BLOB  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
-import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle } from "./BlobUtil";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle, BlobAngle } from "./BlobUtil";
 import { overflow } from "./util/Math";
 
 //(scripting only)
@@ -18,6 +18,7 @@ let blobBRAMPorts: BlobBRAMPort[] = [...Array(2)].map(_=>(Object.assign({}, BLOB
 enum BlobRunState { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE };
 let blobRunState: BlobRunState = BlobRunState.IDLE; //[1:0]
 let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_ID }));
+let blobAngles: BlobAngle[] = [...Array(MAX_BLOBS)].map(_=>(BlobAngle.HORIZONTAL));
 let blobIndex: number; //[MAX_BLOB_ID_SIZE-1:0]
 let blobRunBuffersPartionCurrent: number; //partion of run buffer (0-2)
 let blobRunBuffersPartionLast: number;
@@ -374,26 +375,14 @@ function updateGarbageCollector() {
     if (garbageCollectorUsingPorts()[garbagePort]) {
         //if blob is finished adding to
         if (blobPartionCurrentValid() && blobBRAMPorts[garbagePort].dout.boundBottomRight.y + 2 < blobCurrentLine()) {
-            const blob = blobBRAMPorts[garbagePort].dout;
-            const angle = calcBlobAngle(blob);
+            const blob: BlobData = blobBRAMPorts[garbagePort].dout;
+            const angle: BlobAngle = calcBlobAngle(blob);
 
             //Mark blob as Valid or Garbage
             blobMetadatas[lastGarbageIndex[1]].status = doesBlobMatchCriteria(blob, angle) ? BlobStatus.VALID : BlobStatus.GARBAGE;
 
             //Save blob angle if its valid (for target selector)
-            if (doesBlobMatchCriteria(blob, angle)) {
-                // writingAngle = true;
-                // blobBRAMPorts[garbagePort].addr = lastGarbageIndex[1];
-                // blobBRAMPorts[garbagePort].din = {
-                //     boundTopLeft: blob.boundTopLeft,
-                //     boundBottomRight: blob.boundBottomRight,
-                //     quad: blob.quad,
-                //     centroid: blob.centroid,
-                //     angle,
-                //     area: blob.angle
-                // };
-                // blobBRAMPorts[garbagePort].wea = true;
-            }
+            blobAngles[lastGarbageIndex[1]] = angle;
         }
     }
     //JOIN

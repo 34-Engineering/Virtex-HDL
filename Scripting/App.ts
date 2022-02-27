@@ -25,7 +25,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = 'Angles.png';
+let imageFile = '2019_Single.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -147,7 +147,7 @@ function drawImage(): any {
         if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
             if (drawOptions.quadCenterLine) {
-                console.log(calcBlobAngle(blob, tempImage.data) * (180 / Math.PI));
+                console.log("angle:", calcBlobAngle(blob, tempImage.data));
             }
 
             if (drawOptions.ellipse) {

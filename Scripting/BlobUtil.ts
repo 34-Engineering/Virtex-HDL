@@ -1,8 +1,8 @@
 import { virtexConfig } from "./util/VirtexConfig";
-import { calcPolygonArea, calcQuadArea, inRangeInclusive, invertY, isSmaller, isValidQuad, max, min, pickLarger, pickLargerInverseY, pickSmaller, pickSmallerInverseY, Quad, Vector } from "./util/Math";
-import { drawCenterFillSquare, drawFillRect, drawLine, drawPixel, drawQuad, drawRect, drawSILine } from "./util/OtherUtil";
+import { inRangeInclusive, max, min, Quad, Vector } from "./util/Math";
+import { drawLine } from "./util/OtherUtil";
 
-//144-bit Blob Data
+//?-bit Blob Data
 export interface BlobData {
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -13,7 +13,7 @@ export interface BlobData {
     boundBottomRight: Vector,
     quad: Quad,
     centroid: Vector, //"center of area/mass",
-    angle: number, //16-bit (sign + 15-bit int), [-32767, 32767] where 32767 = 360°
+    angle: BlobAngle, //16-bit (sign + 15-bit int), [-32767, 32767] where 32767 = 360°
     area: number
 }
 
@@ -31,18 +31,27 @@ export interface Target {
     boundBottomRight: Vector;
     timestamp: number; //timestamp is replaced with latency at delivery
     blobCount: number;
-    angle: number;
-    fullness: number;
     //TODO
 };
 
-//Angle
+//Blob Angles
 export enum BlobAngle {
     //bound in range [0°, 180°] (angles increase counter-clockwise)
-    HORIZONTAL, //[0, 10°], [170°, 180°]
-    VERTICAL, //[80°, 100°]
-    DIAGONAL_FORWARD, //(10°, 80°)
-    DIAGONAL_BACKWARD //(100°, 170°)
+    HORIZONTAL, //0 _ ~[0, 10°], [170°, 180°]
+    VERTICAL,   //1 | ~[80°, 100°]
+    FORWARD,    //2 / ~(10°, 80°)
+    BACKWARD    //3 \ ~(100°, 170°)
+}
+export interface BlobAnglesEnabled {
+    horizontal: boolean,
+    vertical: boolean,
+    forward: boolean,
+    backward: boolean
+}
+export const enum BlobIntersection {
+    ANY,
+    UP,    // / \
+    BOTTOM // \ /
 }
 
 //Run
@@ -59,20 +68,27 @@ export interface RunBuffer {
 }
 
 //Blob Criteria
-export function doesBlobMatchCriteria(blob: BlobData, angle: number): boolean {
-    const boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
-    const boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
+export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean {
+    const boundWidth: number = blob.boundBottomRight.x - blob.boundTopLeft.x;
+    const boundHeight: number = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
-    //boundWidth / boundHeight = (1/640) to 640
-    //10.6?
-    const aspectRatio = boundWidth / boundHeight; //
-    const size = boundWidth * boundHeight; //16-bit
-    const fullness = blob.area / size; //16-bit (Q1.15)
+    //TODO fixed point mult
+    const inAspectRatioRange: boolean = inRangeInclusive(boundWidth,
+        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
 
-    return inRangeInclusive(aspectRatio, virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax) &&
-           inRangeInclusive(size       , virtexConfig.blobSizeMin       , virtexConfig.blobSizeMax       ) &&
-           inRangeInclusive(fullness   , virtexConfig.blobFullnessMin   , virtexConfig.blobFullnessMax   ) &&
-           inRangeInclusive(angle  , virtexConfig.blobAngleMin  , virtexConfig.blobAngleMax  );
+    const boundArea: number = boundWidth * boundHeight;
+    const inBoundAreaRange: boolean = inRangeInclusive(boundArea,
+        virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+
+    //TODO fixed point mult (blobFullness is a 16-bit (Q1.15)
+    const inFullnessRange: boolean = inRangeInclusive(blob.area,
+        virtexConfig.blobFullnessMin*boundArea, virtexConfig.blobFullnessMax*boundArea);
+
+    // console.log(angle, Object.keys(virtexConfig.blobAnglesEnabled), Object.keys(virtexConfig.blobAnglesEnabled)[angle], virtexConfig.blobAnglesEnabled, virtexConfig.blobAnglesEnabled[Object.keys(virtexConfig.blobAnglesEnabled)[angle]]);
+    // const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[Object.keys(virtexConfig.blobAnglesEnabled)[angle]];
+    const isValidAngle: boolean = true;
+
+    return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
 
 //Merging Blobs
@@ -86,7 +102,7 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        quad: mergeQuadsDistance(blob1.quad, blob2.quad),
+        quad: mergeQuads(blob1.quad, blob2.quad),
         centroid: mergeCentroids(blob1, blob2),
         angle: 0, //angle is only saved once a blob is "done" & at that point no merges can occur
         area: blob1.area + blob2.area
@@ -94,12 +110,13 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
 }
 
 //Merge Quads
-function mergeQuadsDistance(quad1: Quad, quad2: Quad): Quad {
+function mergeQuads(quad1: Quad, quad2: Quad): Quad {
+    //this algorithm is not perfect but close enough for choosing rough angle of blob
     return {
-        topLeft: pickSmaller(quad1.topLeft, quad2.topLeft),
-        topRight: pickLargerInverseY(quad1.topRight, quad2.topRight),
-        bottomRight: pickLarger(quad1.bottomRight, quad2.bottomRight),
-        bottomLeft: pickSmallerInverseY(quad1.bottomLeft, quad2.bottomLeft),
+        topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
+        topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
+        bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
+        bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
     }
 }
 
@@ -115,7 +132,7 @@ function mergeCentroids(blob1: BlobData, blob2: BlobData): Vector {
 }
 
 //Calculate Blob Angle
-export function calcBlobAngle(blob: BlobData, data: any = false): number {
+export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     //the forming of quads is not perfect BUT
     //we can correct for the majority of the fault by checking
     //whether the center lines travel through the centroid (within a tolerance--epsilon)
@@ -138,40 +155,50 @@ export function calcBlobAngle(blob: BlobData, data: any = false): number {
         y: (blob.quad.topRight.y + blob.quad.bottomRight.y-1) >> 1
     };
 
-    //find angle of center lines //TODO CORDIC
-    const angle1 = Math.atan2(start1.y - end1.y, start1.x - end1.x);
-    const angle2 = Math.atan2(end2.y - start2.y, end2.x - start2.x);
+    //calculate delta values of center lines (signed 10-bit??)
+    const dx1 = end1.x - start1.x;
+    const dy1 = end1.y - start1.y;
+    const dx2 = end2.x - start2.x;
+    const dy2 = end2.y - start2.y;
 
-    //calculate distance^2 between line & centroid (& length^2 of line while your at it)
-    const { distSq: centDistSq1, lengthSq: lengthSq1 } = calcPointToLineParams(blob.centroid, start1, end1);
-    const { distSq: centDistSq2, lengthSq: lengthSq2 } = calcPointToLineParams(blob.centroid, start2, end2);
+    //find angle of center lines //TODO Look up table angles
+    const angle1: BlobAngle = Math.atan2(dy1, dx1);
+    const angle2: BlobAngle = Math.atan2(dy2, dx2);
 
-    //find if the distance touching line (within epsilon/tolerance)
-    const sqCentDistEpsilon = 16; //FIXME should this be a parameter?
-    const centInLine1 = centDistSq1 < sqCentDistEpsilon;
-    const centInLine2 = centDistSq2 < sqCentDistEpsilon;
+    //find length of center lines
+    const lengthSq1 = dx1**2 + dy1**2;
+    const lengthSq2 = dx2**2 + dy2**2;
+
+    //find if the center lines are interescting the centroid (within epsilon/tolerance)
+    const centriodDistSqEpsilon = 16; //FIXME should this be a parameter?
+    const nearCentroid1 = isPointNearLine(blob.centroid, start1, dx1 >> 3, dy1 >> 3, centriodDistSqEpsilon);
+    const nearCentroid2 = isPointNearLine(blob.centroid, start2, dx2 >> 3, dy2 >> 3, centriodDistSqEpsilon);
 
     //draw lines (scripting only)
     if (data) {
-        if (centInLine1 && (!centInLine2 || (lengthSq1 > lengthSq2))) {
+        if (nearCentroid1 && (!nearCentroid2 || (lengthSq1 > lengthSq2))) {
             drawLine(data, start1, end1, [255, 255, 0, 255]);
         }
-        else if (centInLine1 || centInLine2) {
+        else if (nearCentroid1 || nearCentroid2) {
             drawLine(data, start2, end2, [255, 255, 0, 255]);
         }
     }
 
     //return best angle
-    return (centInLine1 && (!centInLine2 || (lengthSq1 > lengthSq2))) ? angle1 : (centInLine1 || centInLine2) ? angle2 : 0;
+    return (nearCentroid1 && (!nearCentroid2 || (lengthSq1 > lengthSq2))) ? angle1 : (nearCentroid1 || nearCentroid2) ? angle2 : BlobAngle.HORIZONTAL;
 }
-function calcPointToLineParams(point: Vector, lineStart: Vector, lineEnd: Vector): { distSq: number, lengthSq: number } {
-    //derived from: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
-    const dot = (point.x - lineStart.x) * (lineEnd.x - lineStart.x) + (point.y - lineStart.y) * (lineEnd.y - lineStart.y);
-    const lengthSq = (lineEnd.x - lineStart.x)**2 + (lineEnd.y - lineStart.y)**2;
-    const param = (lengthSq !== 0) ? dot / lengthSq : -1; //TODO DIVISIONJ???????????
-    const xx = (param < 0) ? lineStart.x : (param > 1) ? lineEnd.x : lineStart.x + param * (lineEnd.x - lineStart.x);
-    const yy = (param < 0) ? lineStart.y : (param > 1) ? lineEnd.y : lineStart.y + param * (lineEnd.y - lineStart.y);
-    return { distSq: (point.x - xx)**2 + (point.y - yy)**2, lengthSq };
+function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: number, epsilon: number): boolean {
+    //break up the line into 9 points and estimate point-line distance by
+    //finding the minimum distance between point and 9 points in line
+    return (lineStart.x         - point.x)**2 + (lineStart.y         - point.y)**2 < epsilon ||
+           (lineStart.x +   dx8 - point.x)**2 + (lineStart.y +   dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 2*dx8 - point.x)**2 + (lineStart.y + 2*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 3*dx8 - point.x)**2 + (lineStart.y + 3*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 4*dx8 - point.x)**2 + (lineStart.y + 4*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 5*dx8 - point.x)**2 + (lineStart.y + 5*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 6*dx8 - point.x)**2 + (lineStart.y + 6*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 7*dx8 - point.x)**2 + (lineStart.y + 7*dy8 - point.y)**2 < epsilon ||
+           (lineStart.x + 8*dx8 - point.x)**2 + (lineStart.y + 8*dy8 - point.y)**2 < epsilon;
 }
 
 //Runs Overlap

@@ -1,29 +1,54 @@
+import { BlobAnglesEnabled, BlobIntersection } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 
-export const virtexConfig = {
+export interface VirtexConfig {
+    threshold: number,
+
+    //target params
+    targetBlobCountMin: number, //amount of blobs in target
+    targetBlobCountMax: number, //16-bit integer
+    targetBlobXGapMin: number, //distance between blobs in target
+    targetBlobXGapMax: number, //16-bit integer
+    targetBlobYGapMin: number, //distance between blobs in target
+    targetBlobYGapMax: number, //16-bit integer
+    targetBlobAreaDiffMin: number, //difference between areas of blobs in target
+    targetBlobAreaDiffMax: number, //16-bit integer
+    targetBlobIntersection: BlobIntersection, //only works for 2 horizontal blobs //TODO more functionality
+    targetCenterX: number, //final target selection parameter
+    targetCenterY: number, //choose target thats closet to this point
+
+    //blob params
+    blobAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
+    blobAspectRatioMax: number, //Q9.7 floating point
+    blobBoundAreaMin: number, //size = boundWidth * boundHeight
+    blobBoundAreaMax: number, //16-bit integer
+    blobFullnessMin: number, //fullness = blob.area (true area) / boundArea
+    blobFullnessMax: number, //Q1.15 floating point
+    blobAnglesEnabled: BlobAnglesEnabled
+};
+
+export const virtexConfig: VirtexConfig = {
     threshold: 128,
 
     //target params
-    targetBlobCountMin: 1, //amount of blobs in target
-    targetBlobCountMax: 1, //16-bit integer
-    targetBlobXGapMin: 0, //distance between blobs in target
-    targetBlobXGapMax: 0xffff, //16-bit integer
-    targetBlobYGapMin: 0, //distance between blobs in target
-    targetBlobYGapMax: 0xffff, //16-bit integer
-    targetBlobAreaDiffMin: 0, //difference between areas of blobs in target
-    targetBlobAreaDiffMax: 0xffff, //16-bit integer
-    targetBlobAngleMin: 0, //difference in slope between each blob next to eachother //TODO how does the work if blobs are not in a clear line?
-    targetBlobAngleMax: 0xffff, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
-    targetCenterX: IMAGE_WIDTH / 2, //final target selection parameter
-    targetCenterY: IMAGE_HEIGHT / 2, //choose target thats closet to this point
+    targetBlobCountMin: 1,
+    targetBlobCountMax: 1,
+    targetBlobXGapMin: 0,
+    targetBlobXGapMax: 0xffff,
+    targetBlobYGapMin: 0,
+    targetBlobYGapMax: 0xffff,
+    targetBlobAreaDiffMin: 0,
+    targetBlobAreaDiffMax: 0xffff,
+    targetBlobIntersection: BlobIntersection.ANY,
+    targetCenterX: IMAGE_WIDTH / 2,
+    targetCenterY: IMAGE_HEIGHT / 2,
 
     //blob params
-    blobAspectRatioMin: Number.MIN_SAFE_INTEGER, //aspectRatio = boundWidth / boundHeight
-    blobAspectRatioMax: Number.MAX_SAFE_INTEGER, //Q9.7 floating point
-    blobSizeMin: 100, //size = boundWidth * boundHeight
-    blobSizeMax: Number.MAX_SAFE_INTEGER, //16-bit integer
-    blobFullnessMin: Number.MIN_SAFE_INTEGER, //fullness = blob.area (true area) / size
-    blobFullnessMax: Number.MAX_SAFE_INTEGER, //Q1.15 floating point
-    blobAngleMin: Number.MIN_SAFE_INTEGER, //angle of quad
-    blobAngleMax: Number.MAX_SAFE_INTEGER, //signed 15-bit integer [-32767, 32767] where 32767 = 360°
+    blobAspectRatioMin: 0,
+    blobAspectRatioMax: 0xffff,
+    blobBoundAreaMin: 100,
+    blobBoundAreaMax: 0xffff,
+    blobFullnessMin: 0,
+    blobFullnessMax: 0xffff,
+    blobAnglesEnabled: { horizontal: true, vertical: true, forward: true, backward: true }
 };

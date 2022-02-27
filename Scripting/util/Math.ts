@@ -26,31 +26,6 @@ export interface Vector { //20-bit
     x: number,
     y: number
 }
-export function invertX(p: Vector): Vector {
-    return { x: -p.x, y: p.y }
-}
-export function invertY(p: Vector): Vector {
-    return { x: p.x, y: -p.y }
-}
-export function invert(p: Vector): Vector {
-    return { x: -p.x, y: -p.y }
-}
-export function isSmaller(a: Vector, b: Vector): boolean {
-    //(sqrt(x^2 + y^2) is too expensive => using x + y which gives similar quality)
-    return a.x + a.y < b.x + b.y;
-}
-export function pickSmaller(a: Vector, b: Vector): Vector {
-    return isSmaller(a, b) ? a : b;
-}
-export function pickLarger(a: Vector, b: Vector): Vector {
-    return isSmaller(a, b) ? b : a;
-}
-export function pickSmallerInverseY(a: Vector, b: Vector): Vector {
-    return isSmaller(invertY(a), invertY(b)) ? a : b;
-}
-export function pickLargerInverseY(a: Vector, b: Vector): Vector {
-    return isSmaller(invertY(a), invertY(b)) ? b : a;
-}
 
 //Polygons
 export interface Quad { //80-bit
