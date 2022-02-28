@@ -143,7 +143,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
         y: (blob.quad.topLeft.y + blob.quad.topRight.y) >> 1
     };
     const end1: Vector = {
-        x: (blob.quad.bottomLeft.x + blob.quad.bottomRight.x-1) >> 1,
+        x: (blob.quad.bottomLeft.x   + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) >> 1
     };
     const start2: Vector = {
@@ -152,7 +152,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     };
     const end2: Vector = {
         x: (blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1,
-        y: (blob.quad.topRight.y + blob.quad.bottomRight.y-1) >> 1
+        y: (blob.quad.topRight.y   + blob.quad.bottomRight.y-1) >> 1
     };
 
     //calculate delta values of center lines (signed 10-bit??)
@@ -161,16 +161,24 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     const dx2 = end2.x - start2.x;
     const dy2 = end2.y - start2.y;
 
+    /*
+    3,1    => 18.4  => FORWARD
+    3,0    => 0     => HORI
+    3,-1   => -18.4 => BACKWARD
+    6,1    => 9.5   => HORI
+    6,2    => 18.4  => FORWARD
+    */
+
     //find angle of center lines //TODO Look up table angles
-    const angle1: BlobAngle = Math.atan2(dy1, dx1);
-    const angle2: BlobAngle = Math.atan2(dy2, dx2);
+    const angle1: BlobAngle = calcAngle(dx1, dy1);
+    const angle2: BlobAngle = calcAngle(dx2, dy2);
 
     //find length of center lines
     const lengthSq1 = dx1**2 + dy1**2;
     const lengthSq2 = dx2**2 + dy2**2;
 
     //find if the center lines are interescting the centroid (within epsilon/tolerance)
-    const centriodDistSqEpsilon = 16; //FIXME should this be a parameter?
+    const centriodDistSqEpsilon = 50; //FIXME should this be a parameter?
     const nearCentroid1 = isPointNearLine(blob.centroid, start1, dx1 >> 3, dy1 >> 3, centriodDistSqEpsilon);
     const nearCentroid2 = isPointNearLine(blob.centroid, start2, dx2 >> 3, dy2 >> 3, centriodDistSqEpsilon);
 
@@ -200,6 +208,19 @@ function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: num
            (lineStart.x + 7*dx8 - point.x)**2 + (lineStart.y + 7*dy8 - point.y)**2 < epsilon ||
            (lineStart.x + 8*dx8 - point.x)**2 + (lineStart.y + 8*dy8 - point.y)**2 < epsilon;
 }
+function calcAngle(x: number, y: number): BlobAngle {
+    const roughSlope = quickDivide(y, x);
+
+}
+function quickDivide(a: number, b: number): number {
+    //catch cases (order matters) //TODO optimize?
+    if (a == 0) return 0; //0 divided by
+    if (b == 1) return a; //divide by 1
+    if (b == 0) return Number.MAX_SAFE_INTEGER; //divide by 0
+    if (a < b) return 0; //fraction
+    if (a == b) return 1; //equal
+    return a >> Math.log2(b); //quick divide (error grows for higher numbers)
+}    
 
 //Runs Overlap
 export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number): boolean {
