@@ -7,7 +7,7 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobStatus, calcBlobAngle } from './BlobUtil';
+import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
@@ -15,17 +15,17 @@ const app: express.Application = express();
 
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
-    blobColor: true,
+    blobColor: false,
     bound: true,
     quad: false,
-    quadCenterLine: true,
+    angle: true,
     quadCorners: true,
     ellipse: false,
     centroid: false,
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2019_Single.png';
+let imageFile = 'Angles.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -106,7 +106,7 @@ function reset() {
 
 //Image
 function drawImage(): any {
-    //Copy Image
+    //Deep Copy Image
     let tempImage = v8.deserialize(v8.serialize(image));
 
     //Draw Blob Color
@@ -146,8 +146,8 @@ function drawImage(): any {
         const blob = BlobProcessor.blobBRAM[i];
         if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
-            if (drawOptions.quadCenterLine) {
-                console.log("angle:", calcBlobAngle(blob, tempImage.data));
+            if (drawOptions.angle) {
+                calcBlobAngle(blob, tempImage.data);
             }
 
             if (drawOptions.ellipse) {
@@ -221,6 +221,13 @@ app.post('/step', (req: express.Request, res: express.Response) => {
     catch (e) { res.send({ error: e }); }
 });
 app.post('/reset', (req: express.Request, res: express.Response) => {
+    try {
+        reset();
+        res.send({ image: drawImage(), faults: getFaults(), error: false });
+    }
+    catch (e) { res.send({ error: e }); }
+});
+app.post('/init', (req: express.Request, res: express.Response) => {
     try {
         reset();
         if (autoStepFrame) {

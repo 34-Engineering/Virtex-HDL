@@ -39,7 +39,7 @@ export const virtexConfig: VirtexConfig = {
     targetBlobYGapMax: 0xffff,
     targetBlobAreaDiffMin: 0,
     targetBlobAreaDiffMax: 0xffff,
-    targetBlobIntersection: BlobIntersection.ANY,
+    targetBlobIntersection: BlobIntersection.UP,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

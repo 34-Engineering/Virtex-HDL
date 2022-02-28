@@ -1,5 +1,5 @@
 import { virtexConfig } from "./util/VirtexConfig";
-import { inRangeInclusive, max, min, Quad, Vector } from "./util/Math";
+import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
 import { drawLine } from "./util/OtherUtil";
 
 //?-bit Blob Data
@@ -36,11 +36,10 @@ export interface Target {
 
 //Blob Angles
 export enum BlobAngle {
-    //bound in range [0°, 180°] (angles increase counter-clockwise)
-    HORIZONTAL, //0 _ ~[0, 10°], [170°, 180°]
-    VERTICAL,   //1 | ~[80°, 100°]
-    FORWARD,    //2 / ~(10°, 80°)
-    BACKWARD    //3 \ ~(100°, 170°)
+    HORIZONTAL, //0 -- (90±10°)
+    VERTICAL,   //1 || (0±10°)
+    FORWARD,    //2 //
+    BACKWARD    //3 \\
 }
 export interface BlobAnglesEnabled {
     horizontal: boolean,
@@ -50,8 +49,8 @@ export interface BlobAnglesEnabled {
 }
 export const enum BlobIntersection {
     ANY,
-    UP,    // / \
-    BOTTOM // \ /
+    UP,    /* // \\ */
+    BOTTOM /* \\ // */
 }
 
 //Run
@@ -84,9 +83,7 @@ export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean
     const inFullnessRange: boolean = inRangeInclusive(blob.area,
         virtexConfig.blobFullnessMin*boundArea, virtexConfig.blobFullnessMax*boundArea);
 
-    // console.log(angle, Object.keys(virtexConfig.blobAnglesEnabled), Object.keys(virtexConfig.blobAnglesEnabled)[angle], virtexConfig.blobAnglesEnabled, virtexConfig.blobAnglesEnabled[Object.keys(virtexConfig.blobAnglesEnabled)[angle]]);
-    // const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[Object.keys(virtexConfig.blobAnglesEnabled)[angle]];
-    const isValidAngle: boolean = true;
+    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[angle]];
 
     return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
@@ -161,15 +158,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     const dx2 = end2.x - start2.x;
     const dy2 = end2.y - start2.y;
 
-    /*
-    3,1    => 18.4  => FORWARD
-    3,0    => 0     => HORI
-    3,-1   => -18.4 => BACKWARD
-    6,1    => 9.5   => HORI
-    6,2    => 18.4  => FORWARD
-    */
-
-    //find angle of center lines //TODO Look up table angles
+    //find angle of center lines
     const angle1: BlobAngle = calcAngle(dx1, dy1);
     const angle2: BlobAngle = calcAngle(dx2, dy2);
 
@@ -178,17 +167,23 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     const lengthSq2 = dx2**2 + dy2**2;
 
     //find if the center lines are interescting the centroid (within epsilon/tolerance)
-    const centriodDistSqEpsilon = 50; //FIXME should this be a parameter?
+    const centriodDistSqEpsilon = 50; //TODO should this be a parameter?
     const nearCentroid1 = isPointNearLine(blob.centroid, start1, dx1 >> 3, dy1 >> 3, centriodDistSqEpsilon);
     const nearCentroid2 = isPointNearLine(blob.centroid, start2, dx2 >> 3, dy2 >> 3, centriodDistSqEpsilon);
 
     //draw lines (scripting only)
     if (data) {
         if (nearCentroid1 && (!nearCentroid2 || (lengthSq1 > lengthSq2))) {
-            drawLine(data, start1, end1, [255, 255, 0, 255]);
+            const color = angle1 == BlobAngle.HORIZONTAL ? [255,0,0,255] : 
+                angle1 == BlobAngle.VERTICAL ? [0,255,0,255] :
+                angle1 == BlobAngle.FORWARD ? [255,255,0,255] : [0,255,255,255];
+            drawLine(data, start1, end1, color);
         }
         else if (nearCentroid1 || nearCentroid2) {
-            drawLine(data, start2, end2, [255, 255, 0, 255]);
+            const color = angle2 == BlobAngle.HORIZONTAL ? [255,0,0,255] : 
+                angle2 == BlobAngle.VERTICAL ? [0,255,0,255] :
+                angle2 == BlobAngle.FORWARD ? [255,255,0,255] : [0,255,255,255];
+            drawLine(data, start2, end2, color);
         }
     }
 
@@ -208,19 +203,14 @@ function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: num
            (lineStart.x + 7*dx8 - point.x)**2 + (lineStart.y + 7*dy8 - point.y)**2 < epsilon ||
            (lineStart.x + 8*dx8 - point.x)**2 + (lineStart.y + 8*dy8 - point.y)**2 < epsilon;
 }
-function calcAngle(x: number, y: number): BlobAngle {
-    const roughSlope = quickDivide(y, x);
-
+function calcAngle(dx: number, dy: number): BlobAngle {
+    const t = 896; //best fit for 10° tolerance
+    const h = quickDivide(dy, dx); //how horizontal the line is
+    const v = quickDivide(dx, dy); //how vertical the line is
+    return (h > t && v < t) ? BlobAngle.HORIZONTAL :
+           (h < t && v > t) ? BlobAngle.VERTICAL   :
+           Math.sign(dx) * Math.sign(dy) < 0 ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
 }
-function quickDivide(a: number, b: number): number {
-    //catch cases (order matters) //TODO optimize?
-    if (a == 0) return 0; //0 divided by
-    if (b == 1) return a; //divide by 1
-    if (b == 0) return Number.MAX_SAFE_INTEGER; //divide by 0
-    if (a < b) return 0; //fraction
-    if (a == b) return 1; //equal
-    return a >> Math.log2(b); //quick divide (error grows for higher numbers)
-}    
 
 //Runs Overlap
 export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number): boolean {

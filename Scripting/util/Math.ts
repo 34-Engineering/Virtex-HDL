@@ -1,4 +1,5 @@
 //Math.ts
+import * as fs from 'fs';
 
 //Range Functions
 export function min(num1: number, num2: number): number {
@@ -71,4 +72,15 @@ export function isValidQuad(quad: Quad): boolean {
         quad.topLeft.y < quad.bottomLeft.y && //bottom > top
         quad.topRight.y < quad.bottomRight.y
     );
+}
+
+//Quick Division 
+export function quickDivide(dividend: number, divisor: number): number {
+    //returns a 10-bit integer that correctlates to the real quotient
+    let str = '';
+    for (let n = 5; n > 0; n--)
+        str += Math.abs(dividend) > Math.abs(divisor) >> n ? 1:0;
+    for (let n = 0; n < 5; n++)
+        str += Math.abs(dividend) > Math.abs(divisor) << n ? 1:0;
+    return parseInt(str, 2);
 }
