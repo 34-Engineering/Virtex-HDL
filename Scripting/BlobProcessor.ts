@@ -592,18 +592,12 @@ function updateTargetSelector() {
                 const blobB: BlobData = blobBRAM[b];
 
                 //pick left & right
-                const blobACenter: Vector = {
-                    x: (blobA.boundTopLeft.x + blobA.boundBottomRight.x) >> 1,
-                    y: (blobA.boundTopLeft.y + blobA.boundBottomRight.y) >> 1
-                };
-                const blobBCenter: Vector = {
-                    x: (blobB.boundTopLeft.x + blobB.boundBottomRight.x) >> 1,
-                    y: (blobB.boundTopLeft.y + blobB.boundBottomRight.y) >> 1
-                };
-                const leftBlob : BlobData    = blobACenter.x < blobBCenter.x ? blobA : blobB;
-                const leftBlobIndex : number = blobACenter.x < blobBCenter.x ? a : b;
-                const rightBlob: BlobData    = blobACenter.x < blobBCenter.x ? blobB : blobA;
-                const rightBlobIndex: number = blobACenter.x < blobBCenter.x ? b : a;
+                const blobACenterX: number = (blobA.boundTopLeft.x + blobA.boundBottomRight.x) >> 1;
+                const blobBCenterX: number = (blobB.boundTopLeft.x + blobB.boundBottomRight.x) >> 1;
+                const leftBlob : BlobData    = blobACenterX < blobBCenterX ? blobA : blobB;
+                const leftBlobIndex : number = blobACenterX < blobBCenterX ? a : b;
+                const rightBlob: BlobData    = blobACenterX < blobBCenterX ? blobB : blobA;
+                const rightBlobIndex: number = blobACenterX < blobBCenterX ? b : a;
 
                 //make enclosing bound
                 const topLeft: Vector = {

@@ -14,7 +14,6 @@ export const EMPTY_BLOB: BlobData = {
         bottomRight: {x:0, y:0},
         bottomLeft: {x:0, y:0},
     },
-    centroid: {x:0,y:0},
     area: 0
 };
 

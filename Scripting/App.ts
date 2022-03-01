@@ -21,7 +21,6 @@ let drawOptions: {[index: string]: boolean} = {
     blobAngle: true,
     blobQuadCorners: false,
     blobEllipse: false,
-    blobCentroid: true,
     target: true,
     crosshair: true,
     kernelPos: false,
@@ -173,15 +172,6 @@ function drawImage(): any {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
-            }
-
-            if (drawOptions.blobCentroid) {
-                //draw bound center + centroid
-                drawCenterFillSquare(tempImage.data, {
-                    x: (blob.boundTopLeft.x + blob.boundBottomRight.x) >> 1,
-                    y: (blob.boundTopLeft.y + blob.boundBottomRight.y) >> 1
-                }, 2, [255,255,0,255]);
-                drawCenterFillSquare(tempImage.data, blob.centroid, 2, [0,255,255,255]);
             }
         }
     }

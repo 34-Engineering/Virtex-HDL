@@ -2,7 +2,7 @@ import { virtexConfig } from "./util/VirtexConfig";
 import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
 import { drawLine } from "./util/OtherUtil";
 
-//160-bit Blob Data
+//140-bit Blob Data
 export interface BlobData {
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -12,7 +12,6 @@ export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
     quad: Quad,
-    centroid: Vector, //"center of area/mass",
     area: number //[19:0]
 }
 
@@ -106,7 +105,6 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
         quad: mergeQuads(blob1.quad, blob2.quad),
-        centroid: mergeCentroids(blob1, blob2),
         area: blob1.area + blob2.area
     };
 }
@@ -122,23 +120,8 @@ function mergeQuads(quad1: Quad, quad2: Quad): Quad {
     }
 }
 
-//Merge Centroid
-function mergeCentroids(blob1: BlobData, blob2: BlobData): Vector {
-    //TODO optimize
-    const b1Power = blob1.area / (blob1.area + blob2.area);
-    const b2Power = blob2.area / (blob1.area + blob2.area);
-    return {
-        x: (blob1.centroid.x*b1Power) + (blob2.centroid.x*b2Power),
-        y: (blob1.centroid.y*b1Power) + (blob2.centroid.y*b2Power)
-    }
-}
-
 //Calculate Blob Angle
 export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
-    //the forming of quads is not perfect BUT
-    //we can correct for the majority of the fault by checking
-    //whether the center lines travel through the centroid (within a tolerance--epsilon)
-
     //make two center lines from quad centers
     const start1: Vector = {
         x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1,
@@ -171,20 +154,15 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     const lengthSq1 = dx1**2 + dy1**2;
     const lengthSq2 = dx2**2 + dy2**2;
 
-    //find if the center lines are interescting the centroid (within epsilon/tolerance)
-    const centriodDistSqEpsilon = 50; //FIXME should this be a parameter?
-    const nearCentroid1 = isPointNearLine(blob.centroid, start1, dx1 >> 3, dy1 >> 3, centriodDistSqEpsilon);
-    const nearCentroid2 = isPointNearLine(blob.centroid, start2, dx2 >> 3, dy2 >> 3, centriodDistSqEpsilon);
-
     //draw lines (scripting only)
     if (data) {
-        if (nearCentroid1 && (!nearCentroid2 || (lengthSq1 > lengthSq2))) {
+        if (lengthSq1 > lengthSq2) {
             const color = angle1 == BlobAngle.HORIZONTAL ? [255,0,0,255] : 
                 angle1 == BlobAngle.VERTICAL ? [0,255,0,255] :
                 angle1 == BlobAngle.FORWARD ? [255,255,0,255] : [0,255,255,255];
             drawLine(data, start1, end1, color);
         }
-        else if (nearCentroid1 || nearCentroid2) {
+        else {
             const color = angle2 == BlobAngle.HORIZONTAL ? [255,0,0,255] : 
                 angle2 == BlobAngle.VERTICAL ? [0,255,0,255] :
                 angle2 == BlobAngle.FORWARD ? [255,255,0,255] : [0,255,255,255];
@@ -193,7 +171,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     }
 
     //return best angle
-    return (nearCentroid1 && (!nearCentroid2 || (lengthSq1 > lengthSq2))) ? angle1 : (nearCentroid1 || nearCentroid2) ? angle2 : BlobAngle.HORIZONTAL;
+    return lengthSq1 > lengthSq2 ? angle1 : angle2;
 }
 function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: number, epsilon: number): boolean {
     //break up the line into 9 points and estimate point-line distance by
@@ -239,7 +217,6 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
             bottomRight:  {x:stop+1, y:line+1},
             bottomLeft:   {x:start , y:line+1},
         },
-        centroid: { x: start + (run.length >> 1), y: line },
         area: run.length
     };
 }
