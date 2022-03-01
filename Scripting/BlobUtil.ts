@@ -2,7 +2,7 @@ import { virtexConfig } from "./util/VirtexConfig";
 import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
 import { drawLine } from "./util/OtherUtil";
 
-//?-bit Blob Data
+//160-bit Blob Data
 export interface BlobData {
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -13,7 +13,7 @@ export interface BlobData {
     boundBottomRight: Vector,
     quad: Quad,
     centroid: Vector, //"center of area/mass",
-    area: number
+    area: number //[19:0]
 }
 
 //Blob Metadata
@@ -28,14 +28,14 @@ export interface Target {
     center: Vector;
     width: number; //[9:0]
     height: number; //[9:0]
-    timestamp: number; //timestamp is replaced with latency at delivery
-    blobCount: number;
-    //TODO add more target data?
-    //angle?
+    timestamp: number; //timestamp is replaced with latency at delivery //TODO
+    blobCount: number; //[9:0]?
+    angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
 
+
 //Blob Angles
-export enum BlobAngle {
+export enum BlobAngle { //[1:0]
     //calcAngle() has up to 2°? error (norm < 0.5°?)
     //quad calculation can have up to 20°? error (norm < 1°?)
     HORIZONTAL, //0 -- (90±~10°)
@@ -50,13 +50,13 @@ export interface BlobAnglesEnabled {
     backward: boolean
 }
 
-//Target Mode
+//Target Enums
 export const enum TargetMode {
     SINGLE,
     DUAL, //FIXME better naming?
     DUAL_UP,   /* // \\ */
     DUAL_DOWN, /* \\ // */
-    GROUP
+    GROUP //2+ targets
 }
 
 //Run
@@ -81,13 +81,13 @@ export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean
     const inAspectRatioRange: boolean = inRangeInclusive(boundWidth,
         virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
 
-    const boundArea: number = boundWidth * boundHeight;
-    const inBoundAreaRange: boolean = inRangeInclusive(boundArea,
+    const boundAreaUnshifted: number = boundWidth * boundHeight;
+    const inBoundAreaRange: boolean = inRangeInclusive(boundAreaUnshifted >> 1,
         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
     //TODO fixed point mult
     const inFullnessRange: boolean = inRangeInclusive(blob.area,
-        virtexConfig.blobFullnessMin*boundArea, virtexConfig.blobFullnessMax*boundArea);
+        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
 
     const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[angle]];
 

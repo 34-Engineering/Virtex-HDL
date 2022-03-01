@@ -23,7 +23,7 @@ export function inRangeInclusive(num: number, min: number, max: number): boolean
 }
 
 //Vectors
-export interface Vector { //20-bit
+export interface Vector { //20-bit //TODO VectorU20?
     x: number,
     y: number
 }

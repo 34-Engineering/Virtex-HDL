@@ -12,17 +12,17 @@ export interface VirtexConfig {
     targetBlobYGapMax: number, //16-bit integer
     targetAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
     targetAspectRatioMax: number, //Q9.7 floating point
-    targetBoundAreaMin: number, //size = boundWidth * boundHeight
+    targetBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 1
     targetBoundAreaMax: number, //16-bit integer
     targetBlobAreaDiffMin: number, //difference between areas of blobs in target
     targetBlobAreaDiffMax: number, //16-bit integer
-    targetCenterX: number, //final target selection parameter
+    targetCenterX: number, //final target selection parameter //TODO better name
     targetCenterY: number, //choose target thats closet to this point
 
     //blob params
     blobAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
     blobAspectRatioMax: number, //Q9.7 floating point
-    blobBoundAreaMin: number, //size = boundWidth * boundHeight
+    blobBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 1
     blobBoundAreaMax: number, //16-bit integer
     blobFullnessMin: number, //fullness = blob.area (true area) / boundArea
     blobFullnessMax: number, //Q1.15 floating point
@@ -33,15 +33,15 @@ export let virtexConfig: VirtexConfig = {
     threshold: 128,
 
     //target params
-    targetMode: TargetMode.GROUP,
+    targetMode: TargetMode.DUAL,
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 30,
+    targetBlobXGapMax: 0xffff,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 30,
+    targetBlobYGapMax: 0xffff,//30,
     targetAspectRatioMin: 0,
-    targetAspectRatioMax: 0xffff,
+    targetAspectRatioMax: 3,
     targetBoundAreaMin: 0,
-    targetBoundAreaMax: 0xffff,
+    targetBoundAreaMax: 0xffff,//0xffff,
     targetBlobAreaDiffMin: 0,
     targetBlobAreaDiffMax: 0xffff,
     targetCenterX: IMAGE_WIDTH / 2,

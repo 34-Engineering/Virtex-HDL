@@ -21,13 +21,13 @@ let drawOptions: {[index: string]: boolean} = {
     blobAngle: true,
     blobQuadCorners: false,
     blobEllipse: false,
-    blobCentroid: false,
+    blobCentroid: true,
     target: true,
     crosshair: true,
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2022_1.png';
+let imageFile = '2019.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
