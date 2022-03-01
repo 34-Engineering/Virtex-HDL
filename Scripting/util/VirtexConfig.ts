@@ -1,21 +1,21 @@
-import { BlobAnglesEnabled, BlobIntersection } from "../BlobUtil";
+import { BlobAnglesEnabled, TargetMode } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 
 export interface VirtexConfig {
     threshold: number,
 
     //target params
-    targetBlobCountMin: number, //amount of blobs in target
-    targetBlobCountMax: number, //16-bit integer
+    targetMode: TargetMode,
     targetBlobXGapMin: number, //distance between blobs in target
     targetBlobXGapMax: number, //16-bit integer
     targetBlobYGapMin: number, //distance between blobs in target
     targetBlobYGapMax: number, //16-bit integer
+    targetAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
+    targetAspectRatioMax: number, //Q9.7 floating point
+    targetBoundAreaMin: number, //size = boundWidth * boundHeight
+    targetBoundAreaMax: number, //16-bit integer
     targetBlobAreaDiffMin: number, //difference between areas of blobs in target
     targetBlobAreaDiffMax: number, //16-bit integer
-    targetBlobIntersection: BlobIntersection, //only works for 2 horizontal blobs //TODO more functionality
-    //target aspect ratio?
-    //target avg area ratio?
     targetCenterX: number, //final target selection parameter
     targetCenterY: number, //choose target thats closet to this point
 
@@ -29,19 +29,21 @@ export interface VirtexConfig {
     blobAnglesEnabled: BlobAnglesEnabled
 };
 
-export const virtexConfig: VirtexConfig = {
+export let virtexConfig: VirtexConfig = {
     threshold: 128,
 
     //target params
-    targetBlobCountMin: 2,
-    targetBlobCountMax: 2,
+    targetMode: TargetMode.DUAL_UP,
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 0xffff,
     targetBlobYGapMin: 0,
     targetBlobYGapMax: 0xffff,
+    targetAspectRatioMin: 0,
+    targetAspectRatioMax: 3,
+    targetBoundAreaMin: 0,
+    targetBoundAreaMax: 0xffff,
     targetBlobAreaDiffMin: 0,
     targetBlobAreaDiffMax: 0xffff,
-    targetBlobIntersection: BlobIntersection.UP,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

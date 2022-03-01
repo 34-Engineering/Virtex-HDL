@@ -9,6 +9,9 @@ export const MAX_BLOB_POINTER_DEPTH = 5;
 //max runs RLE can create per line (under normal cond: max needed ~40)
 export const MAX_RUNS_PER_LINE = 60;
 
+//max number of blobs in target (VirtexConfig.targetBlobCount)
+export const MAX_BLOBS_IN_TARGET = 6;
+
 //null values
 export const NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;

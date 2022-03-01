@@ -74,7 +74,7 @@ export function isValidQuad(quad: Quad): boolean {
     );
 }
 
-//Quick Division 
+//Quick Division //FIXME better naming? 
 export function quickDivide(dividend: number, divisor: number): number {
     //returns a 10-bit integer that correctlates to the real quotient
     let str = '';

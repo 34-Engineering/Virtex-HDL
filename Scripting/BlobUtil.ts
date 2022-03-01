@@ -35,8 +35,10 @@ export interface Target {
 
 //Blob Angles
 export enum BlobAngle {
-    HORIZONTAL, //0 -- (90±10°)
-    VERTICAL,   //1 || (0±10°)
+    //calcAngle() has up to 2°? error (norm < 0.5°?)
+    //quad calculation can have up to 20°? error (norm < 1°?)
+    HORIZONTAL, //0 -- (90±~10°)
+    VERTICAL,   //1 || (0±~10°)
     FORWARD,    //2 //
     BACKWARD    //3 \\
 }
@@ -46,10 +48,14 @@ export interface BlobAnglesEnabled {
     forward: boolean,
     backward: boolean
 }
-export const enum BlobIntersection {
-    ANY,
-    UP,    /* // \\ */
-    BOTTOM /* \\ // */
+
+//Target Mode
+export const enum TargetMode {
+    SINGLE,
+    DUAL, //FIXME better naming?
+    DUAL_UP,   /* // \\ */
+    DUAL_DOWN, /* \\ // */
+    GROUP
 }
 
 //Run
@@ -78,7 +84,7 @@ export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean
     const inBoundAreaRange: boolean = inRangeInclusive(boundArea,
         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
-    //TODO fixed point mult (blobFullness is a 16-bit (Q1.15)
+    //TODO fixed point mult
     const inFullnessRange: boolean = inRangeInclusive(blob.area,
         virtexConfig.blobFullnessMin*boundArea, virtexConfig.blobFullnessMax*boundArea);
 
@@ -165,7 +171,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     const lengthSq2 = dx2**2 + dy2**2;
 
     //find if the center lines are interescting the centroid (within epsilon/tolerance)
-    const centriodDistSqEpsilon = 50; //TODO should this be a parameter?
+    const centriodDistSqEpsilon = 50; //FIXME should this be a parameter?
     const nearCentroid1 = isPointNearLine(blob.centroid, start1, dx1 >> 3, dy1 >> 3, centriodDistSqEpsilon);
     const nearCentroid2 = isPointNearLine(blob.centroid, start2, dx2 >> 3, dy2 >> 3, centriodDistSqEpsilon);
 

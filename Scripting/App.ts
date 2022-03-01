@@ -23,10 +23,11 @@ let drawOptions: {[index: string]: boolean} = {
     blobEllipse: false,
     blobCentroid: false,
     target: true,
+    crosshair: true,
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2019_Noise2.png';
+let imageFile = '2019_Mult.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -210,6 +211,24 @@ function drawImage(): any {
             { x: IMAGE_WIDTH-1, y: ky },
             [255, 215, 0, 128]
         );
+    }
+
+    //Draw Crosshair
+    if (drawOptions.crosshair) {
+        drawLine(tempImage.data, {
+            x: virtexConfig.targetCenterX,
+            y: virtexConfig.targetCenterY - 4.5 
+        }, {
+            x: virtexConfig.targetCenterX,
+            y: virtexConfig.targetCenterY + 5
+        }, [0, 255, 100, 255]);
+        drawLine(tempImage.data, {
+            x: virtexConfig.targetCenterX - 4,
+            y: virtexConfig.targetCenterY
+        }, {
+            x: virtexConfig.targetCenterX + 5,
+            y: virtexConfig.targetCenterY
+        }, [0, 255, 100, 255]);
     }
 
     //Return Drawn Image
