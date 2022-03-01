@@ -5,8 +5,8 @@ import { Fault } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, EMPTY_BLOB  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID } from "./BlobConstants";
-import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle, BlobAngle } from "./BlobUtil";
-import { overflow } from "./util/Math";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle, BlobAngle, Target } from "./BlobUtil";
+import { overflow, Vector } from "./util/Math";
 
 //(scripting only)
 let blobColorBuffer: RunBuffer[];
@@ -240,7 +240,6 @@ function updateBlobProcessor() {
             //loop through all runs that were filled up in the last run buffer (line above)
             if (blobRunState == BlobRunState.LAST_LINE) {
                 //FORK
-                //TODO TODO TODO SIZEME SIZEME
                 for (blobRunBufferIndexLast; blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count; blobRunBufferIndexLast++) {
                     //FORK
                     if (blobLastLineRun().blobID !== NULL_BLACK_RUN_BLOB_ID) {
@@ -438,16 +437,14 @@ function getNextValidGarbageIndex(startIndex: number): number {
     return NULL_BLOB_ID;
 }
 
-//Target Selector Loop //TODO
+//Target Selector Loop
+let target: Target;
 function updateTargetSelector() {
 
     /*
-    DefaultVirtexConfig
-
     Now Target Selector has a list of clean blobs (blobValids)
      - Run thru all combinatations listed below
      - TARGET_SELECTOR_TOO_SLOW_FAULT (aka garbage criteria isnt precise enough for targetBlobs)
-
     */
 
     /*
@@ -456,7 +453,48 @@ function updateTargetSelector() {
     (b,t) => (b!)/((t!)(b-t)!)
     */
 
-    //TODO
+    //TODO loop through all combinations, cut out bad ones, select best
+
+    for (let a = 0; a < blobIndex; a++) {
+        if (blobMetadatas[a].status == BlobStatus.VALID) {
+            for (let b = a + 1; b < blobIndex; b++) {
+                if (blobMetadatas[b].status == BlobStatus.VALID) {
+                    
+                    const blobA: BlobData = blobBRAM[a];
+                    const blobB: BlobData = blobBRAM[b];
+
+                    const leftBlob: BlobData = blobA.centroid.x < blobB.centroid.x ? blobA : blobB;
+                    const leftBlobIndex: number = blobA.centroid.x < blobB.centroid.x ? a : b;
+                    const rightBlob: BlobData = blobA.centroid.x < blobB.centroid.x ? blobB : blobA;
+                    const rightBlobIndex: number = blobA.centroid.x < blobB.centroid.x ? b : a;
+
+                    if (blobAngles[leftBlobIndex] == BlobAngle.FORWARD && blobAngles[rightBlobIndex] == BlobAngle.BACKWARD) {
+                        //make bound
+                        const topLeft: Vector = {
+                            x: Math.min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                            y: Math.min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
+                        };
+                        const bottomRight: Vector = {
+                            x: Math.max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                            y: Math.max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                        };
+
+                        target = {
+                            center: {
+                                x: (topLeft.x + bottomRight.x) >> 1,
+                                y: (topLeft.y + bottomRight.y) >> 1
+                            },
+                            width: bottomRight.x - topLeft.x + 1,
+                            height: bottomRight.y - topLeft.y + 1,
+                            timestamp: 10,
+                            blobCount: 2
+                        };
+                    }
+                }
+            }
+        }
+    }
+
     targetSelectorDone = true;
 }
 
@@ -480,6 +518,13 @@ function reset() {
     for (let i = 0; i < 3; i++) {
         runBuffers[i].count = 0;
         runBuffers[i].line = NULL_LINE_NUMBER;
+    }
+    target = {
+        center: {x:0, y:0},
+        width: 0,
+        height: 0,
+        timestamp: 0,
+        blobCount: 0
     }
     //JOIN
 
@@ -526,5 +571,5 @@ function updateBRAM() {
     }
 }
 export { sendKernel, isDone, getRealBlobIDDebug, resetFaults, updateBRAM };
-export { blobColorBuffer, faults, blobBRAM, blobMetadatas, blobIndex };
+export { blobColorBuffer, faults, blobBRAM, blobMetadatas, blobIndex, target };
 export { alwaysLoop, reset };

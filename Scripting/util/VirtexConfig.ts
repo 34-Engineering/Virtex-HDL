@@ -14,6 +14,8 @@ export interface VirtexConfig {
     targetBlobAreaDiffMin: number, //difference between areas of blobs in target
     targetBlobAreaDiffMax: number, //16-bit integer
     targetBlobIntersection: BlobIntersection, //only works for 2 horizontal blobs //TODO more functionality
+    //target aspect ratio?
+    //target avg area ratio?
     targetCenterX: number, //final target selection parameter
     targetCenterY: number, //choose target thats closet to this point
 
@@ -31,8 +33,8 @@ export const virtexConfig: VirtexConfig = {
     threshold: 128,
 
     //target params
-    targetBlobCountMin: 1,
-    targetBlobCountMax: 1,
+    targetBlobCountMin: 2,
+    targetBlobCountMax: 2,
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 0xffff,
     targetBlobYGapMin: 0,
@@ -46,7 +48,7 @@ export const virtexConfig: VirtexConfig = {
     //blob params
     blobAspectRatioMin: 0,
     blobAspectRatioMax: 0xffff,
-    blobBoundAreaMin: 100,
+    blobBoundAreaMin: 500,
     blobBoundAreaMax: 0xffff,
     blobFullnessMin: 0,
     blobFullnessMax: 0xffff,

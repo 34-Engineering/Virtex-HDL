@@ -8,24 +8,25 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
-import { NULL_BLACK_RUN_BLOB_ID } from './BlobConstants';
+import { NULL_BLACK_RUN_BLOB_ID, NULL_TIMESTAMP } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
 const app: express.Application = express();
 
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
-    blobColor: false,
-    bound: true,
-    quad: false,
-    angle: true,
-    quadCorners: true,
-    ellipse: false,
-    centroid: false,
+    blobColor: true,
+    blobBound: true,
+    blobQuad: false,
+    blobAngle: true,
+    blobQuadCorners: false,
+    blobEllipse: false,
+    blobCentroid: false,
+    target: true,
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = 'Angles.png';
+let imageFile = '2019_Noise2.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -146,11 +147,11 @@ function drawImage(): any {
         const blob = BlobProcessor.blobBRAM[i];
         if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
             BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
-            if (drawOptions.angle) {
+            if (drawOptions.blobAngle) {
                 calcBlobAngle(blob, tempImage.data);
             }
 
-            if (drawOptions.ellipse) {
+            if (drawOptions.blobEllipse) {
                 drawEllipse(tempImage.data,
                     blob.boundTopLeft,
                     blob.boundBottomRight,
@@ -158,22 +159,22 @@ function drawImage(): any {
                 );
             }
 
-            if (drawOptions.quad) {
+            if (drawOptions.blobQuad) {
                 drawQuad(tempImage.data, blob.quad, [0, 255, 0, 100]);
             }
 
-            if (drawOptions.bound) {
+            if (drawOptions.blobBound) {
                 drawRect(tempImage.data, blob.boundTopLeft, blob.boundBottomRight, [255, 0, 0, 100]);
             }
 
-            if (drawOptions.quadCorners) {
+            if (drawOptions.blobQuadCorners) {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, 2, [255, 255, 0, 255]); //yellow
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
             }
 
-            if (drawOptions.centroid) {
+            if (drawOptions.blobCentroid) {
                 //draw bound center + centroid
                 drawCenterFillSquare(tempImage.data, {
                     x: (blob.boundTopLeft.x + blob.boundBottomRight.x) >> 1,
@@ -182,6 +183,21 @@ function drawImage(): any {
                 drawCenterFillSquare(tempImage.data, blob.centroid, 2, [0,255,255,255]);
             }
         }
+    }
+
+    //Draw Target
+    if (drawOptions.target && BlobProcessor.target.timestamp !== NULL_TIMESTAMP) {
+        //bound
+        drawRect(tempImage.data, {
+            x: BlobProcessor.target.center.x - (BlobProcessor.target.width >> 1),
+            y: BlobProcessor.target.center.y - (BlobProcessor.target.height >> 1)
+        }, {
+            x: BlobProcessor.target.center.x + (BlobProcessor.target.width >> 1),
+            y: BlobProcessor.target.center.y + (BlobProcessor.target.height >> 1)
+        }, [125, 255, 125, 255]);
+
+        //center
+        drawCenterFillSquare(tempImage.data, BlobProcessor.target.center, 2, [125, 255, 125, 255]);
     }
 
     //Draw Kernel Pos & Line

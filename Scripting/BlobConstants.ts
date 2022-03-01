@@ -14,3 +14,4 @@ export const NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 export const NULL_BLOB_ID = MAX_BLOBS;
 export const NULL_RUN_BUFFER_PARTION = 3;
+export const NULL_TIMESTAMP = 0;

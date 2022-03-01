@@ -13,7 +13,6 @@ export interface BlobData {
     boundBottomRight: Vector,
     quad: Quad,
     centroid: Vector, //"center of area/mass",
-    angle: BlobAngle, //16-bit (sign + 15-bit int), [-32767, 32767] where 32767 = 360°
     area: number
 }
 
@@ -27,11 +26,11 @@ export interface BlobMetadata {
 //?-bit Target
 export interface Target {
     center: Vector;
-    boundTopLeft: Vector;
-    boundBottomRight: Vector;
+    width: number; //[9:0]
+    height: number; //[9:0]
     timestamp: number; //timestamp is replaced with latency at delivery
     blobCount: number;
-    //TODO
+    //TODO add more target data?
 };
 
 //Blob Angles
@@ -101,7 +100,6 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
         },
         quad: mergeQuads(blob1.quad, blob2.quad),
         centroid: mergeCentroids(blob1, blob2),
-        angle: 0, //angle is only saved once a blob is "done" & at that point no merges can occur
         area: blob1.area + blob2.area
     };
 }
@@ -235,7 +233,6 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
             bottomLeft:   {x:start , y:line+1},
         },
         centroid: { x: start + (run.length >> 1), y: line },
-        angle: 0, //angle is calculated later, once the blob is "done"
         area: run.length
     };
 }
