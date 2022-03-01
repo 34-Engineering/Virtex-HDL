@@ -209,8 +209,8 @@ function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: num
 }
 function calcAngle(dx: number, dy: number): BlobAngle {
     const t = 896; //best fit for 10° tolerance
-    const h = quickDivide(dy, dx); //how horizontal the line is
-    const v = quickDivide(dx, dy); //how vertical the line is
+    const h = quickDivide(dx, dy); //how horizontal the line is
+    const v = quickDivide(dy, dx); //how vertical the line is
     return (h > t && v < t) ? BlobAngle.HORIZONTAL :
            (h < t && v > t) ? BlobAngle.VERTICAL   :
            Math.sign(dx) * Math.sign(dy) < 0 ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
