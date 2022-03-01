@@ -31,6 +31,7 @@ export interface Target {
     timestamp: number; //timestamp is replaced with latency at delivery
     blobCount: number;
     //TODO add more target data?
+    //angle?
 };
 
 //Blob Angles
@@ -241,4 +242,9 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
         centroid: { x: start + (run.length >> 1), y: line },
         area: run.length
     };
+}
+
+//Distance^2 Between Vector and Target Center
+export function distSqToTargetCenter(v: Vector): number {
+    return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
 }
