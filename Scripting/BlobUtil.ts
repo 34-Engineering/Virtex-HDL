@@ -72,7 +72,7 @@ export interface RunBuffer {
 }
 
 //Blob Criteria
-export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean {
+export function doesBlobMatchCriteria(blob: BlobData): boolean {
     const boundWidth: number = blob.boundBottomRight.x - blob.boundTopLeft.x;
     const boundHeight: number = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
@@ -88,7 +88,7 @@ export function doesBlobMatchCriteria(blob: BlobData, angle: BlobAngle): boolean
     const inFullnessRange: boolean = inRangeInclusive(blob.area,
         virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
 
-    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[angle]];
+    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]];
 
     return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
