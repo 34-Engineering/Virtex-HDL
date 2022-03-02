@@ -573,7 +573,7 @@ function updateTargetSelector() {
                 virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
             if (aspectRatioValid && boundAreaValid) {
-                //join current valid target
+                //set current valid target
                 currentValidTarget = Object.assign({}, currentTarget);
             }
         }
@@ -658,27 +658,21 @@ function updateTargetSelector() {
             //init new A
             initNewA();
             
-            if (virtexConfig.targetMode === TargetMode.GROUP) {
-                //wrap up group
-                //if we made a valid target AND its better than the current one OR we dont have a current one
-                if (currentValidTarget.timestamp !== NULL_TIMESTAMP &&
-                    (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(currentValidTarget.center) < distSqToTargetCenter(target.center))) {
-                    target = currentValidTarget;
-                }
-
-                //reset B
+            //reset OR set new B
+            if (virtexConfig.targetMode === TargetMode.GROUP)
                 targetIndexB = 0; //BLOCKING
-            }
-            else {
-                //set new B
-                targetIndexB = nextTargetIndexA(); //BLOCKING
-            }
+            else targetIndexB = nextTargetIndexA(); //BLOCKING
             initNewB();
         }
     }
     else {
         //increment B
         targetIndexB = nextTargetIndexB(); //BLOCKING
+
+        // if (targetIndexB == targetIndexA) {
+        //     targetIndexB = nextTargetIndexB(); //BLOCKING
+        // }
+
         initNewB();
     }
 }
@@ -694,24 +688,35 @@ function getNextValidTargetIndex(startIndex: number): number {
 }
 function initNewA() {
     blobA = blobBRAM[targetIndexA];
-    currentTarget = { 
-        center: {
-            x: (blobA.boundBottomRight.x + blobA.boundTopLeft.x) >> 1,
-            y: (blobA.boundBottomRight.y + blobA.boundTopLeft.y) >> 1
-        },
-        width:  blobA.boundBottomRight.x - blobA.boundTopLeft.x + 1,
-        height: blobA.boundBottomRight.y - blobA.boundTopLeft.y + 1,
-        timestamp: 10,
-        angle: blobAngles[targetIndexA],
-        blobCount: 1
-    };
-    currentValidTarget = {
-        center: {x:0, y:0},
-        width: 0, height: 0,
-        timestamp: NULL_TIMESTAMP,
-        angle: blobAngles[targetIndexA],
-        blobCount: 0
-    };
+
+    if (virtexConfig.targetMode === TargetMode.GROUP) {
+        //Chain is Done. Make it the target if we made a valid target AND
+        //its better than the current one OR we dont have a current one
+        if (currentValidTarget.timestamp !== NULL_TIMESTAMP &&
+            (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(currentValidTarget.center) < distSqToTargetCenter(target.center))) {
+            target = currentValidTarget;
+        }
+
+        //Reset Group Target Selector
+        currentTarget = { 
+            center: {
+                x: (blobA.boundBottomRight.x + blobA.boundTopLeft.x) >> 1,
+                y: (blobA.boundBottomRight.y + blobA.boundTopLeft.y) >> 1
+            },
+            width:  blobA.boundBottomRight.x - blobA.boundTopLeft.x + 1,
+            height: blobA.boundBottomRight.y - blobA.boundTopLeft.y + 1,
+            timestamp: 10,
+            angle: blobAngles[targetIndexA],
+            blobCount: 1
+        };
+        currentValidTarget = {
+            center: {x:0, y:0},
+            width: 0, height: 0,
+            timestamp: NULL_TIMESTAMP,
+            angle: blobAngles[targetIndexA],
+            blobCount: 0
+        };
+    }
 }
 function initNewB() {
     blobB = blobBRAM[targetIndexB];
@@ -746,6 +751,20 @@ function reset() {
     }
     targetIndexA = NULL_BLOB_ID;
     targetIndexB = NULL_BLOB_ID;
+    currentTarget = { 
+        center: {x:0,y:0},
+        width:0, height:0,
+        timestamp: NULL_TIMESTAMP,
+        angle: 0,
+        blobCount: 0
+    };
+    currentValidTarget = {
+        center: {x:0, y:0},
+        width: 0, height: 0,
+        timestamp: NULL_TIMESTAMP,
+        angle: 0,
+        blobCount: 0
+    }
     //JOIN
 
     //(scripting only)
