@@ -2,7 +2,7 @@ import { virtexConfig } from "./util/VirtexConfig";
 import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
 import { drawLine } from "./util/OtherUtil";
 
-//140-bit Blob Data
+//144-bit Blob Data
 export interface BlobData {
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -12,7 +12,7 @@ export interface BlobData {
     boundTopLeft: Vector,
     boundBottomRight: Vector,
     quad: Quad,
-    area: number //[19:0]
+    area: number //[23:0]
 }
 
 //Blob Metadata
@@ -27,8 +27,8 @@ export interface Target {
     center: Vector;
     width: number; //[9:0]
     height: number; //[9:0]
-    timestamp: number; //timestamp is replaced with latency at delivery //TODO
-    blobCount: number; //[9:0]?
+    timestamp: number; //[?:0] timestamp is replaced with latency at delivery //TODO timestamp
+    blobCount: number; //[3:0]
     angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
 
