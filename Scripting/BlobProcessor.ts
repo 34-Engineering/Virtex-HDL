@@ -467,11 +467,9 @@ let targetPartion: number; //tells 0: A|B1 or 1: A|B2
 let targetHasNewA: boolean;
 let targetWantsNewA: boolean;
 function updateTargetSelectorDualGroup() {
-    // console.log(targetIndexA, targetIndexBs[targetPartion], targetIndexBsValid[targetPartion]);
-
     /*  DUAL/GROUP
         ------------------------------------------------------
-        0 -                 READ New B0 on 0 READ N A on 1         (B0 is invalid @ start)
+        0 -                 READ New B0 on 0 READ New A on 1       (B0 is invalid @ start)
         1 +                 READ New B1 on 1                       (B1 is invalid @ start)
         2 - PROCESS B0 on 0 READ New B0 on 0 SAVE A from 1 (first) (B0 is valid @ start)
         3 + PROCESS B1 on 1 READ New B1 on 1                       (B1 is valid @ start)
@@ -521,8 +519,6 @@ function updateTargetSelectorDualGroup() {
     //PROCESS
     let targetBlobB: BlobData, targetBlobBAngle: BlobAngle;
     if (targetIndexBsValid[targetPartion]) {
-        // console.log("PROCESS:", targetIndexA, targetIndexBs[targetPartion], targetIndexBsValid[targetPartion]);
-
         //Get Blob
         targetBlobB = blobBRAMPorts[targetPartion].dout;
         targetBlobBAngle = calcBlobAngle(targetBlobB);
@@ -676,7 +672,6 @@ function updateTargetSelectorDualGroup() {
             //we need access to both BRAM ports so we may have to wait
             //an entire loop for the last B to finish processing
             targetWantsNewA = true;
-            // console.log(`wants new A from ${targetIndexA}, ${targetIndexBsValid}`);
         }
 
         //READ New B0|1
@@ -718,8 +713,6 @@ function updateTargetSelectorDualGroup() {
             targetHasNewA = true;
             targetWantsNewA = false;
             targetPartion = 1;
-
-            // console.log(`got new A ${targetIndexA}`);
         }
     }
 
@@ -796,14 +789,14 @@ function reset() {
     target = {
         center: {x:0, y:0},
         width: 0, height: 0,
-        timestamp: 0,
+        timestamp: NULL_TIMESTAMP,
         blobCount: 0,
         angle: BlobAngle.HORIZONTAL
     }
     targetIndexA = NULL_BLOB_ID;
     targetIndexBs = [0, 0];
     targetIndexBsValid = [false, false];
-    targetChain = { 
+    targetChain = {
         center: {x:0,y:0},
         width:0, height:0,
         timestamp: NULL_TIMESTAMP,

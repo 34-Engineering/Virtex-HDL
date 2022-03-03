@@ -15,7 +15,7 @@
             height: 100vh;
             width: 100vw;
             max-width: 100vw;
-            background: black;
+            background: repeating-radial-gradient(circle at 100%, black, black 20px, rgb(5,5,5) 40px, rgb(5,5,5) 50px);
             margin: 0;
             padding: 0;
             overflow-x: hidden;
@@ -33,35 +33,32 @@
         /* generic ui */
         button, select {
             margin: 4px 2px;
-            border: 2px solid white;
+            border: 2px solid #0d47a1;
             background-color: black;
+            border-radius: 4px;
             color: white;
             padding: 10px;
             font-size: 16px;
             cursor: pointer;
             text-align: center;
-            transition: border 100ms cubic-bezier(0.39, 0.575, 0.565, 1),
-                padding 100ms cubic-bezier(0.39, 0.575, 0.565, 1),
-                margin 100ms cubic-bezier(0.39, 0.575, 0.565, 1);
+            transition: box-shadow 100ms cubic-bezier(0.39, 0.575, 0.565, 1),
+                border-color 150ms cubic-bezier(0.39, 0.575, 0.565, 1),
+                background-color 80ms cubic-bezier(0.39, 0.575, 0.565, 1);
             user-select: none;
             outline: none;
             white-space: nowrap;
         }
         button.white, select.white {
-            background-color: white;
-            color: black;
+            border-color: salmon;
+            /* color: black; */
         }
-        button:hover, select:hover {
-            border-width: 4px;
-            margin: 2px 1px;
+        button:hover, select:hover, button:active, select:active {
+            box-shadow: 0 0 0 0.15rem limegreen;
+            border-color: limegreen;
         }
         button:active, select:active {
-            padding: 8px;
-            margin: 4px 3px;   
-        }
-        button:active:not(.toggle), select:active {
-            border-color: goldenrod;
-            transition: none;
+            box-shadow: 0 0 0 0rem limegreen;
+            transition-duration: 50ms;
         }
         .checkbox {
             display: block;
@@ -82,6 +79,7 @@
             width: min(calc(100vw - 450px), 133.333vh);
             position: relative;
             border-right: 2px white solid;
+            background: black;
         }
         #canvas {
             width: 100%;
@@ -90,8 +88,9 @@
 
         /* sidebar */
         .sidebar {
-            margin: 6px 0 0 0;
+            padding: 6px 0 0 0;
             width: 450px;
+            background: repeating-linear-gradient(45deg, black, rgb(5,0,5) 15%, rgb(8,0,8) 20%);
         }
 
         .header {
@@ -102,6 +101,12 @@
         .header > button.reset {
             color: red;
             margin-left: 6px;
+        }
+        .header > button.reset:not(:hover):not(:active) {
+            border-color: red;
+        }
+        .header select:not(:hover):not(:active) {
+            border-color: rgb(255, 179, 0);
         }
 
         .sidebar-container {
@@ -141,14 +146,14 @@
 
     <div class="sidebar">
         <div class="header">
-            <select name="image" class="white"
+            <select name="image" class=""
                 onchange="if (this.selectedIndex) postAndUpdateUI('/changeImageFile', { file: this.value })">
                 <% for (const image of imageFiles) { %>
                     <option value="<%= image %>" <%= image == imageFile ? 'selected' : '' %>><%= image %></option>
                 <% } %>
             </select>
             
-            <button onclick="postAndUpdateUI('/reset')" class="reset white">
+            <button onclick="postAndUpdateUI('/reset')" class="reset">
                 Reset
             </button>
         </div>
