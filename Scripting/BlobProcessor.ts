@@ -441,26 +441,28 @@ function getNextValidGarbageIndex(startIndex: number): number {
 
 //Target Selector Loop
 let target: Target;
-let targetIndexA: number = 0; //not used for SINGLE
+let targetIndexA: number = NULL_BLOB_ID; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
 let targetIndex: number[] = [0, 0];  //A1|2 for SINGLE, else B1|2
 let targetIndexValid: boolean[] = [false, false];
 let targetBlobA: BlobData;
 let targetBlobAAngle: BlobAngle;
 let firstTargetIndex = () => getNextValidTargetIndex(0);
-let nextTargetIndexA = () => getNextValidTargetIndex(targetIndexA);
-let nextTargetIndex = [() => getNextValidTargetIndex(targetIndex[0]), () => getNextValidTargetIndex(targetIndex[1])];
+let nextTargetIndexA = () => getNextValidTargetIndex(targetIndexA+1);
+let nextTargetIndex = [() => getNextValidTargetIndex(targetIndex[0]+1), () => getNextValidTargetIndex(targetIndex[1]+1)];
 let targetChain: Target; //current chain (for TargetMode.GROUP)
 let targetChainValid: Target; //biggest valid target for current chain
 let targetPartion: number = 0; //tells 0: A|B1 or 1: A|B2
 let shouldInitNewA: boolean = false;
 function updateTargetSelector() {
+    console.log({ targetPartion, targetIndex, targetIndexA });
+
     /*  DUAL/GROUP
         ------------------------------------------------------
-        0 -                 READ New B0 on 0 READ N A on 1
-        1 +                 READ New B1 on 1
-        2 - PROCESS B0 on 0 READ New B0 on 0 SAVE A on 1 (first)
-        3 + PROCESS B1 on 1 READ New B1 on 1
-        4 - PROCESS B0 on 0 READ New B0 on 0
+        0 -                 READ New B0 on 0 READ N A on 1         (B0 is invalid @ start)
+        1 +                 READ New B1 on 1                       (B1 is invalid @ start)
+        2 - PROCESS B0 on 0 READ New B0 on 0 SAVE A from 1 (first) (B0 is valid @ start)
+        3 + PROCESS B1 on 1 READ New B1 on 1                       (B1 is valid @ start)
+        4 - PROCESS B0 on 0 READ New B0 on 0                        ...
         5 + PROCESS B1 on 1 READ New B1 on 1
         6 - PROCESS B0 on 0 READ New B0 on 0
           ... till B0|B1 == NULL_BLOB_ID
@@ -468,18 +470,18 @@ function updateTargetSelector() {
 
         SINGLE
         ------------------------------------------------------
-        0 -                 READ A0 on 0
-        1 +                 READ A1 on 1
-        2 - PROCESS A0 on 0 READ A0 on 0
-        3 + PROCESS A1 on 1 READ A1 on 1
-        4 - PROCESS A0 on 0 READ A0 on 0
+        0 -                 READ A0 on 0 (A0 is invalid @ start)
+        1 +                 READ A1 on 1 (A1 is invalid @ start)
+        2 - PROCESS A0 on 0 READ A0 on 0 (A0 is valid @ start)
+        3 + PROCESS A1 on 1 READ A1 on 1 (A1 is valid @ start)
+        4 - PROCESS A0 on 0 READ A0 on 0  ...
         5 + PROCESS A1 on 1 READ A1 on 1
           ... till A0|A1 == NULL_BLOB_ID
         ------------------------------------------------------ */
 
-    //SAVE A on 1
+    //SAVE A from 1
     if (shouldInitNewA && virtexConfig.targetMode !== TargetMode.SINGLE) {
-        targetBlobA = blobBRAMPorts[0].dout;
+        targetBlobA = blobBRAMPorts[1].dout;
         targetBlobAAngle = calcBlobAngle(targetBlobA);
         shouldInitNewA = false;
 
@@ -514,22 +516,15 @@ function updateTargetSelector() {
         }
     }
 
-    //Get Blobs to PROCESS
-    let targetBlobB: BlobData, targetBlobBAngle: BlobAngle;
-    if (targetIndexValid[targetPartion]) {
-        if (virtexConfig.targetMode == TargetMode.SINGLE) {
-            targetBlobA = blobBRAMPorts[targetPartion].dout;
-        }
-        else {
-            targetBlobB = blobBRAMPorts[targetPartion].dout;
-            targetBlobBAngle = calcBlobAngle(targetBlobB);
-        }
-    }
-
     //PROCESS
+    let targetBlobB: BlobData, targetBlobBAngle: BlobAngle;
     if (targetIndexValid[targetPartion]) {
         //SINGLE
         if (virtexConfig.targetMode == TargetMode.SINGLE) {
+            //Get Blob
+            targetBlobA = blobBRAMPorts[targetPartion].dout;
+            targetBlobAAngle = calcBlobAngle(targetBlobA);
+
             //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
             const center: Vector = {
                 x: (targetBlobA.boundBottomRight.x + targetBlobA.boundTopLeft.x) >> 1,
@@ -558,137 +553,144 @@ function updateTargetSelector() {
             }
         }
 
-        //GROUP: chain other blobs together starting a Blob A
-        else if (virtexConfig.targetMode == TargetMode.GROUP) {
-            //make new enclosing bound that includes currentTarget & blobB
-            const chainTopLeft: Vector = {
-                x: targetChain.center.x - (targetChain.width >> 1),
-                y: targetChain.center.y - (targetChain.height >> 1)
-            };
-            const chainBottomRight: Vector = {
-                x: targetChain.center.x + (targetChain.width >> 1),
-                y: targetChain.center.y + (targetChain.height >> 1)
-            };
-            const newTopLeft: Vector = {
-                x: Math.min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
-                y: Math.min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
-            };
-            const newBottomRight: Vector = {
-                x: Math.max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
-                y: Math.max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
-            };
-            const newCenter: Vector = {
-                x: (newTopLeft.x + newBottomRight.x) >> 1,
-                y: (newTopLeft.y + newBottomRight.y) >> 1
-            };
-            const newWidth: number = newBottomRight.x - newTopLeft.x + 1;
-            const newHeight: number = newBottomRight.y - newTopLeft.y + 1;
+        //DUAL/GROUP
+        else {
+            //Get Blob
+            targetBlobB = blobBRAMPorts[targetPartion].dout;
+            targetBlobBAngle = calcBlobAngle(targetBlobB);
 
-            //gap valid between Blob B & target
-            const gapX: number = Math.min(
-                Math.abs(targetBlobB.boundTopLeft.x - chainBottomRight.x),
-                Math.abs(targetBlobB.boundBottomRight.x - chainTopLeft.x)
-            );
-            const gapY: number = Math.min(
-                Math.abs(targetBlobB.boundTopLeft.y - chainBottomRight.y),
-                Math.abs(targetBlobB.boundBottomRight.y - chainTopLeft.y)
-            );
-            const gapValid: boolean = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-                inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
-
-            //area diff between Blob A & B
-            const areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
-            const areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
-            const areaDiffValid: boolean = inRangeInclusive(Math.abs(areaBlobA - areaBlobB),
-                virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
-
-            if (gapValid && areaDiffValid) {
-                //join current target
-                targetChain = {
-                    center: newCenter,
-                    width: newWidth,
-                    height: newHeight,
-                    timestamp: 10,
-                    blobCount: targetChain.blobCount + 1,
-                    angle: targetBlobAAngle
+            //GROUP: chain other blobs together starting a Blob A
+            if (virtexConfig.targetMode == TargetMode.GROUP) {
+                //make new enclosing bound that includes currentTarget & blobB
+                const chainTopLeft: Vector = {
+                    x: targetChain.center.x - (targetChain.width >> 1),
+                    y: targetChain.center.y - (targetChain.height >> 1)
                 };
+                const chainBottomRight: Vector = {
+                    x: targetChain.center.x + (targetChain.width >> 1),
+                    y: targetChain.center.y + (targetChain.height >> 1)
+                };
+                const newTopLeft: Vector = {
+                    x: Math.min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
+                    y: Math.min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
+                };
+                const newBottomRight: Vector = {
+                    x: Math.max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
+                    y: Math.max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
+                };
+                const newCenter: Vector = {
+                    x: (newTopLeft.x + newBottomRight.x) >> 1,
+                    y: (newTopLeft.y + newBottomRight.y) >> 1
+                };
+                const newWidth: number = newBottomRight.x - newTopLeft.x + 1;
+                const newHeight: number = newBottomRight.y - newTopLeft.y + 1;
 
-                //aspect ratio of new currentTarget valid
-                const newAspectRatioValid: boolean = inRangeInclusive(newWidth, //TODO fixed point mult
-                    virtexConfig.targetAspectRatioMin*newHeight, virtexConfig.targetAspectRatioMax*newHeight);
+                //gap valid between Blob B & target
+                const gapX: number = Math.min(
+                    Math.abs(targetBlobB.boundTopLeft.x - chainBottomRight.x),
+                    Math.abs(targetBlobB.boundBottomRight.x - chainTopLeft.x)
+                );
+                const gapY: number = Math.min(
+                    Math.abs(targetBlobB.boundTopLeft.y - chainBottomRight.y),
+                    Math.abs(targetBlobB.boundBottomRight.y - chainTopLeft.y)
+                );
+                const gapValid: boolean = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
+                    inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
-                //bound area of new currentTarget valid
-                const newBoundAreaValid: boolean = inRangeInclusive((newWidth * newHeight) >> 1,
-                    virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+                //area diff between Blob A & B
+                const areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
+                const areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
+                const areaDiffValid: boolean = inRangeInclusive(Math.abs(areaBlobA - areaBlobB),
+                    virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
-                if (newAspectRatioValid && newBoundAreaValid) {
-                    //set current valid target
-                    targetChainValid = Object.assign({}, targetChain);
+                if (gapValid && areaDiffValid) {
+                    //join current target
+                    targetChain = {
+                        center: newCenter,
+                        width: newWidth,
+                        height: newHeight,
+                        timestamp: 10,
+                        blobCount: targetChain.blobCount + 1,
+                        angle: targetBlobAAngle
+                    };
+
+                    //aspect ratio of new currentTarget valid
+                    const newAspectRatioValid: boolean = inRangeInclusive(newWidth, //TODO fixed point mult
+                        virtexConfig.targetAspectRatioMin*newHeight, virtexConfig.targetAspectRatioMax*newHeight);
+
+                    //bound area of new currentTarget valid
+                    const newBoundAreaValid: boolean = inRangeInclusive((newWidth * newHeight) >> 1,
+                        virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+
+                    if (newAspectRatioValid && newBoundAreaValid) {
+                        //set current valid target
+                        targetChainValid = Object.assign({}, targetChain);
+                    }
                 }
             }
-        }
 
-        //DUAL: make all combinations of two blobs
-        else {
-            //pick left & right
-            const targetBlobACenterX: number = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) >> 1;
-            const blobBCenterX: number = (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x) >> 1;
-            const leftBlob : BlobData       = targetBlobACenterX < blobBCenterX ? targetBlobA : targetBlobB;
-            const leftBlobAngle : BlobAngle = targetBlobACenterX < blobBCenterX ? targetBlobAAngle : targetBlobBAngle;
-            const rightBlob: BlobData       = targetBlobACenterX < blobBCenterX ? targetBlobB : targetBlobA;
-            const rightBlobAngle: BlobAngle = targetBlobACenterX < blobBCenterX ? targetBlobBAngle : targetBlobAAngle;
+            //DUAL: make all combinations of two blobs
+            else {
+                //pick left & right
+                const targetBlobACenterX: number = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) >> 1;
+                const blobBCenterX: number = (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x) >> 1;
+                const leftBlob : BlobData       = targetBlobACenterX < blobBCenterX ? targetBlobA : targetBlobB;
+                const leftBlobAngle : BlobAngle = targetBlobACenterX < blobBCenterX ? targetBlobAAngle : targetBlobBAngle;
+                const rightBlob: BlobData       = targetBlobACenterX < blobBCenterX ? targetBlobB : targetBlobA;
+                const rightBlobAngle: BlobAngle = targetBlobACenterX < blobBCenterX ? targetBlobBAngle : targetBlobAAngle;
 
-            //make enclosing bound
-            const topLeft: Vector = {
-                x: Math.min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-                y: Math.min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
-            };
-            const bottomRight: Vector = {
-                x: Math.max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-                y: Math.max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
-            };
-            const center: Vector = {
-                x: (topLeft.x + bottomRight.x) >> 1,
-                y: (topLeft.y + bottomRight.y) >> 1
-            };
-            const width: number = bottomRight.x - topLeft.x + 1;
-            const height: number = bottomRight.y - topLeft.y + 1;
-
-            //find if angles are valid
-            const isAngleValid: boolean = virtexConfig.targetMode === TargetMode.DUAL_UP ?
-                leftBlobAngle == BlobAngle.FORWARD && rightBlobAngle == BlobAngle.BACKWARD :
-                virtexConfig.targetMode === TargetMode.DUAL_DOWN ?
-                leftBlobAngle == BlobAngle.BACKWARD && rightBlobAngle == BlobAngle.FORWARD : true;
-
-            //gap valid
-            const gapX: number = Math.abs(rightBlob.boundTopLeft.x - leftBlob.boundBottomRight.x);
-            const gapY: number = Math.abs(rightBlob.boundTopLeft.y - leftBlob.boundBottomRight.y);
-            const gapValid: boolean = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-                inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
-
-            //aspect ratio valid
-            const aspectRatioValid: boolean = inRangeInclusive(width, //TODO fixed point mult
-                virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
-
-            //bound area valid
-            const boundAreaValid: boolean = inRangeInclusive((width * height) >> 1,
-                virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
-
-            //area diff valid
-            const areaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
-            const areaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
-            const areaDiffValid: boolean = inRangeInclusive(Math.abs(areaRight - areaLeft),
-                virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
-            
-            //if this target is valid AND this target is better OR we dont have a target yet
-            if (isAngleValid && gapValid && aspectRatioValid && boundAreaValid && areaDiffValid &&
-                (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(target.center))) {
-                target = {
-                    center, width, height,
-                    timestamp: 10,
-                    blobCount: 2,
-                    angle: leftBlobAngle
+                //make enclosing bound
+                const topLeft: Vector = {
+                    x: Math.min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                    y: Math.min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
                 };
+                const bottomRight: Vector = {
+                    x: Math.max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                    y: Math.max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                };
+                const center: Vector = {
+                    x: (topLeft.x + bottomRight.x) >> 1,
+                    y: (topLeft.y + bottomRight.y) >> 1
+                };
+                const width: number = bottomRight.x - topLeft.x + 1;
+                const height: number = bottomRight.y - topLeft.y + 1;
+
+                //find if angles are valid
+                const isAngleValid: boolean = virtexConfig.targetMode === TargetMode.DUAL_UP ?
+                    leftBlobAngle == BlobAngle.FORWARD && rightBlobAngle == BlobAngle.BACKWARD :
+                    virtexConfig.targetMode === TargetMode.DUAL_DOWN ?
+                    leftBlobAngle == BlobAngle.BACKWARD && rightBlobAngle == BlobAngle.FORWARD : true;
+
+                //gap valid
+                const gapX: number = Math.abs(rightBlob.boundTopLeft.x - leftBlob.boundBottomRight.x);
+                const gapY: number = Math.abs(rightBlob.boundTopLeft.y - leftBlob.boundBottomRight.y);
+                const gapValid: boolean = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
+                    inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+
+                //aspect ratio valid
+                const aspectRatioValid: boolean = inRangeInclusive(width, //TODO fixed point mult
+                    virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+
+                //bound area valid
+                const boundAreaValid: boolean = inRangeInclusive((width * height) >> 1,
+                    virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+
+                //area diff valid
+                const areaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
+                const areaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
+                const areaDiffValid: boolean = inRangeInclusive(Math.abs(areaRight - areaLeft),
+                    virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
+                
+                //if this target is valid AND this target is better OR we dont have a target yet
+                if (isAngleValid && gapValid && aspectRatioValid && boundAreaValid && areaDiffValid &&
+                    (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(target.center))) {
+                    target = {
+                        center, width, height,
+                        timestamp: 10,
+                        blobCount: 2,
+                        angle: leftBlobAngle
+                    };
+                }
             }
         }
 
@@ -696,57 +698,63 @@ function updateTargetSelector() {
         targetIndexValid[targetPartion] = false;
     }
 
+    //Finish Frame
+    if (targetIndexA !== NULL_BLOB_ID && !targetIndexValid[0] && !targetIndexValid[1]) {
+        targetSelectorDone = true;
+    }
+
     //Get New Indexes & READ
     //SINGLE
-    if (virtexConfig.targetMode == TargetMode.SINGLE) {
-        if (nextTargetIndex[targetPartion]() == NULL_BLOB_ID) {
-            targetSelectorDone = true;
-        }
-        else {
-            //READ AX on 0
-            targetIndex[targetPartion] = nextTargetIndex[targetPartion]();
+    else if (virtexConfig.targetMode == TargetMode.SINGLE) {
+        //Set New A (if @ start frame use first valid blob index)
+        //our current partion has the oldest index, so our new index one will
+        //be the next step ahead of the other partion's index
+        const nextIndex = targetIndexA == NULL_BLOB_ID ? firstTargetIndex() : nextTargetIndex[targetPartion==0?1:0]();
+        targetIndexA = 0;
+
+        //READ AX on 0
+        if (nextIndex !== NULL_BLOB_ID) {
+            targetIndex[targetPartion] = nextIndex;
             targetReadIndex(targetPartion);
         }
-        
     }
     //DUAL/GROUP
     else {
         targetIndex[targetPartion] = nextTargetIndex[targetPartion](); //BLOCKING
 
-        //Reset (go to next A or done) IF frame init OR no more Bs left
+        //Reset (go to next A or done) IF frame init OR no more Bs left (if new B is NULL || or new B is invalid AND new new B is NULL)
         if (targetIndexA == NULL_BLOB_ID || targetIndex[targetPartion] == NULL_BLOB_ID || (targetIndex[targetPartion] == targetIndexA && nextTargetIndex[targetPartion]() == NULL_BLOB_ID)) {
-            //increment A
-            targetIndexA = nextTargetIndexA(); //BLOCKING
+            //Set New A (if @ start frame use first valid blob index)
+            targetIndexA = targetIndexA == NULL_BLOB_ID ? firstTargetIndex() : nextTargetIndexA(); //BLOCKING
 
-            //done IF next A index is null OR invalid B index for DUAL mode
-            if (targetIndexA == NULL_BLOB_ID ||
-                (nextTargetIndexA() == NULL_BLOB_ID && virtexConfig.targetMode !== TargetMode.GROUP)) {
-                targetSelectorDone = true;
-            }
-            else {
+            //READ New A & B0|1 if not valid New A AND valid New B for DUAL mode
+            if (targetIndexA !== NULL_BLOB_ID && (nextTargetIndexA() !== NULL_BLOB_ID || virtexConfig.targetMode === TargetMode.GROUP)) {
+                //READ New A on 1
                 targetReadIndexA();
                 
                 //Set New B0|1
-                targetIndex[targetPartion] = virtexConfig.targetMode === TargetMode.GROUP ? firstTargetIndex() : nextTargetIndexA();
+                targetIndex[targetPartion] = (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? 
+                    firstTargetIndex() : nextTargetIndexA();
 
-                //READ B0|1
+                //READ New B0|1 on 0|1
                 targetReadIndex(targetPartion);
             }
         }
 
         //Go to Next B
         else {
-            //increment B again
+            //increment B again (because of overlap in GROUP mode)
             if (targetIndex[targetPartion] == targetIndexA) {
                 targetIndex[targetPartion] = nextTargetIndex[targetPartion]();
             }
     
+            //READ New B0|1 on 0|1
             targetReadIndex(targetPartion);
         }
     }
 
-    //Swap Partion
-    targetPartion = targetPartion == 1 ? 0 : 1;
+    //Swap Partion (or hold 0 for new A)
+    targetPartion = Number(!(Boolean(targetPartion) || shouldInitNewA));
 }
 function targetReadIndexA() {
     blobBRAMPorts[1].addr = targetIndexA;
@@ -759,10 +767,10 @@ function targetReadIndex(partion: number) {
     targetIndexValid[partion] = true;
 }
 function getNextValidTargetIndex(startIndex: number): number {
-    //find next valid blob > startIndex
+    //find next valid blob >= startIndex
     //(and < blobIndex because anything above that is invalid)
     for (let i = 0; i < MAX_BLOBS; i++) {
-        if (i > startIndex && i <= blobIndex && blobMetadatas[i].status == BlobStatus.VALID) {
+        if (i >= startIndex && i <= blobIndex && blobMetadatas[i].status == BlobStatus.VALID) {
             return i;
         }
     }
@@ -798,7 +806,7 @@ function reset() {
         angle: BlobAngle.HORIZONTAL
     }
     targetIndexA = NULL_BLOB_ID;
-    targetIndexB = NULL_BLOB_ID;
+    targetIndex = [0, 0];
     targetChain = { 
         center: {x:0,y:0},
         width:0, height:0,
