@@ -467,6 +467,8 @@ let targetPartion: number; //tells 0: A|B1 or 1: A|B2
 let targetHasNewA: boolean;
 let targetWantsNewA: boolean;
 function updateTargetSelectorDualGroup() {
+    // console.log(targetIndexA, targetIndexBs[targetPartion], targetIndexBsValid[targetPartion]);
+
     /*  DUAL/GROUP
         ------------------------------------------------------
         0 -                 READ New B0 on 0 READ N A on 1         (B0 is invalid @ start)
@@ -519,6 +521,8 @@ function updateTargetSelectorDualGroup() {
     //PROCESS
     let targetBlobB: BlobData, targetBlobBAngle: BlobAngle;
     if (targetIndexBsValid[targetPartion]) {
+        // console.log("PROCESS:", targetIndexA, targetIndexBs[targetPartion], targetIndexBsValid[targetPartion]);
+
         //Get Blob
         targetBlobB = blobBRAMPorts[targetPartion].dout;
         targetBlobBAngle = calcBlobAngle(targetBlobB);
@@ -661,14 +665,34 @@ function updateTargetSelectorDualGroup() {
         targetIndexBsValid[targetPartion] = false;
     }
 
-    //Get New Indexes & READ
-    //Set New B0|1
-    //our current partion has the oldest index, so our new index one will
-    //be the next step ahead of the other partion's index
-    targetIndexBs[targetPartion] = nextTargetIndex[targetPartion==0?1:0](); //BLOCKING
+    if (!targetWantsNewA) {
+        //Set New B0|1 (our current partion has the oldest index, so our new index one will be the next step ahead of the other partion's index)
+        targetIndexBs[targetPartion] = nextTargetIndex[targetPartion==0?1:0](); //BLOCKING
 
-    //Reset (go to next A or done) IF frame init OR no more Bs left (if new B is NULL || or new B is invalid AND new new B is NULL)
-    if (targetIndexA == NULL_BLOB_ID || targetIndexBs[targetPartion] == NULL_BLOB_ID || (targetIndexBs[targetPartion] == targetIndexA && nextTargetIndex[targetPartion]() == NULL_BLOB_ID)) {
+        //Request New A (IF frame init OR no more Bs left (if new B0|1 is NULL || or new B0|1 is invalid AND new new B is NULL))
+        if (targetIndexA == NULL_BLOB_ID || targetIndexBs[targetPartion] == NULL_BLOB_ID || 
+            (targetIndexBs[targetPartion] == targetIndexA && nextTargetIndex[targetPartion]() == NULL_BLOB_ID)) {
+            //Request New A
+            //we need access to both BRAM ports so we may have to wait
+            //an entire loop for the last B to finish processing
+            targetWantsNewA = true;
+            // console.log(`wants new A from ${targetIndexA}, ${targetIndexBsValid}`);
+        }
+
+        //READ New B0|1
+        else {
+            //increment B0|1 again (because new B0|1 is invalid aka overlaps A in GROUP mode)
+            if (targetIndexBs[targetPartion] == targetIndexA) {
+                targetIndexBs[targetPartion] = nextTargetIndex[targetPartion]();
+            }
+
+            //READ New B0|1 on 0|1
+            targetReadIndex(targetPartion);
+        }
+    }
+
+    //Reset for New A
+    if (targetWantsNewA && !targetIndexBsValid[0] && !targetIndexBsValid[1]) {
         //Set New A (if @ start frame use first valid blob index)
         targetIndexA = targetIndexA == NULL_BLOB_ID ? firstTargetIndex() : nextTargetIndexA(); //BLOCKING
 
@@ -677,43 +701,26 @@ function updateTargetSelectorDualGroup() {
             targetSelectorDone = true;
         }
 
-        //READ New A & B0|1 if not valid New A AND valid New B for DUAL mode
+        //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextTargetIndexA() !== NULL_BLOB_ID || virtexConfig.targetMode === TargetMode.GROUP) {
-            //Request New A
-            //we need access to both BRAM ports so we may have to wait
-            //an entire loop for the last B to finish processing
-            targetWantsNewA = true;
+            //READ New A on 1
+            blobBRAMPorts[1].addr = targetIndexA;
+            blobBRAMPorts[1].wea = false;
+
+            //Set New B0
+            targetIndexBs[0] = (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? 
+                firstTargetIndex() : nextTargetIndexA();
+
+            //READ New B0 on 0
+            targetReadIndex(0);
+
+            //Update State
+            targetHasNewA = true;
+            targetWantsNewA = false;
+            targetPartion = 1;
+
+            // console.log(`got new A ${targetIndexA}`);
         }
-    }
-
-    //Go to Next B
-    else {
-        //increment B again (because of overlap in GROUP mode)
-        if (targetIndexBs[targetPartion] == targetIndexA) {
-            targetIndexBs[targetPartion] = nextTargetIndex[targetPartion]();
-        }
-
-        //READ New B0|1 on 0|1
-        targetReadIndex(targetPartion);
-    }
-
-    //Reset for New A
-    if (targetWantsNewA && !targetIndexBsValid[0] && !targetIndexBsValid[1]) {
-        //READ New A on 1
-        blobBRAMPorts[1].addr = targetIndexA;
-        blobBRAMPorts[1].wea = false;
-                
-        //Set New B0
-        targetIndexBs[0] = (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? 
-            firstTargetIndex() : nextTargetIndexA();
-
-        //READ New B0 on 0
-        targetReadIndex(0);
-
-        //Update State
-        targetHasNewA = true;
-        targetWantsNewA = false;
-        targetPartion = 0;
     }
 
     //Swap Partion (or hold 0 for new A)
