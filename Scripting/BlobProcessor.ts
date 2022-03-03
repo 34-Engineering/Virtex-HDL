@@ -441,9 +441,9 @@ function getNextValidGarbageIndex(startIndex: number): number {
 
 //Target Selector Loop
 let target: Target;
-let targetIndexA: number = NULL_BLOB_ID; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
-let targetIndex: number[] = [0, 0];  //A1|2 for SINGLE, else B1|2
-let targetIndexValid: boolean[] = [false, false];
+let targetIndexA: number; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
+let targetIndex: number[];  //A1|2 for SINGLE, else B1|2
+let targetIndexValid: boolean[];
 let targetBlobA: BlobData;
 let targetBlobAAngle: BlobAngle;
 let firstTargetIndex = () => getNextValidTargetIndex(0);
@@ -451,9 +451,9 @@ let nextTargetIndexA = () => getNextValidTargetIndex(targetIndexA+1);
 let nextTargetIndex = [() => getNextValidTargetIndex(targetIndex[0]+1), () => getNextValidTargetIndex(targetIndex[1]+1)];
 let targetChain: Target; //current chain (for TargetMode.GROUP)
 let targetChainValid: Target; //biggest valid target for current chain
-let targetPartion: number = 0; //tells 0: A|B1 or 1: A|B2
-let shouldInitNewA: boolean = false;
-let wantsToReset: boolean = false;
+let targetPartion: number; //tells 0: A|B1 or 1: A|B2
+let targetHasNewA: boolean;
+let targetWantsNewA: boolean;
 function updateTargetSelector() {
     /*  DUAL/GROUP
         ------------------------------------------------------
@@ -479,10 +479,10 @@ function updateTargetSelector() {
         ------------------------------------------------------ */
 
     //SAVE A from 1
-    if (shouldInitNewA && virtexConfig.targetMode !== TargetMode.SINGLE && !targetPartion) {
+    if (targetHasNewA && virtexConfig.targetMode !== TargetMode.SINGLE && !targetPartion) {
         targetBlobA = blobBRAMPorts[1].dout;
         targetBlobAAngle = calcBlobAngle(targetBlobA);
-        shouldInitNewA = false; //BLOCKING
+        targetHasNewA = false; //BLOCKING
 
         //Wrap up + Reset for GROUP Mode
         if (virtexConfig.targetMode === TargetMode.GROUP) {
@@ -737,7 +737,7 @@ function updateTargetSelector() {
             //READ New A & B0|1 if not valid New A AND valid New B for DUAL mode
             else if (nextTargetIndexA() !== NULL_BLOB_ID || virtexConfig.targetMode === TargetMode.GROUP) {
                 //For a reset we need access to both ports && targetPartion == 0;;;; HOW??? empty loop??
-                wantsToReset = true;
+                targetWantsNewA = true;
             }
         }
 
@@ -753,8 +753,8 @@ function updateTargetSelector() {
         }
     }
 
-    //Reset for new A
-    if (wantsToReset && !targetIndexValid[0] && !targetIndexValid[1]) {
+    //Reset for New A
+    if (targetWantsNewA && !targetIndexValid[0] && !targetIndexValid[1]) {
         //READ New A on 1
         targetReadIndexA();
                 
@@ -765,7 +765,7 @@ function updateTargetSelector() {
         //READ New B0 on 0
         targetReadIndex(0);
 
-        wantsToReset = false;
+        targetWantsNewA = false;
         targetPartion = 0;
     }
 
@@ -777,7 +777,7 @@ function updateTargetSelector() {
 function targetReadIndexA() {
     blobBRAMPorts[1].addr = targetIndexA;
     blobBRAMPorts[1].wea = false;
-    shouldInitNewA = true;
+    targetHasNewA = true;
 }
 function targetReadIndex(partion: number) {
     blobBRAMPorts[partion].addr = targetIndex[partion];
@@ -825,6 +825,7 @@ function reset() {
     }
     targetIndexA = NULL_BLOB_ID;
     targetIndex = [0, 0];
+    targetIndexValid = [false, false];
     targetChain = { 
         center: {x:0,y:0},
         width:0, height:0,
@@ -838,7 +839,10 @@ function reset() {
         timestamp: NULL_TIMESTAMP,
         angle: 0,
         blobCount: 0
-    }
+    };
+    targetPartion = 0;
+    targetHasNewA = false;
+    targetWantsNewA = false;
     //JOIN
 
     //(scripting only)
