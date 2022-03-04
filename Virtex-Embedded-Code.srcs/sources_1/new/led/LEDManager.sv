@@ -13,7 +13,7 @@ module LEDManager(
     input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON, PWR_12V_EN,
     input wire enabled, hasCommunication,
-    input wire Blob targetBlob,
+    // input wire Blob targetBlob,
     output wire Fault fault
     );
 

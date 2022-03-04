@@ -24,12 +24,25 @@ module AppManager(
     localparam GET_FRAME_CODE = 8'b00011111;
     localparam GET_CONFIG_CODE = 3'b001;
     localparam SET_CONFIG_CODE = 3'b100;
-    //TODO GET_BLOB
+    //TODO GET_TARGET
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
-    ////blk_mem_frame_buffer
-    // (* ram_style =  "block" *) FrameBuffer frameBuffer; FIXME
+    reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
+    reg [7:0] frameBufferReadOut, frameBufferWriteIn;
+    reg frameBufferWriteEnable;
+    blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
+        .addra(frameBufferAddrRead),
+        .clka(FSCLK),
+        .dina(),
+        .douta(frameBufferReadOut),
+        .wea(1'b0),
+        .addrb(frameBufferAddrWrite),
+        .clkb(CLK),
+        .dinb(frameBufferWriteIn),
+        .doutb(),
+        .web(frameBufferWriteEnable)
+    );
 
     //48MHz clock
     wire CLK48;
@@ -91,8 +104,10 @@ module AppManager(
 
                 GET_FRAME: begin
                     //38,400 loops //FIXME
+                    //skip first look
                     // writeData <= frameBuffer[getFrameKernelPos.y][getFrameKernelPos.x +: 7];
 
+                    //inc + read new
                     if (getFrameKernelPos.x > 79) begin
                         if (getFrameKernelPos.y > 478) begin
                             state <= IDLE;
@@ -144,7 +159,14 @@ module AppManager(
     end
 
     //Add to Frame Buffer //FIXME
-    // always @(posedge frameBufferWriteRequest.valid) begin
-    //     frameBuffer[frameBufferWriteRequest.kernelPos.y][frameBufferWriteRequest.kernelPos.x +: 7] <= frameBufferWriteRequest.kernel;
-    // end
+    reg lastFrameBufferWriteRequestValid = 0;
+    always @(negedge CLK) begin
+        if (frameBufferWriteRequest.valid && ~lastFrameBufferWriteRequestValid) begin
+            frameBufferAddrWrite <= frameBufferWriteRequest.kernelPos.y * frameBufferWriteRequest.kernelPos.x;
+            frameBufferWriteIn <= frameBufferWriteRequest.kernel;
+            frameBufferWriteEnable <= 1;
+        end
+
+        lastFrameBufferWriteRequestValid <= frameBufferWriteRequest.valid;
+    end
 endmodule

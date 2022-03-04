@@ -49,7 +49,7 @@ export interface BlobAnglesEnabled {
     backward: boolean
 }
 
-//Target Enums
+//Target Mode
 export const enum TargetMode {
     SINGLE, //only mode without added latency
     DUAL_ANY, //note: may include other combinations besides DUAL_UP & DUAL_DOWN

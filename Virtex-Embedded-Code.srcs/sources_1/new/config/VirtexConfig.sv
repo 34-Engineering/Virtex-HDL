@@ -43,28 +43,28 @@ typedef struct packed { //32 x 16
     logic [15:0] exposure; // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms), max 41746 wo/ lowering fps
 
     //target params
-    logic [15:0] targetBlobCountMin; //amount of blobs in target
-    logic [15:0] targetBlobCountMax;
-    logic [15:0] targetBlobGapMin; //distance between blobs in target
-    logic [15:0] targetBlobGapMax;
+    TargetMode targetMode;
+    logic [15:0] targetBlobXGapMin; //distance between blobs in target
+    logic [15:0] targetBlobXGapMax; //16-bit integer
+    logic [15:0] targetBlobYGapMin; //distance between blobs in target
+    logic [15:0] targetBlobYGapMax; //16-bit integer
+    logic [15:0] targetAspectRatioMin; //aspectRatio = boundWidth / boundHeight
+    logic [15:0] targetAspectRatioMax; //Q9.7 floating point
+    logic [15:0] targetBoundAreaMin; //boundArea = boundWidth * boundHeight >> 1
+    logic [15:0] targetBoundAreaMax; //16-bit integer
     logic [15:0] targetBlobAreaDiffMin; //difference between areas of blobs in target
-    logic [15:0] targetBlobAreaDiffMax;
-    logic [15:0] targetBlobSlopeDiffMin; //difference in slope between each blob next to eachother
-    logic [15:0] targetBlobSlopeDiffMax; //TODO how does the work if blobs are not in a clear line?
-    logic [15:0] targetAspectRatioMin;
-    logic [15:0] targetAspectRatioMax;
-    logic [15:0] targetCenterX; //final target selection parameter
+    logic [15:0] targetBlobAreaDiffMax; //16-bit integer
+    logic [15:0] targetCenterX; //final target selection parameter //TODO better name
     logic [15:0] targetCenterY; //choose target thats closet to this point
 
     //blob params
     logic [15:0] blobAspectRatioMin; //aspectRatio = boundWidth / boundHeight
-    logic [15:0] blobAspectRatioMax;
-    logic [15:0] blobSizeMin; //size = boundWidth * boundHeight
-    logic [15:0] blobSizeMax;
+    logic [15:0] blobAspectRatioMax; //Q9.7 floating point
+    logic [15:0] blobBoundAreaMin; //boundArea = boundWidth * boundHeight >> 1
+    logic [15:0] blobBoundAreaMax; //16-bit integer
     logic [15:0] blobFullnessMin; //fullness = blob.area (true area) / boundArea
-    logic [15:0] blobFullnessMax;
-    logic [15:0] blobSlopeMin; //slope = avg slope between left and right sides
-    logic [15:0] blobSlopeMax;
+    logic [15:0] blobFullnessMax; //Q1.15 floating point
+    BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
     /*27*/logic [15:0] reserved27;
@@ -84,28 +84,29 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     exposure: 30000,
 
     //target params
-    targetBlobCountMin: 1,
-    targetBlobCountMax: 1,
-    targetBlobGapMin: 0,
-    targetBlobGapMax: 16'hffff,
+    targetMode: TargetMode.GROUP,
+    targetBlobXGapMin: 0,
+    targetBlobXGapMax: 16'hffff,//30,
+    targetBlobYGapMin: 0,
+    targetBlobYGapMax: 16'hffff,//30,
+    targetAspectRatioMin: 0,//2,
+    targetAspectRatioMax: 16'hffff,//4,
+    targetBoundAreaMin: 0,
+    targetBoundAreaMax: 16'hffff,//0xffff,
     targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 16'hffff,
-    targetBlobSlopeDiffMin: 0,
-    targetBlobSlopeDiffMax: 16'hffff,
-    targetAspectRatioMin: 0,
-    targetAspectRatioMax: 16'hffff,
+    targetBlobAreaDiffMax: 100,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 
     //blob params
     blobAspectRatioMin: 0,
     blobAspectRatioMax: 16'hffff,
-    blobSizeMin: 16'd16,
-    blobSizeMax: 16'hffff,
+    blobBoundAreaMin: 50,
+    blobBoundAreaMax: 16'hffff,
     blobFullnessMin: 0,
     blobFullnessMax: 16'hffff,
-    blobSlopeMin: 0,
-    blobSlopeMax: 16'hffff,
+    blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
+
     
     //reserved for future use
     reserved27: 16'd0,

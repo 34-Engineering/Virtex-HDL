@@ -61,7 +61,6 @@ blk_mem_frame_buffer your_instance_name (
   .dina(dina),    // input wire [7 : 0] dina
   .douta(douta),  // output wire [7 : 0] douta
   .clkb(clkb),    // input wire clkb
-  .enb(enb),      // input wire enb
   .web(web),      // input wire [0 : 0] web
   .addrb(addrb),  // input wire [15 : 0] addrb
   .dinb(dinb),    // input wire [7 : 0] dinb

@@ -1,5 +1,4 @@
 //Math.ts
-import * as fs from 'fs';
 
 //Range Functions
 export function min(num1: number, num2: number): number {
@@ -40,21 +39,8 @@ export interface Quad { //80-bit
     bottomRight: Vector,
     bottomLeft: Vector
 }
-export function quadToVectorArray(quad: Quad): Vector[] {
-    return [ quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft ];
-}
-export function vectorArrayToQuad(points: Vector[]): Quad {
-    return {
-        topLeft: points[0],
-        topRight: points[1],
-        bottomRight: points[2],
-        bottomLeft: points[3]
-    };
-}
 export function calcQuadArea(quad: Quad): number {
-    return calcPolygonArea(quadToVectorArray(quad));
-}
-export function calcPolygonArea(points: Vector[]): number {
+    const points: Vector[] = [ quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft ];
     let total = 0;
     for (let i = 0; i < points.length; i++) {
         const addX = points[i].x;
@@ -78,6 +64,7 @@ export function isValidQuad(quad: Quad): boolean {
 export function quickDivide(dividend: number, divisor: number): number {
     //returns a 10-bit integer that correctlates to the real quotient
     let str = '';
+    //FIXME one for loop
     for (let n = 5; n > 0; n--)
         str += Math.abs(dividend) > Math.abs(divisor) >> n ? 1:0;
     for (let n = 0; n < 5; n++)

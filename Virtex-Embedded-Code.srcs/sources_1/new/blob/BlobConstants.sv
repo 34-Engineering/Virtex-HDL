@@ -13,11 +13,13 @@ localparam MAX_BLOB_POINTER_DEPTH = 5;
 
 //max runs RLE can create per line (under normal cond: max needed ~40)
 localparam MAX_RUNS_PER_LINE = 60;
+localparam MAX_RUNS_PER_LINE_POINTER_SIZE = $clog2(MAX_RUNS_PER_LINE) + 1; //ex: 13 -> [12:0]
 
 //null values
 localparam NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;
 localparam NULL_LINE_NUMBER = IMAGE_HEIGHT;
 localparam NULL_BLOB_ID = MAX_BLOBS;
 localparam NULL_RUN_BUFFER_PARTION = 3;
+localparam NULL_TIMESTAMP = 0;
 
 `endif
