@@ -27,7 +27,7 @@ export interface Target {
     center: Vector;
     width: number; //[9:0]
     height: number; //[9:0]
-    timestamp: number; //[?:0] timestamp is replaced with latency at delivery //TODO timestamp
+    timestamp: number; //[?:0] timestamp is replaced with latency at delivery
     blobCount: number; //[3:0]
     angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
@@ -51,11 +51,11 @@ export interface BlobAnglesEnabled {
 
 //Target Enums
 export const enum TargetMode {
-    SINGLE,
-    DUAL, //FIXME better naming?
+    SINGLE, //only mode without added latency
+    DUAL_ANY, //note: may include other combinations besides DUAL_UP & DUAL_DOWN
     DUAL_UP,   /* // \\ */
     DUAL_DOWN, /* \\ // */
-    GROUP //2+ targets
+    GROUP //2+ targets chained together
 }
 
 //Run

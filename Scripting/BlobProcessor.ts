@@ -46,6 +46,21 @@ let isWorkingOnFrame = () => !isLastKernel() || !blobProcessorDoneWithLine() || 
 
 //Target Selector (registers + wires)
 let targetSelectorDone: boolean; //1-bit
+let target: Target; //last target
+let targetCurrent: Target; //current best target for the frame
+let targetIndexA: number; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
+let targetIndexBs: number[];  //B0|1
+let targetIndexBsValid: boolean[];
+let targetBlobA: BlobData;
+let targetBlobAAngle: BlobAngle;
+let firstTargetIndex = () => getNextValidTargetIndex(0);
+let nextTargetIndexA = () => getNextValidTargetIndex(targetIndexA+1);
+let nextTargetIndex = [() => getNextValidTargetIndex(targetIndexBs[0]+1), () => getNextValidTargetIndex(targetIndexBs[1]+1)];
+let targetChain: Target; //current chain (for TargetMode.GROUP)
+let targetChainValid: Target; //biggest valid target for current chain
+let targetPartion: number; //tells 0: A|B1 or 1: A|B2
+let targetHasNewA: boolean;
+let targetWantsNewA: boolean;
 
 //Garbage Collector (registers + wires)
 let garbagePort: number; //1-bit
@@ -106,6 +121,9 @@ function alwaysLoop() {
         if (virtexConfig.targetMode == TargetMode.SINGLE) {
             //SINGLE target selection was finished with Garbage Collection
             targetSelectorDone = true;
+
+            //Save Best Target into Target Slot
+            target = Object.assign({}, targetCurrent);
         }
         else {
             //DUAL/GROUP Target Selection Loop
@@ -452,20 +470,6 @@ function getNextValidGarbageIndex(startIndex: number): number {
 }
 
 //Target Selector Loop
-let target: Target;
-let targetIndexA: number; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
-let targetIndexBs: number[];  //B0|1
-let targetIndexBsValid: boolean[];
-let targetBlobA: BlobData;
-let targetBlobAAngle: BlobAngle;
-let firstTargetIndex = () => getNextValidTargetIndex(0);
-let nextTargetIndexA = () => getNextValidTargetIndex(targetIndexA+1);
-let nextTargetIndex = [() => getNextValidTargetIndex(targetIndexBs[0]+1), () => getNextValidTargetIndex(targetIndexBs[1]+1)];
-let targetChain: Target; //current chain (for TargetMode.GROUP)
-let targetChainValid: Target; //biggest valid target for current chain
-let targetPartion: number; //tells 0: A|B1 or 1: A|B2
-let targetHasNewA: boolean;
-let targetWantsNewA: boolean;
 function updateTargetSelectorDualGroup() {
     /*  DUAL/GROUP
         ------------------------------------------------------
@@ -490,8 +494,8 @@ function updateTargetSelectorDualGroup() {
             //Chain is Done. Make it the target if we made a valid target AND
             //its better than the current one OR we dont have a current one
             if (targetChainValid.timestamp !== NULL_TIMESTAMP &&
-                (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(target.center))) {
-                target = targetChainValid;
+                (targetCurrent.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
+                    targetCurrent = targetChainValid;
             }
 
             //Reset Group Target Selector
@@ -647,8 +651,8 @@ function updateTargetSelectorDualGroup() {
             
             //if this target is valid AND this target is better OR we dont have a target yet
             if (isAngleValid && gapValid && aspectRatioValid && boundAreaValid && areaDiffValid &&
-                (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(target.center))) {
-                target = {
+                (targetCurrent.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) {
+                targetCurrent = {
                     center, width, height,
                     timestamp: 10,
                     blobCount: 2,
@@ -694,6 +698,9 @@ function updateTargetSelectorDualGroup() {
         //Finish Frame
         if (targetIndexA === NULL_BLOB_ID) {
             targetSelectorDone = true;
+
+            //Save Best Target into Target Slot
+            target = Object.assign({}, targetCurrent);
         }
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
@@ -740,8 +747,8 @@ function updateTargetSelectorSingle(blob: BlobData) {
 
     //if this target is valid AND this target is better OR we dont have a target yet
     if (aspectRatioValid && boundAreaValid &&
-        (target.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(target.center))) {
-        target = {
+        (targetCurrent.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) {
+        targetCurrent = {
             center, width, height,
             timestamp: 10,
             blobCount: 2,
@@ -784,9 +791,9 @@ function reset() {
 
     resetGarbageCollector();
 
-    //TODO TARGET_SELECTOR_TOO_SLOW_FAULT if ~targetSelectorDone
+    //TARGET_SELECTOR_TOO_SLOW_FAULT if ~targetSelectorDone
     targetSelectorDone = false;
-    target = {
+    targetCurrent = {
         center: {x:0, y:0},
         width: 0, height: 0,
         timestamp: NULL_TIMESTAMP,
