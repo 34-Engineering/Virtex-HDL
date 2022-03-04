@@ -5,6 +5,7 @@
 `define VIRTEX_CONFIG_DONE
 
 `include "../util/Constants.sv"
+`include "../blob/BlobUtil.sv"
 
 typedef enum logic [15:0] {
     NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
@@ -84,7 +85,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     exposure: 30000,
 
     //target params
-    targetMode: TargetMode.GROUP,
+    targetMode: GROUP,
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 16'hffff,//30,
     targetBlobYGapMin: 0,

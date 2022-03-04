@@ -32,7 +32,7 @@ module PythonSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     input wire sequencerEnabled,
-    output Fault fault
+    output logic PYTHON_300_PLL_FAULT
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;
@@ -63,14 +63,14 @@ module PythonSPIManager(
                     commandNumber <= commandNumber + 1;
 
                     if (commandNumber == 20) begin
-                        fault <= PYTHON_300_PLL_FAULT;
+                        PYTHON_300_PLL_FAULT <= 1;
                     end
                 end
                 else begin
                     //move to next stage
                     powerUpStage <= powerUpStage.next;
                     commandNumber <= 0;
-                    fault <= NO_FAULT;
+                    PYTHON_300_PLL_FAULT <= 0;
                 end
 
                 commandPointer <= 0;

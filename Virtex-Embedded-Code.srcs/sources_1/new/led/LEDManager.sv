@@ -13,13 +13,11 @@ module LEDManager(
     input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON, PWR_12V_EN,
     input wire enabled, hasCommunication,
-    // input wire Blob targetBlob,
-    output wire Fault fault
+    input wire Target target
     );
 
     //LED_IR: on when enabled, no fault, and 12V power
     assign LED_IR = enabled & LED_FAULT & PWR_12V_EN;
-    assign fault = LED_FAULT ? IR_LED_FAULT : NO_FAULT;
 
     //PWR: green for 12V power & yellow for USB power
     assign LED_PWR[1] = 1;

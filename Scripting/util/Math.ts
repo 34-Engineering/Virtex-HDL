@@ -63,11 +63,10 @@ export function isValidQuad(quad: Quad): boolean {
 //Quick Division //FIXME better naming? 
 export function quickDivide(dividend: number, divisor: number): number {
     //returns a 10-bit integer that correctlates to the real quotient
-    let str = '';
-    //FIXME one for loop
-    for (let n = 5; n > 0; n--)
-        str += Math.abs(dividend) > Math.abs(divisor) >> n ? 1:0;
-    for (let n = 0; n < 5; n++)
-        str += Math.abs(dividend) > Math.abs(divisor) << n ? 1:0;
-    return parseInt(str, 2);
+    let out: number[] = [];
+    for (let i = 0; i < 10; i++) {
+        const n = Math.abs(5 - i);
+        out[i] = Math.abs(dividend) > (i < 5 ? Math.abs(divisor) >> n : Math.abs(divisor) << n) ? 1:0;
+    }
+    return parseInt(out.join(""), 2);
 }

@@ -52,13 +52,17 @@ module Top(
     output wire PYTHON_RESET
     );
 
+    //Master (wires + registers)
     wire enabled;
     wire bootDone;
-    wire Fault faults [1:0];
-
-    //ConfigManager
+    wire hasCommunication;
+    Faults faults = 0;
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
+    wire Target target;
+    wire Kernel frameBufferWriteRequest;
+
+    //ConfigManager
     ConfigManager ConfigManager(
         .CLK(CLK),
         .SPI_CS(CONF_CS),
@@ -73,8 +77,6 @@ module Top(
     );
 
     //PythonManager
-    wire Blob targetBlob;
-    wire Kernel frameBufferWriteRequest;
     PythonManager PythonManager(
         .CLK(CLK),
         .LVDS_CLK_P(PYTHON_CLK_P),
@@ -93,8 +95,8 @@ module Top(
         .enabled(enabled),
         .virtexConfig(virtexConfig),
         .frameBufferWriteRequest(frameBufferWriteRequest),
-        .targetBlob(targetBlob),
-        .fault(faults[0])
+        .target(target),
+        .PYTHON_300_PLL_FAULT(faults.PYTHON_300_PLL)
     );
 
     //AppManager
@@ -113,7 +115,6 @@ module Top(
     );
 
     //RoboRIOManager
-    wire hasCommunication;
     RoboRIOManager RoboRIOManager(
         .CLK(CLK),
         .SPI_CLK(RIO_CLK),
@@ -124,7 +125,7 @@ module Top(
         .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
         .hasCommunication(hasCommunication),
         .enabled(enabled),
-        .targetBlob(targetBlob)
+        .target(target)
     );
 
     //FlashManager
@@ -139,6 +140,7 @@ module Top(
     );
 
     //LEDManager
+    assign faults.IR_LED = LED_FAULT;
     LEDManager LEDManager(
         .CLK(CLK),
         .LED_IR(LED_IR),
@@ -151,8 +153,9 @@ module Top(
         .USB_ON(USB_ON),
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
-        .targetBlob(targetBlob),
+        .target(target),
         .hasCommunication(hasCommunication),
-        .fault(faults[1])
+        .target(target)
     );
+    
 endmodule

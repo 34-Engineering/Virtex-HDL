@@ -10,7 +10,7 @@
 module BlobProcessor(
     input wire CLK180,
     input wire Kernel kernel, //top left coord of the kernel
-    output Blob targetBlob
+    output Target target
     );
     
     //blk_mem_blobs

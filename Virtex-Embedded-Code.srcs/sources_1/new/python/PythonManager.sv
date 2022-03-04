@@ -55,8 +55,8 @@ module PythonManager(
     input wire enabled,
     input wire VirtexConfig virtexConfig,
     output Kernel frameBufferWriteRequest,
-    output wire Blob targetBlob,
-    output wire Fault fault
+    output wire Target target,
+    output wire PYTHON_300_PLL_FAULT
     );
 
     assign RESET_SENSOR = 1;
@@ -101,7 +101,7 @@ module PythonManager(
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
         .sequencerEnabled(enabled),
-        .fault(fault)
+        .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT)
     );
 
     //LVDS Input Buffers

@@ -173,19 +173,6 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     //return best angle
     return lengthSq1 > lengthSq2 ? angle1 : angle2;
 }
-function isPointNearLine(point: Vector, lineStart: Vector, dx8: number, dy8: number, epsilon: number): boolean {
-    //break up the line into 9 points and estimate point-line distance by
-    //finding the minimum distance between point and 9 points in line
-    return (lineStart.x         - point.x)**2 + (lineStart.y         - point.y)**2 < epsilon ||
-           (lineStart.x +   dx8 - point.x)**2 + (lineStart.y +   dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 2*dx8 - point.x)**2 + (lineStart.y + 2*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 3*dx8 - point.x)**2 + (lineStart.y + 3*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 4*dx8 - point.x)**2 + (lineStart.y + 4*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 5*dx8 - point.x)**2 + (lineStart.y + 5*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 6*dx8 - point.x)**2 + (lineStart.y + 6*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 7*dx8 - point.x)**2 + (lineStart.y + 7*dy8 - point.y)**2 < epsilon ||
-           (lineStart.x + 8*dx8 - point.x)**2 + (lineStart.y + 8*dy8 - point.y)**2 < epsilon;
-}
 function calcAngle(dx: number, dy: number): BlobAngle {
     const t = 896; //best fit for 10° tolerance
     const h = quickDivide(dx, dy); //how horizontal the line is

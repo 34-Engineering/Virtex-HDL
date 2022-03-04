@@ -35,7 +35,7 @@ module RoboRIOManager(
     output reg enabled, hasCommunication,
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input wire Blob targetBlob
+    input wire Target target
     );
 
     localparam GET_BLOB = 8'b00000010;
@@ -82,9 +82,9 @@ module RoboRIOManager(
 
         //Get Blob
         if (command == GET_BLOB & byteNumber < 9) begin
-            //splits the 64-bit blob into 8x 8-bit sections
-            //TODO bigger blob
-            writeData <= targetBlob[63 - (byteNumber*8) -: 7];
+            //splits the ?-bit Target into ?x 8-bit sections
+            //FIXME target size
+            writeData <= target[63 - (byteNumber*8) -: 7];
             byteNumber <= byteNumber + 1;
         end
         else if (command == GET_BLOB) begin

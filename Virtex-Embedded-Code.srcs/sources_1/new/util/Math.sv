@@ -44,7 +44,7 @@ typedef struct packed { //80-bit
 } Quad;
 function automatic logic [23:0] calcQuadArea(Quad quad);
     Vector[] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
-    reg [23:0] total = 0;
+    logic [23:0] total = 0;
     for (integer i = 0; i < 4; i = i + 1) begin
         total <= total + 
         ((points[i].x * points[i === 3 ? 0 : i+1].y) >> 1) - 
@@ -61,14 +61,20 @@ function automatic logic isValidQuad(Quad quad);
     );
 endfunction
 
-//Quick Division //FIXME better naming? //FIXME register size?
-function automatic logic [15:0] quickDivide(logic [15:0] dividend, divisor);
+//Quick Division //FIXME better naming?
+function automatic logic [9:0] quickDivide(logic signed [9:0] dividend, divisor);
     //returns a 10-bit integer that correctlates to the real quotient
-    reg [9:0] out = 0;
-    for (integer n = 9; n > 0; n--) begin
-        str += Math.abs(dividend) > Math.abs(divisor) >> n ? 1:0;
+    logic [9:0] out = 0;
+    for (integer i = 0; i < 10; i++) begin
+        out[i] = (
+            Math.abs(dividend) > (
+                i < 5 ? 
+                Math.abs(divisor) >> Math.abs(5 - i) : 
+                Math.abs(divisor) << Math.abs(5 - i)
+            )
+        ) ? 1:0;
     end
-    return parseInt(str, 2);
+    return out;
 endfunction
 
 `endif
