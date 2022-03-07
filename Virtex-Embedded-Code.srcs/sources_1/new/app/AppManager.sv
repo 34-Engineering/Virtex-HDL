@@ -55,7 +55,7 @@ module AppManager(
 
     //Fast Serial
     reg [7:0] writeData;
-    reg writeDataValid;
+    reg writeDataValid = 0;
     wire writeBusy;
     wire [7:0] readData;
     wire readDataValid;
@@ -72,7 +72,7 @@ module AppManager(
         .readData(readData),
         .readDataValid(readDataValid),
         .reset(1'b1),
-        .debug(debug)
+        .debug()
     );
 
 
@@ -84,12 +84,29 @@ module AppManager(
     reg lastReadDataValid = 0;
     reg newReadData = 0;
 
+    initial debug <= 8'b00000000;
+
     always_ff @(posedge CLK50) begin
 
         if (readDataValid & ~lastReadDataValid) begin
             newReadData = 1;
         end
         lastReadDataValid <= readDataValid;
+
+        // if (~writeBusy) begin
+        //     writeData <= 8'b01101010;
+        //                   //
+        //     //01101010
+        //     //01010011
+        //     //10110110
+        //     writeDataValid <= 1;
+        // end
+        // else writeDataValid <= 0;
+
+        //76543210
+        //00010111
+
+        debug[3] = state == GET_CONFIG;
 
         if (enabled) begin
             case (state)
@@ -110,16 +127,8 @@ module AppManager(
                         else if (readData[7] == CONFIG_BIT) begin
                             configAddress <= readData[5:0];
                             configPartion <= 0;
-
-                            //Get Config
-                            if (readData[6] == GET_BIT) begin
-                                state <= GET_CONFIG;
-                            end
-
-                            //Set Config
-                            else begin
-                                state <= SET_CONFIG;
-                            end
+                            state <= (readData[6] == GET_BIT) ? GET_CONFIG : SET_CONFIG;
+                            debug[0] <= 1;
                         end
                     end
                 end
@@ -159,11 +168,13 @@ module AppManager(
                     //TODO validate
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
+                        debug[4] <= 1;
                         writeDataValid <= 0;
                     end
 
                     //write second partion
                     else if (configPartion & ~writeBusy) begin
+                        debug[2] <= 1;
                         writeData <= 8'b01101010;
                         // writeData <= virtexConfig[configAddress*16 + 7 -: 7];
                         writeDataValid <= 1;
@@ -172,6 +183,7 @@ module AppManager(
 
                     //write first partion
                     else if (~writeBusy) begin
+                        debug[1] <= 1;
                         writeData <= 8'b11110001;
                         // writeData <= virtexConfig[configAddress*16 + 15 -: 7];
                         writeDataValid <= 1;
