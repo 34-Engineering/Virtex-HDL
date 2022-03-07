@@ -91,7 +91,7 @@ module ConfigManager(
     assign SPI_HOLD = inTransaction;
     assign SPI_WP = inTransaction & (bootDone | !hasValidData);
 
-    always @(negedge SPI_CLK) begin
+    always_ff @(negedge SPI_CLK) begin
         if (~bootDone) begin
             //Check EEPROM Validity
             if (byteNumber == 0) begin
@@ -227,7 +227,7 @@ module ConfigManager(
     genvar i;
     generate
         for (i=0; i < $size(virtexConfigWriteRequests); i = i + 1) begin
-            always @(posedge virtexConfigWriteRequests[i].valid) begin
+            always_ff @(posedge virtexConfigWriteRequests[i].valid) begin
                 write(virtexConfigWriteRequests[i].address, virtexConfigWriteRequests[i].data);
             end
         end

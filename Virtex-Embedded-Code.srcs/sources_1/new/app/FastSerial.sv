@@ -6,42 +6,32 @@
     Fast Serial Notes: https://docs.google.com/document/d/1Sg8LKgYLEdBtbzcvhCJvDzMn8KQxomQIMN0E1RHf6OQ/edit
     */
 module FastSerial(
-    input wire CLK48,
+    input wire CLK50,
     output reg FSDI, //FPGA->PC
-    output wire FSCLK, //48MHz (FPGA generated)
+    output wire FSCLK, //50MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
     input wire [7:0] writeData,
     input wire writeDataValid, //active high
-    output wire writeQueueEmpty, //active high
-    output reg [0:7] readData,
+    output reg writeBusy, //active high
+    output reg [7:0] readData,
     output reg readDataValid, //active high
-    input wire reset //active low
+    input wire reset, //active low
+    output reg [7:0] debug
     );
 
-    assign FSCLK = CLK48;
+    assign FSCLK = CLK50;
 
-    reg [0:7] writeQueue [0:319];
-    reg [9:0] writeQueueReadPointer = 0;
-    reg [9:0] writeQueueWritePointer = 0;
-    reg [3:0] writePointer = 0;
+    //Read
     reg isReading = 0;
     reg [3:0] readPointer = 0;
-    assign writeQueueEmpty = writeQueueWritePointer == writeQueueReadPointer;
-    reg lastWriteDataValid = 0;
-
-    //Loop
-    always @(negedge FSCLK) begin
+    always_ff @(negedge FSCLK) begin
         //reset
         if (~reset) begin
-            writeQueueReadPointer <= 0;
-            writeQueueWritePointer <= 0;
-            writePointer <= 0;
             isReading <= 0;
             readPointer <= 0;
             readDataValid <= 0;
-            FSDI <= 1;
         end
 
         //reading
@@ -56,45 +46,62 @@ module FastSerial(
                 readData[readPointer] <= FSDO;
                 readPointer <= readPointer + 1;
             end
-            FSDI <= 1;
         end
 
         //start reading
-        else if (!FSDO & enabled) begin
+        else if (~FSDO & enabled) begin
             // $display ("start reading");
             readPointer <= 0;
             isReading <= 1;
             readDataValid <= 0;
+        end
+    end
+
+    //Write
+    reg [3:0] writePointer = 0;
+    reg lastWriteDataValid = 0;
+    initial writeBusy = 0;
+    initial FSDI = 1;
+    initial debug <= 8'b00000000;
+
+    always_ff @(negedge FSCLK) begin
+        debug[3:0] <= writePointer;
+        debug[4] <= writeBusy;
+        debug[5] <= FSDO;
+        debug[6] <= FSDI;
+        debug[7] <= FSCTS;
+        
+        //new read data
+        if (writeDataValid & ~lastWriteDataValid & ~writeBusy) begin
+            writeBusy = 1;
+            writePointer = 0;
+        end
+        lastWriteDataValid <= writeDataValid;
+
+        //reset
+        if (~reset) begin
+            writePointer <= 0;
             FSDI <= 1;
         end
 
         //writing
-        else if (!writeQueueEmpty & enabled) begin
-            //reg 0
-            if (writePointer == 0) begin
+        else if (writeBusy & enabled) begin
+            //reg 0 (START)
+            if (writePointer == 0 & FSCTS) begin
                 // $display ("wrote 0 = 0");
                 FSDI <= 0;
                 writePointer <= 1;
             end
 
-            //reg 9
-            else if (writePointer == 9 & !FSCTS) begin
-                // $display ("wrote 9 = 1");
-                FSDI <= 1;
-
-                if (writeQueueReadPointer >= $size(writeQueue) - 1) begin
-                    writeQueueReadPointer <= 0;
-                end
-                else begin
-                    writeQueueReadPointer <= writeQueueReadPointer + 1;
-                end
-                writePointer <= 0;
+            //reg 10 (END)
+            else if (writePointer == 10 & FSCTS) begin
+                writeBusy <= 0;
             end
 
-            //reg 1-8
-            else if (!FSCTS) begin
+            //reg 1-9 (DATA + DEST)
+            else if (writePointer > 0 & writePointer < 10) begin
                 // $display ("wrote %p = %b", writePointer, writeQueue[writeQueueReadPointer][writePointer - 1]);
-                FSDI <= writeQueue[writeQueueReadPointer][writePointer - 1];
+                FSDI <= (writePointer == 9) ? 1 : writeData[writePointer - 1];
                 writePointer <= writePointer + 1;
             end
 
@@ -102,20 +109,6 @@ module FastSerial(
         end
 
         //idle
-        else begin
-            FSDI <= 1;
-        end
-
-        //add to write queue
-        if (writeDataValid & ~lastWriteDataValid) begin
-            writeQueue[writeQueueWritePointer] <= writeData;
-            if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
-                writeQueueWritePointer <= 0;
-            end
-            else begin
-                writeQueueWritePointer <= writeQueueWritePointer + 1;
-            end
-        end
-        lastWriteDataValid <= writeDataValid;
+        else FSDI <= 1;
     end
 endmodule

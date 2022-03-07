@@ -15,6 +15,10 @@ localparam MAX_BLOB_POINTER_DEPTH = 5;
 localparam MAX_RUNS_PER_LINE = 60;
 localparam MAX_RUNS_PER_LINE_POINTER_SIZE = $clog2(MAX_RUNS_PER_LINE) + 1; //ex: 13 -> [12:0]
 
+//after how many nanoseconds the target will be invalidated (marked NULL/STALE)
+localparam TIMESTAMP_SIZE = 32; //2^32-1ns = ~4295ms
+localparam TARGET_AGE_STALE = 5000000; //5ms
+
 //null values
 localparam NULL_BLACK_RUN_BLOB_ID = MAX_BLOBS+1;
 localparam NULL_LINE_NUMBER = IMAGE_HEIGHT;

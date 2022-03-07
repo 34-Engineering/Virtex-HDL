@@ -28,7 +28,7 @@ typedef struct packed {
 } BlobMetadata;
 
 //Blob Angles
-typedef enum { //[1:0]
+typedef enum logic [1:0] {
     //calcAngle() has up to 2°? error (norm < 0.5°?)
     //quad calculation can have up to 20°? error (norm < 1°?)
     HORIZONTAL, //0 -- (90±~10°)
@@ -49,7 +49,7 @@ typedef struct packed {
     Vector center;
     logic [9:0] width;
     logic [9:0] height;
-    logic [59:0] latency; //timestamp is replaced with latency at delivery
+    logic [59:0] latency; //timestamp is replaced with latency (age) at delivery
     logic [3:0] blobCount;
     BlobAngle angle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 } Target;
@@ -200,6 +200,18 @@ endfunction
 //Distance^2 Between Vector and Target Center
 function automatic logic [18:0] distSqToTargetCenter(Vector v);
     return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
+endfunction
+
+//Get Target Age (returns age of the target in nanoseconds)
+function automatic logic [59:0] getTargetAge(Target target);
+    //TODO return currentTime - target.timestamp;
+    return 2;
+endfunction
+
+//Is Target Stale
+function automatic logic isTargetStale(Target target);
+    //TODO
+    return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
 endfunction
 
 `endif

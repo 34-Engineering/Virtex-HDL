@@ -65,7 +65,7 @@ module PythonISERDES (
 
     //Bitslip w/ Training Pattern (parallelData is shifted right on posedge parallelClk while bitslip is high)
     assign trainingDone = bitslip;
-    always @(negedge parallelClk) begin
+    always_ff @(negedge parallelClk) begin
         //once the parallel data lines up we are done with bitsliping
         if (bitslip & parallelData == trainingPattern) begin
             bitslip <= 0;

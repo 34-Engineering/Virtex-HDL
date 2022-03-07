@@ -37,7 +37,7 @@ module AT25010BMAHLESim(
     reg [7:0] address;
     reg lastCS = 1;
 
-    always @(posedge SPI_CLK) begin
+    always_ff @(posedge SPI_CLK) begin
         //Start Transaction
         if (SPI_CS & ~lastCS) begin
             inTransaction <= 1;

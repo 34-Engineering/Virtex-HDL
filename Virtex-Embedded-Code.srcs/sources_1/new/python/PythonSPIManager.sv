@@ -32,7 +32,7 @@ module PythonSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     input wire sequencerEnabled,
-    output logic PYTHON_300_PLL_FAULT
+    output reg PYTHON_300_PLL_FAULT
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;
@@ -48,7 +48,7 @@ module PythonSPIManager(
     reg [7:0] commandNumber = 0;
     reg [4:0] commandPointer = 0;
     reg isSequencerEnabled = 0;
-    always @(negedge SPI_CLK) begin
+    always_ff @(negedge SPI_CLK) begin
         //Check PLL Lock
         if (powerUpStage == CHECK_PLL_LOCK) begin
             if (SPI_CS) begin

@@ -46,7 +46,7 @@ module FlashManager(
     assign SPI_WP = 1; //we dont need write protection OR holding
     assign SPI_HOLD = 1;
 
-    always @(posedge BSCAN_DRCK1) begin
+    always_ff @(posedge BSCAN_DRCK1) begin
         BSCAN_TDO1 <= SPI_MISO;
     end
 endmodule

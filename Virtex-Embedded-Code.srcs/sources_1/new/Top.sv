@@ -20,16 +20,16 @@ module Top(
     input wire USB_ON, USB_PWREN, USB_SUS,
 
     //RoboRIO
-    input wire RIO_CLK, RIO_MOSI, RIO_CS,
-    output wire RIO_MISO,
+    // input wire RIO_CLK, RIO_MOSI, RIO_CS,
+    // output wire RIO_MISO,
 
     //Config EEPROM
     output wire CONF_CS, CONF_WP, CONF_HOLD, CONF_CLK, CONF_MOSI,
     input wire CONF_MISO,
 
     //Flash Memory
-    output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_CLK, FLASH_MOSI,
-    input wire FLASH_MISO,
+    // output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_CLK, FLASH_MOSI,
+    // input wire FLASH_MISO,
 
     //LEDs
     output wire LED_IR, LED_USER,
@@ -56,27 +56,28 @@ module Top(
     wire enabled;
     wire bootDone;
     wire hasCommunication;
-    Faults faults = 0;
+    Faults faults;
     wire VirtexConfig virtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
     wire Target target;
     wire Kernel frameBufferWriteRequest;
+    wire [7:0] debug;
 
-    //ConfigManager
-    ConfigManager ConfigManager(
-        .CLK(CLK),
-        .SPI_CS(CONF_CS),
-        .SPI_WP(CONF_WP),
-        .SPI_HOLD(CONF_HOLD),
-        .SPI_CLK(CONF_CLK),
-        .SPI_MOSI(CONF_MOSI),
-        .SPI_MISO(CONF_MISO),
-        .virtexConfig(virtexConfig),
-        .virtexConfigWriteRequests(virtexConfigWriteRequests),
-        .bootDone(bootDone)
-    );
+    // //ConfigManager
+    // ConfigManager ConfigManager(
+    //     .CLK(CLK),
+    //     .SPI_CS(CONF_CS),
+    //     .SPI_WP(CONF_WP),
+    //     .SPI_HOLD(CONF_HOLD),
+    //     .SPI_CLK(CONF_CLK),
+    //     .SPI_MOSI(CONF_MOSI),
+    //     .SPI_MISO(CONF_MISO),
+    //     .virtexConfig(virtexConfig),
+    //     .virtexConfigWriteRequests(virtexConfigWriteRequests),
+    //     .bootDone(bootDone)
+    // );
 
-    //PythonManager
+    // //PythonManager
     PythonManager PythonManager(
         .CLK(CLK),
         .LVDS_CLK_P(PYTHON_CLK_P),
@@ -92,11 +93,15 @@ module Top(
         .TRIGGER(PYTHON_TRIG),
         .MONITOR(PYTHON_MON),
         .RESET_SENSOR(PYTHON_RESET),
-        .enabled(enabled),
+        .sequencerEnabled(1'b1),
         .virtexConfig(virtexConfig),
         .frameBufferWriteRequest(frameBufferWriteRequest),
         .target(target),
-        .PYTHON_300_PLL_FAULT(faults.PYTHON_300_PLL)
+        .PYTHON_300_PLL_FAULT(faults.PYTHON_300_PLL),
+        .OUT_OF_BLOB_MEM_FAULT(faults.OUT_OF_BLOB_MEM),
+        .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
+        .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
+        .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW)
     );
 
     //AppManager
@@ -111,33 +116,34 @@ module Top(
         .USB_SUS(USB_SUS),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-        .frameBufferWriteRequest(frameBufferWriteRequest)
+        .frameBufferWriteRequest(frameBufferWriteRequest),
+        .debug(debug)
     );
 
-    //RoboRIOManager
-    RoboRIOManager RoboRIOManager(
-        .CLK(CLK),
-        .SPI_CLK(RIO_CLK),
-        .SPI_MOSI(RIO_MOSI),
-        .SPI_MISO(RIO_MISO),
-        .SPI_CS(RIO_CS),
-        .virtexConfig(virtexConfig),
-        .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
-        .hasCommunication(hasCommunication),
-        .enabled(enabled),
-        .target(target)
-    );
+    // //RoboRIOManager
+    // RoboRIOManager RoboRIOManager(
+    //     .CLK(CLK),
+    //     .SPI_CLK(RIO_CLK),
+    //     .SPI_MOSI(RIO_MOSI),
+    //     .SPI_MISO(RIO_MISO),
+    //     .SPI_CS(RIO_CS),
+    //     .virtexConfig(virtexConfig),
+    //     .virtexConfigWriteRequest(virtexConfigWriteRequests[1]),
+    //     .hasCommunication(hasCommunication),
+    //     .enabled(enabled),
+    //     .target(target)
+    // );
 
-    //FlashManager
-    FlashManager FlashManager(
-        .CLK(CLK),
-        .SPI_CS(FLASH_CS),
-        .SPI_WP(FLASH_WP),
-        .SPI_HOLD(FLASH_HOLD),
-        .SPI_CLK(FLASH_CLK),
-        .SPI_MOSI(FLASH_MOSI),
-        .SPI_MISO(FLASH_MISO)
-    );
+    // //FlashManager
+    // FlashManager FlashManager(
+    //     .CLK(CLK),
+    //     .SPI_CS(FLASH_CS),
+    //     .SPI_WP(FLASH_WP),
+    //     .SPI_HOLD(FLASH_HOLD),
+    //     .SPI_CLK(FLASH_CLK),
+    //     .SPI_MOSI(FLASH_MOSI),
+    //     .SPI_MISO(FLASH_MISO)
+    // );
 
     //LEDManager
     assign faults.IR_LED = LED_FAULT;
@@ -153,9 +159,9 @@ module Top(
         .USB_ON(USB_ON),
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
-        .target(target),
         .hasCommunication(hasCommunication),
-        .target(target)
+        .target(0),
+        .debug(debug)
     );
     
 endmodule

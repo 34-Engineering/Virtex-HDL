@@ -17,7 +17,7 @@ module RoboRIOSim(
     reg [7:0] readData = 0;
     reg [7:0] writeData = 0;
     reg [7:0] command = 0; //register addr + r/w
-    always @(negedge SPI_CLK) begin
+    always_ff @(negedge SPI_CLK) begin
         //TODO
     end
 

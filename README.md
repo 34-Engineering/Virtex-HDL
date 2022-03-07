@@ -1,4 +1,4 @@
-# Virtex Embedded Code
+# Virtex HDL
 
 This repository contains the Xilinx Vivado project for the Artix-7 (XC7A35T-1FTG256C) FPGA on Virtex. See [34-Engineering/Virtex-PCBs](https://github.com/34-Engineering/Virtex-PCBs) for wiring/setup. All FPGA code is written in SystemVerilog.
 
@@ -76,3 +76,7 @@ All simulating, synthesis, implementation, and bitstream generation is done thro
 ## Questions
 
 If you have any questions feel free to contact [info@34engineering.com](mailto:info@34engineering.com)
+
+## Flashing with Open OCD
+
+`openocd --file ocd.cfg`

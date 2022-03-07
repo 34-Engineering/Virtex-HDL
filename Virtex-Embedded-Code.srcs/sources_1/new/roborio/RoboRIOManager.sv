@@ -49,7 +49,7 @@ module RoboRIOManager(
     reg [7:0] readData = 0;
     reg [7:0] writeData = 0;
     reg [7:0] command = 0; //register addr + r/w
-    always @(posedge SPI_CLK) begin
+    always_ff @(posedge SPI_CLK) begin
         if (!SPI_CS) begin
             //write data to MISO
             SPI_MISO <= writeData[bytePointer];

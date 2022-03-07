@@ -6,7 +6,7 @@
     */
 module FastSerialSim(
     input wire FSDI, //FPGA->PC
-    input wire FSCLK, //48MHz (FPGA generated)
+    input wire FSCLK, //50MHz (FPGA generated)
     output reg FSDO, //PC->FPGA
     output reg FSCTS, //FPGA clear to send, active low
     input wire enabled, //active high
@@ -28,7 +28,7 @@ module FastSerialSim(
     reg lastWriteDataValid = 0;
 
     //Loop
-    always @(posedge FSCLK) begin
+    always_ff @(posedge FSCLK) begin
         //reset
         if (~reset) begin
             writeQueueReadPointer <= 0;

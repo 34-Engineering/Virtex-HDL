@@ -26,7 +26,7 @@ module Python300SPISim(
     reg [4:0] commandPointer = 0;
     reg [8:0] address;
     reg readWrite;
-    always @(posedge SPI_CLK) begin
+    always_ff @(posedge SPI_CLK) begin
         //Reset
         if (~reset) begin
             commandNumber <= 0;

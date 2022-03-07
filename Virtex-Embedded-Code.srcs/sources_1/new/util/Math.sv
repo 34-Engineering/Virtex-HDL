@@ -43,7 +43,7 @@ typedef struct packed { //80-bit
     Vector bottomLeft;
 } Quad;
 function automatic logic [23:0] calcQuadArea(Quad quad);
-    Vector[] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
+    Vector [3:0] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
     logic [23:0] total = 0;
     for (integer i = 0; i < 4; i = i + 1) begin
         total <= total + 

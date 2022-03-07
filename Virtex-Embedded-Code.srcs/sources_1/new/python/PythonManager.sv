@@ -52,11 +52,15 @@ module PythonManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     output wire RESET_SENSOR, //active low
-    input wire enabled,
+    input wire sequencerEnabled,
     input wire VirtexConfig virtexConfig,
     output Kernel frameBufferWriteRequest,
     output wire Target target,
-    output wire PYTHON_300_PLL_FAULT
+    output wire PYTHON_300_PLL_FAULT,
+    output reg OUT_OF_BLOB_MEM_FAULT,
+    output reg OUT_OF_RLE_MEM_FAULT,
+    output reg BLOB_POINTER_DEPTH_FAULT,
+    output reg BLOB_PROCESSOR_SLOW_FAULT
     );
 
     assign RESET_SENSOR = 1;
@@ -79,7 +83,7 @@ module PythonManager(
 
     //Blob Processor
     Kernel lastKernelR [2:0];
-    always @(posedge CLK180) begin
+    always_ff @(posedge CLK180) begin
         //Cross clock domain w/ 2x dff
         //r0 @ 72MHz -> r1 @ 180MHz (metastable) -> r2 @ 180MHz (stable)
         lastKernelR[1] <= lastKernelR[0];
@@ -88,7 +92,11 @@ module PythonManager(
     BlobProcessor BlobProcessor(
         .CLK180(CLK180),
         .kernel(lastKernelR[2]),
-        .targetBlob(targetBlob)
+        .target(target),
+        .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
+        .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
+        .BLOB_POINTER_DEPTH_FAULT(BLOB_POINTER_DEPTH_FAULT),
+        .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT)
     );
 
     //Python SPI Manager
@@ -100,7 +108,7 @@ module PythonManager(
         .SPI_CLK(SPI_CLK),
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
-        .sequencerEnabled(enabled),
+        .sequencerEnabled(sequencerEnabled),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT)
     );
 
@@ -175,7 +183,7 @@ module PythonManager(
     reg kernelPartion; //whether we are the start or end of kernel
     Kernel kernel = '{ value: 0, pos: 0, valid: 1 };
     reg isInFrame;
-    always @(posedge CLK72) begin
+    always_ff @(posedge CLK72) begin
         if (SYNC == PYTHON_SYNC_FRAME_START) begin
             //Note: FS replaces LS
             isInFrame <= 1;

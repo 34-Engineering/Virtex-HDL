@@ -43,7 +43,7 @@ module AppSim(
 
     //Loop
     reg configPartion = 0;
-    always @(negedge FSCLK) begin
+    always_ff @(negedge FSCLK) begin
         case (state) begin
             IDLE: begin
                 //Get Config

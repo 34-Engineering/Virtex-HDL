@@ -48,7 +48,7 @@ module AppManagerTest(
     );
 
     //On Data
-    always @(posedge readDataValid) begin
+    always_ff @(posedge readDataValid) begin
         $display ("test read %b", readData);
     end
 
