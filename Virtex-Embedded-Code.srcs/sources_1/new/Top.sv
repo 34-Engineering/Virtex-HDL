@@ -14,10 +14,15 @@
 module Top(
     input CLK,
 
-    //USB
+    //Generic USB
+    input wire USB_ON, USB_PWREN, USB_SUS,
+
+    //App
+    // inout wire [7:0] USB_FIFO_D,
+    // input wire USB_FIFO_RXF, USB_FIFO_TXE,
+    // output wire USB_FIFO_RD, USB_FIFO_WR, USB_FIFO_SIWUB,
     input wire USB_FSDO, USB_FSCTS,
     output wire USB_FSDI, USB_FSCLK,
-    input wire USB_ON, USB_PWREN, USB_SUS,
 
     //RoboRIO
     // input wire RIO_CLK, RIO_MOSI, RIO_CS,
@@ -111,6 +116,12 @@ module Top(
         .FSCLK(USB_FSCLK),
         .FSDO(USB_FSDO),
         .FSCTS(USB_FSCTS),
+        // .USB_FIFO_D(USB_FIFO_D),
+        // .USB_FIFO_RXF(USB_FIFO_RXF),
+        // .USB_FIFO_TXE(USB_FIFO_TXE),
+        // .USB_FIFO_RD(USB_FIFO_RD),
+        // .USB_FIFO_WR(USB_FIFO_WR),
+        // .USB_FIFO_SIWUB(USB_FIFO_SIWUB),
         .USB_ON(USB_ON),
         .USB_PWREN(USB_PWREN),
         .USB_SUS(USB_SUS),

@@ -8,12 +8,31 @@ set_property IOSTANDARD LVCMOS33 [get_ports CLK]
 create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK]
 
 # USB
+set_property PACKAGE_PIN F13 [get_ports {USB_SUS}]
+set_property PACKAGE_PIN A9 [get_ports {USB_PWREN}]
+set_property PACKAGE_PIN B12 [get_ports {USB_ON}]
+set_property IOSTANDARD LVCMOS33 [get_ports {USB_*}]
+
 set_property PACKAGE_PIN F14 [get_ports {USB_FSDI}]
 set_property PULLTYPE PULLUP [get_ports {USB_FSDI}]
 set_property PACKAGE_PIN F15 [get_ports {USB_FSCLK}]
 set_property PACKAGE_PIN G16 [get_ports {USB_FSDO}]
 set_property PACKAGE_PIN H16 [get_ports {USB_FSCTS}]
-# The other USB ports on Bus B (if you don't want to use fast serial)
+
+# set_property PACKAGE_PIN F14 [get_ports {USB_FIFO_D[0]}]
+# set_property PACKAGE_PIN F15 [get_ports {USB_FIFO_D[1]}]
+# set_property PACKAGE_PIN G16 [get_ports {USB_FIFO_D[2]}]
+# set_property PACKAGE_PIN H16 [get_ports {USB_FIFO_D[3]}]
+# set_property PACKAGE_PIN J16 [get_ports {USB_FIFO_D[4]}]
+# set_property PACKAGE_PIN J15 [get_ports {USB_FIFO_D[5]}]
+# set_property PACKAGE_PIN H14 [get_ports {USB_FIFO_D[6]}]
+# set_property PACKAGE_PIN H13 [get_ports {USB_FIFO_D[7]}]
+# set_property PACKAGE_PIN H12 [get_ports {USB_FIFO_RXF}]
+# set_property PACKAGE_PIN H11 [get_ports {USB_FIFO_TXE}]
+# set_property PACKAGE_PIN F12 [get_ports {USB_FIFO_RD}]
+# set_property PACKAGE_PIN D15 [get_ports {USB_FIFO_WR}]
+# set_property PACKAGE_PIN E11 [get_ports {USB_FIFO_SIWUB}]
+
 # set_property PACKAGE_PIN F14 [get_ports {USB_BD[0]}]
 # set_property PACKAGE_PIN F15 [get_ports {USB_BD[1]}]
 # set_property PACKAGE_PIN G16 [get_ports {USB_BD[2]}]
@@ -29,10 +48,6 @@ set_property PACKAGE_PIN H16 [get_ports {USB_FSCTS}]
 # set_property PACKAGE_PIN E11 [get_ports {USB_BC[4]}]
 # set_property PACKAGE_PIN D13 [get_ports {USB_BC[5]}]
 # set_property PACKAGE_PIN C16 [get_ports {USB_BC[6]}]
-set_property PACKAGE_PIN F13 [get_ports {USB_SUS}]
-set_property PACKAGE_PIN A9 [get_ports {USB_PWREN}]
-set_property PACKAGE_PIN B12 [get_ports {USB_ON}]
-set_property IOSTANDARD LVCMOS33 [get_ports {USB_*}]
 
 # RoboRIO (I2C Interface on REV 2, SPI on REV 3)
 # set_property PACKAGE_PIN N12 [get_ports {RIO_SDA}]

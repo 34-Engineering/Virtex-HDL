@@ -63,6 +63,7 @@ module FastSerial(
     initial writeBusy = 0;
     initial FSDI = 1;
     
+    assign debug = readData;
 
     always_ff @(negedge FSCLK) begin
         // debug[3:0] <= writePointer;
@@ -72,7 +73,7 @@ module FastSerial(
         // debug[7] <= FSCTS;
 
         //7654 3210
-        //1110 1010
+        //
         
         //new read data
         if (writeDataValid & ~lastWriteDataValid & ~writeBusy) begin

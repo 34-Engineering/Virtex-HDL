@@ -9,10 +9,11 @@
     */
 module AppManager(
     input wire CLK,
-    output wire FSDI, //FPGA->PC
-    output wire FSCLK, //50MHz (FPGA generated)
-    input wire FSDO, //PC->FPGA
-    input wire FSCTS, //FPGA clear to send, active low
+    // inout wire [7:0] USB_FIFO_D,
+    // input wire USB_FIFO_RXF, USB_FIFO_TXE,
+    // output wire USB_FIFO_RD, USB_FIFO_WR, USB_FIFO_SIWUB,
+    input wire FSDO, FSCTS,
+    output wire FSDI, FSCLK,
     input wire USB_ON,
     input wire USB_PWREN, //usb power enabled, active low
     input wire USB_SUS, //usb in suspend mode, active low
@@ -27,9 +28,20 @@ module AppManager(
     localparam CONFIG_BIT = 1'b1;
     localparam GET_BIT = 1'b0; //10
     localparam SET_BIT = 1'b1; //11
+
+    //State
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
+    //50MHz clock
+    // wire CLK16;
+    wire CLK50;
+    clk_wiz_1(
+        .clk_in1(CLK),
+        .clk_out1(CLK50)
+    );
+
+    //Frame Buffer
     reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
     reg [7:0] frameBufferReadOut, frameBufferWriteIn;
     reg frameBufferWriteEnable;
@@ -46,19 +58,26 @@ module AppManager(
         .web(frameBufferWriteEnable)
     );
 
-    //50MHz clock
-    wire CLK50;
-    clk_wiz_1(
-        .clk_in1(CLK),
-        .clk_out1(CLK50)
-    );
-
-    //Fast Serial
+    //FIFO
     reg [7:0] writeData;
     reg writeDataValid = 0;
     wire writeBusy;
     wire [7:0] readData;
     wire readDataValid;
+    // FTDIAsyncFIFO usb (
+    //     .CLK16(CLK16),
+    //     .FIFO_D(USB_FIFO_D),
+    //     .FIFO_RXF(USB_FIFO_RXF),
+    //     .FIFO_TXE(USB_FIFO_TXE),
+    //     .FIFO_RD(USB_FIFO_RD),
+    //     .FIFO_WR(USB_FIFO_WR),
+    //     .FIFO_SIWUB(USB_FIFO_SIWUB),
+    //     .writeData(8'b01101010),
+    //     .writeDataValid(1'b1),
+    //     .readData(readData),
+    //     .readDataValid(readDataValid),
+    //     .debug(debug)
+    // );
     FastSerial(
         .CLK50(CLK50),
         .FSDI(FSDI),
@@ -72,9 +91,8 @@ module AppManager(
         .readData(readData),
         .readDataValid(readDataValid),
         .reset(1'b1),
-        .debug()
+        .debug(debug)
     );
-
 
     //Loop
     reg [15:0] getFrameIndex = 0;
@@ -84,10 +102,8 @@ module AppManager(
     reg lastReadDataValid = 0;
     reg newReadData = 0;
 
-    initial debug <= 8'b00000000;
-
     always_ff @(posedge CLK50) begin
-
+        //New Read Data
         if (readDataValid & ~lastReadDataValid) begin
             newReadData = 1;
         end
@@ -95,18 +111,9 @@ module AppManager(
 
         // if (~writeBusy) begin
         //     writeData <= 8'b01101010;
-        //                   //
-        //     //01101010
-        //     //01010011
-        //     //10110110
         //     writeDataValid <= 1;
         // end
         // else writeDataValid <= 0;
-
-        //76543210
-        //00010111
-
-        debug[3] = state == GET_CONFIG;
 
         if (enabled) begin
             case (state)
@@ -128,9 +135,10 @@ module AppManager(
                             configAddress <= readData[5:0];
                             configPartion <= 0;
                             state <= (readData[6] == GET_BIT) ? GET_CONFIG : SET_CONFIG;
-                            debug[0] <= 1;
                         end
                     end
+
+                    writeDataValid <= 0;
                 end
 
                 GET_FRAME: begin
@@ -138,7 +146,6 @@ module AppManager(
                     //so there relative to this loop there is no read delay
                     //AKA an address is written and next loop data is ready
                     //TODO optimize (AKA ^ get rid of this BS)
-                    //TODO writeQueueFull
 
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
@@ -162,19 +169,33 @@ module AppManager(
                             state <= IDLE;
                         end
                     end
+
+                    // //send kernel to PC
+                    // writeData <= frameBufferReadOut;
+                    // writeDataValid <= 1;
+
+                    // if (getFrameIndex < 80 * 480 - 1) begin //38400 loops so [0:38399], if we get here @ 38399 we are done
+                    //     //read next kernel
+                    //     frameBufferAddrRead <= getFrameIndex + 1;
+
+                    //     //increment index
+                    //     getFrameIndex <= getFrameIndex + 1;
+                    // end
+                    // else if (~writeBusy) begin
+                    //     //finish reading frame
+                    //     state <= IDLE;
+                    // end
                 end
 
                 GET_CONFIG: begin
                     //TODO validate
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
-                        debug[4] <= 1;
                         writeDataValid <= 0;
                     end
 
                     //write second partion
                     else if (configPartion & ~writeBusy) begin
-                        debug[2] <= 1;
                         writeData <= 8'b01101010;
                         // writeData <= virtexConfig[configAddress*16 + 7 -: 7];
                         writeDataValid <= 1;
@@ -183,7 +204,6 @@ module AppManager(
 
                     //write first partion
                     else if (~writeBusy) begin
-                        debug[1] <= 1;
                         writeData <= 8'b11110001;
                         // writeData <= virtexConfig[configAddress*16 + 15 -: 7];
                         writeDataValid <= 1;
