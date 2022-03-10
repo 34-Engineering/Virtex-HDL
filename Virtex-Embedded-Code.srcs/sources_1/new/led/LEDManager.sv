@@ -17,7 +17,7 @@ module LEDManager(
     input wire [7:0] debug
     );
 
-    localparam brightness = 20;
+    localparam brightness = 8'd2;
 
     //IR Led Ring (on when enabled, no fault, and 12V power)
     assign LED_IR = enabled & LED_FAULT & PWR_12V_EN;
@@ -28,8 +28,9 @@ module LEDManager(
         counter255 <= counter255 + 1;
         counter255B <= counter255B + 1; //90° shift
     end
-    function automatic logic [2:0] makeRGB(logic [7:0] r, g, b, a);
-        // 255 -> 1111, 0 -> 0000, 127 -> 1010...
+    function automatic logic [2:0] makeRGBA(logic [7:0] r, g, b, a);
+        //generated RGB PWM signal from rgba code
+        // 255 -> 1111..., 0 -> 0000..., 127 -> 1010...
         return '{
             counter255 < r & counter255B < a,
             counter255 < g & counter255B < a,
@@ -38,15 +39,15 @@ module LEDManager(
     endfunction
 
     //Status LEDs
-    assign LED_PWR = ~makeRGB(debug[7], debug[6], 0, brightness);
-    assign LED_EN  = ~makeRGB(debug[5], debug[4], 0, brightness);
-    assign LED_TAR = ~makeRGB(debug[3], debug[2], 0, brightness);
-    assign LED_COM = ~makeRGB(debug[1], debug[0], 0, brightness);
+    assign LED_PWR = ~makeRGBA(debug[7]?255:0, debug[6]?255:0, 0, brightness);
+    assign LED_EN  = ~makeRGBA(debug[5]?255:0, debug[4]?255:0, 0, brightness);
+    assign LED_TAR = ~makeRGBA(debug[3]?255:0, debug[2]?255:0, 0, brightness);
+    assign LED_COM = ~makeRGBA(debug[1]?255:0, debug[0]?255:0, 0, brightness);
 
-    // assign LED_PWR = PWR_12V_EN ? ~makeRGB(255, 255, 0, brightness) : ~makeRGB(255, 0, 0, brightness);
+    // assign LED_PWR = PWR_12V_EN ? ~makeRGBA(255, 255, 0, brightness) : ~makeRGBA(255, 0, 0, brightness);
     // assign LED_TAR = 3'b111;
-    // assign LED_COM = hasCommunication ? ~makeRGB(0, 255, 0, brightness) : 3'b111;
-    // assign LED_EN = enabledToggle ? ~makeRGB(255, 165, 0, brightness) : 3'b111;
+    // assign LED_COM = hasCommunication ? ~makeRGBA(0, 255, 0, brightness) : 3'b111;
+    // assign LED_EN = enabledToggle ? ~makeRGBA(255, 165, 0, brightness) : 3'b111;
 
     reg [25:0] enabledToggleCounter = 0;
     wire enabledToggle = enabled & enabledToggleCounter > 25'd20000000;
@@ -55,6 +56,6 @@ module LEDManager(
     end
 
     // LED_USER: blink at ?hz
-    assign LED_USER = 0;
+    assign LED_USER = enabledToggleCounter > 25'd20000000;
 
 endmodule

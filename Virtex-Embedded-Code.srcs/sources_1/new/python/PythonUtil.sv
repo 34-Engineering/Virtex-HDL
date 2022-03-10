@@ -27,7 +27,7 @@ localparam PYTHON_SYNC_MAIN_WINDOW_ID = 8'h00;
 localparam PYTHON_TRAINING_PATTERN = 8'he9; //training pattern for SYNC + DOUT
 
 //SPI Commands
-typedef struct packed {
+typedef struct packed { //26-bit
     logic [8:0] address;
     logic readWrite; //1 for write
     logic [0:15] word;

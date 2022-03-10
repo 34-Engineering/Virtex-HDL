@@ -32,7 +32,8 @@ module PythonSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     input wire sequencerEnabled,
-    output reg PYTHON_300_PLL_FAULT
+    output reg PYTHON_300_PLL_FAULT,
+    output reg [7:0] debug
     );
 
     typedef enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} PowerUpStage;
@@ -47,44 +48,55 @@ module PythonSPIManager(
     //Crude SPI Implemenation
     reg [7:0] commandNumber = 0;
     reg [4:0] commandPointer = 0;
+    reg [15:0] response = 0;
     reg isSequencerEnabled = 0;
     always_ff @(negedge SPI_CLK) begin
         //Check PLL Lock
         if (powerUpStage == CHECK_PLL_LOCK) begin
+            //drop CS and come back next loop
             if (SPI_CS) begin
-                //drop CS and come back next loop
                 SPI_CS <= 0;
             end
-
-            else if (commandPointer == 25) begin //addr + rw + word - 1 = 25
-                //returns 16-bit word, but we only care about [0]
-                if (SPI_MISO == 0) begin //TODO check
-                    //not unlocked --> keep retrying
-                    commandNumber <= commandNumber + 1;
-
-                    if (commandNumber == 20) begin
-                        PYTHON_300_PLL_FAULT <= 1;
-                    end
-                end
-                else begin
-                    //move to next stage
-                    powerUpStage <= powerUpStage.next;
-                    commandNumber <= 0;
-                    PYTHON_300_PLL_FAULT <= 0;
-                end
-
-                commandPointer <= 0;
-                SPI_CS <= 1;
-            end
+            
+            //write request
             else if (commandPointer < 11) begin
-                //write request for PLL lock status
                 SPI_MOSI <= checkPLLLockStatus[commandPointer];
+                commandPointer <= commandPointer + 1;
+            end
+
+            //read response
+            else begin //addr + rw + word - 1 = 25
+                response[commandPointer - 11] = SPI_MISO;
+                commandPointer <= commandPointer + 1;
+
+                //finish (26-bit command, [0:25])
+                if (commandPointer == PythonSPICommandEndIndex) begin
+
+                    //not unlocked => do command again
+                    if (response == 0) begin
+                        if (commandNumber == 20) begin
+                            PYTHON_300_PLL_FAULT <= 1;
+                        end
+
+                        commandNumber <= commandNumber + 1;
+                    end
+
+                    //unlocked => go to next stage
+                    else begin
+                        powerUpStage <= powerUpStage.next;
+                        commandNumber <= 0;
+                        PYTHON_300_PLL_FAULT <= 0;
+                    end
+
+                    //reset
+                    commandPointer <= 0;
+                    SPI_CS <= 1;
+                end
             end
         end
 
         //Done (enable/disable sequencer)
         else if (powerUpStage == DONE) begin
-            
             //writing enable/disable sequencer
             if (commandNumber & SPI_CS) begin
                 //drop CS and come back next loop
@@ -94,7 +106,7 @@ module PythonSPIManager(
                 //write command
                 SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][commandPointer];
 
-                if (commandNumber == PythonSPICommandEndIndex) begin
+                if (commandPointer == PythonSPICommandEndIndex) begin
                     //done writing command
                     commandNumber <= 0;
                 end

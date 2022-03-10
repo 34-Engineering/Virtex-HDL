@@ -60,7 +60,8 @@ module PythonManager(
     output reg OUT_OF_BLOB_MEM_FAULT,
     output reg OUT_OF_RLE_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
-    output reg BLOB_PROCESSOR_SLOW_FAULT
+    output reg BLOB_PROCESSOR_SLOW_FAULT,
+    output reg [7:0] debug
     );
 
     assign RESET_SENSOR = 1;
@@ -109,7 +110,8 @@ module PythonManager(
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
         .sequencerEnabled(sequencerEnabled),
-        .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT)
+        .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
+        .debug()
     );
 
     //LVDS Input Buffers
@@ -178,100 +180,103 @@ module PythonManager(
         .trainingDone(trainingDone[4])
     );
 
+    assign debug = trainingDone;
+
     //Loop
     reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
     reg kernelPartion; //whether we are the start or end of kernel
     Kernel kernel = '{ value: 0, pos: 0, valid: 1 };
     reg isInFrame;
     always_ff @(posedge CLK72) begin
-        if (SYNC == PYTHON_SYNC_FRAME_START) begin
-            //Note: FS replaces LS
-            isInFrame <= 1;
-            kernel.pos.y <= 0;
-            kernel.pos.x <= 0;
-            kernelPartion <= 0;
-            kernelOdd <= 0;
-            processImageData();
+        if (trainingDone === 5'b11111) begin
+            if (SYNC == PYTHON_SYNC_FRAME_START) begin
+                //Note: FS replaces LS
+                isInFrame = 1;
+                kernel.pos.y = 0;
+                kernel.pos.x = 0;
+                kernelPartion = 0;
+                kernelOdd = 0;
+                processImageData();
+            end
+
+            else if (SYNC == PYTHON_SYNC_FRAME_END) begin
+                isInFrame = 0;
+                processImageData();
+                //TODO resetting logic?
+            end
+
+            else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
+                //check if in frame to make sure its not a black pixel
+                kernel.pos.x = 0;
+                kernelPartion = 0;
+                kernelOdd = 0;
+                processImageData();
+            end
+
+            else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
+                kernel.pos.y = kernel.pos.y + 1;
+                processImageData();
+            end
+
+            else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
+                processImageData();
+            end
+
+            else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
+                processImageData();
+            end
         end
-
-        else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-            isInFrame <= 0;
-            processImageData();
-            //TODO resetting logic?
-        end
-
-        else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
-            //check if in frame to make sure its not a black pixel
-            kernel.pos.x <= 0;
-            kernelPartion <= 0;
-            kernelOdd <= 0;
-            processImageData();
-        end
-
-        else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
-            processImageData();
-        end
-
-        else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
-            processImageData();
-        end
-
-        // else if (SYNC == BL) begin
-            //TODO do we want black level checking?
-        // end
-
-        else if (SYNC == PYTHON_SYNC_IMAGE) begin
-            processImageData();
-        end
-
-        // else if (SYNC == CRC) begin
-            //TODO add CRC checking
-        // end
     end
 
     task processImageData();
-        kernel.valid <= kernelPartion; //FIXME dependants below?
-
         //load partion 2 of kernel (see page 40)
         if (kernelPartion) begin
             if (kernelOdd) begin
                 //load backwards
-                kernel.value[0] <= DOUT[3] > virtexConfig.threshold;
-                kernel.value[2] <= DOUT[2] > virtexConfig.threshold;
-                kernel.value[4] <= DOUT[1] > virtexConfig.threshold;
-                kernel.value[6] <= DOUT[0] > virtexConfig.threshold;
+                kernel.value[0] <= DOUT[3] > 8'd128;
+                kernel.value[2] <= DOUT[2] > 8'd128;
+                kernel.value[4] <= DOUT[1] > 8'd128;
+                kernel.value[6] <= DOUT[0] > 8'd128;
             end
             else begin
                 //load normally
-                kernel.value[1] <= DOUT[0] > virtexConfig.threshold;
-                kernel.value[3] <= DOUT[1] > virtexConfig.threshold;
-                kernel.value[5] <= DOUT[2] > virtexConfig.threshold;
-                kernel.value[7] <= DOUT[3] > virtexConfig.threshold;
+                kernel.value[1] <= DOUT[0] > 8'd128;
+                kernel.value[3] <= DOUT[1] > 8'd128;
+                kernel.value[5] <= DOUT[2] > 8'd128;
+                kernel.value[7] <= DOUT[3] > 8'd128;
             end
             
             lastKernelR[0] <= kernel;
             kernel.pos.x <= kernel.pos.x + 1;
-            frameBufferWriteRequest <= kernel;
+            frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
+
+            // if (DOUT[0] > 0) begin
+            //     debug <= DOUT[0];
+            // end
+            // debug <= {DOUT[0][1:0], DOUT[1][1:0], DOUT[2][1:0], DOUT[3][1:0]};
         end
 
         //load partion 1 of kernel (see page 40)
-        else if (kernelOdd) begin
-            //load backwards
-            kernel[1] <= DOUT[3] > virtexConfig.threshold;
-            kernel[3] <= DOUT[2] > virtexConfig.threshold;
-            kernel[5] <= DOUT[1] > virtexConfig.threshold;
-            kernel[7] <= DOUT[0] > virtexConfig.threshold;
-        end
         else begin
-            //load normally
-            kernel[0] <= DOUT[0] > virtexConfig.threshold;
-            kernel[2] <= DOUT[1] > virtexConfig.threshold;
-            kernel[4] <= DOUT[2] > virtexConfig.threshold;
-            kernel[6] <= DOUT[3] > virtexConfig.threshold;
+            if (kernelOdd) begin
+                //load backwards
+                kernel.value[1] <= DOUT[3] > 8'd128;
+                kernel.value[3] <= DOUT[2] > 8'd128;
+                kernel.value[5] <= DOUT[1] > 8'd128;
+                kernel.value[7] <= DOUT[0] > 8'd128;
+            end
+            else begin
+                //load normally
+                kernel.value[0] <= DOUT[0] > 8'd128;
+                kernel.value[2] <= DOUT[1] > 8'd128;
+                kernel.value[4] <= DOUT[2] > 8'd128;
+                kernel.value[6] <= DOUT[3] > 8'd128;
+            end
+
+            frameBufferWriteRequest.valid <= 0;
         end
 
         kernelOdd <= ~kernelOdd;
         kernelPartion <= ~kernelPartion;
-        frameBufferWriteRequest.valid <= kernelPartion;
     endtask
 endmodule

@@ -95,7 +95,7 @@ function automatic logic doesBlobMatchCriteria(BlobData blob);
 
     logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
 
-    return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
+    return inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
 endfunction
 
 //Merging Blobs

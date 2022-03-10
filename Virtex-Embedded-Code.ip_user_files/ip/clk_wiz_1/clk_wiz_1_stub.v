@@ -1,10 +1,10 @@
 // Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2021.1 (win64) Build 3247384 Thu Jun 10 19:36:33 MDT 2021
-// Date        : Sun Mar  6 02:10:00 2022
+// Date        : Mon Mar  7 22:41:39 2022
 // Host        : RISC-IV running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub
-//               c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top clk_wiz_1 -prefix
+//               clk_wiz_1_ clk_wiz_1_stub.v
 // Design      : clk_wiz_1
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a35tftg256-1

@@ -107,7 +107,6 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobFullnessMin: 0,
     blobFullnessMax: 16'hffff,
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
-
     
     //reserved for future use
     reserved27: 16'd0,

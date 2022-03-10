@@ -26,7 +26,7 @@ module FastSerial(
     //Read
     reg isReading = 0;
     reg [3:0] readPointer = 0;
-    always_ff @(negedge FSCLK) begin
+    always_ff @(negedge CLK50) begin
         //reset
         if (~reset) begin
             isReading <= 0;
@@ -62,19 +62,9 @@ module FastSerial(
     reg lastWriteDataValid = 0;
     initial writeBusy = 0;
     initial FSDI = 1;
-    
 
-    always_ff @(negedge FSCLK) begin
-        // debug[3:0] <= writePointer;
-        // debug[4] <= writeBusy;
-        // debug[5] <= FSDO;
-        // debug[6] <= FSDI;
-        // debug[7] <= FSCTS;
-
-        //7654 3210
-        //1110 1010
-        
-        //new read data
+    always_ff @(negedge CLK50) begin
+        //new write data
         if (writeDataValid & ~lastWriteDataValid & ~writeBusy) begin
             writeBusy = 1;
             writePointer = 0;
@@ -90,21 +80,30 @@ module FastSerial(
         //writing
         else if (writeBusy & enabled) begin
             //reg 0 (START)
-            if (writePointer == 0 & FSCTS) begin
+            if (writePointer == 0) begin
                 // $display ("wrote 0 = 0");
-                FSDI <= 0;
-                writePointer <= 1;
+                //if FSCTS is low wait until goes back high
+                //else drop FSDI and begin transaction
+                FSDI <= ~FSCTS;
+                if (FSCTS) writePointer <= 1;    
+            end
+
+            //reg 9 (DEST)
+            else if (writePointer == 9) begin
+                FSDI <= 1;
+                writePointer <= 10;
             end
 
             //reg 10 (END)
             else if (writePointer == 10 & FSCTS) begin
                 writeBusy <= 0;
+                writePointer <= 0;
             end
 
-            //reg 1-9 (DATA + DEST)
-            else if (writePointer > 0 & writePointer < 10) begin
+            //reg 1-8 (DATA)
+            else if (writePointer > 0 & writePointer < 9) begin
                 // $display ("wrote %p = %b", writePointer, writeQueue[writeQueueReadPointer][writePointer - 1]);
-                FSDI <= (writePointer == 9) ? 1 : writeData[writePointer - 1];
+                FSDI <= writeData[writePointer - 1];
                 writePointer <= writePointer + 1;
             end
 

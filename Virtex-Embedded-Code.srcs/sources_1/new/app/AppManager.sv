@@ -18,18 +18,21 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input wire Kernel frameBufferWriteRequest,
+    input Kernel frameBufferWriteRequest,
     output reg [7:0] debug
     );
 
+    //Codes
     localparam GET_FRAME_CODE  = 8'b00000001;
     localparam GET_TARGET_CODE = 8'b00000010;
     localparam CONFIG_BIT = 1'b1;
-    localparam GET_BIT = 1'b0; //10
-    localparam SET_BIT = 1'b1; //11
+    localparam CONFIG_GET_BIT = 1'b0; //GET = 10, SET = 11
+
+    //State
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
+    //Frame buffer
     reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
     reg [7:0] frameBufferReadOut, frameBufferWriteIn;
     reg frameBufferWriteEnable;
@@ -59,7 +62,7 @@ module AppManager(
     wire writeBusy;
     wire [7:0] readData;
     wire readDataValid;
-    FastSerial(
+    FastSerial fastSerial (
         .CLK50(CLK50),
         .FSDI(FSDI),
         .FSCLK(FSCLK),
@@ -75,7 +78,6 @@ module AppManager(
         .debug()
     );
 
-
     //Loop
     reg [15:0] getFrameIndex = 0;
     reg [5:0] configAddress = 0;
@@ -84,29 +86,12 @@ module AppManager(
     reg lastReadDataValid = 0;
     reg newReadData = 0;
 
-    initial debug <= 8'b00000000;
-
     always_ff @(posedge CLK50) begin
-
+        //New Read Data
         if (readDataValid & ~lastReadDataValid) begin
             newReadData = 1;
         end
         lastReadDataValid <= readDataValid;
-
-        // if (~writeBusy) begin
-        //     writeData <= 8'b01101010;
-        //                   //
-        //     //01101010
-        //     //01010011
-        //     //10110110
-        //     writeDataValid <= 1;
-        // end
-        // else writeDataValid <= 0;
-
-        //76543210
-        //00010111
-
-        debug[3] = state == GET_CONFIG;
 
         if (enabled) begin
             case (state)
@@ -127,8 +112,7 @@ module AppManager(
                         else if (readData[7] == CONFIG_BIT) begin
                             configAddress <= readData[5:0];
                             configPartion <= 0;
-                            state <= (readData[6] == GET_BIT) ? GET_CONFIG : SET_CONFIG;
-                            debug[0] <= 1;
+                            state <= (readData[6] == CONFIG_GET_BIT) ? GET_CONFIG : SET_CONFIG;
                         end
                     end
                 end
@@ -168,24 +152,19 @@ module AppManager(
                     //TODO validate
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
-                        debug[4] <= 1;
                         writeDataValid <= 0;
                     end
 
                     //write second partion
                     else if (configPartion & ~writeBusy) begin
-                        debug[2] <= 1;
-                        writeData <= 8'b01101010;
-                        // writeData <= virtexConfig[configAddress*16 + 7 -: 7];
+                        writeData <= virtexConfig[configAddress*16 + 7 -: 7];
                         writeDataValid <= 1;
                         state <= IDLE;
                     end
 
                     //write first partion
                     else if (~writeBusy) begin
-                        debug[1] <= 1;
-                        writeData <= 8'b11110001;
-                        // writeData <= virtexConfig[configAddress*16 + 15 -: 7];
+                        writeData <= virtexConfig[configAddress*16 + 15 -: 7];
                         writeDataValid <= 1;
                         configPartion <= 1;
                     end
@@ -214,10 +193,15 @@ module AppManager(
 
     //Add to Frame Buffer //FIXME
     reg lastFrameBufferWriteRequestValid = 0;
+    initial debug = 8'b11110000;
     always_ff @(negedge CLK) begin
-        if (frameBufferWriteRequest.valid && ~lastFrameBufferWriteRequestValid) begin
+        if (frameBufferWriteRequest.valid & ~lastFrameBufferWriteRequestValid) begin
+            if (frameBufferWriteRequest.value !== 0) begin
+                debug <= frameBufferWriteRequest.value;
+            end
+
             frameBufferAddrWrite <= frameBufferWriteRequest.pos.y * frameBufferWriteRequest.pos.x;
-            frameBufferWriteIn <= frameBufferWriteRequest;
+            frameBufferWriteIn <= frameBufferWriteRequest.value;
             frameBufferWriteEnable <= 1;
         end
 
