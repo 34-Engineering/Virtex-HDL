@@ -83,16 +83,15 @@ module PythonManager(
     );
 
     //Blob Processor
-    Kernel lastKernelR [2:0];
+    Kernel lastKernelR [1:0];
     always_ff @(posedge CLK180) begin
-        //Cross clock domain w/ 2x dff
-        //r0 @ 72MHz -> r1 @ 180MHz (metastable) -> r2 @ 180MHz (stable)
+        //Cross clock domain w/ dff
+        //r0 @ 72MHz (metastable) -> r1 @ 180MHz (stable)
         lastKernelR[1] <= lastKernelR[0];
-        lastKernelR[2] <= lastKernelR[1];
     end
     BlobProcessor BlobProcessor(
         .CLK180(CLK180),
-        .kernel(lastKernelR[2]),
+        .kernel(lastKernelR[1]),
         .target(target),
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
         .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
@@ -111,7 +110,7 @@ module PythonManager(
         .MONITOR(MONITOR),
         .sequencerEnabled(sequencerEnabled),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug()
+        .debug(debug)
     );
 
     //LVDS Input Buffers
@@ -180,12 +179,13 @@ module PythonManager(
         .trainingDone(trainingDone[4])
     );
 
-    assign debug = trainingDone;
+    assign debug = SYNC;
 
     //Loop
+    initial frameBufferWriteRequest = 0;
     reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
     reg kernelPartion; //whether we are the start or end of kernel
-    Kernel kernel = '{ value: 0, pos: 0, valid: 1 };
+    Kernel kernel = 0;
     reg isInFrame;
     always_ff @(posedge CLK72) begin
         if (trainingDone === 5'b11111) begin

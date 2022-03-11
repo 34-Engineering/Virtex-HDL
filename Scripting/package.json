@@ -2,7 +2,7 @@
   "name": "blob-processor-testing",
   "version": "0.1.0",
   "description": "",
-  "main": "BlobProcessor.js",
+  "main": "App.ts",
   "scripts": {
     "start": "nodemon",
     "table-gen": "ts-node util/TableGen.ts"

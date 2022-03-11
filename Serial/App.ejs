@@ -1,0 +1,165 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US" prefix="og: http://ogp.me/ns#">
+
+<head>
+    <title>Virtex Serial Testing</title>
+    <meta charset="utf-8">
+    <meta content="text/html" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../Scripting/assets/34E_square128.png">
+    <meta name="title" content="Virtex Serial Testing">
+
+    <style>
+        /* generic */
+        body {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            max-width: 100vw;
+            /* background: black; */
+            background: repeating-linear-gradient(45deg, black, rgb(5, 0, 5) 15%, rgb(8, 0, 8) 20%);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+            font-family: Verdana, sans-serif;
+            font-size: 16px;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+
+        .canvas-wrapper {
+            width: 100vw;
+            height: 100vh;
+            padding: 50px;
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvasWrapper = document.querySelector('.canvas-wrapper');
+        const canvas = document.querySelector('#canvas');
+        const chart = canvas.getContext('2d');
+
+        const colors = ['red', 'blue', 'green', 'yellow', 'pink', 'cyan', 'purple', 'white'];
+        const paddingY = 20;
+
+        const datasets = 8;
+        let dataWidth = 100;
+        let data = [];
+
+        function drawCanvas() {
+            chart.clearRect(0, 0, canvas.width, canvas.height);
+            const width = canvas.width-1;
+            const height = canvas.height-1;
+            const stepY = (height - (datasets * paddingY)) / (datasets - 1);
+            const stepX = width / (dataWidth);
+
+            //draw every dataset
+            for (let d = 0; d < datasets; d++) {
+                const yHigh = (stepY * d) + (paddingY/2.0);
+                const yLow  = (stepY * (d+1)) - (paddingY/2.0);
+                chart.beginPath();
+                chart.moveTo(0, yLow);
+                for (let i = 0, lastX = 0; i <= dataWidth; i++) {
+                    let x = stepX * (i + 1);
+                    let y = data[d+datasets*i] ? yHigh : yLow;
+                    chart.lineTo(lastX, y);
+                    chart.lineTo(x, y);
+                    lastX = x;
+                }
+                chart.strokeStyle = colors[d];
+                chart.strokeWidth = 2;
+                chart.stroke();
+            }
+        }
+        drawCanvas();
+
+        function resizeCanvas() {
+            canvas.width = canvasWrapper.clientWidth - 
+                parseFloat(getComputedStyle(canvasWrapper).paddingLeft) - 
+                parseFloat(getComputedStyle(canvasWrapper).paddingRight);
+            canvas.height = canvasWrapper.clientHeight - 
+                parseFloat(getComputedStyle(canvasWrapper).paddingTop) - 
+                parseFloat(getComputedStyle(canvasWrapper).paddingBottom);
+            drawCanvas();
+        }
+        window.addEventListener('resize', resizeCanvas, false);
+        resizeCanvas();
+
+        //POST Request + Update UI based on Response
+        async function postAndUpdateUI(url, data0 = {}) {
+            const res = await post(url, data0);
+
+            const buffer = res.buffer;
+            if (buffer) {
+                data = buffer.data;
+                console.log(buffer);
+                drawCanvas();
+            }
+        }
+
+        //Get New Data
+        setInterval(() => postAndUpdateUI('/update'), 100);
+
+        //Ping (keep track of what process we were using
+        //and if a new process spawns, reload page)
+        let pid;
+        post('/ping').then((res) => pid = res.pid);
+        setInterval(async () => {
+            const res = await post('/ping');
+            if (res.pid !== pid) {
+                window.location.reload();
+            }
+        }, 250);
+
+        //Change Draw Option (and update UI)
+        function changeDrawOption(element, option) {
+            const enabled = !element.classList.contains('white');
+            if (enabled)
+                element.classList.add('white');
+            else element.classList.remove('white');
+            postAndUpdateUI('/changeDrawOption', {
+                option,
+                enabled
+            });
+        }
+
+        //HTTP POST Request
+        async function post(url, data = {}) {
+            const res = await (await fetch(url, {
+                method: 'POST',
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })).json();
+            if (res.error) {
+                //log error
+                console.error(res.error);
+            }
+            return res;
+        }
+    </script>
+</body>
+
+</html>

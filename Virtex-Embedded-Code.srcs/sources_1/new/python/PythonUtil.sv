@@ -28,7 +28,7 @@ localparam PYTHON_TRAINING_PATTERN = 8'he9; //training pattern for SYNC + DOUT
 
 //SPI Commands
 typedef struct packed { //26-bit
-    logic [8:0] address;
+    logic [0:8] address;
     logic readWrite; //1 for write
     logic [0:15] word;
 } PythonSPICommand;
@@ -36,6 +36,7 @@ localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
 localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
 localparam PythonSPICommand disableSequencer = '{192, 1, 16'h0800};
+localparam PythonSPICommand enableDisableSequencer [2] = {disableSequencer, enableSequencer};
 
 localparam PythonSPICommand checkPLLLockStatus = '{9'd24, 0, 0};
 
@@ -244,7 +245,5 @@ localparam PythonSPICommand softPowerDown [6:0] = '{
     '{64, 1, 16'h0000},	 // Disable biasing block
     '{10, 1, 16'h0999}	 // Soft reset
 };
-
-localparam PythonSPICommand enableDisableSequencer [2] = {disableSequencer, enableSequencer};
 
 `endif

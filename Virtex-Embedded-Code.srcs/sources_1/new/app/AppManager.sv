@@ -19,7 +19,7 @@ module AppManager(
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     input Kernel frameBufferWriteRequest,
-    output reg [7:0] debug
+    input reg [7:0] debug
     );
 
     //Codes
@@ -33,12 +33,13 @@ module AppManager(
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
     //Frame buffer
+    wire CLKInv = ~CLK;
     reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
     reg [7:0] frameBufferReadOut, frameBufferWriteIn;
-    reg frameBufferWriteEnable;
+    reg frameBufferWriteEnable = 0;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
         .addra(frameBufferAddrRead),
-        .clka(~CLK),
+        .clka(CLKInv),
         .dina(),
         .douta(frameBufferReadOut),
         .wea(1'b0),
@@ -92,6 +93,12 @@ module AppManager(
             newReadData = 1;
         end
         lastReadDataValid <= readDataValid;
+
+        if (~writeBusy) begin
+            writeData <= debug;
+            writeDataValid <= 1;
+        end
+        else writeDataValid <= 0;
 
         if (enabled) begin
             case (state)
@@ -191,20 +198,33 @@ module AppManager(
         end
     end
 
-    //Add to Frame Buffer //FIXME
-    reg lastFrameBufferWriteRequestValid = 0;
-    initial debug = 8'b11110000;
+    //Add to Frame Buffer
+    Kernel lastFrameBufferWriteRequest [2:0] = '{0, 0, 0};
+    // Vector pos = 0;
     always_ff @(negedge CLK) begin
-        if (frameBufferWriteRequest.valid & ~lastFrameBufferWriteRequestValid) begin
-            if (frameBufferWriteRequest.value !== 0) begin
-                debug <= frameBufferWriteRequest.value;
-            end
+        // if (pos.y < 480) begin
+        //     frameBufferAddrWrite <= (pos.y * 80) + pos.x;
+        //     frameBufferWriteIn <= 8'b11111111;
+        //     frameBufferWriteEnable <= 1;
 
-            frameBufferAddrWrite <= frameBufferWriteRequest.pos.y * frameBufferWriteRequest.pos.x;
-            frameBufferWriteIn <= frameBufferWriteRequest.value;
+        //     if (pos.x < 79) begin
+        //         pos.x <= pos.x + 1;
+        //     end
+        //     else pos <= '{ x: 0, y: pos.y + 1 };
+        // end
+        // else frameBufferWriteEnable <= 0;
+
+        //Cross clock domain w/ 2x dff
+        lastFrameBufferWriteRequest[0] <= frameBufferWriteRequest;
+        lastFrameBufferWriteRequest[1] <= lastFrameBufferWriteRequest[0];
+        lastFrameBufferWriteRequest[2] <= lastFrameBufferWriteRequest[1];
+
+        //Positive Edge (if newest data is valid & last data was not)
+        if (lastFrameBufferWriteRequest[1].valid & ~lastFrameBufferWriteRequest[2].valid) begin
+            frameBufferAddrWrite <= (lastFrameBufferWriteRequest[1].pos.y * 80) + lastFrameBufferWriteRequest[1].pos.x;
+            frameBufferWriteIn <= lastFrameBufferWriteRequest[1].value;
             frameBufferWriteEnable <= 1;
         end
-
-        lastFrameBufferWriteRequestValid <= frameBufferWriteRequest.valid;
+        else frameBufferWriteEnable <= 0;
     end
 endmodule

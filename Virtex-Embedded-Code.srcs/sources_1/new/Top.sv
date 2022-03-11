@@ -118,7 +118,7 @@ module Top(
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
         .frameBufferWriteRequest(frameBufferWriteRequest),
-        .debug()
+        .debug(debug)
     );
 
     // //RoboRIOManager
