@@ -10,7 +10,7 @@ module TopSim;
 
     //100MHz clock
     reg CLK = 0;
-    always #5 CLK <= !CLK;
+    always #5 CLK <= ~CLK;
 
     reg PWR_12V_EN = 0;
 

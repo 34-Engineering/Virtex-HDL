@@ -28,8 +28,8 @@ module Python300Sim(
     );
 
     reg CLK72 = 0, CLK288 = 0;
-    always #(500/72) CLK72 <= !CLK72;
-    always #(500/288) CLK288 <= !CLK288;
+    always #(500/72) CLK72 <= ~CLK72;
+    always #(500/288) CLK288 <= ~CLK288;
 
     //SPI Sim
     wire sequencerEnabled;

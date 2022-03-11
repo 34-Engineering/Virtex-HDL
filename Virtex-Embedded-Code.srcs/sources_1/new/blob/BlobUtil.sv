@@ -77,26 +77,26 @@ typedef struct packed {
 } RunBuffer;
 
 //Blob Criteria
-function automatic logic doesBlobMatchCriteria(BlobData blob);
-    logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
-    logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
+// function automatic logic doesBlobMatchCriteria(BlobData blob);
+//     logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
+//     logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
-    //TODO fixed point mult
-    logic inAspectRatioRange = inRangeInclusive(boundWidth,
-        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
+//     //TODO fixed point mult
+//     logic inAspectRatioRange = inRangeInclusive(boundWidth,
+//         virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
 
-    logic [18:0] boundAreaUnshifted = boundWidth * boundHeight;
-    logic inBoundAreaRange = inRangeInclusive(boundAreaUnshifted >> 1,
-        virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+//     logic [18:0] boundAreaUnshifted = boundWidth * boundHeight;
+//     logic inBoundAreaRange = inRangeInclusive(boundAreaUnshifted >> 1,
+//         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
-    //TODO fixed point mult
-    logic inFullnessRange = inRangeInclusive(blob.area,
-        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
+//     //TODO fixed point mult
+//     logic inFullnessRange = inRangeInclusive(blob.area,
+//         virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
 
-    logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
+//     logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
 
-    return inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
-endfunction
+//     return inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
+// endfunction
 
 //Merging Blobs
 function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
@@ -168,7 +168,7 @@ function automatic BlobAngle calcAngle(logic signed [9:0] dx, logic signed [9:0]
     logic [9:0] v = quickDivide(dy, dx); //how vertical the line is
     return (h > t & v < t) ? HORIZONTAL :
            (h < t & v > t) ? VERTICAL   :
-           Math.sign(dx) * Math.sign(dy) < 0 ? FORWARD : BACKWARD;
+           (dx>0) ^ (dy>0) ? FORWARD : BACKWARD;
 endfunction
 
 //Runs Overlap
@@ -198,9 +198,9 @@ function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] li
 endfunction
 
 //Distance^2 Between Vector and Target Center
-function automatic logic [18:0] distSqToTargetCenter(Vector v);
-    return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
-endfunction
+// function automatic logic [18:0] distSqToTargetCenter(Vector v);
+//     return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
+// endfunction
 
 //Get Target Age (returns age of the target in nanoseconds)
 function automatic logic [59:0] getTargetAge(Target target);
@@ -209,9 +209,9 @@ function automatic logic [59:0] getTargetAge(Target target);
 endfunction
 
 //Is Target Stale
-function automatic logic isTargetStale(Target target);
-    //TODO
-    return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
-endfunction
+// function automatic logic isTargetStale(Target target);
+//     //TODO
+//     return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
+// endfunction
 
 `endif

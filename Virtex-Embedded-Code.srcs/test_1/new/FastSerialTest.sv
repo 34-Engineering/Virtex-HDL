@@ -7,7 +7,7 @@
 module FastSerialTest;
 
     reg CLK = 0;
-    always #5 CLK <= !CLK;
+    always #5 CLK <= ~CLK;
 
     FastSerial (
 

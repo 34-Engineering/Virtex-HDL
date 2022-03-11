@@ -17,7 +17,7 @@ module AppSim(
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
 
     FrameBuffer frameBuffer;
-    Vector frameBufferPos = '{0, 0}; //(0, 0) to (80, 479)
+    Vector frameBufferPos = 0; //(0, 0) to (80, 479)
     reg wantsToSetConfig = 0, wantsToGetConfig = 0;
     reg [4:0] address;
     reg [15:0] value;

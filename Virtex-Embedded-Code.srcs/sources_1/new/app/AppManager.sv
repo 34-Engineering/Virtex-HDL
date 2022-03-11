@@ -19,7 +19,8 @@ module AppManager(
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     input Kernel frameBufferWriteRequest,
-    input reg [7:0] debug
+    output reg [7:0] debug,
+    input reg [7:0] wave
     );
 
     //Codes
@@ -95,7 +96,7 @@ module AppManager(
         lastReadDataValid <= readDataValid;
 
         if (~writeBusy) begin
-            writeData <= debug;
+            writeData <= wave;
             writeDataValid <= 1;
         end
         else writeDataValid <= 0;

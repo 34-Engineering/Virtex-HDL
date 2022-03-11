@@ -26,14 +26,16 @@
      */
 module PythonSPIManager(
     input wire CLK,
-    output wire SPI_CLK,
-    output reg SPI_MOSI, SPI_CS, //active low
+    output wire SPI_CLK, SPI_CS, //active low
+    output reg SPI_MOSI,
     input wire SPI_MISO,
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
+    output reg RESET_SENSOR,
     input wire sequencerEnabled,
     output reg PYTHON_300_PLL_FAULT,
-    output reg [7:0] debug
+    output reg [7:0] debug,
+    output reg [7:0] wave
     );
 
     //10MHz Clock
@@ -44,44 +46,58 @@ module PythonSPIManager(
     );
 
     //SPI Interface
+    /* Sequence
+        Index | 0  1  2  3  4  5  6  7  8  9  10 11 12  13  14  15  16  17  18 19 20 21 22 23 24 25 26 27 28 29
+        Data  | BL A8 A7 A6 A5 A4 A3 A2 A1 A0 RW D15 D14 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 BL BL BL
+        ClkEn | 0  0  1  1  1  1  1  1  1  1  1   1   1   1   1   1   1  1  1  1  1  1  1  1  1  1  1  1  0  0
+        CS    | 0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  1*/
     reg inSequence = 0;
     reg [4:0] sequencePointer = 0;
-    localparam SEQUENCE_END_INDEX = 30;
-    wire isBlanking = sequencePointer < 2 | sequencePointer > 27;
-    assign SPI_CS = ~(inSequence & sequencePointer < 29);
-    assign SPI_CLK = (inSequence & sequencePointer > 0 & sequencePointer < 28) ? CLK10 : 0;
+    localparam SEQUENCE_END_INDEX = 30; //FIXME 29 //FIXME no og blank?
+    wire isBlanking = sequencePointer < 1 | sequencePointer > 26;
+    assign SPI_CS = ~inSequence | sequencePointer > 28;
+    assign SPI_CLK = (inSequence & sequencePointer > 1 & sequencePointer < 28) ? CLK10 : 0;
 
     //State
-    enum {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} bootState = ENABLE_CLOCK_MANAGEMENT_1;
+    enum logic [1:0] {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} bootState = ENABLE_CLOCK_MANAGEMENT_1;
     reg [7:0] commandNumber = 0; //which SPI command we are on in the current stage
-    wire commandPointer = sequencePointer - 2; //where we are in the PythonSPICommand
+    wire [4:0] commandPointer = sequencePointer - 1; //where we are in the PythonSPICommand
     reg [15:0] response = 0; //response data for check PLL lock
     reg isSequencerEnabled = 0; //the actual sequencer state of the python
     wire wantsToSetSequencer = bootState == DONE & sequencerEnabled != isSequencerEnabled; //we need to write enable/disable sequencer
+    reg reset = 0;
+    assign RESET_SENSOR = reset;
+
+    assign wave = response[7:0];
+    initial debug = 0;
 
     //SPI Loop
     always_ff @(negedge CLK10) begin
-        /* Sequence
-        Index | 0  1  2  3  4  5  6  7  8  9  10 11 12  13  14  15  16  17  18 19 20 21 22 23 24 25 26 27 28 29 30
-        Data  | BL BL A8 A7 A6 A5 A4 A3 A2 A1 A0 RW D15 D14 D13 D12 D11 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0 BL BL BL
-        ClkEn | 0  1  1  1  1  1  1  1  1  1  1  1   1   1   1   1   1   1  1  1  1  1  1  1  1  1  1  1  0  0  0
-        CS    | 0  0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  1  1*/
+        //pull down reset_n after 10us
+        if (~reset) begin
+            reset <= 1;
+        end
+
         //Read/Write Sequence Data (address + read/write + word)
-        if (inSequence) begin
+        else if (inSequence) begin
             //Check PLL Lock
             if (bootState == CHECK_PLL_LOCK & ~isBlanking) begin
-                //write address [0:8] + read/write [9:9]
-                if (commandPointer < 10) begin
-                    SPI_MOSI <= checkPLLLockStatus[commandPointer];
+                 if (commandPointer < 10) begin
+                    SPI_MOSI <= checkPLLLockStatus[PythonSPICommandEndIndex - commandPointer];
                 end
 
-                //read response [10:25]
-                else begin
-                    response[commandPointer - 10] = SPI_MISO;
+                //read response [11:26] (bc MISO is delayed 1 clock cycle relative to us)
+                else if (commandPointer > 10) begin
+                    if (SPI_MISO != 0) begin
+                        debug <= 8'b10100101;
+                    end
+                    response[commandPointer - 11] = SPI_MISO;
                 end
 
-                //finish @ 25
-                if (commandPointer == PythonSPICommandEndIndex) begin
+                //finish @ 26
+                if (commandPointer == PythonSPICommandEndIndex+1) begin
+                    // response = 1;
+
                     //PLL not unlocked
                     if (response == 0) begin
                         //do command again
@@ -106,7 +122,7 @@ module PythonSPIManager(
             //Done (enable/disable sequencer)
             else if (bootState == DONE & ~isBlanking) begin
                 //write command [0:25]
-                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][commandPointer];
+                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][PythonSPICommandEndIndex - commandPointer];
 
                 //finish @ 25
                 if (commandPointer == PythonSPICommandEndIndex) begin
@@ -118,8 +134,8 @@ module PythonSPIManager(
             else if (~isBlanking) begin
                 //write all commands [0:25]
                 if (bootState == REGISTER_UPLOAD)
-                    SPI_MOSI <= powerUpSequenceRegisterUpload[commandNumber][commandPointer];
-                else SPI_MOSI <= enableClockManagement1[commandNumber][commandPointer];
+                    SPI_MOSI <= powerUpSequenceRegisterUpload[commandNumber][PythonSPICommandEndIndex - commandPointer];
+                else SPI_MOSI <= enableClockManagement1[commandNumber][PythonSPICommandEndIndex - commandPointer];
 
                 //finish @ 25
                 if (commandPointer == PythonSPICommandEndIndex) begin

@@ -57,13 +57,13 @@ localparam PythonSPICommand enableClockManagement1 [9] = '{
     '{8, 1, 16'h0000}      // release PLL lock detect reset 
 };
 
-localparam PythonSPICommand enableClockManagement2 [3] = '{
+localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
+    //*****************       enableClockManagement2       **********************\\
     '{9, 1, 16'h0000},     // release clock generator soft reset
     '{32, 1, 16'h400E},
-    '{34, 1, 16'h0001}     // enable logic clock
-};
+    '{34, 1, 16'h0001},     // enable logic clock
 
-localparam PythonSPICommand requiredRegisterUpload [133] = '{
+    //******************       requiredRegisterUpload      **********************\\
     // power and bias config
     '{41, 1, 16'h085f},
     '{42, 1, 16'h4110},
@@ -220,10 +220,12 @@ localparam PythonSPICommand requiredRegisterUpload [133] = '{
     '{474, 1, 16'h10BF},
     '{475, 1, 16'h10B5},
     '{476, 1, 16'h00B1},
-    '{477, 1, 16'h0030}
-};
+    '{477, 1, 16'h0030},
 
-localparam PythonSPICommand softPowerUp [8] = '{
+
+
+
+    //******************         softPowerUp            ************************\\
     '{32, 1, 16'h400F},	// Enable analog clock
     '{10, 1, 16'h0000},	// Release soft reset state
     '{64, 1, 16'h0001},	// Enable biasing block
@@ -234,16 +236,14 @@ localparam PythonSPICommand softPowerUp [8] = '{
     '{112, 1, 16'h0007}	// Enable LVDS transmitters
 };
 
-localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = {enableClockManagement2, requiredRegisterUpload, softPowerUp};
-
-localparam PythonSPICommand softPowerDown [6:0] = '{
-    '{112, 1, 16'h0000}, // Disable LVDS transmitters
-    '{48, 1, 16'h0000},	 // Disable AFE
-    '{32, 1, 16'h700E},	 // Disable analog clock
-    '{40, 1, 16'h0000},	 // Disable column multiplexer
-    '{72, 1, 16'h0010},	 // Disable charge pump
-    '{64, 1, 16'h0000},	 // Disable biasing block
-    '{10, 1, 16'h0999}	 // Soft reset
-};
+// localparam PythonSPICommand softPowerDown [6:0] = '{
+//     '{112, 1, 16'h0000}, // Disable LVDS transmitters
+//     '{48, 1, 16'h0000},	 // Disable AFE
+//     '{32, 1, 16'h700E},	 // Disable analog clock
+//     '{40, 1, 16'h0000},	 // Disable column multiplexer
+//     '{72, 1, 16'h0010},	 // Disable charge pump
+//     '{64, 1, 16'h0000},	 // Disable biasing block
+//     '{10, 1, 16'h0999}	 // Soft reset
+// };
 
 `endif

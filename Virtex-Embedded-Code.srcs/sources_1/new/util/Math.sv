@@ -26,6 +26,11 @@ function automatic logic inRangeInclusive(logic [15:0] num, min, max);
     return num >= min & num <= max;
 endfunction
 
+//Signed Functions
+function automatic logic [9:0] abs10(logic signed [9:0] num);
+    return num > 0 ? num : -num;
+endfunction
+
 //20-bit Vector
 typedef struct packed {
     logic [9:0] x, y;
@@ -46,11 +51,11 @@ function automatic logic [23:0] calcQuadArea(Quad quad);
     Vector [3:0] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
     logic [23:0] total = 0;
     for (integer i = 0; i < 4; i = i + 1) begin
-        total <= total + 
+        total = total +
         ((points[i].x * points[i === 3 ? 0 : i+1].y) >> 1) - 
         ((points[i === 3 ? 0 : i+1].x * points[i].y) >> 1);
     end
-    return Math.abs(total);
+    return total > 0 ? total : -total;
 endfunction
 function automatic logic isValidQuad(Quad quad);
     return (
@@ -66,13 +71,11 @@ function automatic logic [9:0] quickDivide(logic signed [9:0] dividend, divisor)
     //returns a 10-bit integer that correctlates to the real quotient
     logic [9:0] out = 0;
     for (integer i = 0; i < 10; i++) begin
-        out[i] = (
-            Math.abs(dividend) > (
-                i < 5 ? 
-                Math.abs(divisor) >> Math.abs(5 - i) : 
-                Math.abs(divisor) << Math.abs(5 - i)
-            )
-        ) ? 1:0;
+        out[i] = abs10(dividend) > (
+            i < 5 ?
+            abs10(divisor) >> abs10(5 - i) :
+            abs10(divisor) << abs10(5 - i)
+        );
     end
     return out;
 endfunction

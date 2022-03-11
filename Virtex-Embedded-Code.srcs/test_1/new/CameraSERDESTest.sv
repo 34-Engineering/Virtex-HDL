@@ -7,7 +7,7 @@
 module ISERDESTest;
 
     reg CLK = 0;
-    always #5 CLK <= !CLK;
+    always #5 CLK <= ~CLK;
 
     // ISERDES (
 

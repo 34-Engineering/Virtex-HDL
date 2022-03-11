@@ -20,7 +20,7 @@ module PythonISERDES (
     //IDELAYCTRL?
 
     //ISERDESE2 Primitive (see docs)
-    reg bitslip = 1;
+    reg bitslip = 0; //FIXME
     ISERDESE2 #(
         .INTERFACE_TYPE("NETWORKING"),
         .SERDES_MODE("MASTER"),

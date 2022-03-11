@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="PythonSPITest_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="PythonSPITest" />
+            <top_module name="\$unit_Top_sv " />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="1,273,983.213 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,275,143.214 ns"></ZoomEndTime>
+      <Cursor1Time time="1,274,949.880 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="252"></NameColumnWidth>
+      <ValueColumnWidth column_width="98"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/PythonSPITest/CLK" type="logic">
+      <obj_property name="ElementShortName">CLK</obj_property>
+      <obj_property name="ObjectShortName">CLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/CLK10" type="logic">
+      <obj_property name="ElementShortName">CLK10</obj_property>
+      <obj_property name="ObjectShortName">CLK10</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/SPI_CLK" type="logic">
+      <obj_property name="ElementShortName">SPI_CLK</obj_property>
+      <obj_property name="ObjectShortName">SPI_CLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/SPI_CS" type="logic">
+      <obj_property name="ElementShortName">SPI_CS</obj_property>
+      <obj_property name="ObjectShortName">SPI_CS</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/SPI_MOSI" type="logic">
+      <obj_property name="ElementShortName">SPI_MOSI</obj_property>
+      <obj_property name="ObjectShortName">SPI_MOSI</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/SPI_MISO" type="logic">
+      <obj_property name="ElementShortName">SPI_MISO</obj_property>
+      <obj_property name="ObjectShortName">SPI_MISO</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/isSequencerEnabled" type="logic">
+      <obj_property name="ElementShortName">isSequencerEnabled</obj_property>
+      <obj_property name="ObjectShortName">isSequencerEnabled</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/inSequence" type="logic">
+      <obj_property name="ElementShortName">inSequence</obj_property>
+      <obj_property name="ObjectShortName">inSequence</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/isBlanking" type="logic">
+      <obj_property name="ElementShortName">isBlanking</obj_property>
+      <obj_property name="ObjectShortName">isBlanking</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/commandPointer" type="array">
+      <obj_property name="ElementShortName">commandPointer[4:0]</obj_property>
+      <obj_property name="ObjectShortName">commandPointer[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/commandNumber" type="array">
+      <obj_property name="ElementShortName">commandNumber[7:0]</obj_property>
+      <obj_property name="ObjectShortName">commandNumber[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/bootState" type="array">
+      <obj_property name="ElementShortName">bootState[1:0]</obj_property>
+      <obj_property name="ObjectShortName">bootState[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/response" type="array">
+      <obj_property name="ElementShortName">response[15:0]</obj_property>
+      <obj_property name="ObjectShortName">response[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/uut/RESET_SENSOR" type="logic">
+      <obj_property name="ElementShortName">RESET_SENSOR</obj_property>
+      <obj_property name="ObjectShortName">RESET_SENSOR</obj_property>
+   </wvobject>
+</wave_config>

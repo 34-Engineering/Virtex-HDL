@@ -25,10 +25,12 @@ function initSerialPort() {
 }
 initSerialPort();
 function onData(newData: Buffer) {
-    if (buffer) {
-        buffer = Buffer.concat([buffer, newData], buffer.length + newData.length);
+    // if (buffer) {
+    //     buffer = Buffer.concat([buffer, newData], buffer.length + newData.length);
+    // }
+    if (newData.length > 0) {
+        buffer = newData;
     }
-    buffer = newData;
 }
 function onError(err: any) {
     console.error(err);

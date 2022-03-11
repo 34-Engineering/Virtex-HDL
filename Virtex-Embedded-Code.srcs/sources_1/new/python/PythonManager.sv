@@ -61,10 +61,9 @@ module PythonManager(
     output reg OUT_OF_RLE_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
-    output reg [7:0] debug
+    output reg [7:0] debug,
+    output reg [7:0] wave
     );
-
-    assign RESET_SENSOR = 1;
 
     //Generate 72MHz Parallel Clock from 288MHz Input Clock
     wire LVDS_CLK, CLK72;
@@ -108,9 +107,11 @@ module PythonManager(
         .SPI_CLK(SPI_CLK),
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
+        .RESET_SENSOR(RESET_SENSOR),
         .sequencerEnabled(sequencerEnabled),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug(debug)
+        .debug(debug),
+        .wave(wave)
     );
 
     //LVDS Input Buffers
@@ -130,153 +131,152 @@ module PythonManager(
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
-    wire [7:0] SYNC;
-    wire [7:0] DOUT [3:0];
-    wire [4:0] trainingDone;
-    PythonISERDES SYNC_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
-        .parallelClk(CLK72),
-        .parallelData(SYNC),
-        .reset(1'b1),
-        .trainingPattern(TR),
-        .trainingDone(trainingDone[0])
-    );
-    PythonISERDES DOUT_0_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[0]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[0]),
-        .reset(1'b1),
-        .trainingPattern(TR),
-        .trainingDone(trainingDone[1])
-    );
-    PythonISERDES DOUT_1_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[1]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[1]),
-        .reset(1'b1),
-        .trainingPattern(TR),
-        .trainingDone(trainingDone[2])
-    );
-    PythonISERDES DOUT_2_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[2]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[2]),
-        .reset(1'b1),
-        .trainingPattern(TR),
-        .trainingDone(trainingDone[3])
-    );
-    PythonISERDES DOUT_3_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[3]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[3]),
-        .reset(1'b1),
-        .trainingPattern(TR),
-        .trainingDone(trainingDone[4])
-    );
-
-    assign debug = SYNC;
+    // assign debug = LVDS_SYNC;
+    // wire [7:0] SYNC; assign debug = SYNC;
+    // wire [7:0] DOUT [3:0];
+    // wire [4:0] trainingDone;
+    // PythonISERDES SYNC_ISERDES(
+    //     .SERIAL_CLK(LVDS_CLK),
+    //     .SERIAL_DATA(LVDS_SYNC),
+    //     .parallelClk(CLK72),
+    //     .parallelData(SYNC),
+    //     .reset(1'b1),
+    //     .trainingPattern(TR),
+    //     .trainingDone(trainingDone[0])
+    // );
+    // PythonISERDES DOUT_0_ISERDES(
+    //     .SERIAL_CLK(LVDS_CLK),
+    //     .SERIAL_DATA(LVDS_DOUT[0]),
+    //     .parallelClk(CLK72),
+    //     .parallelData(DOUT[0]),
+    //     .reset(1'b1),
+    //     .trainingPattern(TR),
+    //     .trainingDone(trainingDone[1])
+    // );
+    // PythonISERDES DOUT_1_ISERDES(
+    //     .SERIAL_CLK(LVDS_CLK),
+    //     .SERIAL_DATA(LVDS_DOUT[1]),
+    //     .parallelClk(CLK72),
+    //     .parallelData(DOUT[1]),
+    //     .reset(1'b1),
+    //     .trainingPattern(TR),
+    //     .trainingDone(trainingDone[2])
+    // );
+    // PythonISERDES DOUT_2_ISERDES(
+    //     .SERIAL_CLK(LVDS_CLK),
+    //     .SERIAL_DATA(LVDS_DOUT[2]),
+    //     .parallelClk(CLK72),
+    //     .parallelData(DOUT[2]),
+    //     .reset(1'b1),
+    //     .trainingPattern(TR),
+    //     .trainingDone(trainingDone[3])
+    // );
+    // PythonISERDES DOUT_3_ISERDES(
+    //     .SERIAL_CLK(LVDS_CLK),
+    //     .SERIAL_DATA(LVDS_DOUT[3]),
+    //     .parallelClk(CLK72),
+    //     .parallelData(DOUT[3]),
+    //     .reset(1'b1),
+    //     .trainingPattern(TR),
+    //     .trainingDone(trainingDone[4])
+    // );
 
     //Loop
-    initial frameBufferWriteRequest = 0;
-    reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
-    reg kernelPartion; //whether we are the start or end of kernel
-    Kernel kernel = 0;
-    reg isInFrame;
-    always_ff @(posedge CLK72) begin
-        if (trainingDone === 5'b11111) begin
-            if (SYNC == PYTHON_SYNC_FRAME_START) begin
-                //Note: FS replaces LS
-                isInFrame = 1;
-                kernel.pos.y = 0;
-                kernel.pos.x = 0;
-                kernelPartion = 0;
-                kernelOdd = 0;
-                processImageData();
-            end
+    // initial frameBufferWriteRequest = 0;
+    // reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
+    // reg kernelPartion; //whether we are the start or end of kernel
+    // Kernel kernel = 0;
+    // reg isInFrame;
+    // always_ff @(posedge CLK72) begin
+    //     if (trainingDone === 5'b11111) begin
+    //         if (SYNC == PYTHON_SYNC_FRAME_START) begin
+    //             //Note: FS replaces LS
+    //             isInFrame = 1;
+    //             kernel.pos.y = 0;
+    //             kernel.pos.x = 0;
+    //             kernelPartion = 0;
+    //             kernelOdd = 0;
+    //             processImageData();
+    //         end
 
-            else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-                isInFrame = 0;
-                processImageData();
-                //TODO resetting logic?
-            end
+    //         else if (SYNC == PYTHON_SYNC_FRAME_END) begin
+    //             isInFrame = 0;
+    //             processImageData();
+    //             //TODO resetting logic?
+    //         end
 
-            else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
-                //check if in frame to make sure its not a black pixel
-                kernel.pos.x = 0;
-                kernelPartion = 0;
-                kernelOdd = 0;
-                processImageData();
-            end
+    //         else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
+    //             //check if in frame to make sure its not a black pixel
+    //             kernel.pos.x = 0;
+    //             kernelPartion = 0;
+    //             kernelOdd = 0;
+    //             processImageData();
+    //         end
 
-            else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
-                kernel.pos.y = kernel.pos.y + 1;
-                processImageData();
-            end
+    //         else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
+    //             kernel.pos.y = kernel.pos.y + 1;
+    //             processImageData();
+    //         end
 
-            else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
-                processImageData();
-            end
+    //         else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
+    //             processImageData();
+    //         end
 
-            else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
-                processImageData();
-            end
-        end
-    end
+    //         else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
+    //             processImageData();
+    //         end
+    //     end
+    // end
 
-    task processImageData();
-        //load partion 2 of kernel (see page 40)
-        if (kernelPartion) begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel.value[0] <= DOUT[3] > 8'd128;
-                kernel.value[2] <= DOUT[2] > 8'd128;
-                kernel.value[4] <= DOUT[1] > 8'd128;
-                kernel.value[6] <= DOUT[0] > 8'd128;
-            end
-            else begin
-                //load normally
-                kernel.value[1] <= DOUT[0] > 8'd128;
-                kernel.value[3] <= DOUT[1] > 8'd128;
-                kernel.value[5] <= DOUT[2] > 8'd128;
-                kernel.value[7] <= DOUT[3] > 8'd128;
-            end
+    // task processImageData();
+    //     //load partion 2 of kernel (see page 40)
+    //     if (kernelPartion) begin
+    //         if (kernelOdd) begin
+    //             //load backwards
+    //             kernel.value[0] <= DOUT[3] > 8'd128;
+    //             kernel.value[2] <= DOUT[2] > 8'd128;
+    //             kernel.value[4] <= DOUT[1] > 8'd128;
+    //             kernel.value[6] <= DOUT[0] > 8'd128;
+    //         end
+    //         else begin
+    //             //load normally
+    //             kernel.value[1] <= DOUT[0] > 8'd128;
+    //             kernel.value[3] <= DOUT[1] > 8'd128;
+    //             kernel.value[5] <= DOUT[2] > 8'd128;
+    //             kernel.value[7] <= DOUT[3] > 8'd128;
+    //         end
             
-            lastKernelR[0] <= kernel;
-            kernel.pos.x <= kernel.pos.x + 1;
-            frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
+    //         lastKernelR[0] <= kernel;
+    //         kernel.pos.x <= kernel.pos.x + 1;
+    //         frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
 
-            // if (DOUT[0] > 0) begin
-            //     debug <= DOUT[0];
-            // end
-            // debug <= {DOUT[0][1:0], DOUT[1][1:0], DOUT[2][1:0], DOUT[3][1:0]};
-        end
+    //         // if (DOUT[0] > 0) begin
+    //         //     debug <= DOUT[0];
+    //         // end
+    //         // debug <= {DOUT[0][1:0], DOUT[1][1:0], DOUT[2][1:0], DOUT[3][1:0]};
+    //     end
 
-        //load partion 1 of kernel (see page 40)
-        else begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel.value[1] <= DOUT[3] > 8'd128;
-                kernel.value[3] <= DOUT[2] > 8'd128;
-                kernel.value[5] <= DOUT[1] > 8'd128;
-                kernel.value[7] <= DOUT[0] > 8'd128;
-            end
-            else begin
-                //load normally
-                kernel.value[0] <= DOUT[0] > 8'd128;
-                kernel.value[2] <= DOUT[1] > 8'd128;
-                kernel.value[4] <= DOUT[2] > 8'd128;
-                kernel.value[6] <= DOUT[3] > 8'd128;
-            end
+    //     //load partion 1 of kernel (see page 40)
+    //     else begin
+    //         if (kernelOdd) begin
+    //             //load backwards
+    //             kernel.value[1] <= DOUT[3] > 8'd128;
+    //             kernel.value[3] <= DOUT[2] > 8'd128;
+    //             kernel.value[5] <= DOUT[1] > 8'd128;
+    //             kernel.value[7] <= DOUT[0] > 8'd128;
+    //         end
+    //         else begin
+    //             //load normally
+    //             kernel.value[0] <= DOUT[0] > 8'd128;
+    //             kernel.value[2] <= DOUT[1] > 8'd128;
+    //             kernel.value[4] <= DOUT[2] > 8'd128;
+    //             kernel.value[6] <= DOUT[3] > 8'd128;
+    //         end
 
-            frameBufferWriteRequest.valid <= 0;
-        end
+    //         frameBufferWriteRequest.valid <= 0;
+    //     end
 
-        kernelOdd <= ~kernelOdd;
-        kernelPartion <= ~kernelPartion;
-    endtask
+    //     kernelOdd <= ~kernelOdd;
+    //     kernelPartion <= ~kernelPartion;
+    // endtask
 endmodule

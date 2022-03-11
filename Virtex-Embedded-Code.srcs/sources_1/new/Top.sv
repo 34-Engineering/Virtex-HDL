@@ -62,6 +62,7 @@ module Top(
     wire Target target;
     Kernel frameBufferWriteRequest;
     wire [7:0] debug;
+    wire [7:0] wave;
 
     // //ConfigManager
     // ConfigManager ConfigManager(
@@ -102,7 +103,8 @@ module Top(
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
         .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
-        .debug(debug)
+        .debug(debug),
+        .wave(wave)
     );
 
     //AppManager
@@ -118,7 +120,8 @@ module Top(
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
         .frameBufferWriteRequest(frameBufferWriteRequest),
-        .debug(debug)
+        .debug(),
+        .wave(wave)
     );
 
     // //RoboRIOManager
