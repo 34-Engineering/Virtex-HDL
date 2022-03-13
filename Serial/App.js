@@ -15,7 +15,6 @@ app.get('/', function (req, res) {
 });
 //Serial
 var serialPort = null;
-var buffer;
 function initSerialPort() {
     serialPort = new serialport_1.SerialPort({
         path: '\\\\.\\COM6',
@@ -24,14 +23,20 @@ function initSerialPort() {
     });
     serialPort.on('data', onData);
     serialPort.on('error', onError);
+    serialPort.write(Buffer.from([1]));
 }
 initSerialPort();
+//Frame
+var frame = Buffer.alloc(38400);
+var framePointer;
 function onData(newData) {
-    // if (buffer) {
-    //     buffer = Buffer.concat([buffer, newData], buffer.length + newData.length);
-    // }
-    if (newData.length > 0) {
-        buffer = newData;
+    for (var i = 0; i < newData.length; i++) {
+        frame[framePointer] = newData[i];
+        framePointer++;
+    }
+    if (framePointer >= 38400) {
+        framePointer = 0;
+        serialPort.write(Buffer.from([1]));
     }
 }
 function onError(err) {
@@ -39,10 +44,9 @@ function onError(err) {
 }
 //Actions
 app.use(express_1["default"].json());
-app.post('/update', function (req, res) {
+app.post('/frame', function (req, res) {
     try {
-        res.send({ buffer: buffer });
-        buffer = null;
+        res.send({ frame: frame });
     }
     catch (e) {
         res.send({ error: e });

@@ -40,7 +40,9 @@
     CRC (per channel): x^8 + x^6 + x^3 + x^2 + 1
 
     Flow:
-     - LVDS Lines -> IBUFGDS -> ISERDES -> Parallel Data (SYNC & DOUT[3:0])
+     - Buffers: LVDS -> Serial
+     - SERDES: Serial -> Parallel
+     - Process Loop: Parallel -> Frame Buffer & Blob Processor
 
     */
 module PythonManager(
@@ -65,8 +67,20 @@ module PythonManager(
     output reg [7:0] wave
     );
 
+    wire LVDS_CLK, CLK72, CLK180;
+    wire isSequencerEnabled; //whether the sequencer is actually enabled (~2.6us delay from sequencerEnabled if training is done)
+    wire isBooted; //whether the python is booted (required registgers are booted)
+    wire LVDS_SYNC; //serial SYNC
+    wire [3:0] LVDS_DOUT; //serial DOUTs
+    wire [7:0] SYNC; //parallel SYNC
+    wire [7:0] DOUT [3:0]; //parallel DOUTs
+    wire [4:0] trainingDone; //whether SERDES lines are trained (active high, 5'b11111)
+    reg kernelOdd; //whether the kernel x coordinate is odd (kernel is read out backwards)
+    reg kernelPartion;
+    Kernel kernel = 0; //the current kernel we are working on
+    reg isInFrame; //whether the processor is in frame
+
     //Generate 72MHz Parallel Clock from 288MHz Input Clock
-    wire LVDS_CLK, CLK72;
     BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("4")) CLK72_BUFR (
         .O(CLK72),
         .CE(1'b1),
@@ -75,7 +89,6 @@ module PythonManager(
     );
 
     //Generate 180MHz Blob Processor Clock
-    wire CLK180;
     clk_wiz_2 clk_wiz_2(
         .clk_in1(CLK),
         .clk_out1(CLK180)
@@ -85,7 +98,6 @@ module PythonManager(
     Kernel lastKernelR [1:0];
     always_ff @(posedge CLK180) begin
         //Cross clock domain w/ dff
-        //r0 @ 72MHz (metastable) -> r1 @ 180MHz (stable)
         lastKernelR[1] <= lastKernelR[0];
     end
     BlobProcessor BlobProcessor(
@@ -108,15 +120,15 @@ module PythonManager(
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
         .RESET_SENSOR(RESET_SENSOR),
-        .sequencerEnabled(sequencerEnabled),
+        .sequencerEnabled(sequencerEnabled & trainingDone == 5'b11111), //only enable the sequencer once we trained ISERDES
+        .isSequencerEnabled(isSequencerEnabled),
+        .isBooted(isBooted),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug(debug),
-        .wave(wave)
+        .debug(),
+        .wave()
     );
 
     //LVDS Input Buffers
-    wire LVDS_SYNC;
-    wire [3:0] LVDS_DOUT;
     IBUFGDS #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
     LVDS_CLK_IBUF   (.O(LVDS_CLK    ),.I(LVDS_CLK_P    ),.IB(LVDS_CLK_N     ));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
@@ -131,152 +143,169 @@ module PythonManager(
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
-    // assign debug = LVDS_SYNC;
-    // wire [7:0] SYNC; assign debug = SYNC;
-    // wire [7:0] DOUT [3:0];
-    // wire [4:0] trainingDone;
-    // PythonISERDES SYNC_ISERDES(
-    //     .SERIAL_CLK(LVDS_CLK),
-    //     .SERIAL_DATA(LVDS_SYNC),
-    //     .parallelClk(CLK72),
-    //     .parallelData(SYNC),
-    //     .reset(1'b1),
-    //     .trainingPattern(TR),
-    //     .trainingDone(trainingDone[0])
-    // );
-    // PythonISERDES DOUT_0_ISERDES(
-    //     .SERIAL_CLK(LVDS_CLK),
-    //     .SERIAL_DATA(LVDS_DOUT[0]),
-    //     .parallelClk(CLK72),
-    //     .parallelData(DOUT[0]),
-    //     .reset(1'b1),
-    //     .trainingPattern(TR),
-    //     .trainingDone(trainingDone[1])
-    // );
-    // PythonISERDES DOUT_1_ISERDES(
-    //     .SERIAL_CLK(LVDS_CLK),
-    //     .SERIAL_DATA(LVDS_DOUT[1]),
-    //     .parallelClk(CLK72),
-    //     .parallelData(DOUT[1]),
-    //     .reset(1'b1),
-    //     .trainingPattern(TR),
-    //     .trainingDone(trainingDone[2])
-    // );
-    // PythonISERDES DOUT_2_ISERDES(
-    //     .SERIAL_CLK(LVDS_CLK),
-    //     .SERIAL_DATA(LVDS_DOUT[2]),
-    //     .parallelClk(CLK72),
-    //     .parallelData(DOUT[2]),
-    //     .reset(1'b1),
-    //     .trainingPattern(TR),
-    //     .trainingDone(trainingDone[3])
-    // );
-    // PythonISERDES DOUT_3_ISERDES(
-    //     .SERIAL_CLK(LVDS_CLK),
-    //     .SERIAL_DATA(LVDS_DOUT[3]),
-    //     .parallelClk(CLK72),
-    //     .parallelData(DOUT[3]),
-    //     .reset(1'b1),
-    //     .trainingPattern(TR),
-    //     .trainingDone(trainingDone[4])
-    // );
+    PythonISERDES SYNC_ISERDES(
+        .SERIAL_CLK(LVDS_CLK),
+        .SERIAL_DATA(LVDS_SYNC),
+        .parallelClk(CLK72),
+        .parallelData(SYNC),
+        .reset(isBooted), //dont start training until required registers are uploaded
+        .trainingDone(trainingDone[0])
+    );
+    PythonISERDES DOUT_0_ISERDES(
+        .SERIAL_CLK(LVDS_CLK),
+        .SERIAL_DATA(LVDS_DOUT[0]),
+        .parallelClk(CLK72),
+        .parallelData(DOUT[0]),
+        .reset(isBooted),
+        .trainingDone(trainingDone[1])
+    );
+    PythonISERDES DOUT_1_ISERDES (
+        .SERIAL_CLK(LVDS_CLK),
+        .SERIAL_DATA(LVDS_DOUT[1]),
+        .parallelClk(CLK72),
+        .parallelData(DOUT[1]),
+        .reset(isBooted),
+        .trainingDone(trainingDone[2])
+    );
+    PythonISERDES DOUT_2_ISERDES(
+        .SERIAL_CLK(LVDS_CLK),
+        .SERIAL_DATA(LVDS_DOUT[2]),
+        .parallelClk(CLK72),
+        .parallelData(DOUT[2]),
+        .reset(isBooted),
+        .trainingDone(trainingDone[3])
+    );
+    PythonISERDES DOUT_3_ISERDES(
+        .SERIAL_CLK(LVDS_CLK),
+        .SERIAL_DATA(LVDS_DOUT[3]),
+        .parallelClk(CLK72),
+        .parallelData(DOUT[3]),
+        .reset(isBooted),
+        .trainingDone(trainingDone[4])
+    );
 
-    //Loop
-    // initial frameBufferWriteRequest = 0;
-    // reg kernelOdd; //whether the kernel is odd (Python kernels are revered on odd x coordinates)
-    // reg kernelPartion; //whether we are the start or end of kernel
-    // Kernel kernel = 0;
-    // reg isInFrame;
-    // always_ff @(posedge CLK72) begin
-    //     if (trainingDone === 5'b11111) begin
-    //         if (SYNC == PYTHON_SYNC_FRAME_START) begin
-    //             //Note: FS replaces LS
-    //             isInFrame = 1;
-    //             kernel.pos.y = 0;
-    //             kernel.pos.x = 0;
-    //             kernelPartion = 0;
-    //             kernelOdd = 0;
-    //             processImageData();
-    //         end
+    initial debug = 8'b11111111;
 
-    //         else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-    //             isInFrame = 0;
-    //             processImageData();
-    //             //TODO resetting logic?
-    //         end
+    assign wave = DOUT[0];
 
-    //         else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
-    //             //check if in frame to make sure its not a black pixel
-    //             kernel.pos.x = 0;
-    //             kernelPartion = 0;
-    //             kernelOdd = 0;
-    //             processImageData();
-    //         end
+    //Process Loop
+    initial frameBufferWriteRequest = 0;
+    always_ff @(posedge CLK72) begin
+        if (trainingDone == 5'b11111 & isSequencerEnabled) begin
+            if (SYNC == PYTHON_SYNC_FRAME_START) begin
+                //Note: FS replaces LS
+                isInFrame = 1;
+                kernel.pos = '{x:0, y:0};
+                kernelPartion = 0;
+                kernelOdd = 0;
+                processImageData();
+            end
 
-    //         else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
-    //             kernel.pos.y = kernel.pos.y + 1;
-    //             processImageData();
-    //         end
+            else if (SYNC == PYTHON_SYNC_FRAME_END) begin
+                debug <= 8'b10101010;
+                isInFrame = 0;
+                processImageData();
+                //TODO resetting logic?
+            end
 
-    //         else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
-    //             processImageData();
-    //         end
+            else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
+                //check if in frame to make sure its not a black pixel
+                kernel.pos.x = 0;
+                kernelPartion = 0;
+                kernelOdd = 0;
+                processImageData();
+            end
 
-    //         else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
-    //             processImageData();
-    //         end
-    //     end
-    // end
+            else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
+                kernel.pos.y = kernel.pos.y + 1;
+                processImageData();
+            end
 
-    // task processImageData();
-    //     //load partion 2 of kernel (see page 40)
-    //     if (kernelPartion) begin
-    //         if (kernelOdd) begin
-    //             //load backwards
-    //             kernel.value[0] <= DOUT[3] > 8'd128;
-    //             kernel.value[2] <= DOUT[2] > 8'd128;
-    //             kernel.value[4] <= DOUT[1] > 8'd128;
-    //             kernel.value[6] <= DOUT[0] > 8'd128;
-    //         end
-    //         else begin
-    //             //load normally
-    //             kernel.value[1] <= DOUT[0] > 8'd128;
-    //             kernel.value[3] <= DOUT[1] > 8'd128;
-    //             kernel.value[5] <= DOUT[2] > 8'd128;
-    //             kernel.value[7] <= DOUT[3] > 8'd128;
-    //         end
+            else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
+                processImageData();
+            end
+
+            else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
+                processImageData();
+            end
+        end
+    end
+
+    localparam THRESHOLD_TEMP = 8'd20;
+    task processImageData();
+        //load partion 2 of kernel (see page 40)
+        if (kernelPartion) begin
+            if (kernelOdd) begin
+                //load backwards
+                kernel.value = {
+                    DOUT[3] > THRESHOLD_TEMP, //0
+                    kernel.value[1],  //1
+                    DOUT[2] > THRESHOLD_TEMP, //2
+                    kernel.value[3],  //3
+                    DOUT[1] > THRESHOLD_TEMP, //4
+                    kernel.value[5],  //5
+                    DOUT[0] > THRESHOLD_TEMP, //6
+                    kernel.value[7]   //7
+                };
+            end
+            else begin
+                //load normally
+                kernel.value = {
+                    kernel.value[0],  //0
+                    DOUT[0] > THRESHOLD_TEMP, //1
+                    kernel.value[2],  //2
+                    DOUT[1] > THRESHOLD_TEMP, //3
+                    kernel.value[4],  //4
+                    DOUT[2] > THRESHOLD_TEMP, //5
+                    kernel.value[6],  //6
+                    DOUT[3] > THRESHOLD_TEMP  //7
+                };
+            end
             
-    //         lastKernelR[0] <= kernel;
-    //         kernel.pos.x <= kernel.pos.x + 1;
-    //         frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
+            //send kernel to blob processor
+            lastKernelR[0] <= kernel;
 
-    //         // if (DOUT[0] > 0) begin
-    //         //     debug <= DOUT[0];
-    //         // end
-    //         // debug <= {DOUT[0][1:0], DOUT[1][1:0], DOUT[2][1:0], DOUT[3][1:0]};
-    //     end
+            //send kernel to frame buffer
+            frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
+            
+            //prepare for next kernel
+            kernel.pos.x <= kernel.pos.x + 1;
+            kernelOdd <= ~kernelOdd;
+        end
 
-    //     //load partion 1 of kernel (see page 40)
-    //     else begin
-    //         if (kernelOdd) begin
-    //             //load backwards
-    //             kernel.value[1] <= DOUT[3] > 8'd128;
-    //             kernel.value[3] <= DOUT[2] > 8'd128;
-    //             kernel.value[5] <= DOUT[1] > 8'd128;
-    //             kernel.value[7] <= DOUT[0] > 8'd128;
-    //         end
-    //         else begin
-    //             //load normally
-    //             kernel.value[0] <= DOUT[0] > 8'd128;
-    //             kernel.value[2] <= DOUT[1] > 8'd128;
-    //             kernel.value[4] <= DOUT[2] > 8'd128;
-    //             kernel.value[6] <= DOUT[3] > 8'd128;
-    //         end
+        //load partion 1 of kernel (see page 40)
+        else begin
+            if (kernelOdd) begin
+                //load backwards
+                kernel.value = {
+                    kernel.value[0],  //0
+                    DOUT[3] > THRESHOLD_TEMP, //1
+                    kernel.value[2],  //2
+                    DOUT[2] > THRESHOLD_TEMP, //3
+                    kernel.value[4],  //4
+                    DOUT[1] > THRESHOLD_TEMP, //5
+                    kernel.value[6],  //6
+                    DOUT[0] > THRESHOLD_TEMP  //7
+                };
+            end
+            else begin
+                //load normally
+                kernel.value = {
+                    DOUT[0] > THRESHOLD_TEMP, //0
+                    kernel.value[1],  //1
+                    DOUT[1] > THRESHOLD_TEMP, //2
+                    kernel.value[3],  //3
+                    DOUT[2] > THRESHOLD_TEMP, //4
+                    kernel.value[5],  //5
+                    DOUT[3] > THRESHOLD_TEMP, //6
+                    kernel.value[7]   //7
+                };
+            end
 
-    //         frameBufferWriteRequest.valid <= 0;
-    //     end
+            frameBufferWriteRequest.valid <= 0;
+        end
 
-    //     kernelOdd <= ~kernelOdd;
-    //     kernelPartion <= ~kernelPartion;
-    // endtask
+        //swap kernel partion
+        kernelPartion <= ~kernelPartion;
+    endtask
 endmodule

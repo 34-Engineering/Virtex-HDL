@@ -87,13 +87,13 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     //target params
     targetMode: GROUP,
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 16'hffff,//30,
+    targetBlobXGapMax: 16'hFFFF,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 16'hffff,//30,
+    targetBlobYGapMax: 16'hFFFF,//30,
     targetAspectRatioMin: 0,//2,
-    targetAspectRatioMax: 16'hffff,//4,
+    targetAspectRatioMax: 16'hFFFF,//4,
     targetBoundAreaMin: 0,
-    targetBoundAreaMax: 16'hffff,//0xffff,
+    targetBoundAreaMax: 16'hFFFF,//0xffff,
     targetBlobAreaDiffMin: 0,
     targetBlobAreaDiffMax: 100,//100,
     targetCenterX: IMAGE_WIDTH / 2,
@@ -101,11 +101,11 @@ localparam VirtexConfig DefaultVirtexConfig = '{
 
     //blob params
     blobAspectRatioMin: 0,
-    blobAspectRatioMax: 16'hffff,
+    blobAspectRatioMax: 16'hFFFF,
     blobBoundAreaMin: 50,
-    blobBoundAreaMax: 16'hffff,
+    blobBoundAreaMax: 16'hFFFF,
     blobFullnessMin: 0,
-    blobFullnessMax: 16'hffff,
+    blobFullnessMax: 16'hFFFF,
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
     
     //reserved for future use

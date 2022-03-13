@@ -95,11 +95,11 @@ module AppManager(
         end
         lastReadDataValid <= readDataValid;
 
-        if (~writeBusy) begin
-            writeData <= wave;
-            writeDataValid <= 1;
-        end
-        else writeDataValid <= 0;
+        // if (~writeBusy & writeData != wave) begin
+        //     writeData <= wave;
+        //     writeDataValid <= 1;
+        // end
+        // else writeDataValid <= 0;
 
         if (enabled) begin
             case (state)
@@ -129,8 +129,6 @@ module AppManager(
                     //frame buffer read is clocked with ~CLK (100MHz opposite edge of CLK50/FSCLK)
                     //so there relative to this loop there is no read delay
                     //AKA an address is written and next loop data is ready
-                    //TODO optimize (AKA ^ get rid of this BS)
-                    //TODO writeQueueFull
 
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
@@ -215,7 +213,7 @@ module AppManager(
         // end
         // else frameBufferWriteEnable <= 0;
 
-        //Cross clock domain w/ 2x dff
+        //Cross clock domain w/ dff
         lastFrameBufferWriteRequest[0] <= frameBufferWriteRequest;
         lastFrameBufferWriteRequest[1] <= lastFrameBufferWriteRequest[0];
         lastFrameBufferWriteRequest[2] <= lastFrameBufferWriteRequest[1];

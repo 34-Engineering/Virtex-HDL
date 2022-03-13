@@ -13,7 +13,6 @@ app.get('/', (req: express.Request, res: express.Response) => {
 
 //Serial
 let serialPort: any | null = null;
-let buffer: Buffer | null;
 function initSerialPort() {
     serialPort = new SerialPort({
         path: '\\\\.\\COM6',
@@ -22,14 +21,22 @@ function initSerialPort() {
     });
     serialPort.on('data', onData);
     serialPort.on('error', onError);
+    serialPort.write(Buffer.from([0b00000001]));
 }
 initSerialPort();
+
+//Frame
+let frame: Buffer = Buffer.alloc(38400);
+let framePointer: number;
 function onData(newData: Buffer) {
-    // if (buffer) {
-    //     buffer = Buffer.concat([buffer, newData], buffer.length + newData.length);
-    // }
-    if (newData.length > 0) {
-        buffer = newData;
+    for (let i = 0; i < newData.length; i++) {
+        frame[framePointer] = newData[i];
+        framePointer++;
+    }
+
+    if (framePointer >= 38400) {
+        framePointer = 0;
+        serialPort.write(Buffer.from([0b00000001]));
     }
 }
 function onError(err: any) {
@@ -38,10 +45,9 @@ function onError(err: any) {
 
 //Actions
 app.use(express.json());
-app.post('/update', (req: express.Request, res: express.Response) => {
+app.post('/frame', (req: express.Request, res: express.Response) => {
     try {
-        res.send({ buffer });
-        buffer = null;
+        res.send({ frame });
     }
     catch (e) { res.send({ error: e }); }
 });

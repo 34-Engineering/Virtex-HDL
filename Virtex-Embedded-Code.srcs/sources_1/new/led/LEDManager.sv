@@ -23,7 +23,7 @@ module LEDManager(
     assign LED_IR = enabled & LED_FAULT & PWR_12V_EN;
 
     //Make RGB
-    reg [7:0] counter255 = 0, counter255B = 8'h0f;
+    reg [7:0] counter255 = 0, counter255B = 8'h0F;
     always_ff @(posedge CLK) begin
         counter255 <= counter255 + 1;
         counter255B <= counter255B + 1; //90° shift

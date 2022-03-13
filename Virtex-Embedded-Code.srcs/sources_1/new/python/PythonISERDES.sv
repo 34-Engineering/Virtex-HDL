@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "PythonUtil.sv"
 
 /* PythonISERDES- 1:8 DDR SerDes implementation for the Python 300 Sync + Data channels
     Docs
@@ -12,15 +13,17 @@ module PythonISERDES (
     input wire parallelClk,
     output wire [7:0] parallelData,
     input wire reset, //active low
-    input wire [7:0] trainingPattern,
-    output wire trainingDone //active low
+    output reg trainingDone //active low
     );
 
-    //IDELAYE2?
-    //IDELAYCTRL?
+    //TODO IDELAYE2 to line up all 5 LVDS lines?
+
+    //Bitslip (see below)
+    reg bitslip = 1;
+    initial trainingDone <= 0;
+    reg [1:0] waitCounter = 0;
 
     //ISERDESE2 Primitive (see docs)
-    reg bitslip = 0; //FIXME
     ISERDESE2 #(
         .INTERFACE_TYPE("NETWORKING"),
         .SERDES_MODE("MASTER"),
@@ -30,7 +33,7 @@ module PythonISERDES (
         .NUM_CE(2),
         .DYN_CLKDIV_INV_EN("FALSE"), 
         .DYN_CLK_INV_EN("FALSE"),
-        .IOBDELAY("IFD") // NONE, BOTH, IBUF, IFD
+        .IOBDELAY("NONE") //NONE only uses D and not DDLY (because we aren't using an IDELAYE2)
     )
     ISERDESE2_Inst (
         .SHIFTIN1(1'b0),
@@ -63,12 +66,20 @@ module PythonISERDES (
         .Q8(parallelData[7])
     );
 
-    //Bitslip w/ Training Pattern (parallelData is shifted right on posedge parallelClk while bitslip is high)
-    assign trainingDone = bitslip;
+    /*Bitslip Operation (DDR):
+     - every CLKDIV cycle bitslip is high data with either be shifted right 1 or left 3 (alternating)
+     - bitslip cannot be asserted for multiple consecutive CLKDIV cycles
+     - read delay of three clock cycles between bitslip operation and output on Q1-8 */
     always_ff @(negedge parallelClk) begin
-        //once the parallel data lines up we are done with bitsliping
-        if (bitslip & parallelData == trainingPattern) begin
-            bitslip <= 0;
+        if (~trainingDone) begin
+            //parallelData bad => bitslip again
+            bitslip <= !waitCounter & parallelData != PYTHON_TRAINING_PATTERN;
+
+            //parallelData good => we are done here
+            trainingDone <= !waitCounter & parallelData == PYTHON_TRAINING_PATTERN;
+
+            //increment wait counter
+            waitCounter <= waitCounter + 1;
         end
     end
 endmodule

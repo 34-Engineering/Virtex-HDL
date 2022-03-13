@@ -32,7 +32,9 @@ module PythonSPIManager(
     output wire [2:0] TRIGGER,
     input wire [1:0] MONITOR,
     output reg RESET_SENSOR,
-    input wire sequencerEnabled,
+    input wire sequencerEnabled, //what state they want the python to be in
+    output reg isSequencerEnabled, //what state the actual sensor is in
+    output wire isBooted,
     output reg PYTHON_300_PLL_FAULT,
     output reg [7:0] debug,
     output reg [7:0] wave
@@ -60,44 +62,61 @@ module PythonSPIManager(
 
     //State
     enum logic [1:0] {ENABLE_CLOCK_MANAGEMENT_1=0, CHECK_PLL_LOCK=1, REGISTER_UPLOAD=2, DONE=3} bootState = ENABLE_CLOCK_MANAGEMENT_1;
+    assign isBooted = bootState == DONE;
     reg [7:0] commandNumber = 0; //which SPI command we are on in the current stage
     wire [4:0] commandPointer = sequencePointer - 1; //where we are in the PythonSPICommand
     reg [15:0] response = 0; //response data for check PLL lock
-    reg isSequencerEnabled = 0; //the actual sequencer state of the python
+    reg currentSequencerEnabled = 0; //what sequencer state we are currently setting to
     wire wantsToSetSequencer = bootState == DONE & sequencerEnabled != isSequencerEnabled; //we need to write enable/disable sequencer
+    initial isSequencerEnabled = 0;
     reg reset = 0;
     assign RESET_SENSOR = reset;
 
-    assign wave = response[7:0];
-    initial debug = 0;
-
     //SPI Loop
+    reg [7:0] counter = 0;
+    reg last = 0;
     always_ff @(negedge CLK10) begin
-        //pull down reset_n after 10us
+        //Pull Down Reset
         if (~reset) begin
             reset <= 1;
         end
 
         //Read/Write Sequence Data (address + read/write + word)
         else if (inSequence) begin
+            //Enable Clock Management 1
+            if (bootState == ENABLE_CLOCK_MANAGEMENT_1 & ~isBlanking) begin
+                //write all commands [0:25]
+                SPI_MOSI <= enableClockManagement1[commandNumber][PythonSPICommandEndIndex - commandPointer];
+
+                //finish @ 25
+                if (commandPointer == PythonSPICommandEndIndex) begin
+                    if (commandNumber == ($size(enableClockManagement1) - 1)) begin
+                        //go to next stage
+                        bootState <= bootState.next;
+                        commandNumber <= 0;
+                    end
+                    else begin
+                        //go to next command
+                        commandNumber <= commandNumber + 1;
+                    end
+                end
+            end
+
             //Check PLL Lock
-            if (bootState == CHECK_PLL_LOCK & ~isBlanking) begin
-                 if (commandPointer < 10) begin
+            else if (bootState == CHECK_PLL_LOCK) begin
+                //write request [0:9]
+                if (commandPointer < 10) begin
                     SPI_MOSI <= checkPLLLockStatus[PythonSPICommandEndIndex - commandPointer];
                 end
 
                 //read response [11:26] (bc MISO is delayed 1 clock cycle relative to us)
-                else if (commandPointer > 10) begin
-                    if (SPI_MISO != 0) begin
-                        debug <= 8'b10100101;
-                    end
+                else if (commandPointer > 10 & commandPointer < 27) begin
+                    //blocking because we immediately use response below
                     response[commandPointer - 11] = SPI_MISO;
                 end
 
                 //finish @ 26
                 if (commandPointer == PythonSPICommandEndIndex+1) begin
-                    // response = 1;
-
                     //PLL not unlocked
                     if (response == 0) begin
                         //do command again
@@ -119,29 +138,14 @@ module PythonSPIManager(
                 end
             end
 
-            //Done (enable/disable sequencer)
-            else if (bootState == DONE & ~isBlanking) begin
-                //write command [0:25]
-                SPI_MOSI <= enableDisableSequencer[isSequencerEnabled][PythonSPICommandEndIndex - commandPointer];
-
-                //finish @ 25
-                if (commandPointer == PythonSPICommandEndIndex) begin
-                    isSequencerEnabled <= sequencerEnabled;
-                end
-            end
-
-            //Enable Clock Management 1 & Register Upload
-            else if (~isBlanking) begin
+            //Register Upload
+            else if (bootState == REGISTER_UPLOAD & ~isBlanking) begin
                 //write all commands [0:25]
-                if (bootState == REGISTER_UPLOAD)
-                    SPI_MOSI <= powerUpSequenceRegisterUpload[commandNumber][PythonSPICommandEndIndex - commandPointer];
-                else SPI_MOSI <= enableClockManagement1[commandNumber][PythonSPICommandEndIndex - commandPointer];
+                SPI_MOSI <= powerUpSequenceRegisterUpload[commandNumber][PythonSPICommandEndIndex - commandPointer];
 
                 //finish @ 25
                 if (commandPointer == PythonSPICommandEndIndex) begin
-                    if (bootState == REGISTER_UPLOAD ?
-                        commandNumber == $size(powerUpSequenceRegisterUpload) - 1 : 
-                        commandNumber == $size(enableClockManagement1) - 1) begin
+                    if (commandNumber == ($size(powerUpSequenceRegisterUpload) - 1)) begin
                         //go to next stage
                         bootState <= bootState.next;
                         commandNumber <= 0;
@@ -150,6 +154,18 @@ module PythonSPIManager(
                         //go to next command
                         commandNumber <= commandNumber + 1;
                     end
+                end
+            end
+
+            //Done (enable/disable sequencer)
+            else if (bootState == DONE & ~isBlanking) begin
+                //write command [0:25]
+                SPI_MOSI <= enableDisableSequencer[currentSequencerEnabled][PythonSPICommandEndIndex - commandPointer];
+
+                //finish @ 25
+                if (commandPointer == PythonSPICommandEndIndex) begin
+                    //flag what state the sensor is now in
+                    isSequencerEnabled <= currentSequencerEnabled;
                 end
             end
 
@@ -164,6 +180,12 @@ module PythonSPIManager(
         else if (bootState != DONE | wantsToSetSequencer) begin
             inSequence <= 1;
             sequencePointer <= 0;
+
+            if (wantsToSetSequencer) begin
+                //save what state we are setting to for transaction
+                //in case sequencerEnabled changes mid transaction
+                currentSequencerEnabled <= sequencerEnabled;
+            end
         end
     end
 endmodule

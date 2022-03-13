@@ -7,8 +7,8 @@
 `include "../util/Constants.sv"
 `include "../util/Math.sv"
 
-//8-bit Kernel
-typedef struct packed {
+//Kernel
+typedef struct packed { //29-bit
     logic [7:0] value; //threshold
     Vector pos; //(0, 0) to (79, 479)
     logic valid;
@@ -16,15 +16,15 @@ typedef struct packed {
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 
 //Default SYNC Channel Codes (Frame Sync + Data Classification)
-localparam PYTHON_SYNC_FRAME_START = 8'haa;
-localparam PYTHON_SYNC_FRAME_END = 8'hca;
-localparam PYTHON_SYNC_LINE_START = 8'h2a;
-localparam PYTHON_SYNC_LINE_END = 8'h4a;
+localparam PYTHON_SYNC_FRAME_START = 8'hAA;
+localparam PYTHON_SYNC_FRAME_END = 8'hCA;
+localparam PYTHON_SYNC_LINE_START = 8'h2A;
+localparam PYTHON_SYNC_LINE_END = 8'h4A;
 localparam PYTHON_SYNC_BLACK = 8'h05; //black pixels
-localparam PYTHON_SYNC_IMAGE = 8'h0d; //valid pixels
+localparam PYTHON_SYNC_IMAGE = 8'h0D; //valid pixels
 localparam PYTHON_SYNC_CRC = 8'h16; //checksum
 localparam PYTHON_SYNC_MAIN_WINDOW_ID = 8'h00;
-localparam PYTHON_TRAINING_PATTERN = 8'he9; //training pattern for SYNC + DOUT
+localparam PYTHON_TRAINING_PATTERN = 8'hE9; //training pattern for SYNC + DOUT
 
 //SPI Commands
 typedef struct packed { //26-bit
@@ -34,11 +34,11 @@ typedef struct packed { //26-bit
 } PythonSPICommand;
 localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
-localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
 localparam PythonSPICommand disableSequencer = '{192, 1, 16'h0800};
-localparam PythonSPICommand enableDisableSequencer [2] = {disableSequencer, enableSequencer};
+localparam PythonSPICommand enableSequencer = '{192, 1, 16'h080D}; //master pipelined ZROT mode
+localparam PythonSPICommand enableDisableSequencer [2] = '{disableSequencer, enableSequencer};
 
-localparam PythonSPICommand checkPLLLockStatus = '{9'd24, 0, 0};
+localparam PythonSPICommand checkPLLLockStatus = '{24, 0, 0};
 
 localparam logic [8:0] setBlackOffsetAddress = 128;
 localparam logic [8:0] setAnalogGainAddress = 204;
@@ -47,10 +47,10 @@ localparam logic [8:0] setExposureAddress = 201;
 
 localparam PythonSPICommand enableClockManagement1 [9] = '{
     '{2, 1, 16'h0000},     // chip confirugre LVDS monochrome
-    '{17, 1, 16'h210f},    // configure PLL
+    '{17, 1, 16'h210F},    // configure PLL
     '{20, 1, 16'h0000},    // configure internal clocking
     '{26, 1, 16'h1180},    // configure PLL lock detector
-    '{27, 1, 16'hccbc},    // configure PLL lock detector
+    '{27, 1, 16'hCCBC},    // configure PLL lock detector
     '{32, 1, 16'h400C},
     '{16, 1, 16'h0003},    // PLL release soft reset
     '{8, 1, 16'h0090},     // reset PLL lock detect
@@ -65,11 +65,11 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
 
     //******************       requiredRegisterUpload      **********************\\
     // power and bias config
-    '{41, 1, 16'h085f},
+    '{41, 1, 16'h085F},
     '{42, 1, 16'h4110},
     '{43, 1, 16'h0008},
-    '{65, 1, 16'h383b},
-    '{66, 1, 16'h53c8},	// AFE_bias
+    '{65, 1, 16'h383B},
+    '{66, 1, 16'h53C8},	// AFE_bias
     '{67, 1, 16'h0665},	// mux_bias
     '{69, 1, 16'h0088},	// ADC_bias
     '{68, 1, 16'h0085},
@@ -86,13 +86,13 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     '{169, 1, 16'h0800},	// AEC min gain configuration
     '{171, 1, 16'h1002},	// AEC max gain configuration
     '{250, 1, 16'h2081},	// AEC gain_stage_1 LUT - ZROT
-    '{251, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 1
-    '{252, 1, 16'h0f0f},	// AEC gain_stage_2 LUT part 2
+    '{251, 1, 16'h0F0F},	// AEC gain_stage_2 LUT part 1
+    '{252, 1, 16'h0F0F},	// AEC gain_stage_2 LUT part 2
     
     // sequencer config
     disableSequencer,
     '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
-    '{194, 1, 16'h02e4},	// Integration control (ft_mode = 1)
+    '{194, 1, 16'h02E4},	// Integration control (ft_mode = 1)
     '{setExposureAddress, 1, 30000},	// Exposure_0 1 ms (following frames) //duplicated in DefaultVirtexConfig
     '{232, 1, 30000},	// Exposure_1 1 ms (current frame) //duplicated in DefaultVirtexConfig
     
@@ -110,11 +110,11 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     '{236, 1, 128},	// Digital_gain_1 (current frame) //duplicated in DefaultVirtexConfig
     
     //////// program space ////////
-    '{211, 1, 16'h0e49},   // no mux
-    '{215, 1, 16'h111f},
-    '{216, 1, 16'h7f00},
+    '{211, 1, 16'h0E49},   // no mux
+    '{215, 1, 16'h111F},
+    '{216, 1, 16'h7F00},
     '{219, 1, 16'h0020},
-    '{224, 1, 16'h3e5e},
+    '{224, 1, 16'h3E5E},
 
     //////// FOT program space ////////
     '{384, 1, 16'hC800},
@@ -236,14 +236,14 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     '{112, 1, 16'h0007}	// Enable LVDS transmitters
 };
 
-// localparam PythonSPICommand softPowerDown [6:0] = '{
-//     '{112, 1, 16'h0000}, // Disable LVDS transmitters
-//     '{48, 1, 16'h0000},	 // Disable AFE
-//     '{32, 1, 16'h700E},	 // Disable analog clock
-//     '{40, 1, 16'h0000},	 // Disable column multiplexer
-//     '{72, 1, 16'h0010},	 // Disable charge pump
-//     '{64, 1, 16'h0000},	 // Disable biasing block
-//     '{10, 1, 16'h0999}	 // Soft reset
-// };
+localparam PythonSPICommand softPowerDown [7] = '{
+    '{112, 1, 16'h0000}, // Disable LVDS transmitters
+    '{48, 1, 16'h0000},	 // Disable AFE
+    '{32, 1, 16'h700E},	 // Disable analog clock
+    '{40, 1, 16'h0000},	 // Disable column multiplexer
+    '{72, 1, 16'h0010},	 // Disable charge pump
+    '{64, 1, 16'h0000},	 // Disable biasing block
+    '{10, 1, 16'h0999}	 // Soft reset
+};
 
 `endif

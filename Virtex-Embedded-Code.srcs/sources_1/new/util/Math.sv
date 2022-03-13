@@ -52,8 +52,8 @@ function automatic logic [23:0] calcQuadArea(Quad quad);
     logic [23:0] total = 0;
     for (integer i = 0; i < 4; i = i + 1) begin
         total = total +
-        ((points[i].x * points[i === 3 ? 0 : i+1].y) >> 1) - 
-        ((points[i === 3 ? 0 : i+1].x * points[i].y) >> 1);
+        ((points[i].x * points[i == 3 ? 0 : i+1].y) >> 1) - 
+        ((points[i == 3 ? 0 : i+1].x * points[i].y) >> 1);
     end
     return total > 0 ? total : -total;
 endfunction
