@@ -13,6 +13,11 @@ typedef struct packed { //29-bit
     Vector pos; //(0, 0) to (79, 479)
     logic valid;
 } Kernel;
+typedef struct packed {
+    logic [7:0] [3:0] value;
+    Vector pos; //(0, 0) to (79, 479)
+    logic valid;
+} KernelMono;
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 
 //Default SYNC Channel Codes (Frame Sync + Data Classification)
@@ -76,12 +81,13 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     '{70, 1, 16'h1111},
     '{72, 1, 16'h0010},
     
-    // black offset config
-    '{setBlackOffsetAddress, 1, {1'b0, 4'd8, 3'b0, 8'd8}}, //duplicated in DefaultVirtexConfig
+    // black offset config {crc_seed, reserved, black_samples, black_offset}
+    '{setBlackOffsetAddress, 1, 16'h3608},//{1'b0, 4'd8, 3'b0, 8'd8}}, //duplicated in DefaultVirtexConfig
     '{197, 1, 16'h0102},	// Black lines (2 black lines, 1 gated)
     '{129, 1, 16'h8001},	// 8-bit mode - auto_black cal
     
     // AEC config
+    //NOTE: unused
     '{160, 1, 16'h0010},    // disable AEC
     '{169, 1, 16'h0800},	// AEC min gain configuration
     '{171, 1, 16'h1002},	// AEC max gain configuration
@@ -93,21 +99,35 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     disableSequencer,
     '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
     '{194, 1, 16'h02E4},	// Integration control (ft_mode = 1)
-    '{setExposureAddress, 1, 30000},	// Exposure_0 1 ms (following frames) //duplicated in DefaultVirtexConfig
-    '{232, 1, 30000},	// Exposure_1 1 ms (current frame) //duplicated in DefaultVirtexConfig
+    '{setExposureAddress   , 1, 16'h0064},//30000},	// Exposure_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setExposureAddress+31, 1, 16'h0064},//30000},	// Exposure_1 (current frame)    //duplicated in DefaultVirtexConfig
     
     // fr_length & mult_timer config (Python 300}, ZROT
     //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"
-    '{199, 1, 16'd2},	    // Mult_timer_0 (following frames)
-    '{230, 1, 16'd2},	    // Mult_timer_1 (current frame)
-    '{200, 1, 16'd41500},	// Fr_length_0 (following frames)
-    '{231, 1, 16'd41500},	// Fr_length_1 (current frame)
+    '{199, 1, 16'h00b2},//16'd2},	    // Mult_timer_0 (following frames)
+    '{230, 1, 16'h00b2},//16'd2},	    // Mult_timer_1 (current frame)
+    '{200, 1, 16'h021c},//16'd41500},	// Fr_length_0 (following frames)
+    '{231, 1, 16'h021c},//16'd41500},	// Fr_length_1 (current frame)
     
-    // gain config
-    '{setAnalogGainAddress, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
-    '{235, 1, {2'b0, 1'b0, 8'd15, 5'd1}},	// Analog_gain_1 (current frame) //duplicated in DefaultVirtexConfig
-    '{setDigitalGainAddress, 1, 128},	// Digital_gain_0 (following frames) //duplicated in DefaultVirtexConfig
-    '{236, 1, 128},	// Digital_gain_1 (current frame) //duplicated in DefaultVirtexConfig
+    /*
+    0x01E3 1111 00011
+    0x01E1 1111 00001
+    0x01E4 1111 00100
+    0x01E8 1111 01000 */
+
+    //Analog Gain (course): {reserved, gain_lat_comp (0=apply next frame), afe_gain0, mux_gainsw0 (extra course)}
+    '{setAnalogGainAddress    , 1, 16'h01e1},//{2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setAnalogGainAddress+31 , 1, 16'h01e1},//{2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
+    
+    //54321.7654321
+    //00001 0000000
+
+    // 7   6   5   4    3    2    1
+    //1/2 1/4 1/8 1/16 1/32 1/64 1/128
+
+    //Digital Gain (fine): [11:0], Q5.7
+    '{setDigitalGainAddress   , 1, 16'h0080},//12'b00001_0000000}, // Digital_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setDigitalGainAddress+31, 1, 16'h0080},//12'b00001_0000000}, // Digital_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
     
     //////// program space ////////
     '{211, 1, 16'h0E49},   // no mux

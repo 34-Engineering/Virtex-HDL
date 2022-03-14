@@ -13,14 +13,11 @@ module LEDManager(
     input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON, PWR_12V_EN,
     input wire enabled, hasCommunication,
-    input wire Target target,
-    input wire [7:0] debug
+    input wire Target target
+    // input wire [7:0] debug
     );
 
     localparam brightness = 8'd2;
-
-    //IR Led Ring (on when enabled, no fault, and 12V power)
-    assign LED_IR = enabled & LED_FAULT & PWR_12V_EN;
 
     //Make RGB
     reg [7:0] counter255 = 0, counter255B = 8'h0F;
@@ -38,7 +35,39 @@ module LEDManager(
         };
     endfunction
 
+    //IR Led Ring (on when enabled, no fault, and 12V power)
+    reg fault = 0;
+    reg clearedFault = 0;
+    reg [26:0] faultTimer = 0;
+    reg [7:0] tb = 0;
+    assign LED_IR = 0;//enabled & tb == 0; //~fault//~PWR_12V_EN;
+    always @(posedge CLK) begin
+        tb <= tb + 1;
+
+        faultTimer <= faultTimer + 1;
+
+        //flag fault (delay 10ms if we just cleared it)
+        if (~fault & ~LED_FAULT & (~clearedFault | faultTimer > 24'd10000000)) begin
+            fault <= 1;
+            clearedFault <= 0;
+            faultTimer <= 0;
+        end
+
+        //clear fault after 100ms //TODO is this bad?? //TODO only if no fault rn/reset timer on fault?
+        else if (fault & faultTimer == 27'd100000000) begin
+            fault <= 0;
+            clearedFault <= 1;
+            faultTimer <= 0;
+        end
+
+        //clear clear fault after 100ms
+        if (clearedFault & faultTimer == 27'd100000000) begin
+            clearedFault <= 0;
+        end
+    end
+
     //Status LEDs
+    wire [7:0] debug = {4'b100, USB_ON, enabled, LED_FAULT, PWR_12V_EN, LED_IR};
     assign LED_PWR = ~makeRGBA(debug[7]?255:0, debug[6]?255:0, 0, brightness);
     assign LED_EN  = ~makeRGBA(debug[5]?255:0, debug[4]?255:0, 0, brightness);
     assign LED_TAR = ~makeRGBA(debug[3]?255:0, debug[2]?255:0, 0, brightness);

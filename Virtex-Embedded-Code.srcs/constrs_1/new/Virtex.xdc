@@ -114,7 +114,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports {LED_*}]
 
 # Power Data
 set_property PACKAGE_PIN N16 [get_ports {PWR_12V_EN}]
-set_property IOSTANDARD LVCMOS33 [get_ports {PWR_*}]
+set_property PULLTYPE PULLDOWN [get_ports {PWR_12V_EN}]
+set_property IOSTANDARD LVCMOS33 [get_ports {PWR_12V_EN}]
 
 # Python/Image Sensor LVDS
 set_property PACKAGE_PIN J5 [get_ports {PYTHON_CLK_P}]

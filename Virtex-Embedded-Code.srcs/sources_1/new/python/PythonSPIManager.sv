@@ -72,6 +72,8 @@ module PythonSPIManager(
     reg reset = 0;
     assign RESET_SENSOR = reset;
 
+    //TODO update virtexConfig live
+
     //SPI Loop
     reg [7:0] counter = 0;
     reg last = 0;

@@ -53,14 +53,14 @@ module Top(
     );
 
     //Master (wires + registers)
-    wire enabled;
+    wire enabled = 1;
     wire bootDone;
     wire hasCommunication;
     Faults faults;
     wire VirtexConfig virtexConfig = DefaultVirtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
     wire Target target;
-    Kernel frameBufferWriteRequest;
+    KernelMono frameBufferWriteRequest;
     wire [7:0] debug;
     wire [7:0] wave;
 
@@ -164,8 +164,8 @@ module Top(
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
         .hasCommunication(hasCommunication),
-        .target(0),
-        .debug(debug)
+        .target(0)
+        // .debug(debug)
     );
     
 endmodule

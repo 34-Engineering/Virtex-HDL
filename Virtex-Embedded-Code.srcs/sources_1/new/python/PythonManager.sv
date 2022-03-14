@@ -56,7 +56,7 @@ module PythonManager(
     output wire RESET_SENSOR, //active low
     input wire sequencerEnabled,
     input wire VirtexConfig virtexConfig,
-    output Kernel frameBufferWriteRequest,
+    output KernelMono frameBufferWriteRequest,
     output wire Target target,
     output wire PYTHON_300_PLL_FAULT,
     output reg OUT_OF_BLOB_MEM_FAULT,
@@ -78,6 +78,7 @@ module PythonManager(
     reg kernelOdd; //whether the kernel x coordinate is odd (kernel is read out backwards)
     reg kernelPartion;
     Kernel kernel = 0; //the current kernel we are working on
+    logic [7:0] [3:0] kernelMonoValue = 0;
     reg isInFrame; //whether the processor is in frame
 
     //Generate 72MHz Parallel Clock from 288MHz Input Clock
@@ -237,36 +238,32 @@ module PythonManager(
         if (kernelPartion) begin
             if (kernelOdd) begin
                 //load backwards
-                kernel.value = {
-                    DOUT[3] > THRESHOLD_TEMP, //0
-                    kernel.value[1],  //1
-                    DOUT[2] > THRESHOLD_TEMP, //2
-                    kernel.value[3],  //3
-                    DOUT[1] > THRESHOLD_TEMP, //4
-                    kernel.value[5],  //5
-                    DOUT[0] > THRESHOLD_TEMP, //6
-                    kernel.value[7]   //7
-                };
+                kernel.value[0] = DOUT[3] > THRESHOLD_TEMP;
+                kernel.value[2] = DOUT[2] > THRESHOLD_TEMP;
+                kernel.value[4] = DOUT[1] > THRESHOLD_TEMP;
+                kernel.value[6] = DOUT[0] > THRESHOLD_TEMP;
+                kernelMonoValue[0] = DOUT[3][7:4];
+                kernelMonoValue[2] = DOUT[2][7:4];
+                kernelMonoValue[4] = DOUT[1][7:4];
+                kernelMonoValue[6] = DOUT[0][7:4];
             end
             else begin
                 //load normally
-                kernel.value = {
-                    kernel.value[0],  //0
-                    DOUT[0] > THRESHOLD_TEMP, //1
-                    kernel.value[2],  //2
-                    DOUT[1] > THRESHOLD_TEMP, //3
-                    kernel.value[4],  //4
-                    DOUT[2] > THRESHOLD_TEMP, //5
-                    kernel.value[6],  //6
-                    DOUT[3] > THRESHOLD_TEMP  //7
-                };
+                kernel.value[1] = DOUT[0] > THRESHOLD_TEMP;
+                kernel.value[3] = DOUT[1] > THRESHOLD_TEMP;
+                kernel.value[5] = DOUT[2] > THRESHOLD_TEMP;
+                kernel.value[7] = DOUT[3] > THRESHOLD_TEMP;
+                kernelMonoValue[1] = DOUT[0][7:4];
+                kernelMonoValue[3] = DOUT[1][7:4];
+                kernelMonoValue[5] = DOUT[2][7:4];
+                kernelMonoValue[7] = DOUT[3][7:4];
             end
             
             //send kernel to blob processor
-            lastKernelR[0] <= kernel;
+            lastKernelR[0] = kernel;
 
             //send kernel to frame buffer
-            frameBufferWriteRequest <= '{ value: kernel.value, pos: kernel.pos, valid: 1 };
+            frameBufferWriteRequest = '{ value: kernelMonoValue, pos: kernel.pos, valid: 1 };
             
             //prepare for next kernel
             kernel.pos.x <= kernel.pos.x + 1;
@@ -277,29 +274,25 @@ module PythonManager(
         else begin
             if (kernelOdd) begin
                 //load backwards
-                kernel.value = {
-                    kernel.value[0],  //0
-                    DOUT[3] > THRESHOLD_TEMP, //1
-                    kernel.value[2],  //2
-                    DOUT[2] > THRESHOLD_TEMP, //3
-                    kernel.value[4],  //4
-                    DOUT[1] > THRESHOLD_TEMP, //5
-                    kernel.value[6],  //6
-                    DOUT[0] > THRESHOLD_TEMP  //7
-                };
+                kernel.value[1] <= DOUT[3] > THRESHOLD_TEMP;
+                kernel.value[3] <= DOUT[2] > THRESHOLD_TEMP;
+                kernel.value[5] <= DOUT[1] > THRESHOLD_TEMP;
+                kernel.value[7] <= DOUT[0] > THRESHOLD_TEMP;
+                kernelMonoValue[1] <= DOUT[3][7:4];
+                kernelMonoValue[3] <= DOUT[2][7:4];
+                kernelMonoValue[5] <= DOUT[1][7:4];
+                kernelMonoValue[7] <= DOUT[0][7:4];
             end
             else begin
                 //load normally
-                kernel.value = {
-                    DOUT[0] > THRESHOLD_TEMP, //0
-                    kernel.value[1],  //1
-                    DOUT[1] > THRESHOLD_TEMP, //2
-                    kernel.value[3],  //3
-                    DOUT[2] > THRESHOLD_TEMP, //4
-                    kernel.value[5],  //5
-                    DOUT[3] > THRESHOLD_TEMP, //6
-                    kernel.value[7]   //7
-                };
+                kernel.value[0] <= DOUT[0] > THRESHOLD_TEMP;
+                kernel.value[2] <= DOUT[1] > THRESHOLD_TEMP;
+                kernel.value[4] <= DOUT[2] > THRESHOLD_TEMP;
+                kernel.value[6] <= DOUT[3] > THRESHOLD_TEMP;
+                kernelMonoValue[0] <= DOUT[0][7:4];
+                kernelMonoValue[2] <= DOUT[1][7:4];
+                kernelMonoValue[4] <= DOUT[2][7:4];
+                kernelMonoValue[6] <= DOUT[3][7:4];
             end
 
             frameBufferWriteRequest.valid <= 0;

@@ -27,15 +27,23 @@ function initSerialPort() {
 }
 initSerialPort();
 //Frame
-var frame = Buffer.alloc(38400);
-var framePointer;
+var frames = [
+    Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400),
+    Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400)
+];
+var framePointer = 0;
+var frameNumber = 0;
 function onData(newData) {
     for (var i = 0; i < newData.length; i++) {
-        frame[framePointer] = newData[i];
+        frames[frameNumber][framePointer] = newData[i];
         framePointer++;
     }
     if (framePointer >= 38400) {
         framePointer = 0;
+        if (frameNumber == 7)
+            frameNumber = 0;
+        else
+            frameNumber++;
         serialPort.write(Buffer.from([1]));
     }
 }
@@ -46,7 +54,7 @@ function onError(err) {
 app.use(express_1["default"].json());
 app.post('/frame', function (req, res) {
     try {
-        res.send({ frame: frame });
+        res.send({ frames: frames });
     }
     catch (e) {
         res.send({ error: e });

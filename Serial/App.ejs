@@ -6,7 +6,6 @@
     <meta charset="utf-8">
     <meta content="text/html" http-equiv="Content-Type">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="../Scripting/assets/34E_square128.png">
     <meta name="title" content="Virtex Serial Testing">
 
     <style>
@@ -38,96 +37,71 @@
         .canvas-wrapper {
             width: 100vw;
             height: 100vh;
-            padding: 50px;
+            /* padding: 50px; */
         }
 
-        .canvas {
-            width: 100%;
-            height: 100%;
+        #canvas {
+            height: 100vh;
+            border: 1px solid red;
             display: block;
+            background: black;
         }
     </style>
 </head>
 
 <body>
     <div class="canvas-wrapper">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" width="640" height="480"></canvas>
     </div>
 
     <script>
         const canvasWrapper = document.querySelector('.canvas-wrapper');
         const canvas = document.querySelector('#canvas');
-        const chart = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
 
-        const colors = ['red', 'gold', 'green', 'yellow', 'pink', 'cyan', 'purple', 'white'];
-        const paddingY = 20;
+        //Draw Frame
+        function getBit(number, bitPosition) {
+            return (number & (1 << bitPosition)) === 0 ? 0:1;
+        }
 
-        const datasets = 8;
-        let dataWidth = 100;
-        let data = new Array(dataWidth).fill(0b10010001);
-
-        //Draw Canvas
-        function drawCanvas() {
-            chart.clearRect(0, 0, canvas.width, canvas.height);
-            const width = canvas.width - 1;
-            const height = canvas.height - 1;
-            const stepY = (height - (datasets * paddingY)) / (datasets - 1);
-            const stepX = width / (dataWidth);
-
-            //draw every dataset
-            for (let d = 0; d < datasets; d++) {
-                const yHigh = (stepY * d) + (paddingY / 2.0);
-                const yLow = (stepY * (d + 1)) - (paddingY / 2.0);
-                chart.beginPath();
-                chart.moveTo(0, yLow);
-                for (let i = 0, lastX = 0; i <= dataWidth; i++) {
-                    let x = stepX * (i + 1);
-                    let y = (data[i] & (1 << (7-d))) === 0 ? yLow : yHigh;
-                    chart.lineTo(lastX, y);
-                    chart.lineTo(x, y);
-                    lastX = x;
+        let frames = [
+            new Array(80 * 480), new Array(80 * 480), new Array(80 * 480), new Array(80 * 480),
+            new Array(80 * 480), new Array(80 * 480), new Array(80 * 480), new Array(80 * 480)
+        ];
+        function drawFrame() {
+            const img = ctx.createImageData(640, 480);
+            for (let i = 0; i < frames[0].length; i++) {
+                for (let b = 0; b < 8; b++) {
+                    let str = "";
+                    for (let f = 0; f < 8; f++) {
+                        str += getBit(frames[f][i], 7-b);
+                    }
+                    const val = parseInt(str, 2);
+                    console.log(val);
+                    const idx = ((i << 3) + (7-b)) << 2;
+                    img.data[idx + 0] = val;
+                    img.data[idx + 1] = val;
+                    img.data[idx + 2] = val;
+                    img.data[idx + 3] = 255;
                 }
-                chart.strokeStyle = colors[d];
-                chart.strokeWidth = 2;
-                chart.stroke();
             }
+            ctx.putImageData(img, 0, 0);
         }
-        drawCanvas();
-
-        //Redraw Canvas on Resize
-        function resizeCanvas() {
-            canvas.width = canvasWrapper.clientWidth -
-                parseFloat(getComputedStyle(canvasWrapper).paddingLeft) -
-                parseFloat(getComputedStyle(canvasWrapper).paddingRight);
-            canvas.height = canvasWrapper.clientHeight -
-                parseFloat(getComputedStyle(canvasWrapper).paddingTop) -
-                parseFloat(getComputedStyle(canvasWrapper).paddingBottom);
-            drawCanvas();
-        }
-        window.addEventListener('resize', resizeCanvas, false);
-        resizeCanvas();
+        drawFrame();
 
         //POST Request + Update UI based on Response
         const sleep = ms => new Promise(r => setTimeout(r, ms));
         async function main() {
-            // while (1) {
-                const {
-                    buffer
-                } = await post('/update', {});
-                if (buffer) {
-                    const newData = buffer.data;
-                    console.log(newData);
-
-                    for (let i = 0; i < newData.length; i++) {
-                        data.push(newData[i]);
-                        if (data.length > dataWidth) {
-                            data.shift();
-                        }
-                        drawCanvas();
-                        await sleep(100);
+            while (1) {
+                const newFrames = (await post('/frame', {})).frames;
+                if (newFrames) {
+                    for (let i = 0; i < 8; i++) {
+                        frames[i] = newFrames[i].data;
                     }
+                    drawFrame();
+                    await sleep(0.1);
                 }
-            // }
+            }
         }
         main();
 

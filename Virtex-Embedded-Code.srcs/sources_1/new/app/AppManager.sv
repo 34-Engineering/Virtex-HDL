@@ -18,7 +18,7 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input Kernel frameBufferWriteRequest,
+    input KernelMono frameBufferWriteRequest,
     output reg [7:0] debug,
     input reg [7:0] wave
     );
@@ -36,7 +36,7 @@ module AppManager(
     //Frame buffer
     wire CLKInv = ~CLK;
     reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
-    reg [7:0] frameBufferReadOut, frameBufferWriteIn;
+    reg [31:0] frameBufferReadOut, frameBufferWriteIn;
     reg frameBufferWriteEnable = 0;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
         .addra(frameBufferAddrRead),
@@ -82,6 +82,7 @@ module AppManager(
 
     //Loop
     reg [15:0] getFrameIndex = 0;
+    reg [1:0] getFramePartion = 0;
     reg [5:0] configAddress = 0;
     reg [15:0] configData = 0;
     reg configPartion = 0;
@@ -137,20 +138,27 @@ module AppManager(
 
                     else if (~writeBusy) begin
                         //send kernel to PC
-                        writeData <= frameBufferReadOut;
+                        if (getFramePartion == 0) writeData <= frameBufferReadOut[7:0];
+                        if (getFramePartion == 1) writeData <= frameBufferReadOut[15:8];
+                        if (getFramePartion == 2) writeData <= frameBufferReadOut[23:16];
+                        if (getFramePartion == 3) writeData <= frameBufferReadOut[31:24];
                         writeDataValid <= 1;
 
-                        if (getFrameIndex < 80 * 480 - 1) begin //38400 loops so [0:38399], if we get here @ 38399 we are done
-                            //read next kernel
-                            frameBufferAddrRead <= getFrameIndex + 1;
+                        if (getFramePartion == 3) begin
+                            if (getFrameIndex < 80 * 480 * 4 - 1) begin //153600 loops so [0:153599]
+                                //read next kernel
+                                frameBufferAddrRead <= getFrameIndex + 1;
 
-                            //increment index
-                            getFrameIndex <= getFrameIndex + 1;
+                                //increment index
+                                getFrameIndex <= getFrameIndex + 1;
+                            end
+                            else begin
+                                //finish reading frame
+                                state <= IDLE;
+                            end
                         end
-                        else begin
-                            //finish reading frame
-                            state <= IDLE;
-                        end
+
+                        getFramePartion <= getFramePartion + 1;
                     end
                 end
 

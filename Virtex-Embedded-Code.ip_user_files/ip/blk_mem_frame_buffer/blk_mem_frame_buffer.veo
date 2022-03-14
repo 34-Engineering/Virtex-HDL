@@ -58,13 +58,13 @@ blk_mem_frame_buffer your_instance_name (
   .clka(clka),    // input wire clka
   .wea(wea),      // input wire [0 : 0] wea
   .addra(addra),  // input wire [15 : 0] addra
-  .dina(dina),    // input wire [7 : 0] dina
-  .douta(douta),  // output wire [7 : 0] douta
+  .dina(dina),    // input wire [31 : 0] dina
+  .douta(douta),  // output wire [31 : 0] douta
   .clkb(clkb),    // input wire clkb
   .web(web),      // input wire [0 : 0] web
   .addrb(addrb),  // input wire [15 : 0] addrb
-  .dinb(dinb),    // input wire [7 : 0] dinb
-  .doutb(doutb)  // output wire [7 : 0] doutb
+  .dinb(dinb),    // input wire [31 : 0] dinb
+  .doutb(doutb)  // output wire [31 : 0] doutb
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
