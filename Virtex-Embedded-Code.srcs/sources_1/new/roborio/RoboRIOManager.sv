@@ -84,7 +84,7 @@ module RoboRIOManager(
         if (command == GET_BLOB & byteNumber < 9) begin
             //splits the ?-bit Target into ?x 8-bit sections
             //FIXME target size
-            writeData <= target[63 - (byteNumber*8) -: 7];
+            writeData <= target[63 - (byteNumber*8) -: 8];
             byteNumber <= byteNumber + 1;
         end
         else if (command == GET_BLOB) begin
@@ -110,7 +110,7 @@ module RoboRIOManager(
         if (commandIsGetConfig & byteNumber < 2) begin
             //finds the config register index w/ * 16
             //then split 16-bit config into [15:8] & [7:0]
-            writeData <= virtexConfig[(command[5:1]*16) + (byteNumber*8+7) -: 7];
+            writeData <= virtexConfig[(command[5:1]*16) + (byteNumber*8+7) -: 8];
             byteNumber <= byteNumber + 1;
         end
         else if (commandIsGetConfig) begin

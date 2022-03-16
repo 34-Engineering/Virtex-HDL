@@ -18,7 +18,9 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input wire VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
-    input KernelMono frameBufferWriteRequest,
+    input wire [15:0] frameBufferWriteAddr,
+    input wire [31:0] frameBufferWriteIn,
+    input wire frameBufferWriteEnable,
     output reg [7:0] debug,
     input reg [7:0] wave
     );
@@ -35,16 +37,15 @@ module AppManager(
 
     //Frame buffer
     wire CLKInv = ~CLK;
-    reg [15:0] frameBufferAddrRead, frameBufferAddrWrite;
-    reg [31:0] frameBufferReadOut, frameBufferWriteIn;
-    reg frameBufferWriteEnable = 0;
+    reg [15:0] frameBufferAddrRead;
+    reg [31:0] frameBufferReadOut;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
         .addra(frameBufferAddrRead),
         .clka(CLKInv),
         .dina(),
         .douta(frameBufferReadOut),
         .wea(1'b0),
-        .addrb(frameBufferAddrWrite),
+        .addrb(frameBufferWriteAddr),
         .clkb(CLK),
         .dinb(frameBufferWriteIn),
         .doutb(),
@@ -137,7 +138,7 @@ module AppManager(
                     end
 
                     else if (~writeBusy) begin
-                        //send kernel to PC
+                        //send kernel to PC (2 pixels at a time)
                         if (getFramePartion == 0) writeData <= frameBufferReadOut[7:0];
                         if (getFramePartion == 1) writeData <= frameBufferReadOut[15:8];
                         if (getFramePartion == 2) writeData <= frameBufferReadOut[23:16];
@@ -145,16 +146,16 @@ module AppManager(
                         writeDataValid <= 1;
 
                         if (getFramePartion == 3) begin
-                            if (getFrameIndex < 80 * 480 * 4 - 1) begin //153600 loops so [0:153599]
+                            if (getFrameIndex == 38400) begin //BRAM end
+                                //finish reading frame
+                                state <= IDLE;
+                            end
+                            else begin
                                 //read next kernel
                                 frameBufferAddrRead <= getFrameIndex + 1;
 
                                 //increment index
                                 getFrameIndex <= getFrameIndex + 1;
-                            end
-                            else begin
-                                //finish reading frame
-                                state <= IDLE;
                             end
                         end
 
@@ -203,35 +204,5 @@ module AppManager(
                 end
             endcase
         end
-    end
-
-    //Add to Frame Buffer
-    Kernel lastFrameBufferWriteRequest [2:0] = '{0, 0, 0};
-    // Vector pos = 0;
-    always_ff @(negedge CLK) begin
-        // if (pos.y < 480) begin
-        //     frameBufferAddrWrite <= (pos.y * 80) + pos.x;
-        //     frameBufferWriteIn <= 8'b11111111;
-        //     frameBufferWriteEnable <= 1;
-
-        //     if (pos.x < 79) begin
-        //         pos.x <= pos.x + 1;
-        //     end
-        //     else pos <= '{ x: 0, y: pos.y + 1 };
-        // end
-        // else frameBufferWriteEnable <= 0;
-
-        //Cross clock domain w/ dff
-        lastFrameBufferWriteRequest[0] <= frameBufferWriteRequest;
-        lastFrameBufferWriteRequest[1] <= lastFrameBufferWriteRequest[0];
-        lastFrameBufferWriteRequest[2] <= lastFrameBufferWriteRequest[1];
-
-        //Positive Edge (if newest data is valid & last data was not)
-        if (lastFrameBufferWriteRequest[1].valid & ~lastFrameBufferWriteRequest[2].valid) begin
-            frameBufferAddrWrite <= (lastFrameBufferWriteRequest[1].pos.y * 80) + lastFrameBufferWriteRequest[1].pos.x;
-            frameBufferWriteIn <= lastFrameBufferWriteRequest[1].value;
-            frameBufferWriteEnable <= 1;
-        end
-        else frameBufferWriteEnable <= 0;
     end
 endmodule

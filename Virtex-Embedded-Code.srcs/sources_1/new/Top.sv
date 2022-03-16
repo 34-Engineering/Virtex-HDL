@@ -60,7 +60,9 @@ module Top(
     wire VirtexConfig virtexConfig = DefaultVirtexConfig;
     wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
     wire Target target;
-    KernelMono frameBufferWriteRequest;
+    wire [15:0] frameBufferWriteAddr;
+    wire [31:0] frameBufferWriteIn;
+    wire frameBufferWriteEnable;
     wire [7:0] debug;
     wire [7:0] wave;
 
@@ -78,7 +80,7 @@ module Top(
     //     .bootDone(bootDone)
     // );
 
-    // //PythonManager
+    //PythonManager
     PythonManager PythonManager(
         .CLK(CLK),
         .LVDS_CLK_P(PYTHON_CLK_P),
@@ -96,7 +98,9 @@ module Top(
         .RESET_SENSOR(PYTHON_RESET),
         .sequencerEnabled(1'b1),
         .virtexConfig(virtexConfig),
-        .frameBufferWriteRequest(frameBufferWriteRequest),
+        .frameBufferWriteAddr(frameBufferWriteAddr),
+        .frameBufferWriteIn(frameBufferWriteIn),
+        .frameBufferWriteEnable(frameBufferWriteEnable),
         .target(target),
         .PYTHON_300_PLL_FAULT(faults.PYTHON_300_PLL),
         .OUT_OF_BLOB_MEM_FAULT(faults.OUT_OF_BLOB_MEM),
@@ -119,7 +123,9 @@ module Top(
         .USB_SUS(USB_SUS),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
-        .frameBufferWriteRequest(frameBufferWriteRequest),
+        .frameBufferWriteAddr(frameBufferWriteAddr),
+        .frameBufferWriteIn(frameBufferWriteIn),
+        .frameBufferWriteEnable(frameBufferWriteEnable),
         .debug(),
         .wave(wave)
     );

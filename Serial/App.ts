@@ -21,27 +21,22 @@ function initSerialPort() {
     });
     serialPort.on('data', onData);
     serialPort.on('error', onError);
+    serialPort.on('close', () => { console.log("FUICK"); });
     serialPort.write(Buffer.from([0b00000001]));
 }
 initSerialPort();
 
 //Frame
-let frames: Buffer[] = [
-    Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400), 
-    Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400), Buffer.alloc(38400)
-];
+let frame: Buffer = Buffer.alloc(153600);
 let framePointer: number = 0;
-let frameNumber: number = 0;
 function onData(newData: Buffer) {
     for (let i = 0; i < newData.length; i++) {
-        frames[frameNumber][framePointer] = newData[i];
+        frame[framePointer] = newData[i];
         framePointer++;
     }
 
-    if (framePointer >= 38400) {
+    if (framePointer >= 153600) {
         framePointer = 0;
-        if (frameNumber == 7) frameNumber = 0;
-        else frameNumber++;
         serialPort.write(Buffer.from([0b00000001]));
     }
 }
@@ -53,7 +48,7 @@ function onError(err: any) {
 app.use(express.json());
 app.post('/frame', (req: express.Request, res: express.Response) => {
     try {
-        res.send({ frames });
+        res.send({ frame });
     }
     catch (e) { res.send({ error: e }); }
 });

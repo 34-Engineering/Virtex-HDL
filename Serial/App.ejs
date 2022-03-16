@@ -60,30 +60,27 @@
         const ctx = canvas.getContext('2d');
 
         //Draw Frame
-        function getBit(number, bitPosition) {
-            return (number & (1 << bitPosition)) === 0 ? 0:1;
-        }
-
-        let frames = [
-            new Array(80 * 480), new Array(80 * 480), new Array(80 * 480), new Array(80 * 480),
-            new Array(80 * 480), new Array(80 * 480), new Array(80 * 480), new Array(80 * 480)
-        ];
+        let frame;
+        let boot = false;
         function drawFrame() {
+            if (!frame) return;
+
+            if (!boot) { boot = true; console.log(frame); }
+
             const img = ctx.createImageData(640, 480);
-            for (let i = 0; i < frames[0].length; i++) {
-                for (let b = 0; b < 8; b++) {
-                    let str = "";
-                    for (let f = 0; f < 8; f++) {
-                        str += getBit(frames[f][i], 7-b);
-                    }
-                    const val = parseInt(str, 2);
-                    console.log(val);
-                    const idx = ((i << 3) + (7-b)) << 2;
-                    img.data[idx + 0] = val;
-                    img.data[idx + 1] = val;
-                    img.data[idx + 2] = val;
-                    img.data[idx + 3] = 255;
-                }
+            for (let i = 0; i < frame.length; i++) {
+                const idx = i << 3;
+                const pix1 = (frame[i] & 0xF) * 17;
+                const pix2 = (frame[i] >> 4) * 17;
+
+                img.data[idx + 0] = pix1;
+                img.data[idx + 1] = pix1;
+                img.data[idx + 2] = pix1;
+                img.data[idx + 3] = 255;
+                img.data[idx + 4] = pix2;
+                img.data[idx + 5] = pix2;
+                img.data[idx + 6] = pix2;
+                img.data[idx + 7] = 255;
             }
             ctx.putImageData(img, 0, 0);
         }
@@ -93,11 +90,9 @@
         const sleep = ms => new Promise(r => setTimeout(r, ms));
         async function main() {
             while (1) {
-                const newFrames = (await post('/frame', {})).frames;
-                if (newFrames) {
-                    for (let i = 0; i < 8; i++) {
-                        frames[i] = newFrames[i].data;
-                    }
+                const newFrame = (await post('/frame', {})).frame;
+                if (newFrame) {
+                    frame = newFrame.data;
                     drawFrame();
                     await sleep(0.1);
                 }

@@ -56,7 +56,9 @@ module PythonManager(
     output wire RESET_SENSOR, //active low
     input wire sequencerEnabled,
     input wire VirtexConfig virtexConfig,
-    output KernelMono frameBufferWriteRequest,
+    output reg [15:0] frameBufferWriteAddr,
+    output reg [31:0] frameBufferWriteIn,
+    output reg frameBufferWriteEnable,
     output wire Target target,
     output wire PYTHON_300_PLL_FAULT,
     output reg OUT_OF_BLOB_MEM_FAULT,
@@ -144,54 +146,67 @@ module PythonManager(
     LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
+    wire SERDES_RESET = ~isBooted; //active high, dont start training until required registers are uploaded
     PythonISERDES SYNC_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_SYNC),
-        .parallelClk(CLK72),
-        .parallelData(SYNC),
-        .reset(isBooted), //dont start training until required registers are uploaded
+        .PARALLEL_CLK(CLK72),
+        .PARALLEL_DATA(SYNC),
+        .RESET(SERDES_RESET), 
         .trainingDone(trainingDone[0])
     );
     PythonISERDES DOUT_0_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[0]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[0]),
-        .reset(isBooted),
+        .PARALLEL_CLK(CLK72),
+        .PARALLEL_DATA(DOUT[0]),
+        .RESET(SERDES_RESET),
         .trainingDone(trainingDone[1])
     );
     PythonISERDES DOUT_1_ISERDES (
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[1]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[1]),
-        .reset(isBooted),
+        .PARALLEL_CLK(CLK72),
+        .PARALLEL_DATA(DOUT[1]),
+        .RESET(SERDES_RESET),
         .trainingDone(trainingDone[2])
     );
     PythonISERDES DOUT_2_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[2]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[2]),
-        .reset(isBooted),
+        .PARALLEL_CLK(CLK72),
+        .PARALLEL_DATA(DOUT[2]),
+        .RESET(SERDES_RESET),
         .trainingDone(trainingDone[3])
     );
     PythonISERDES DOUT_3_ISERDES(
         .SERIAL_CLK(LVDS_CLK),
         .SERIAL_DATA(LVDS_DOUT[3]),
-        .parallelClk(CLK72),
-        .parallelData(DOUT[3]),
-        .reset(isBooted),
+        .PARALLEL_CLK(CLK72),
+        .PARALLEL_DATA(DOUT[3]),
+        .RESET(SERDES_RESET),
         .trainingDone(trainingDone[4])
     );
 
-    initial debug = 8'b11111111;
-
-    assign wave = DOUT[0];
-
     //Process Loop
-    initial frameBufferWriteRequest = 0;
+    KernelMono frameBufferFIFOIn = 0;
+    reg frameBufferFIFOWrite = 0;
+    wire frameBufferFIFOFull;
+
+    // Vector pos = 0;
     always_ff @(posedge CLK72) begin
+        // if (pos.y < 480 & ~frameBufferFIFOFull & ~frameBufferFIFOWrite) begin
+        //     frameBufferFIFOIn = '{ value: 32'hFFFFFFFF, pos: pos };
+        //     frameBufferFIFOWrite = 1;
+        //     if (pos.x < 79) begin
+        //         pos.x <= pos.x + 1;
+        //     end
+        //     else pos <= '{ x: 0, y: pos.y + 1 };
+        // end
+        // else frameBufferFIFOWrite <= 0;
+
+        frameBufferFIFOWrite <= 0;
+
         if (trainingDone == 5'b11111 & isSequencerEnabled) begin
             if (SYNC == PYTHON_SYNC_FRAME_START) begin
                 //Note: FS replaces LS
@@ -233,37 +248,39 @@ module PythonManager(
     end
 
     localparam THRESHOLD_TEMP = 8'd20;
+    localparam DOUT_SEL_H = 7;
     task processImageData();
         //load partion 2 of kernel (see page 40)
         if (kernelPartion) begin
             if (kernelOdd) begin
                 //load backwards
-                kernel.value[0] = DOUT[3] > THRESHOLD_TEMP;
-                kernel.value[2] = DOUT[2] > THRESHOLD_TEMP;
-                kernel.value[4] = DOUT[1] > THRESHOLD_TEMP;
-                kernel.value[6] = DOUT[0] > THRESHOLD_TEMP;
-                kernelMonoValue[0] = DOUT[3][7:4];
-                kernelMonoValue[2] = DOUT[2][7:4];
-                kernelMonoValue[4] = DOUT[1][7:4];
-                kernelMonoValue[6] = DOUT[0][7:4];
+                kernel.value   [0] = DOUT[3] > THRESHOLD_TEMP;
+                kernel.value   [2] = DOUT[2] > THRESHOLD_TEMP;
+                kernel.value   [4] = DOUT[1] > THRESHOLD_TEMP;
+                kernel.value   [6] = DOUT[0] > THRESHOLD_TEMP;
+                kernelMonoValue[0] = DOUT[3][DOUT_SEL_H -: 4];
+                kernelMonoValue[2] = DOUT[2][DOUT_SEL_H -: 4];
+                kernelMonoValue[4] = DOUT[1][DOUT_SEL_H -: 4];
+                kernelMonoValue[6] = DOUT[0][DOUT_SEL_H -: 4];
             end
             else begin
                 //load normally
-                kernel.value[1] = DOUT[0] > THRESHOLD_TEMP;
-                kernel.value[3] = DOUT[1] > THRESHOLD_TEMP;
-                kernel.value[5] = DOUT[2] > THRESHOLD_TEMP;
-                kernel.value[7] = DOUT[3] > THRESHOLD_TEMP;
-                kernelMonoValue[1] = DOUT[0][7:4];
-                kernelMonoValue[3] = DOUT[1][7:4];
-                kernelMonoValue[5] = DOUT[2][7:4];
-                kernelMonoValue[7] = DOUT[3][7:4];
+                kernel.value   [1] = DOUT[0] > THRESHOLD_TEMP;
+                kernel.value   [3] = DOUT[1] > THRESHOLD_TEMP;
+                kernel.value   [5] = DOUT[2] > THRESHOLD_TEMP;
+                kernel.value   [7] = DOUT[3] > THRESHOLD_TEMP;
+                kernelMonoValue[1] = DOUT[0][DOUT_SEL_H -: 4];
+                kernelMonoValue[3] = DOUT[1][DOUT_SEL_H -: 4];
+                kernelMonoValue[5] = DOUT[2][DOUT_SEL_H -: 4];
+                kernelMonoValue[7] = DOUT[3][DOUT_SEL_H -: 4];
             end
             
             //send kernel to blob processor
-            lastKernelR[0] = kernel;
+            lastKernelR[0] <= kernel;
 
             //send kernel to frame buffer
-            frameBufferWriteRequest = '{ value: kernelMonoValue, pos: kernel.pos, valid: 1 };
+            frameBufferFIFOIn <= '{ value: kernelMonoValue, pos: kernel.pos };
+            frameBufferFIFOWrite <= 1;
             
             //prepare for next kernel
             kernel.pos.x <= kernel.pos.x + 1;
@@ -271,34 +288,59 @@ module PythonManager(
         end
 
         //load partion 1 of kernel (see page 40)
+        else if (kernelOdd) begin
+            //load backwards
+            kernel.value   [1] <= DOUT[3] > THRESHOLD_TEMP;
+            kernel.value   [3] <= DOUT[2] > THRESHOLD_TEMP;
+            kernel.value   [5] <= DOUT[1] > THRESHOLD_TEMP;
+            kernel.value   [7] <= DOUT[0] > THRESHOLD_TEMP;
+            kernelMonoValue[1] <= DOUT[3][DOUT_SEL_H -: 4];
+            kernelMonoValue[3] <= DOUT[2][DOUT_SEL_H -: 4];
+            kernelMonoValue[5] <= DOUT[1][DOUT_SEL_H -: 4];
+            kernelMonoValue[7] <= DOUT[0][DOUT_SEL_H -: 4];
+        end
         else begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel.value[1] <= DOUT[3] > THRESHOLD_TEMP;
-                kernel.value[3] <= DOUT[2] > THRESHOLD_TEMP;
-                kernel.value[5] <= DOUT[1] > THRESHOLD_TEMP;
-                kernel.value[7] <= DOUT[0] > THRESHOLD_TEMP;
-                kernelMonoValue[1] <= DOUT[3][7:4];
-                kernelMonoValue[3] <= DOUT[2][7:4];
-                kernelMonoValue[5] <= DOUT[1][7:4];
-                kernelMonoValue[7] <= DOUT[0][7:4];
-            end
-            else begin
-                //load normally
-                kernel.value[0] <= DOUT[0] > THRESHOLD_TEMP;
-                kernel.value[2] <= DOUT[1] > THRESHOLD_TEMP;
-                kernel.value[4] <= DOUT[2] > THRESHOLD_TEMP;
-                kernel.value[6] <= DOUT[3] > THRESHOLD_TEMP;
-                kernelMonoValue[0] <= DOUT[0][7:4];
-                kernelMonoValue[2] <= DOUT[1][7:4];
-                kernelMonoValue[4] <= DOUT[2][7:4];
-                kernelMonoValue[6] <= DOUT[3][7:4];
-            end
-
-            frameBufferWriteRequest.valid <= 0;
+            //load normally
+            kernel.value   [0] <= DOUT[0] > THRESHOLD_TEMP;
+            kernel.value   [2] <= DOUT[1] > THRESHOLD_TEMP;
+            kernel.value   [4] <= DOUT[2] > THRESHOLD_TEMP;
+            kernel.value   [6] <= DOUT[3] > THRESHOLD_TEMP;
+            kernelMonoValue[0] <= DOUT[0][DOUT_SEL_H -: 4];
+            kernelMonoValue[2] <= DOUT[1][DOUT_SEL_H -: 4];
+            kernelMonoValue[4] <= DOUT[2][DOUT_SEL_H -: 4];
+            kernelMonoValue[6] <= DOUT[3][DOUT_SEL_H -: 4];
         end
 
         //swap kernel partion
         kernelPartion <= ~kernelPartion;
     endtask
+
+    //Frame Buffer Writing & Clock Crossing with FIFO
+    KernelMono frameBufferFIFOOut;
+    reg frameBufferFIFORead = 0;
+    wire frameBufferFIFOEmpty;
+    wire CLK72Inv = ~CLK72;
+    initial frameBufferWriteEnable = 0;
+    fifo_python_stream frameBufferWriteFIFO (
+        .full(frameBufferFull),
+        .din(frameBufferFIFOIn),
+        .wr_en(frameBufferFIFOWrite),
+        .wr_clk(CLK72Inv),
+        .empty(frameBufferFIFOEmpty),
+        .dout(frameBufferFIFOOut),
+        .rd_en(frameBufferFIFORead),
+        .rd_clk(CLK)
+    );
+    always_ff @(negedge CLK) begin
+        //Write Kernel to Frame Buffer
+        if (frameBufferFIFORead) begin
+            frameBufferWriteAddr <= (frameBufferFIFOOut.pos.y * 80) + frameBufferFIFOOut.pos.x;
+            frameBufferWriteIn <= frameBufferFIFOOut.value;
+            frameBufferWriteEnable <= 1;
+        end
+        else frameBufferWriteEnable <= 0;
+
+        //Read FIFO
+        frameBufferFIFORead <= ~frameBufferFIFOEmpty;
+    end
 endmodule

@@ -8,15 +8,13 @@
 `include "../util/Math.sv"
 
 //Kernel
-typedef struct packed { //29-bit
+typedef struct packed { //28-bit
     logic [7:0] value; //threshold
     Vector pos; //(0, 0) to (79, 479)
-    logic valid;
 } Kernel;
-typedef struct packed {
+typedef struct packed { //52-bit
     logic [7:0] [3:0] value;
     Vector pos; //(0, 0) to (79, 479)
-    logic valid;
 } KernelMono;
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 
@@ -116,8 +114,8 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     0x01E8 1111 01000 */
 
     //Analog Gain (course): {reserved, gain_lat_comp (0=apply next frame), afe_gain0, mux_gainsw0 (extra course)}
-    '{setAnalogGainAddress    , 1, 16'h01e1},//{2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
-    '{setAnalogGainAddress+31 , 1, 16'h01e1},//{2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
+    '{setAnalogGainAddress    , 1, {2'b0, 1'b0, 8'hF, 5'd8}}, // Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setAnalogGainAddress+31 , 1, {2'b0, 1'b0, 8'hF, 5'd8}}, // Analog_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
     
     //54321.7654321
     //00001 0000000
