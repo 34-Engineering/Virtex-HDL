@@ -97,15 +97,15 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     disableSequencer,
     '{193, 1, 16'h0000},	// XSM_delay (use if you want to force sequential mode instead of pipelined)
     '{194, 1, 16'h02E4},	// Integration control (ft_mode = 1)
-    '{setExposureAddress   , 1, 16'h0064},//30000},	// Exposure_0 (following frames) //duplicated in DefaultVirtexConfig
-    '{setExposureAddress+31, 1, 16'h0064},//30000},	// Exposure_1 (current frame)    //duplicated in DefaultVirtexConfig
+    '{setExposureAddress   , 1, 16'd35000},//30000},	// Exposure_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setExposureAddress+31, 1, 16'd35000},//30000},	// Exposure_1 (current frame)    //duplicated in DefaultVirtexConfig
     
     // fr_length & mult_timer config (Python 300}, ZROT
     //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"
-    '{199, 1, 16'h00b2},//16'd2},	    // Mult_timer_0 (following frames)
-    '{230, 1, 16'h00b2},//16'd2},	    // Mult_timer_1 (current frame)
-    '{200, 1, 16'h021c},//16'd41500},	// Fr_length_0 (following frames)
-    '{231, 1, 16'h021c},//16'd41500},	// Fr_length_1 (current frame)
+    '{199, 1, 16'd20},//16'd2},	    // Mult_timer_0 (following frames)
+    '{230, 1, 16'd20},//16'd2},	    // Mult_timer_1 (current frame)
+    '{200, 1, 16'd60000},//16'd41500},	// Fr_length_0 (following frames)
+    '{231, 1, 16'd60000},//16'd41500},	// Fr_length_1 (current frame)
     
     /*
     0x01E3 1111 00011
@@ -114,8 +114,8 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     0x01E8 1111 01000 */
 
     //Analog Gain (course): {reserved, gain_lat_comp (0=apply next frame), afe_gain0, mux_gainsw0 (extra course)}
-    '{setAnalogGainAddress    , 1, {2'b0, 1'b0, 8'hF, 5'd8}}, // Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
-    '{setAnalogGainAddress+31 , 1, {2'b0, 1'b0, 8'hF, 5'd8}}, // Analog_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
+    '{setAnalogGainAddress    , 1, {2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_0 (following frames) //duplicated in DefaultVirtexConfig
+    '{setAnalogGainAddress+31 , 1, {2'b0, 1'b0, 8'hF, 5'd2}}, // Analog_gain_1 (current frame)    //duplicated in DefaultVirtexConfig
     
     //54321.7654321
     //00001 0000000
