@@ -1,0 +1,6 @@
+verilog xil_defaultlib  \
+"../../../../Virtex-HDL.gen/sources_1/ip/fifo_virtex_config/fifo_virtex_config_sim_netlist.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+nosort

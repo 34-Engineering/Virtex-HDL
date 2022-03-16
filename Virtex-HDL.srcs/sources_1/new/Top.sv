@@ -12,7 +12,7 @@
     
     */
 module Top(
-    input CLK,
+    input wire CLK100,
 
     //USB
     input wire USB_FSDO, USB_FSCTS,
@@ -54,35 +54,40 @@ module Top(
 
     //Master (wires + registers)
     wire enabled = 1;
-    wire bootDone;
+    wire configBootDone;
     wire hasCommunication;
     Faults faults;
-    wire VirtexConfig virtexConfig = DefaultVirtexConfig;
-    wire VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
-    wire Target target;
+    VirtexConfig virtexConfig;
+    VirtexConfigWriteRequest virtexConfigWriteRequests [1:0];
+    Target target;
     wire [15:0] frameBufferWriteAddr;
     wire [31:0] frameBufferWriteIn;
     wire frameBufferWriteEnable;
     wire [7:0] debug;
     wire [7:0] wave;
+    wire CLK200, CLK50, CLK10;
 
-    // //ConfigManager
-    // ConfigManager ConfigManager(
-    //     .CLK(CLK),
-    //     .SPI_CS(CONF_CS),
-    //     .SPI_WP(CONF_WP),
-    //     .SPI_HOLD(CONF_HOLD),
-    //     .SPI_CLK(CONF_CLK),
-    //     .SPI_MOSI(CONF_MOSI),
-    //     .SPI_MISO(CONF_MISO),
-    //     .virtexConfig(virtexConfig),
-    //     .virtexConfigWriteRequests(virtexConfigWriteRequests),
-    //     .bootDone(bootDone)
-    // );
+    //ConfigManager
+    ConfigManager ConfigManager(
+        .CLK100(CLK100),
+        .CLK10(CLK10),
+        .SPI_CS(CONF_CS),
+        .SPI_WP(CONF_WP),
+        .SPI_HOLD(CONF_HOLD),
+        .SPI_CLK(CONF_CLK),
+        .SPI_MOSI(CONF_MOSI),
+        .SPI_MISO(CONF_MISO),
+        .virtexConfig(virtexConfig),
+        .virtexConfigWriteRequests(virtexConfigWriteRequests),
+        .bootDone(configBootDone),
+        .debug(debug)
+    );
 
     //PythonManager
     PythonManager PythonManager(
-        .CLK(CLK),
+        .CLK200(CLK200),
+        .CLK100(CLK100),
+        .CLK10(CLK10),
         .LVDS_CLK_P(PYTHON_CLK_P),
         .LVDS_CLK_N(PYTHON_CLK_N),
         .LVDS_SYNC_P(PYTHON_SYNC_P),
@@ -107,13 +112,14 @@ module Top(
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
         .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
-        .debug(debug),
+        .debug(),
         .wave(wave)
     );
 
     //AppManager
     AppManager AppManager(
-        .CLK(CLK),
+        .CLK100(CLK100),
+        .CLK50(CLK50),
         .FSDI(USB_FSDI),
         .FSCLK(USB_FSCLK),
         .FSDO(USB_FSDO),
@@ -132,7 +138,7 @@ module Top(
 
     // //RoboRIOManager
     // RoboRIOManager RoboRIOManager(
-    //     .CLK(CLK),
+    //     .CLK100(CLK100),
     //     .SPI_CLK(RIO_CLK),
     //     .SPI_MOSI(RIO_MOSI),
     //     .SPI_MISO(RIO_MISO),
@@ -146,7 +152,7 @@ module Top(
 
     // //FlashManager
     // FlashManager FlashManager(
-    //     .CLK(CLK),
+    //     .CLK100(CLK100),
     //     .SPI_CS(FLASH_CS),
     //     .SPI_WP(FLASH_WP),
     //     .SPI_HOLD(FLASH_HOLD),
@@ -158,7 +164,7 @@ module Top(
     //LEDManager
     assign faults.IR_LED = LED_FAULT;
     LEDManager LEDManager(
-        .CLK(CLK),
+        .CLK100(CLK100),
         .LED_IR(LED_IR),
         .LED_PWR(LED_PWR),
         .LED_EN(LED_EN),
@@ -170,8 +176,16 @@ module Top(
         .PWR_12V_EN(PWR_12V_EN),
         .enabled(enabled),
         .hasCommunication(hasCommunication),
-        .target(0)
-        // .debug(debug)
+        .target(0),
+        .debug(debug)
+    );
+
+    //Clock Generator
+    clk_wiz_0 clk_wiz_0(
+        .clk_in1(CLK100),
+        .clk_out1(CLK10),
+        .clk_out2(CLK50),
+        .clk_out3(CLK200)
     );
     
 endmodule

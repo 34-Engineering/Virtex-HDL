@@ -29,11 +29,11 @@
      
     */
 module RoboRIOManager(
-    input wire CLK,
+    input wire CLK100,
     input wire SPI_CLK, SPI_CS, SPI_MOSI,
     output reg SPI_MISO,
     output reg enabled, hasCommunication,
-    input wire VirtexConfig virtexConfig,
+    input VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     input wire Target target
     );
@@ -110,7 +110,7 @@ module RoboRIOManager(
         if (commandIsGetConfig & byteNumber < 2) begin
             //finds the config register index w/ * 16
             //then split 16-bit config into [15:8] & [7:0]
-            writeData <= virtexConfig[(command[5:1]*16) + (byteNumber*8+7) -: 8];
+            writeData <= virtexConfig[(command[5:1]<<4) + ((byteNumber<<3)+7) -: 8];
             byteNumber <= byteNumber + 1;
         end
         else if (commandIsGetConfig) begin

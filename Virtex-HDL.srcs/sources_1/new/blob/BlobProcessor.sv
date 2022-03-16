@@ -6,7 +6,7 @@
    
    */
 module BlobProcessor(
-    input wire CLK180,
+    input wire CLK200,
     input wire Kernel kernel, //top left coord of the kernel
     output Target target,
     output reg OUT_OF_BLOB_MEM_FAULT,

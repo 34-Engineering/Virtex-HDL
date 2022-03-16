@@ -3,9 +3,9 @@
 # this file should always match `34-Engineering/Virtex-PCBs`
 
 # Master (100MHz) Clock N14
-set_property PACKAGE_PIN N14 [get_ports CLK]
-set_property IOSTANDARD LVCMOS33 [get_ports CLK]
-create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK]
+set_property PACKAGE_PIN N14 [get_ports CLK100]
+set_property IOSTANDARD LVCMOS33 [get_ports CLK100]
+create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK100]
 
 # USB
 set_property PACKAGE_PIN F14 [get_ports {USB_FSDI}]

@@ -13,7 +13,8 @@ app.get('/', (req: express.Request, res: express.Response) => {
 
 //Serial
 let serialPort: any | null = null;
-function initSerialPort() {
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function initSerialPort() {
     serialPort = new SerialPort({
         path: '\\\\.\\COM6',
         baudRate: 921600,
@@ -21,8 +22,14 @@ function initSerialPort() {
     });
     serialPort.on('data', onData);
     serialPort.on('error', onError);
-    serialPort.on('close', () => { console.log("FUICK"); });
-    serialPort.write(Buffer.from([0b00000001]));
+    serialPort.on('close', () => { process.exit(1); });
+
+    // serialPort.write(Buffer.from([0b00000001]));
+    serialPort.write(Buffer.from([0b11000000 + 30, 0x69, 0x42]));
+
+    console.log("WRITE");
+    await sleep(500);
+    serialPort.write(Buffer.from([0b10000000 + 30]));
 }
 initSerialPort();
 
@@ -30,15 +37,16 @@ initSerialPort();
 let frame: Buffer = Buffer.alloc(153600);
 let framePointer: number = 0;
 function onData(newData: Buffer) {
-    for (let i = 0; i < newData.length; i++) {
-        frame[framePointer] = newData[i];
-        framePointer++;
-    }
+    console.log(newData);
+    // for (let i = 0; i < newData.length; i++) {
+    //     frame[framePointer] = newData[i];
+    //     framePointer++;
+    // }
 
-    if (framePointer >= 153600) {
-        framePointer = 0;
-        serialPort.write(Buffer.from([0b00000001]));
-    }
+    // if (framePointer >= 153600) {
+    //     framePointer = 0;
+    //     serialPort.write(Buffer.from([0b00000001]));
+    // }
 }
 function onError(err: any) {
     console.error(err);

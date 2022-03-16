@@ -1,2 +1,0 @@
-clk_wiz_2_sim_netlist.v,verilog,xil_defaultlib,../../../../Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_sim_netlist.v,incdir="../../../../Virtex-HDL.gen/sources_1/ip/clk_wiz_2"
-glbl.v,Verilog,xil_defaultlib,glbl.v

@@ -8,7 +8,7 @@
     Virtex Fast Serial Protocol: https://docs.google.com/document/d/1n1cTdPgI_MZJplnfnsV4Gh2vK2MCvT35MewmOGstzLg/edit
     */
 module AppManager(
-    input wire CLK,
+    input wire CLK100, CLK50,
     output wire FSDI, //FPGA->PC
     output wire FSCLK, //50MHz (FPGA generated)
     input wire FSDO, //PC->FPGA
@@ -16,7 +16,7 @@ module AppManager(
     input wire USB_ON,
     input wire USB_PWREN, //usb power enabled, active low
     input wire USB_SUS, //usb in suspend mode, active low
-    input wire VirtexConfig virtexConfig,
+    input VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     input wire [15:0] frameBufferWriteAddr,
     input wire [31:0] frameBufferWriteIn,
@@ -36,7 +36,7 @@ module AppManager(
     wire enabled = USB_ON & !USB_PWREN & USB_SUS;
 
     //Frame buffer
-    wire CLKInv = ~CLK;
+    wire CLKInv = ~CLK100;
     reg [15:0] frameBufferAddrRead;
     reg [31:0] frameBufferReadOut;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
@@ -46,17 +46,10 @@ module AppManager(
         .douta(frameBufferReadOut),
         .wea(1'b0),
         .addrb(frameBufferWriteAddr),
-        .clkb(CLK),
+        .clkb(CLK100),
         .dinb(frameBufferWriteIn),
         .doutb(),
         .web(frameBufferWriteEnable)
-    );
-
-    //50MHz clock
-    wire CLK50;
-    clk_wiz_1(
-        .clk_in1(CLK),
-        .clk_out1(CLK50)
     );
 
     //Fast Serial
@@ -89,12 +82,11 @@ module AppManager(
     reg configPartion = 0;
     reg lastReadDataValid = 0;
     reg newReadData = 0;
+    initial virtexConfigWriteRequest = 0;
 
     always_ff @(posedge CLK50) begin
         //New Read Data
-        if (readDataValid & ~lastReadDataValid) begin
-            newReadData = 1;
-        end
+        newReadData = readDataValid & ~lastReadDataValid;
         lastReadDataValid <= readDataValid;
 
         // if (~writeBusy & writeData != wave) begin
@@ -107,7 +99,7 @@ module AppManager(
             case (state)
                 IDLE: begin
                     if (newReadData) begin
-                        newReadData <= 0;
+                        virtexConfigWriteRequest.valid <= 0;
 
                         //Get Frame
                         if (readData == GET_FRAME_CODE) begin
@@ -172,32 +164,31 @@ module AppManager(
 
                     //write second partion
                     else if (configPartion & ~writeBusy) begin
-                        writeData <= virtexConfig[configAddress*16 + 7 -: 7];
+                        writeData <= virtexConfig[getConfigAddrIndex(configAddress) - 8 -: 8];
                         writeDataValid <= 1;
                         state <= IDLE;
                     end
 
                     //write first partion
                     else if (~writeBusy) begin
-                        writeData <= virtexConfig[configAddress*16 + 15 -: 7];
+                        writeData <= virtexConfig[getConfigAddrIndex(configAddress) -: 8];
                         writeDataValid <= 1;
                         configPartion <= 1;
                     end
                 end
 
                 SET_CONFIG: begin
-
-                    //FIXME lastReadDataValid or ???
-
                     //read second partion
-                    if (configPartion & readDataValid) begin
-                        configData[7:0] <= readData;
+                    if (configPartion & newReadData) begin
+                        configData[7:0] = readData;
+                        virtexConfigWriteRequest <= '{ addr: configAddress, data: configData, valid: 1 };
+
                         configPartion <= 0;
                         state <= IDLE;
                     end
 
                     //read first partion
-                    else if (readDataValid) begin
+                    else if (newReadData) begin
                         configData[15:8] <= readData;
                         configPartion <= 1;
                     end

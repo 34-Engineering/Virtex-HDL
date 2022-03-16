@@ -5,13 +5,9 @@
     Transfers config from EEPROM to FPGA fabric at boot
     Saves config to FPGA fabric & EEPROM on each external write request
     
-    VirtexConfig: 32 x 16-bit (see Util.sv for individual configurations & defaults)
+    VirtexConfig: 64 x 16-bit (see Util.sv for individual configurations & defaults)
 
     EEPROM: AT25010B-MAHL-E (128 x 8-bit); Docs: https://ww1.microchip.com/downloads/en/DeviceDoc/20006251A.pdf
-     [0] Validity
-      - 0x34 EEPROM will be read at boot into virtexConfig
-      - 0xXX EEPROM DefaultVirtexConfig will be written to at boot
-     [1:64] virtexConfig
 
     Status Register (8-bits):
      [7:4] Reserved for Future Use (read only)
@@ -46,7 +42,7 @@
 
     */
 module ConfigManager(
-    input wire CLK,
+    input wire CLK100, CLK10,
     output reg SPI_CS, //active low
     output wire SPI_WP, //active low
     output wire SPI_HOLD, //active low
@@ -55,7 +51,8 @@ module ConfigManager(
     input wire SPI_MISO,
     output VirtexConfig virtexConfig,
     input VirtexConfigWriteRequest virtexConfigWriteRequests [1:0],
-    output reg bootDone
+    output reg bootDone,
+    output reg [7:0] debug
     );
 
     localparam WRITE_STATUS = 8'h1; //opcode + 8-bits; only modifies bits [3:2]
@@ -64,37 +61,50 @@ module ConfigManager(
     localparam DISABLE_WEL  = 8'h4; //opcode only
     localparam READ_STATUS  = 8'h5; //opcode + 8-bits
     localparam ENABLE_WEL   = 8'h6; //opcode only; must occur before every WRITE_STATUS and WRITE
-    localparam VALID_DATA   = 8'h34;
+    localparam MEM_VALID_ADDR = 127;
+    localparam MEM_VALID_CODE = 8'h34;
 
-    //10MHz Clock (20MHz is only allowed at 5V)
-    clk_wiz_3 clk_wiz_3(
-        .clk_in1(CLK),
-        .clk_out1(SPI_CLK)
-    );
-
-    initial begin
-        bootDone = 0;
-        SPI_CS = 1;
-    end
+    initial virtexConfig = DefaultVirtexConfig;
 
     reg inTransaction = 0;
     reg hasValidData = 1;
     reg [4:0] byteNumber = 0;
+    wire [4:0] bootReadNumber = byteNumber - 2;
+    wire [4:0] bootWriteNumber = byteNumber - 7;
     reg [2:0] bytePointer = 0;
     reg lastBytePointerZero = 1;
     reg [7:0] readData = 0;
     
-    reg [4:0] writeQueue[0:31]; //stores write address
-    reg [4:0] writeQueueReadPointer = 0;
-    reg [4:0] writeQueueWritePointer = 0;
-
+    assign SPI_CLK = CLK10;
     assign SPI_HOLD = inTransaction;
-    assign SPI_WP = inTransaction & (bootDone | !hasValidData);
+    assign SPI_WP = inTransaction & (bootDone | ~hasValidData);
+    initial bootDone = 0;
+    initial SPI_CS = 1;
 
-    always_ff @(negedge SPI_CLK) begin
+    VirtexConfigWriteRequest newConfigFIFOOut, newConfigFIFOIn = 0;
+    wire newConfigFIFOEmpty, newConfigFIFOFull;
+    reg newConfigFIFORead = 0, newConfigFIFOWrite = 0;
+    
+    // initial debug = 8'b10101010;
+    assign debug = {inTransaction, hasValidData, bootDone, byteNumber};
+
+    //100 11111
+
+    //Process Loop
+    always_ff @(negedge CLK10) begin
+        newConfigFIFORead <= 0;
+
+        //Increment Byte Number
+        if (bytePointer == 0 & ~lastBytePointerZero) begin
+            byteNumber = byteNumber + 1;
+        end
+        lastBytePointerZero = bytePointer == 0;
+
+        //Load EEPROM @ Boot
         if (~bootDone) begin
             //Check EEPROM Validity
             if (byteNumber == 0) begin
+                // debug <= 8'b01010101;
                 //write READ opcode
                 SPI_CS <= 0;
                 inTransaction <= 1;
@@ -102,73 +112,58 @@ module ConfigManager(
                 bytePointer <= bytePointer + 1;
             end
             else if (byteNumber == 1) begin
-                //write address 0
-                SPI_MOSI <= 0;
+                //write MEM_VALID addr
+                SPI_MOSI <= MEM_VALID_ADDR[bytePointer];
                 bytePointer <= bytePointer + 1;
             end
             else if (byteNumber == 2) begin
-                //read response from READ address 0
+                //read response
                 readData[bytePointer] <= SPI_MISO;
                 bytePointer <= bytePointer + 1;
-                hasValidData <= readData == VALID_DATA;
+                hasValidData <= readData == MEM_VALID_CODE;
             end
 
-            //Continue READ & Transfer [1-64] (3-66) EEPROM into virtexConfig
-            else if (hasValidData & byteNumber > 2 & byteNumber < 67) begin
-                /*first find config register number, then * 16 to find its index
-                  then we count [15:0] to read in whole register
-                  since byteNumber = 3 at start LSB is 1 so * 8 + 7 to split register into [15:8] & [7:0]*/
-                virtexConfig[(((byteNumber - 3) >> 1) * 16) + (byteNumber[0] * 8 + 7 - bytePointer)] <= SPI_MISO;
+            //Continue READ (overflows 127 -> 0) & Transfer [0:126] EEPROM into virtexConfig [0:63]
+            else if (hasValidData & bootReadNumber < 127) begin
+                // debug <= 8'b11110000;
+                //split each config into 2x 8-bit parts and then load them out one bit at a time
+                virtexConfig[(getConfigAddrIndex(bootReadNumber >> 1) - (bootReadNumber[0] ? 8 : 0)) - bytePointer] <= SPI_MOSI;
                 bytePointer <= bytePointer + 1;
             end
 
-            //Stop READ & WRITE DefaultVirtexConfig to EEPROM [1-64] then WRITE VALID_DATA to [0]
-            else if (!hasValidData & (byteNumber == 3 | byteNumber == 5 | byteNumber == 72 | byteNumber == 74)) begin
+            //Stop READ then WRITE virtexConfig (DefaultVirtexConfig) [0:63] to EEPROM [0:127]
+            else if (~hasValidData & (byteNumber == 3 | byteNumber == 5)) begin
+                // debug <= 8'b00001111;
                 //pull up CS to write new command
                 SPI_CS <= 1;
                 byteNumber <= byteNumber + 1;
             end
-            else if (!hasValidData & (byteNumber == 4 | byteNumber == 73)) begin
+            else if (~hasValidData & byteNumber == 4) begin
                 //write ENABLE_WEL opcode
                 SPI_CS <= 0;
                 SPI_MOSI <= ENABLE_WEL[bytePointer];
                 bytePointer <= bytePointer + 1;
             end
-            else if (!hasValidData & (byteNumber == 6 | byteNumber == 75)) begin
+            else if (~hasValidData & byteNumber == 6) begin
                 //write WRITE opcode
                 SPI_CS <= 0;
                 SPI_MOSI <= WRITE[bytePointer];
                 bytePointer <= bytePointer + 1;
             end
-            else if (!hasValidData & byteNumber == 7) begin
-                //write address 1
-                SPI_MOSI <= bytePointer == 7;
-                bytePointer <= bytePointer + 1;
-            end
-            else if (!hasValidData & byteNumber == 76) begin
+            else if (~hasValidData & byteNumber == 7) begin
                 //write address 0
                 SPI_MOSI <= 0;
                 bytePointer <= bytePointer + 1;
             end
-            else if (!hasValidData & byteNumber > 7 & byteNumber < 72) begin
-                //write DefaultVirtexConfig [0:31] into [1-64] (8-71)
-                /*first find config register number, then * 16 to find its index
-                  then we count [15:0] to read in whole register
-                  since byteNumber = 8 at start !LSB is 1 so * 8 + 7 to split register into [15:8] & [7:0]*/
-                SPI_MOSI <= DefaultVirtexConfig[(((byteNumber - 8) >> 1) * 16) + (!byteNumber[0] * 8 + 7 - bytePointer)];
-                bytePointer <= bytePointer + 1;
-            end
-            else if (!hasValidData & byteNumber == 77) begin
-                //write 0x34
-                /*note: we are writing 0x34 AFTER writing entire DefaultVirtexConfig
-                  this is incase there is an interuption while writing DefaultVirtexConfig,
-                  we do not want a partially written config marked as valid!*/
-                SPI_MOSI <= VALID_DATA[bytePointer];
+            else if (~hasValidData & bootWriteNumber < 128) begin
+                //split each config into 2x 8-bit parts and then write them out one bit at a time
+                SPI_MOSI <= virtexConfig[(getConfigAddrIndex(bootWriteNumber >> 1) - (bootWriteNumber[0] ? 8 : 0)) - bytePointer];
                 bytePointer <= bytePointer + 1;
             end
 
             //Done
-            else if ((hasValidData & byteNumber > 2) | (!hasValidData & byteNumber == 78)) begin
+            else begin
+                // debug <= 8'b11111111;
                 SPI_CS <= 1;
                 bootDone <= 1;
                 byteNumber <= 0;
@@ -176,11 +171,16 @@ module ConfigManager(
             end
         end
 
-        else if (writeQueueReadPointer != writeQueueWritePointer) begin
+        //Write New Data to EEPROM & RAM
+        else if (inTransaction) begin
             if (byteNumber == 0) begin
+                //write new data to virtexConfig (FPGA RAM)
+                if (bytePointer == 0) begin
+                    virtexConfig[getConfigAddrIndex(newConfigFIFOOut.addr) -: 16] <= newConfigFIFOOut.data;
+                end
+
                 //write ENABLE_WEL opcode
                 SPI_CS <= 0;
-                inTransaction <= 1;
                 SPI_MOSI <= ENABLE_WEL[bytePointer];
                 bytePointer <= bytePointer + 1;
             end
@@ -197,18 +197,17 @@ module ConfigManager(
             end
             else if (byteNumber == 3) begin
                 //write address
-                SPI_MOSI <= writeQueue[writeQueueReadPointer];
+                SPI_MOSI <= newConfigFIFOOut.addr[bytePointer];
                 bytePointer <= bytePointer + 1;
             end
             else if (byteNumber == 4 | byteNumber == 5) begin
-                //write virtexConfig[address] into address
-                /*first get config address, then * 16 to find its index
-                  then we count [15:0] to read in whole register
-                  since byteNumber = 4 at start !LSB is 1 so * 8 + 7 to split register into [15:8] & [7:0]*/
-                SPI_MOSI <= virtexConfig[(writeQueue[writeQueueReadPointer] * 16) + (!byteNumber[0] * 8 + 7 - bytePointer)];
+                //split config into 2x 8-bit parts and then write them out one bit at a time
+                SPI_MOSI <= newConfigFIFOOut.data[(byteNumber[0] ? 7 : 15) - bytePointer];
                 bytePointer <= bytePointer + 1;
             end
             else begin
+                // debug <= 8'b00111100;
+
                 //done
                 SPI_CS <= 1;
                 byteNumber <= 0;
@@ -216,36 +215,41 @@ module ConfigManager(
             end
         end
 
-        //increment byteNumber w/ bytePointer latch
-        if (bytePointer == 0 & !lastBytePointerZero) begin
-            byteNumber <= byteNumber + 1;
+        //Read New Data from FIFO
+        else if (~newConfigFIFOEmpty) begin
+            // debug <= 8'b00110011;
+            newConfigFIFORead <= 1;
+            inTransaction <= 1;
         end
-        lastBytePointerZero <= bytePointer == 0;
     end
 
-    //Write Requests
-    genvar i;
-    generate
-        for (i=0; i < $size(virtexConfigWriteRequests); i = i + 1) begin
-            always_ff @(posedge virtexConfigWriteRequests[i].valid) begin
-                write(virtexConfigWriteRequests[i].address, virtexConfigWriteRequests[i].data);
-            end
-        end
-    endgenerate
-    task write(logic [4:0] address, logic [15:0] data);
-        //write to FPGA fabric
-        virtexConfig[address] <= data;
+    //New Config Data FIFO
+    fifo_virtex_config fifo_virtex_config(
+        .empty(newConfigFIFOEmpty),
+        .dout(newConfigFIFOAddrOut),
+        .rd_en(newConfigFIFORead),
+        .rd_clk(CLK10),
+        .full(newConfigFIFOFull),
+        .din(newConfigFIFOAddrIn),
+        .wr_en(newConfigFIFOWrite),
+        .wr_clk(CLK100)
+    );
 
-        //add to address EEPROM write queue
-        /*we only need to add the address to the write queue
-          because the value is already in virtexConfig*/
-        writeQueue[writeQueueWritePointer] <= address;
-        if (writeQueueWritePointer >= $size(writeQueue) - 1) begin
-            writeQueueWritePointer <= 0;
-            //TODO write queue overflow fault?
+    //Write Requests
+    reg virtexConfigWriteRequestIndex = 0;
+    reg [$size(virtexConfigWriteRequests)-1:0] lastVirtexConfigWriteRequestValids;
+    always_ff @(negedge CLK100) begin
+        //New Request //TODO fix potential metastability with virtexConfigWriteRequest
+        if (virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid & ~lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex]) begin
+            //Add to EEPROM Memory Write Queue
+            newConfigFIFOIn <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex];
+            newConfigFIFOWrite <= 1;
+
+            //TODO fault @ newConfigFIFOFull ?
         end
-        else begin
-            writeQueueWritePointer <= writeQueueWritePointer + 1;
-        end
-    endtask
+        else newConfigFIFOWrite <= 0;
+
+        lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex] <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid;
+        virtexConfigWriteRequestIndex <= ~virtexConfigWriteRequestIndex;
+    end
 endmodule

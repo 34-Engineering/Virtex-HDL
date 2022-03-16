@@ -26,7 +26,7 @@
     //TODO update based on changed to virtexConfig
      */
 module PythonSPIManager(
-    input wire CLK,
+    input wire CLK100, CLK10,
     output wire SPI_CLK, SPI_CS, //active low
     output reg SPI_MOSI,
     input wire SPI_MISO,
@@ -36,16 +36,10 @@ module PythonSPIManager(
     input wire sequencerEnabled, //what state they want the python to be in
     output reg isSequencerEnabled, //what state the actual sensor is in
     output wire isBooted,
+    input VirtexConfig virtexConfig,
     output reg PYTHON_300_PLL_FAULT,
     output reg [7:0] debug,
     output reg [7:0] wave
-    );
-
-    //10MHz Clock
-    wire CLK10;
-    clk_wiz_0 clk_wiz_0(
-        .clk_in1(CLK),
-        .clk_out1(CLK10)
     );
 
     //SPI Interface

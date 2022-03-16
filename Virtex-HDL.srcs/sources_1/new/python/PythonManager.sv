@@ -46,7 +46,7 @@
 
     */
 module PythonManager(
-    input wire CLK,
+    input wire CLK200, CLK100, CLK10,
     input wire LVDS_CLK_P, LVDS_CLK_N, LVDS_SYNC_P, LVDS_SYNC_N,
     input wire [3:0] LVDS_DOUT_P, LVDS_DOUT_N,
     output wire SPI_CS, SPI_MOSI, SPI_CLK,
@@ -55,7 +55,7 @@ module PythonManager(
     input wire [1:0] MONITOR,
     output wire RESET_SENSOR, //active low
     input wire sequencerEnabled,
-    input wire VirtexConfig virtexConfig,
+    input VirtexConfig virtexConfig,
     output reg [15:0] frameBufferWriteAddr,
     output reg [31:0] frameBufferWriteIn,
     output reg frameBufferWriteEnable,
@@ -69,7 +69,7 @@ module PythonManager(
     output reg [7:0] wave
     );
 
-    wire LVDS_CLK, CLK72, CLK180;
+    wire LVDS_CLK, CLK72;
     wire isSequencerEnabled; //whether the sequencer is actually enabled (~2.6us delay from sequencerEnabled if training is done)
     wire isBooted; //whether the python is booted (required registgers are booted)
     wire LVDS_SYNC; //serial SYNC
@@ -83,28 +83,14 @@ module PythonManager(
     logic [7:0] [3:0] kernelMonoValue = 0;
     reg isInFrame; //whether the processor is in frame
 
-    //Generate 72MHz Parallel Clock from 288MHz Input Clock
-    BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("4")) CLK72_BUFR (
-        .O(CLK72),
-        .CE(1'b1),
-        .CLR(1'b0),
-        .I(LVDS_CLK)
-    );
-
-    //Generate 180MHz Blob Processor Clock
-    clk_wiz_2 clk_wiz_2(
-        .clk_in1(CLK),
-        .clk_out1(CLK180)
-    );
-
     //Blob Processor
     Kernel lastKernelR [1:0];
-    always_ff @(posedge CLK180) begin
+    always_ff @(posedge CLK200) begin
         //Cross clock domain w/ dff
         lastKernelR[1] <= lastKernelR[0];
     end
     BlobProcessor BlobProcessor(
-        .CLK180(CLK180),
+        .CLK200(CLK200),
         .kernel(lastKernelR[1]),
         .target(target),
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
@@ -114,8 +100,10 @@ module PythonManager(
     );
 
     //Python SPI Manager
+    wire shouldEnableSequencer = sequencerEnabled & trainingDone == 5'b11111; //only enable once SERDES is ready
     PythonSPIManager PythonSPIManager(
-        .CLK(CLK),
+        .CLK100(CLK100),
+        .CLK10(CLK10),
         .SPI_CS(SPI_CS),
         .SPI_MOSI(SPI_MOSI),
         .SPI_MISO(SPI_MISO),
@@ -123,9 +111,10 @@ module PythonManager(
         .TRIGGER(TRIGGER),
         .MONITOR(MONITOR),
         .RESET_SENSOR(RESET_SENSOR),
-        .sequencerEnabled(sequencerEnabled & trainingDone == 5'b11111), //only enable the sequencer once we trained ISERDES
+        .sequencerEnabled(shouldEnableSequencer),
         .isSequencerEnabled(isSequencerEnabled),
         .isBooted(isBooted),
+        .virtexConfig(virtexConfig),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
         .debug(),
         .wave()
@@ -329,9 +318,9 @@ module PythonManager(
         .empty(frameBufferFIFOEmpty),
         .dout(frameBufferFIFOOut),
         .rd_en(frameBufferFIFORead),
-        .rd_clk(CLK)
+        .rd_clk(CLK100)
     );
-    always_ff @(negedge CLK) begin
+    always_ff @(negedge CLK100) begin
         //Write Kernel to Frame Buffer
         if (frameBufferFIFORead) begin
             frameBufferWriteAddr <= (frameBufferFIFOOut.pos.y * 80) + frameBufferFIFOOut.pos.x;
@@ -343,4 +332,12 @@ module PythonManager(
         //Read FIFO
         frameBufferFIFORead <= ~frameBufferFIFOEmpty;
     end
+
+    //72MHz Clock Generator (from 288MHz signal)
+    BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("4")) CLK72_BUFR (
+        .I(LVDS_CLK),
+        .O(CLK72),
+        .CE(1'b1),
+        .CLR(1'b0)
+    );
 endmodule

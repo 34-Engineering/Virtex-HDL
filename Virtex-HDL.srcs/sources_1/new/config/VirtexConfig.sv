@@ -30,7 +30,7 @@ typedef struct packed {
     logic [4:0] muxGainsw;
 } PythonAnalogGainConfig;
 
-typedef struct packed { //32 x 16
+typedef struct packed { //64 x 16
     //camera params & python config
     /*00*/CameraOrientation cameraOrientation;
     /*01*/LEDSafety ledSafety;
@@ -38,7 +38,7 @@ typedef struct packed { //32 x 16
     PythonBlackOffsetConfig blackOffset;
     PythonAnalogGainConfig analogGain;
     logic [15:0] digitalGain;
-    logic [15:0] exposure; // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms), max 41746 wo/ lowering fps
+    logic [15:0] exposure;
 
     //target params
     TargetMode targetMode;
@@ -65,12 +65,49 @@ typedef struct packed { //32 x 16
     BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
-    /*27*/logic [15:0] reserved27;
-    /*28*/logic [15:0] reserved28;
-    /*29*/logic [15:0] reserved29;
-    /*30*/logic [15:0] reserved30;
-    /*31*/logic [15:0] reserved31;
+    logic [15:0] reserved27;
+    logic [15:0] reserved28;
+    logic [15:0] reserved29;
+    logic [15:0] reserved30;
+    logic [15:0] reserved31;
+    logic [15:0] reserved32;
+    logic [15:0] reserved33;
+    logic [15:0] reserved34;
+    logic [15:0] reserved35;
+    logic [15:0] reserved36;
+    logic [15:0] reserved37;
+    logic [15:0] reserved38;
+    logic [15:0] reserved39;
+    logic [15:0] reserved40;
+    logic [15:0] reserved41;
+    logic [15:0] reserved42;
+    logic [15:0] reserved43;
+    logic [15:0] reserved44;
+    logic [15:0] reserved45;
+    logic [15:0] reserved46;
+    logic [15:0] reserved47;
+    logic [15:0] reserved48;
+    logic [15:0] reserved49;
+    logic [15:0] reserved50;
+    logic [15:0] reserved51;
+    logic [15:0] reserved52;
+    logic [15:0] reserved53;
+    logic [15:0] reserved54;
+    logic [15:0] reserved55;
+    logic [15:0] reserved56;
+    logic [15:0] reserved57;
+    logic [15:0] reserved58;
+    logic [15:0] reserved59;
+    logic [15:0] reserved60;
+    logic [15:0] reserved61;
+    logic [15:0] reserved62;
+    logic [15:0] memValid; //63
 } VirtexConfig;
+
+function logic [9:0] getConfigAddrIndex(logic [5:0] addr);
+    return 1023 - (addr << 4);
+endfunction
+
 localparam VirtexConfig DefaultVirtexConfig = '{
     //camera params & python config
     cameraOrientation: NORMAL,
@@ -106,14 +143,46 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
     
     //reserved for future use
-    reserved27: 16'd0,
-    reserved28: 16'd0,
-    reserved29: 16'd0,
-    reserved30: 16'd0,
-    reserved31: 16'd0
+    reserved27: 16'h0,
+    reserved28: 16'h0,
+    reserved29: 16'h0,
+    reserved30: 16'h0,
+    reserved31: 16'h0,
+    reserved32: 16'h0,
+    reserved33: 16'h0,
+    reserved34: 16'h0,
+    reserved35: 16'h0,
+    reserved36: 16'h0,
+    reserved37: 16'h0,
+    reserved38: 16'h0,
+    reserved39: 16'h0,
+    reserved40: 16'h0,
+    reserved41: 16'h0,
+    reserved42: 16'h0,
+    reserved43: 16'h0,
+    reserved44: 16'h0,
+    reserved45: 16'h0,
+    reserved46: 16'h0,
+    reserved47: 16'h0,
+    reserved48: 16'h0,
+    reserved49: 16'h0,
+    reserved50: 16'h0,
+    reserved51: 16'h0,
+    reserved52: 16'h0,
+    reserved53: 16'h0,
+    reserved54: 16'h0,
+    reserved55: 16'h0,
+    reserved56: 16'h0,
+    reserved57: 16'h0,
+    reserved58: 16'h0,
+    reserved59: 16'h0,
+    reserved60: 16'h0,
+    reserved61: 16'h0,
+    reserved62: 16'h0,
+    memValid: 16'h0034
 };
-typedef struct packed {
-    logic [4:0] address;
+typedef struct packed { //23-bit
+    logic [5:0] addr;
     logic [15:0] data;
     logic valid; //active high
 } VirtexConfigWriteRequest;

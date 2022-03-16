@@ -7,7 +7,7 @@
      - 80MHz
     */
 module FlashManager(
-    input wire CLK,
+    input wire CLK100,
     output reg SPI_CS, //active low
     output wire SPI_WP, //active low
     output wire SPI_HOLD, //active low
