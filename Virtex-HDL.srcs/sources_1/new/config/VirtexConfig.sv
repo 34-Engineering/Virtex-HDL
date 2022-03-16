@@ -22,15 +22,12 @@ typedef struct packed {
     logic [2:0] blackSamples;
     logic [7:0] blackOffset;
 } PythonBlackOffsetConfig;
-function PythonBlackOffsetConfig makePythonBlackOffsetConfig(logic [15:0] blackOffset);
-    return '{0, 8, 0, blackOffset}; //duplicated in PythonUtil
-endfunction
 
 typedef struct packed {
     logic [1:0] reserved;
     logic gainLatComp;
-    logic [7:0] afeGain0;
-    logic [4:0] muxGainsw0;
+    logic [7:0] afeGain;
+    logic [4:0] muxGainsw;
 } PythonAnalogGainConfig;
 
 typedef struct packed { //32 x 16
@@ -38,7 +35,7 @@ typedef struct packed { //32 x 16
     /*00*/CameraOrientation cameraOrientation;
     /*01*/LEDSafety ledSafety;
     logic [15:0] threshold;
-    logic [15:0] blackOffset;
+    PythonBlackOffsetConfig blackOffset;
     PythonAnalogGainConfig analogGain;
     logic [15:0] digitalGain;
     logic [15:0] exposure; // integration_time_ms = exposure * mult_timer (2) * clk_period (0.000013889ms), max 41746 wo/ lowering fps
@@ -79,10 +76,10 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     cameraOrientation: NORMAL,
     ledSafety: '{1, 1000},
     threshold: 128,
-    blackOffset: 8,
-    analogGain: '{0, 0, 15, 1},
-    digitalGain: 128,
-    exposure: 30000,
+    blackOffset: '{0, 6, 6, 8},
+    analogGain: '{0, 0, 15, 8},
+    digitalGain: 16'h0080,
+    exposure: 4000,
 
     //target params
     targetMode: GROUP,
