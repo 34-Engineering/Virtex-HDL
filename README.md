@@ -33,19 +33,19 @@ Run: a 1-pixel-tall horizontal line of similarly colored pixels that is represen
 
 ## Source
 
-`Virtex-Embedded-Code.srcs/sources_1/new`: source modules; only these files are synthesized into the FPGA bit file
+`Virtex-HDL.srcs/sources_1/new`: source modules; only these files are synthesized into the FPGA bit file
 
 - `Top.sv`: top (main) module for the FPGA source code
 
-`Virtex-Embedded-Code.srcs/sim_1/new`: sim modules; used to simulate the hardware that the source modules interact with (Python 300, FT2232H, etc.)
+`Virtex-HDL.srcs/sim_1/new`: sim modules; used to simulate the hardware that the source modules interact with (Python 300, FT2232H, etc.)
 
 - `TopSim.sv`: top simulation file for executing a global test of the entire FPGA
 
-`Virtex-Embedded-Code.srcs/test_1/new`: test modules; used to confirm that every module is working correct
+`Virtex-HDL.srcs/test_1/new`: test modules; used to confirm that every module is working correct
 
 - `TopTest.sv`: top test file for executing unit tests on every module
 
-`Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc`: master contrains file mapping ports in Top.sv to physical BGA pads
+`Virtex-HDL.srcs/constrs_1/new/Virtex.xdc`: master contrains file mapping ports in Top.sv to physical BGA pads
 
 ## Simulating & Building
 

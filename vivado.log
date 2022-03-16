@@ -4,14 +4,14 @@
 # IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
 # Start of session at: Wed Feb  9 16:25:50 2022
 # Process ID: 20044
-# Current directory: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21120 C:\Users\liams\Documents\GitHub\Virtex-Embedded-Code\Virtex-Embedded-Code.xpr
-# Log file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/vivado.log
-# Journal file: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code\vivado.jou
+# Current directory: C:/Users/liams/Documents/GitHub/Virtex-HDL
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21120 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
+# Log file: C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.log
+# Journal file: C:/Users/liams/Documents/GitHub/Virtex-HDL\vivado.jou
 #-----------------------------------------------------------
 start_gui
-open_project C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.xpr
-WARNING: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1'.
+open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr
+WARNING: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1'.
 Scanning sources...
 Finished scanning sources
 WARNING: [Project 1-509] GeneratedRun file for 'synth_1' not found
@@ -34,19 +34,19 @@ INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_3'...
 INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_3'...
 [Wed Feb  9 16:29:09 2022] Launched clk_wiz_2_synth_1, clk_wiz_0_synth_1, clk_wiz_1_synth_1, clk_wiz_3_synth_1...
 Run output will be captured here:
-clk_wiz_2_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_2_synth_1/runme.log
-clk_wiz_0_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_0_synth_1/runme.log
-clk_wiz_1_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_1_synth_1/runme.log
-clk_wiz_3_synth_1: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/clk_wiz_3_synth_1/runme.log
+clk_wiz_2_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_2_synth_1/runme.log
+clk_wiz_0_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log
+clk_wiz_1_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_1_synth_1/runme.log
+clk_wiz_3_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_3_synth_1/runme.log
 [Wed Feb  9 16:29:09 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
 INFO: [Device 21-403] Loading part xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 1466.668 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 151 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -61,39 +61,39 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2142.344 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
@@ -105,21 +105,21 @@ open_run: Time (s): cpu = 00:00:16 ; elapsed = 00:00:10 . Memory (MB): peak = 21
 reset_run synth_1
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 16:43:08 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 reset_run synth_1
 WARNING: [Vivado 12-1017] Problems encountered:
-1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
+1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1
 
 close_design
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 16:44:29 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.087 . Memory (MB): peak = 2221.438 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 185 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -135,39 +135,39 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2263.805 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
@@ -180,14 +180,14 @@ report_utilization -name utilization_1
 reset_run synth_1
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 16:56:23 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 close_design
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.484 . Memory (MB): peak = 2397.480 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 4669 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -203,39 +203,39 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2606.094 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
@@ -249,22 +249,22 @@ close_design
 reset_run synth_1
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 18:55:54 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 reset_run synth_1
 WARNING: [Vivado 12-1017] Problems encountered:
-1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1
+1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1
 
 WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
 WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 19:50:07 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.117 . Memory (MB): peak = 2606.094 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 667 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -280,39 +280,39 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2606.094 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
@@ -332,14 +332,14 @@ WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Provi
 reset_run synth_1
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 21:17:57 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 close_design
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2793.602 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -355,30 +355,30 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Common 17-41] Interrupt caught. Command should exit soon. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Common 17-344] 'get_clocks' was cancelled [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc will not be read for this cell.
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Common 17-41] Interrupt caught. Command should exit soon. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Common 17-344] 'get_clocks' was cancelled [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc will not be read for this cell.
+CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc will not be read for this cell.
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 INFO: [Common 17-344] 'open_run' was cancelled
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.131 . Memory (MB): peak = 2814.312 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -394,38 +394,38 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2828.617 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
@@ -440,14 +440,14 @@ report_utilization -name utilization_1
 reset_run synth_1
 launch_runs synth_1 -jobs 20
 [Wed Feb  9 21:33:12 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.runs/synth_1/runme.log
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
 close_design
 open_run synth_1 -name synth_1
 Design is defaulting to impl run constrset: constrs_1
 Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
+INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2828.617 ; gain = 0.000
 INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
@@ -463,38 +463,38 @@ Resolution: The tool has removed redundant IBUF. To resolve this warning, check 
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
 WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
+CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
+Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
+Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
+CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
+CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:51]
+WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
+CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
 Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc:65]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-Embedded-Code/Virtex-Embedded-Code.srcs/constrs_1/new/Virtex.xdc]
+CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
+CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
+Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
 INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
 Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2882.168 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:

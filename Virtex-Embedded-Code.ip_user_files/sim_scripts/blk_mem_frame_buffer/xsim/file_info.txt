@@ -1,2 +1,0 @@
-blk_mem_frame_buffer.v,verilog,xil_defaultlib,../../../../Virtex-Embedded-Code.gen/sources_1/ip/blk_mem_frame_buffer/sim/blk_mem_frame_buffer.v,
-glbl.v,Verilog,xil_defaultlib,glbl.v

@@ -1,0 +1,2 @@
+fifo_python_stream_sim_netlist.v,verilog,xil_defaultlib,../../../../Virtex-HDL.gen/sources_1/ip/fifo_python_stream/fifo_python_stream_sim_netlist.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

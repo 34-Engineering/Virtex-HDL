@@ -1,2 +1,0 @@
-fifo_python_to_blob_sim_netlist.v,verilog,xil_defaultlib,../../../../Virtex-Embedded-Code.gen/sources_1/ip/fifo_python_to_blob/fifo_python_to_blob_sim_netlist.v,
-glbl.v,Verilog,xil_defaultlib,glbl.v
