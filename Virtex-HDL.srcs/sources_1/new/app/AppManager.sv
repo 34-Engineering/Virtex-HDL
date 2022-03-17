@@ -137,16 +137,14 @@ module AppManager(
 
                     else if (~writeBusy) begin
                         //send kernel to PC (2 pixels at a time)
-                        if (getFramePartion == 0) writeData <= frameBufferReadOut[7:0];
-                        if (getFramePartion == 1) writeData <= frameBufferReadOut[15:8];
-                        if (getFramePartion == 2) writeData <= frameBufferReadOut[23:16];
-                        if (getFramePartion == 3) writeData <= frameBufferReadOut[31:24];
+                        writeData <= frameBufferReadOut[((getFramePartion << 3) + 7) -: 8];
                         writeDataValid <= 1;
 
                         if (getFramePartion == 3) begin
-                            if (getFrameIndex == 38400) begin //BRAM end
+                            if (getFrameIndex == 38400) begin
                                 //finish reading frame
                                 state <= IDLE;
+                                // enabled <= ~enabled;
                             end
                             else begin
                                 //read next kernel

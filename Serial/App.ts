@@ -1,19 +1,48 @@
 import express from 'express';
 import path from 'path';
-import { calculateIDX, drawCenterFillSquare, drawEllipse, drawLine, drawPixel, drawQuad, drawRect } from '../Scripting/util/OtherUtil';
 import { SerialPort } from 'serialport';
-const app: express.Application = express();
+import { Server } from 'socket.io';
+import * as http from 'http';
 
-//EJS Page
-app.use('/assets', express.static('assets', {maxAge: '1d'}));
+//Express (PC->Web)
+const app: express.Application = express();
+app.use('/assets', express.static('assets', { maxAge: '1d' }));
 app.set('view engine', 'ejs');
-app.get('/', (req: express.Request, res: express.Response) => {
-    res.render(path.join(__dirname, '/App'));
+app.use(express.json());
+app.get('/', (req, res) => res.render(path.join(__dirname, '/App')));
+app.use("/socket.io.js", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js')));
+const server = http.createServer(app);
+
+//Socket (PC->Web)
+const io = new Server(server);
+io.on('connection', (socket) => {
+    console.log('Web Connected');
+
+    socket.on('disable', () => {
+        console.log(' > diabling');
+        queue.push(0xA);
+    });
+    socket.on('enable', () => {
+        console.log(' > enabling');
+        queue.push(0xB);
+    });
+    socket.on('setting', (req: { addr: number, value: number }) => {
+        console.log(` > updating setting ${req.addr} to ${req.value}`);
+        queue.push(0b11000000 + req.addr);
+        queue.push(req.value >> 8);
+        queue.push(req.value & 0xFF);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Web Disconnected');
+    });
 });
 
-//Serial
+//Serial (PC->FT2232H->FPGA)
 let serialPort: any | null = null;
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+let frame: Buffer = Buffer.alloc(153600);
+let framePointer: number = 0;
+let queue: number[] = [];
 async function initSerialPort() {
     serialPort = new SerialPort({
         path: '\\\\.\\COM6',
@@ -22,74 +51,43 @@ async function initSerialPort() {
     });
     serialPort.on('data', onData);
     serialPort.on('error', onError);
-    serialPort.on('close', () => { process.exit(1); });
+    serialPort.on('open', () => console.log("Virtex Connected"));
+    serialPort.on('close', () => process.exit(1));
 
+    //Request First Frame
     serialPort.write(Buffer.from([0b00000001]));
 }
-initSerialPort();
-
-//Frame
-let frame: Buffer = Buffer.alloc(153600);
-let framePointer: number = 0;
-let queue: number[] = [];
-
 function onData(newData: Buffer) {
-    // console.log(newData);
+    //Load Buffer Chunks into Frame Buffer
     for (let i = 0; i < newData.length; i++) {
         frame[framePointer] = newData[i];
         framePointer++;
     }
 
+    //Frame Done
     if (framePointer >= 153600) {
+        //Send to Web
+        io.emit('frame', frame);
+        
+        //Reset
         framePointer = 0;
+        
+        //Write Command Queue
         if (queue.length > 0) {
             serialPort.write(Buffer.from(queue));
             queue = [];
         }
+
+        //Request New Frame
         serialPort.write(Buffer.from([0b00000001]));
     }
 }
 function onError(err: any) {
     console.error(err);
 }
+initSerialPort();
 
-//Actions
-app.use(express.json());
-app.post('/frame', (req: express.Request, res: express.Response) => {
-    try {
-        res.send({ frame });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/setting', (req: express.Request, res: express.Response) => {
-    try {
-        queue.push(0b11000000 + req.body.addr);
-        queue.push(req.body.value >> 8);
-        queue.push(req.body.value & 0xFF);
-        res.send({ ok: true });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/disable', (req: express.Request, res: express.Response) => {
-    try {
-        queue.push(0xA);
-        res.send({ ok: true });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/enable', (req: express.Request, res: express.Response) => {
-    try {
-        queue.push(0xB);
-        res.send({ ok: true });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-
-//Host Webapp
-app.post('/ping', (req: express.Request, res: express.Response) => {
-    res.send({ pid: process.pid });
-});
-const port: number = 34;
-app.listen(port, () => {
-  return console.log(`Serial App @ http://localhost:${port}`);
+//Host
+server.listen(34, function () {
+    console.log(`Hosting @ http://localhost:${34}`);
 });

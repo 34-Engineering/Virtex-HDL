@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -42,16 +65,43 @@ exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var path_1 = __importDefault(require("path"));
 var serialport_1 = require("serialport");
+var socket_io_1 = require("socket.io");
+var http = __importStar(require("http"));
+//Express (PC->Web)
 var app = (0, express_1["default"])();
-//EJS Page
 app.use('/assets', express_1["default"].static('assets', { maxAge: '1d' }));
 app.set('view engine', 'ejs');
-app.get('/', function (req, res) {
-    res.render(path_1["default"].join(__dirname, '/App'));
+app.use(express_1["default"].json());
+app.get('/', function (req, res) { return res.render(path_1["default"].join(__dirname, '/App')); });
+app.use("/socket.io.js", express_1["default"].static(path_1["default"].join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js')));
+var server = http.createServer(app);
+//Socket (PC->Web)
+var io = new socket_io_1.Server(server);
+io.on('connection', function (socket) {
+    console.log('Web Connected');
+    socket.on('disable', function () {
+        console.log(' > diabling');
+        queue.push(0xA);
+    });
+    socket.on('enable', function () {
+        console.log(' > enabling');
+        queue.push(0xB);
+    });
+    socket.on('setting', function (req) {
+        console.log(" > updating setting ".concat(req.addr, " to ").concat(req.value));
+        queue.push(192 + req.addr);
+        queue.push(req.value >> 8);
+        queue.push(req.value & 0xFF);
+    });
+    socket.on('disconnect', function () {
+        console.log('Web Disconnected');
+    });
 });
-//Serial
+//Serial (PC->FT2232H->FPGA)
 var serialPort = null;
-var sleep = function (ms) { return new Promise(function (r) { return setTimeout(r, ms); }); };
+var frame = Buffer.alloc(153600);
+var framePointer = 0;
+var queue = [];
 function initSerialPort() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -62,79 +112,40 @@ function initSerialPort() {
             });
             serialPort.on('data', onData);
             serialPort.on('error', onError);
-            serialPort.on('close', function () { process.exit(1); });
+            serialPort.on('open', function () { return console.log("Virtex Connected"); });
+            serialPort.on('close', function () { return process.exit(1); });
+            //Request First Frame
             serialPort.write(Buffer.from([1]));
             return [2 /*return*/];
         });
     });
 }
-initSerialPort();
-//Frame
-var frame = Buffer.alloc(153600);
-var framePointer = 0;
-var queue = [];
 function onData(newData) {
-    // console.log(newData);
+    //Load Buffer Chunks into Frame Buffer
     for (var i = 0; i < newData.length; i++) {
         frame[framePointer] = newData[i];
         framePointer++;
     }
+    //Frame Done
     if (framePointer >= 153600) {
+        //Send to Web
+        io.emit('frame', frame);
+        //Reset
         framePointer = 0;
+        //Write Command Queue
         if (queue.length > 0) {
             serialPort.write(Buffer.from(queue));
             queue = [];
         }
+        //Request New Frame
         serialPort.write(Buffer.from([1]));
     }
 }
 function onError(err) {
     console.error(err);
 }
-//Actions
-app.use(express_1["default"].json());
-app.post('/frame', function (req, res) {
-    try {
-        res.send({ frame: frame });
-    }
-    catch (e) {
-        res.send({ error: e });
-    }
-});
-app.post('/setting', function (req, res) {
-    try {
-        queue.push(192 + req.body.addr);
-        queue.push(req.body.value >> 8);
-        queue.push(req.body.value & 0xFF);
-        res.send({ ok: true });
-    }
-    catch (e) {
-        res.send({ error: e });
-    }
-});
-app.post('/disable', function (req, res) {
-    try {
-        queue.push(0xA);
-        res.send({ ok: true });
-    }
-    catch (e) {
-        res.send({ error: e });
-    }
-});
-app.post('/enable', function (req, res) {
-    try {
-        queue.push(0xB);
-        res.send({ ok: true });
-    }
-    catch (e) {
-        res.send({ error: e });
-    }
-});
-//Host Webapp
-app.post('/ping', function (req, res) {
-    res.send({ pid: process.pid });
-});
-var port = 34;
-app.listen(port, function () {
-    return console.log("Serial App @ http://localhost:".concat(port));
+initSerialPort();
+//Host
+server.listen(34, function () {
+    console.log("Hosting @ http://localhost:".concat(34));
 });

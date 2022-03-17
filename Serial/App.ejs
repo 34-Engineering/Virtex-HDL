@@ -54,29 +54,34 @@
         <canvas id="canvas" width="640" height="480"></canvas>
     </div>
 
+    <script src="socket.io.js"></script>
     <script>
+        let socket = io();
         const canvasWrapper = document.querySelector('.canvas-wrapper');
         const canvas = document.querySelector('#canvas');
         const ctx = canvas.getContext('2d');
 
         //Draw Frame
+        // let frames = [];
         let frame;
-        let boot = false;
+
         function drawFrame() {
             if (!frame) return;
-
-            if (!boot) { boot = true; console.log(frame); }
+            // if (!frames[0] || !frames[1]) return;
 
             const img = ctx.createImageData(640, 480);
-            const threshold = true;
+            // const threshold = true;
             for (let i = 0; i < frame.length; i++) {
+            // for (let i = 0; i < frames[0].length; i++) {
                 const idx = i << 3;
-                let pix1 = (frame[i] & 0xF) * 17;
-                let pix2 = (frame[i] >> 4) * 17;
-                if (threshold) {
-                    pix1 = pix1 > 128 ? 255:0;
-                    pix2 = pix2 > 128 ? 255:0;
-                }
+                let pix1 = (frame[i] & 0xF) * 17 > 128 ? 255:0;
+                let pix2 = (frame[i] >> 4) * 17  > 128 ? 255:0;
+                // let pix1Pos = (frames[1][i] & 0xF) * 17 > 128;
+                // let pix1Neg = (frames[0][i] & 0xF) * 17 > 128;
+                // let pix2Pos = (frames[1][i] >> 4) * 17 > 128;
+                // let pix2Neg = (frames[0][i] >> 4) * 17 > 128;
+                // let pix1 = pix1Pos | pix1Neg ? 255 : 0;
+                // let pix2 = pix2Pos | pix2Neg ? 255 : 0;
 
                 img.data[idx + 0] = pix1;
                 img.data[idx + 1] = pix1;
@@ -91,65 +96,23 @@
         }
         drawFrame();
 
-        //POST Request + Update UI based on Response
-        const sleep = ms => new Promise(r => setTimeout(r, ms));
-        async function main() {
-            while (1) {
-                const newFrame = (await post('/frame', {})).frame;
-                if (newFrame) {
-                    frame = newFrame.data;
-                    drawFrame();
-                    await sleep(0.1);
-                }
-            }
-        }
-        main();
+        //Recieved Frame
+        let partion = 0;
+        socket.on('frame', (newFrame) => {
+            frame = new Uint8Array(newFrame);
+            // frames[partion] = frame.data;
+            // partion = partion == 0 ? 1 : 0;
+            drawFrame();
+        });
 
-        //Ping (keep track of what process we were using
-        //and if a new process spawns, reload page)
-        let pid;
-        post('/ping').then((res) => pid = res.pid);
-        setInterval(async () => {
-            const res = await post('/ping');
-            if (res.pid !== pid) {
-                window.location.reload();
-            }
-        }, 250);
+        //Load Settings
+        socket.emit('setting', { addr: 4, value: 0b111100100 }); //analog gain
+        socket.emit('setting', { addr: 7, value: 2 }); //mult timer
+        socket.emit('setting', { addr: 8, value: 39639 }); //frame length
+        socket.emit('setting', { addr: 6, value: 1000 }); //exposure
 
-        post("/setting", { addr: 4, value: 0b111100100 }); //analog gain
-
-        post("/setting", { addr: 7, value: 2 }); //mult timer
-        post("/setting", { addr: 8, value: 39639 }); //frame length
-        post("/setting", { addr: 6, value: 1000 }); //exposure
-
-        // async function test() {
-        //     const dt = 0.2;
-        //     while (1) {
-        //         post("/enable");
-        //         await sleep(dt);
-        //         post("/disable");
-        //         await sleep(dt);
-        //     }
-        // } test();
-        post("/enable");
-        // post("/disable");
-
-        //HTTP POST Request
-        async function post(url, data = {}) {
-            const res = await (await fetch(url, {
-                method: 'POST',
-                cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })).json();
-            if (res.error) {
-                //log error
-                console.error(res.error);
-            }
-            return res;
-        }
+        socket.emit('enable');
+        // socket.emit('disable');
     </script>
 </body>
 
