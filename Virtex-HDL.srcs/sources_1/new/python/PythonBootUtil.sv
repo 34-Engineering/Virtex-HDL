@@ -59,14 +59,12 @@ localparam PythonSPICommand powerUpSequenceRegisterUpload [144] = '{
     '{setExposureAddress   , 1, DefaultVirtexConfig.exposure},//30000},	// Exposure_0 (following frames)
     '{setExposureAddress+31, 1, DefaultVirtexConfig.exposure},//30000},	// Exposure_1 (current frame)
     
-    //1.111mS, 829.368fps
-
     // fr_length & mult_timer config (Python 300}, ZROT
     //NOTE: find with "PYTHON Frame Rate Calculator V3.0" & "python300.ini"
-    '{199, 1, 16'd20},//16'd2},	    // Mult_timer_0 (following frames)
-    '{230, 1, 16'd20},//16'd2},	    // Mult_timer_1 (current frame)
-    '{200, 1, 16'd4102},//16'd41500},	// Fr_length_0 (following frames)
-    '{231, 1, 16'd4102},//16'd41500},	// Fr_length_1 (current frame)
+    '{setMultTimerAddress   , 1, DefaultVirtexConfig.multTimer},//16'd2},	    // Mult_timer_0 (following frames)
+    '{setMultTimerAddress+31, 1, DefaultVirtexConfig.multTimer},//16'd2},	    // Mult_timer_1 (current frame)
+    '{setFrameLengthAddress   , 1, DefaultVirtexConfig.frameLength},//16'd41500},	// Fr_length_0 (following frames)
+    '{setFrameLengthAddress+31, 1, DefaultVirtexConfig.frameLength},//16'd41500},	// Fr_length_1 (current frame)
     
     /*
     0x01E3 1111 00011

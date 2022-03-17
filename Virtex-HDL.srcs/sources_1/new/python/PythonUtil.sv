@@ -33,7 +33,7 @@ localparam PYTHON_TRAINING_PATTERN = 8'hE9; //training pattern for SYNC + DOUT
 typedef struct packed { //26-bit
     logic [0:8] address;
     logic readWrite; //1 for write
-    logic [0:15] word;
+    logic [0:15] value;
 } PythonSPICommand;
 localparam PythonSPICommandEndIndex = $bits(PythonSPICommand) - 1;
 
@@ -47,5 +47,15 @@ localparam logic [8:0] setBlackOffsetAddress = 128;
 localparam logic [8:0] setAnalogGainAddress = 204;
 localparam logic [8:0] setDigitalGainAddress = 205;
 localparam logic [8:0] setExposureAddress = 201;
+localparam logic [8:0] setMultTimerAddress = 199;
+localparam logic [8:0] setFrameLengthAddress = 200;
+localparam logic [8:0] setSettingAddresses [6] = '{
+    setBlackOffsetAddress,
+    setAnalogGainAddress,
+    setDigitalGainAddress,
+    setExposureAddress,
+    setMultTimerAddress,
+    setFrameLengthAddress
+};
 
 `endif

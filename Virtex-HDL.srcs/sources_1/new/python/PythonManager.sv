@@ -116,7 +116,7 @@ module PythonManager(
         .isBooted(isBooted),
         .virtexConfig(virtexConfig),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug(),
+        .debug(debug),
         .wave()
     );
 
@@ -207,7 +207,6 @@ module PythonManager(
             end
 
             else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-                debug <= 8'b10101010;
                 isInFrame = 0;
                 processImageData();
                 //TODO resetting logic?

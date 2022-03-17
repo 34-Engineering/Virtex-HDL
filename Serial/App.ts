@@ -24,29 +24,30 @@ async function initSerialPort() {
     serialPort.on('error', onError);
     serialPort.on('close', () => { process.exit(1); });
 
-    // serialPort.write(Buffer.from([0b00000001]));
-    serialPort.write(Buffer.from([0b11000000 + 30, 0x69, 0x42]));
-
-    console.log("WRITE");
-    await sleep(500);
-    serialPort.write(Buffer.from([0b10000000 + 30]));
+    serialPort.write(Buffer.from([0b00000001]));
 }
 initSerialPort();
 
 //Frame
 let frame: Buffer = Buffer.alloc(153600);
 let framePointer: number = 0;
-function onData(newData: Buffer) {
-    console.log(newData);
-    // for (let i = 0; i < newData.length; i++) {
-    //     frame[framePointer] = newData[i];
-    //     framePointer++;
-    // }
+let queue: number[] = [];
 
-    // if (framePointer >= 153600) {
-    //     framePointer = 0;
-    //     serialPort.write(Buffer.from([0b00000001]));
-    // }
+function onData(newData: Buffer) {
+    // console.log(newData);
+    for (let i = 0; i < newData.length; i++) {
+        frame[framePointer] = newData[i];
+        framePointer++;
+    }
+
+    if (framePointer >= 153600) {
+        framePointer = 0;
+        if (queue.length > 0) {
+            serialPort.write(Buffer.from(queue));
+            queue = [];
+        }
+        serialPort.write(Buffer.from([0b00000001]));
+    }
 }
 function onError(err: any) {
     console.error(err);
@@ -57,6 +58,29 @@ app.use(express.json());
 app.post('/frame', (req: express.Request, res: express.Response) => {
     try {
         res.send({ frame });
+    }
+    catch (e) { res.send({ error: e }); }
+});
+app.post('/setting', (req: express.Request, res: express.Response) => {
+    try {
+        queue.push(0b11000000 + req.body.addr);
+        queue.push(req.body.value >> 8);
+        queue.push(req.body.value & 0xFF);
+        res.send({ ok: true });
+    }
+    catch (e) { res.send({ error: e }); }
+});
+app.post('/disable', (req: express.Request, res: express.Response) => {
+    try {
+        queue.push(0xA);
+        res.send({ ok: true });
+    }
+    catch (e) { res.send({ error: e }); }
+});
+app.post('/enable', (req: express.Request, res: express.Response) => {
+    try {
+        queue.push(0xB);
+        res.send({ ok: true });
     }
     catch (e) { res.send({ error: e }); }
 });

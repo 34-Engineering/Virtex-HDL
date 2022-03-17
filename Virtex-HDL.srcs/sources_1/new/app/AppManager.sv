@@ -22,7 +22,8 @@ module AppManager(
     input wire [31:0] frameBufferWriteIn,
     input wire frameBufferWriteEnable,
     output reg [7:0] debug,
-    input reg [7:0] wave
+    input reg [7:0] wave,
+    output reg enabled
     );
 
     //Codes
@@ -33,7 +34,7 @@ module AppManager(
 
     //State
     enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
-    wire enabled = USB_ON & !USB_PWREN & USB_SUS;
+    wire USB_ENABLED = USB_ON & ~USB_PWREN & USB_SUS;
 
     //Frame buffer
     wire CLKInv = ~CLK100;
@@ -64,7 +65,7 @@ module AppManager(
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS),
-        .enabled(1'b1),
+        .enabled(USB_ENABLED),
         .writeData(writeData),
         .writeDataValid(writeDataValid),
         .writeBusy(writeBusy),
@@ -84,6 +85,8 @@ module AppManager(
     reg newReadData = 0;
     initial virtexConfigWriteRequest = 0;
 
+    initial enabled = 0;
+
     always_ff @(posedge CLK50) begin
         //New Read Data
         newReadData = readDataValid & ~lastReadDataValid;
@@ -95,7 +98,7 @@ module AppManager(
         // end
         // else writeDataValid <= 0;
 
-        if (enabled) begin
+        if (USB_ENABLED) begin
             case (state)
                 IDLE: begin
                     if (newReadData) begin
@@ -109,6 +112,9 @@ module AppManager(
                         end
 
                         //TODO Get Target
+
+                        else if (readData == 8'hA) enabled <= 0;
+                        else if (readData == 8'hB) enabled <= 1;
 
                         //Config
                         else if (readData[7] == CONFIG_BIT) begin

@@ -41,7 +41,7 @@ module LEDManager(
     reg clearedFault = 0;
     reg [26:0] faultTimer = 0;
     reg [7:0] tb = 0;
-    assign LED_IR = 0;//enabled & tb == 0; //~fault//~PWR_12V_EN;
+    assign LED_IR = enabled & tb == 0; //~fault//~PWR_12V_EN;
     always_ff @(posedge CLK100) begin
         tb <= tb + 1;
 

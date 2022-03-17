@@ -34,11 +34,13 @@ typedef struct packed { //64 x 16
     //camera params & python config
     /*00*/CameraOrientation cameraOrientation;
     /*01*/LEDSafety ledSafety;
-    logic [15:0] threshold;
-    PythonBlackOffsetConfig blackOffset;
-    PythonAnalogGainConfig analogGain;
-    logic [15:0] digitalGain;
-    logic [15:0] exposure;
+    /*02*/logic [15:0] threshold;
+    /*03*/PythonBlackOffsetConfig blackOffset;
+    /*04*/PythonAnalogGainConfig analogGain;
+    /*05*/logic [15:0] digitalGain;
+    /*06*/logic [15:0] exposure;
+    /*07*/logic [15:0] multTimer;
+    /*08*/logic [15:0] frameLength;
 
     //target params
     TargetMode targetMode;
@@ -65,8 +67,6 @@ typedef struct packed { //64 x 16
     BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
-    logic [15:0] reserved27;
-    logic [15:0] reserved28;
     logic [15:0] reserved29;
     logic [15:0] reserved30;
     logic [15:0] reserved31;
@@ -104,10 +104,6 @@ typedef struct packed { //64 x 16
     logic [15:0] memValid; //63
 } VirtexConfig;
 
-function logic [9:0] getConfigAddrIndex(logic [5:0] addr);
-    return 1023 - (addr << 4);
-endfunction
-
 localparam VirtexConfig DefaultVirtexConfig = '{
     //camera params & python config
     cameraOrientation: NORMAL,
@@ -117,6 +113,8 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     analogGain: '{0, 0, 15, 8},
     digitalGain: 16'h0080,
     exposure: 4000,
+    multTimer: 20,
+    frameLength: 41500,
 
     //target params
     targetMode: GROUP,
@@ -143,8 +141,6 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
     
     //reserved for future use
-    reserved27: 16'h0,
-    reserved28: 16'h0,
     reserved29: 16'h0,
     reserved30: 16'h0,
     reserved31: 16'h0,
@@ -181,6 +177,11 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     reserved62: 16'h0,
     memValid: 16'h0034
 };
+
+function logic [9:0] getConfigAddrIndex(logic [5:0] addr);
+    return 1023 - (addr << 4);
+endfunction
+
 typedef struct packed { //23-bit
     logic [5:0] addr;
     logic [15:0] data;

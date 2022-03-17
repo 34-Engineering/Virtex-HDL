@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `include "../util/Fault.sv"
+`include "../config/VirtexConfig.sv"
 `include "PythonUtil.sv"
 `include "PythonBootUtil.sv"
 
@@ -18,7 +19,7 @@
      - Disable Clock Management
 
     10MHz
-    9-bit address, 16-bit words
+    9-bit address, 16-bit values
     10th bit = r/w
     MSB first
     Some registers can only be changed while the sequencer is disabled
@@ -61,24 +62,47 @@ module PythonSPIManager(
     reg [7:0] commandNumber = 0; //which SPI command we are on in the current stage
     wire [4:0] commandPointer = sequencePointer - 1; //where we are in the PythonSPICommand
     reg [15:0] response = 0; //response data for check PLL lock
-    reg currentSequencerEnabled = 0; //what sequencer state we are currently setting to
-    wire wantsToSetSequencer = bootState == DONE & sequencerEnabled != isSequencerEnabled; //we need to write enable/disable sequencer
-    initial isSequencerEnabled = 0;
+    
     reg reset = 0;
     assign RESET_SENSOR = reset;
 
-    //TODO update virtexConfig live
+    initial isSequencerEnabled = 0;
+    reg currentSequencerEnabled = 0; //what sequencer state we are currently setting to
+    wire wantsToSetSequencer = sequencerEnabled != isSequencerEnabled;
+
+    wire [15:0] wantedSettings [6] = '{
+        virtexConfig.blackOffset,
+        virtexConfig.analogGain,
+        virtexConfig.digitalGain,
+        virtexConfig.exposure,
+        virtexConfig.multTimer,
+        virtexConfig.frameLength
+    };
+    reg [15:0] loadedSettings [6] = '{
+        DefaultVirtexConfig.blackOffset,
+        DefaultVirtexConfig.analogGain,
+        DefaultVirtexConfig.digitalGain,
+        DefaultVirtexConfig.exposure,
+        DefaultVirtexConfig.multTimer,
+        DefaultVirtexConfig.frameLength
+    };
+    reg wantsToUploadSetting; //wantedSettings != loadedSettings
+    reg [2:0] wantsToUploadSettingIndex; //which setting we want to set
+    reg [2:0] currentUploadSettingIndex; //which setting are we setting currently
+    wire PythonSPICommand currentUploadSettingCommand = '{
+        address: setSettingAddresses[currentUploadSettingIndex],
+        readWrite: 1'b1,
+        value: loadedSettings[currentUploadSettingIndex]
+    };
 
     //SPI Loop
-    reg [7:0] counter = 0;
-    reg last = 0;
     always_ff @(negedge CLK10) begin
         //Pull Down Reset
         if (~reset) begin
             reset <= 1;
         end
 
-        //Read/Write Sequence Data (address + read/write + word)
+        //Read/Write Sequence Data (address + read/write + value)
         else if (inSequence) begin
             //Enable Clock Management 1
             if (bootState == ENABLE_CLOCK_MANAGEMENT_1 & ~isBlanking) begin
@@ -154,8 +178,8 @@ module PythonSPIManager(
                 end
             end
 
-            //Done (enable/disable sequencer)
-            else if (bootState == DONE & ~isBlanking) begin
+            //Enable/Disable Sequencer)
+            else if (bootState == DONE & wantsToSetSequencer & ~isBlanking) begin
                 //write command [0:25]
                 SPI_MOSI <= enableDisableSequencer[currentSequencerEnabled][PythonSPICommandEndIndex - commandPointer];
 
@@ -164,6 +188,12 @@ module PythonSPIManager(
                     //flag what state the sensor is now in
                     isSequencerEnabled <= currentSequencerEnabled;
                 end
+            end
+            
+            //Update Setting
+            else if (bootState == DONE & ~isBlanking) begin
+                //write command [0:25]
+                SPI_MOSI <= currentUploadSettingCommand[PythonSPICommandEndIndex - commandPointer];
             end
 
             //Finish or Increment
@@ -174,14 +204,33 @@ module PythonSPIManager(
         end
 
         //Wants to Start Another Sequence
-        else if (bootState != DONE | wantsToSetSequencer) begin
+        else if (bootState != DONE | wantsToSetSequencer | wantsToUploadSetting) begin
             inSequence <= 1;
             sequencePointer <= 0;
 
-            if (wantsToSetSequencer) begin
+            if (bootState == DONE) begin
                 //save what state we are setting to for transaction
-                //in case sequencerEnabled changes mid transaction
-                currentSequencerEnabled <= sequencerEnabled;
+                if (wantsToSetSequencer) begin
+                    //in case sequencerEnabled changes mid transaction
+                    currentSequencerEnabled <= sequencerEnabled;
+                end
+                
+                //save new setting
+                else begin
+                    currentUploadSettingIndex <= wantsToUploadSettingIndex;
+                    loadedSettings[wantsToUploadSettingIndex] <= wantedSettings[wantsToUploadSettingIndex];
+                end
+            end
+        end
+    end
+
+    //Settings Changes
+    always_comb begin
+        wantsToUploadSetting = 0;
+        for (int i = 0; i < $size(loadedSettings); i++) begin
+            if (wantedSettings[i] != loadedSettings[i]) begin
+                wantsToUploadSetting = 1;
+                wantsToUploadSettingIndex = i;
             end
         end
     end

@@ -55,25 +55,16 @@ var sleep = function (ms) { return new Promise(function (r) { return setTimeout(
 function initSerialPort() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    serialPort = new serialport_1.SerialPort({
-                        path: '\\\\.\\COM6',
-                        baudRate: 921600,
-                        parity: 'none'
-                    });
-                    serialPort.on('data', onData);
-                    serialPort.on('error', onError);
-                    serialPort.on('close', function () { process.exit(1); });
-                    // serialPort.write(Buffer.from([0b00000001]));
-                    serialPort.write(Buffer.from([192 + 30, 0x69, 0x42]));
-                    console.log("WRITE");
-                    return [4 /*yield*/, sleep(500)];
-                case 1:
-                    _a.sent();
-                    serialPort.write(Buffer.from([128 + 30]));
-                    return [2 /*return*/];
-            }
+            serialPort = new serialport_1.SerialPort({
+                path: '\\\\.\\COM6',
+                baudRate: 921600,
+                parity: 'none'
+            });
+            serialPort.on('data', onData);
+            serialPort.on('error', onError);
+            serialPort.on('close', function () { process.exit(1); });
+            serialPort.write(Buffer.from([1]));
+            return [2 /*return*/];
         });
     });
 }
@@ -81,16 +72,21 @@ initSerialPort();
 //Frame
 var frame = Buffer.alloc(153600);
 var framePointer = 0;
+var queue = [];
 function onData(newData) {
-    console.log(newData);
-    // for (let i = 0; i < newData.length; i++) {
-    //     frame[framePointer] = newData[i];
-    //     framePointer++;
-    // }
-    // if (framePointer >= 153600) {
-    //     framePointer = 0;
-    //     serialPort.write(Buffer.from([0b00000001]));
-    // }
+    // console.log(newData);
+    for (var i = 0; i < newData.length; i++) {
+        frame[framePointer] = newData[i];
+        framePointer++;
+    }
+    if (framePointer >= 153600) {
+        framePointer = 0;
+        if (queue.length > 0) {
+            serialPort.write(Buffer.from(queue));
+            queue = [];
+        }
+        serialPort.write(Buffer.from([1]));
+    }
 }
 function onError(err) {
     console.error(err);
@@ -100,6 +96,35 @@ app.use(express_1["default"].json());
 app.post('/frame', function (req, res) {
     try {
         res.send({ frame: frame });
+    }
+    catch (e) {
+        res.send({ error: e });
+    }
+});
+app.post('/setting', function (req, res) {
+    try {
+        queue.push(192 + req.body.addr);
+        queue.push(req.body.value >> 8);
+        queue.push(req.body.value & 0xFF);
+        res.send({ ok: true });
+    }
+    catch (e) {
+        res.send({ error: e });
+    }
+});
+app.post('/disable', function (req, res) {
+    try {
+        queue.push(0xA);
+        res.send({ ok: true });
+    }
+    catch (e) {
+        res.send({ error: e });
+    }
+});
+app.post('/enable', function (req, res) {
+    try {
+        queue.push(0xB);
+        res.send({ ok: true });
     }
     catch (e) {
         res.send({ error: e });

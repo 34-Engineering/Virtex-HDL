@@ -68,10 +68,15 @@
             if (!boot) { boot = true; console.log(frame); }
 
             const img = ctx.createImageData(640, 480);
+            const threshold = true;
             for (let i = 0; i < frame.length; i++) {
                 const idx = i << 3;
-                const pix1 = (frame[i] & 0xF) * 17;
-                const pix2 = (frame[i] >> 4) * 17;
+                let pix1 = (frame[i] & 0xF) * 17;
+                let pix2 = (frame[i] >> 4) * 17;
+                if (threshold) {
+                    pix1 = pix1 > 128 ? 255:0;
+                    pix2 = pix2 > 128 ? 255:0;
+                }
 
                 img.data[idx + 0] = pix1;
                 img.data[idx + 1] = pix1;
@@ -110,6 +115,24 @@
                 window.location.reload();
             }
         }, 250);
+
+        post("/setting", { addr: 4, value: 0b111100100 }); //analog gain
+
+        post("/setting", { addr: 7, value: 2 }); //mult timer
+        post("/setting", { addr: 8, value: 39639 }); //frame length
+        post("/setting", { addr: 6, value: 1000 }); //exposure
+
+        // async function test() {
+        //     const dt = 0.2;
+        //     while (1) {
+        //         post("/enable");
+        //         await sleep(dt);
+        //         post("/disable");
+        //         await sleep(dt);
+        //     }
+        // } test();
+        post("/enable");
+        // post("/disable");
 
         //HTTP POST Request
         async function post(url, data = {}) {

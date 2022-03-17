@@ -23,10 +23,6 @@ module Top(
     // input wire RIO_CLK, RIO_MOSI, RIO_CS,
     // output wire RIO_MISO,
 
-    //Config EEPROM
-    output wire CONF_CS, CONF_WP, CONF_HOLD, CONF_CLK, CONF_MOSI,
-    input wire CONF_MISO,
-
     //Flash Memory
     // output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_CLK, FLASH_MOSI,
     // input wire FLASH_MISO,
@@ -53,7 +49,7 @@ module Top(
     );
 
     //Master (wires + registers)
-    wire enabled = 1;
+    wire enabled;
     wire configBootDone;
     wire hasCommunication;
     Faults faults;
@@ -70,17 +66,9 @@ module Top(
     //ConfigManager
     ConfigManager ConfigManager(
         .CLK100(CLK100),
-        .CLK10(CLK10),
-        .SPI_CS(CONF_CS),
-        .SPI_WP(CONF_WP),
-        .SPI_HOLD(CONF_HOLD),
-        .SPI_CLK(CONF_CLK),
-        .SPI_MOSI(CONF_MOSI),
-        .SPI_MISO(CONF_MISO),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequests(virtexConfigWriteRequests),
-        .bootDone(configBootDone),
-        .debug(debug)
+        .debug()
     );
 
     //PythonManager
@@ -112,7 +100,7 @@ module Top(
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
         .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
-        .debug(),
+        .debug(debug),
         .wave(wave)
     );
 
@@ -133,7 +121,8 @@ module Top(
         .frameBufferWriteIn(frameBufferWriteIn),
         .frameBufferWriteEnable(frameBufferWriteEnable),
         .debug(),
-        .wave(wave)
+        .wave(wave),
+        .enabled(enabled)
     );
 
     // //RoboRIOManager
