@@ -62,21 +62,14 @@
         const ctx = canvas.getContext('2d');
 
         //Draw Frame
-        const SLR_ENABLED = false;
-        let frames = [];
+        let frame;
 
         function drawFrame() {
-            if (!frames[0] || !frames[1]) return;
-
             const img = ctx.createImageData(640, 480);
-            for (let i = 0; i < frames[0].length; i++) {
+            for (let i = 0; i < frame.length; i++) {
                 const idx = i << 3;
-                let pix1Pos = (frames[1][i] & 0xF) * 17 > 128;
-                let pix1Neg = (frames[0][i] & 0xF) * 17 > 128;
-                let pix2Pos = (frames[1][i] >> 4) * 17 > 128;
-                let pix2Neg = (frames[0][i] >> 4) * 17 > 128;
-                let pix1 = pix1Pos ? 255 : 0;
-                let pix2 = pix2Pos ? 255 : 0;
+                const pix1 = (frame[i] & 0xF) * 17;// > 128 ? 255 : 0;
+                const pix2 = (frame[i] >> 4) * 17 ;// > 128 ? 255 : 0;
 
                 img.data[idx + 0] = pix1;
                 img.data[idx + 1] = pix1;
@@ -89,16 +82,10 @@
             }
             ctx.putImageData(img, 0, 0);
         }
-        drawFrame();
 
         //Recieved Frame
-        let partion = 0;
         socket.on('frame', (newFrame) => {
-            // frame = new Uint8Array(newFrame);
-            frames[partion] = new Uint8Array(newFrame);
-            // if (partion) socket.emit('enable');
-            // else socket.emit('disable');
-            partion = partion == 0 ? 1 : 0;
+            frame = new Uint8Array(newFrame);
             drawFrame();
         });
 
@@ -108,8 +95,8 @@
         socket.emit('setting', { addr: 8, value: 39639 }); //frame length
         socket.emit('setting', { addr: 6, value: 1000 }); //exposure
 
-        // socket.emit('enable');
-        socket.emit('disable');
+        socket.emit('enable');
+        // socket.emit('disable');
     </script>
 </body>
 

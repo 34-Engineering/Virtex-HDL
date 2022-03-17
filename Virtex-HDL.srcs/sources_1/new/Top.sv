@@ -24,8 +24,8 @@ module Top(
     // output wire RIO_MISO,
 
     //Flash Memory
-    // output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_CLK, FLASH_MOSI,
-    // input wire FLASH_MISO,
+    output wire FLASH_CS, FLASH_WP, FLASH_HOLD, FLASH_MOSI,
+    input wire FLASH_MISO,
 
     //LEDs
     output wire LED_IR, LED_USER,
@@ -139,13 +139,12 @@ module Top(
     //     .target(target)
     // );
 
-    // //FlashManager
+    //FlashManager
     // FlashManager FlashManager(
     //     .CLK100(CLK100),
     //     .SPI_CS(FLASH_CS),
     //     .SPI_WP(FLASH_WP),
     //     .SPI_HOLD(FLASH_HOLD),
-    //     .SPI_CLK(FLASH_CLK),
     //     .SPI_MOSI(FLASH_MOSI),
     //     .SPI_MISO(FLASH_MISO)
     // );

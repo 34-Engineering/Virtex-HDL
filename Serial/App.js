@@ -74,21 +74,22 @@ app.set('view engine', 'ejs');
 app.use(express_1["default"].json());
 app.get('/', function (req, res) { return res.render(path_1["default"].join(__dirname, '/App')); });
 app.use("/socket.io.js", express_1["default"].static(path_1["default"].join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js')));
+app.use("/socket.io.js.map", express_1["default"].static(path_1["default"].join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js.map')));
 var server = http.createServer(app);
 //Socket (PC->Web)
 var io = new socket_io_1.Server(server);
 io.on('connection', function (socket) {
     console.log('Web Connected');
     socket.on('disable', function () {
-        // console.log(' > diabling');
+        console.log(' > diabling');
         queue.push(0xA);
     });
     socket.on('enable', function () {
-        // console.log(' > enabling');
+        console.log(' > enabling');
         queue.push(0xB);
     });
     socket.on('setting', function (req) {
-        // console.log(` > updating setting ${req.addr} to ${req.value}`);
+        console.log(" > updating setting ".concat(req.addr, " to ").concat(req.value));
         queue.push(192 + req.addr);
         queue.push(req.value >> 8);
         queue.push(req.value & 0xFF);

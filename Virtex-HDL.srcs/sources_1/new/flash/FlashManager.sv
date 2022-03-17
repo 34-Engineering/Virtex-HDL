@@ -11,14 +11,11 @@ module FlashManager(
     output reg SPI_CS, //active low
     output wire SPI_WP, //active low
     output wire SPI_HOLD, //active low
-    output wire SPI_CLK,
     output reg SPI_MOSI,
     input wire SPI_MISO
     );
     
-    //TODO check if this works with our OpenOCD cfg
-
-    //Connect to internal JTAG
+    //Connect User Logic to JTAG Boundry Scan
     wire BSCAN_TDI, BSCAN_TCK, BSCAN_TMS;
     wire BSCAN_DRCK1, BSCAN_SEL1, BSCAN_SHIFT;
     wire BSCAN_CAPTURE, BSCAN_UPDATE;
@@ -37,6 +34,24 @@ module FlashManager(
         .UPDATE(BSCAN_UPDATE),
         .TDO1(BSCAN_TDO1),
         .TDO2(1'b1)
+    );
+
+    //Connect User Logic to Config Logic
+    wire SPI_CLK;
+    STARTUPE2 STARTUPE2 (
+        .CLK(0),
+        .GSR(0),
+        .GTS(0),
+        .KEYCLEARB(0),
+        .PACK(0),
+        .PREQ(),
+        .USRCCLKO(SPI_CLK),
+        .USRCCLKTS(0),
+        .USRDONEO(1),
+        .USRDONETS(1),
+        .CFGCLK(),
+        .CFGMCLK(),
+        .EOS()
     );
 
     //Link JTAG to Flash SPI interface

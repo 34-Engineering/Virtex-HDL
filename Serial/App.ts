@@ -11,6 +11,7 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.get('/', (req, res) => res.render(path.join(__dirname, '/App')));
 app.use("/socket.io.js", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js')));
+app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js.map')));
 const server = http.createServer(app);
 
 //Socket (PC->Web)
@@ -19,15 +20,15 @@ io.on('connection', (socket) => {
     console.log('Web Connected');
 
     socket.on('disable', () => {
-        // console.log(' > diabling');
+        console.log(' > diabling');
         queue.push(0xA);
     });
     socket.on('enable', () => {
-        // console.log(' > enabling');
+        console.log(' > enabling');
         queue.push(0xB);
     });
     socket.on('setting', (req: { addr: number, value: number }) => {
-        // console.log(` > updating setting ${req.addr} to ${req.value}`);
+        console.log(` > updating setting ${req.addr} to ${req.value}`);
         queue.push(0b11000000 + req.addr);
         queue.push(req.value >> 8);
         queue.push(req.value & 0xFF);
