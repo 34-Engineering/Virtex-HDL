@@ -3,6 +3,6 @@
 /Virtex-HDL.runs
 /Virtex-HDL.sim
 Scripting/node_modules
-Scripting/Serial
-.DS_Store
 Scripting/.DS_Store
+Serial/node_modules
+.DS_Store
