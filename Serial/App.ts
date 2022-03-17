@@ -19,15 +19,15 @@ io.on('connection', (socket) => {
     console.log('Web Connected');
 
     socket.on('disable', () => {
-        console.log(' > diabling');
+        // console.log(' > diabling');
         queue.push(0xA);
     });
     socket.on('enable', () => {
-        console.log(' > enabling');
+        // console.log(' > enabling');
         queue.push(0xB);
     });
     socket.on('setting', (req: { addr: number, value: number }) => {
-        console.log(` > updating setting ${req.addr} to ${req.value}`);
+        // console.log(` > updating setting ${req.addr} to ${req.value}`);
         queue.push(0b11000000 + req.addr);
         queue.push(req.value >> 8);
         queue.push(req.value & 0xFF);

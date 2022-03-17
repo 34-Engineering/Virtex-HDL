@@ -80,15 +80,15 @@ var io = new socket_io_1.Server(server);
 io.on('connection', function (socket) {
     console.log('Web Connected');
     socket.on('disable', function () {
-        console.log(' > diabling');
+        // console.log(' > diabling');
         queue.push(0xA);
     });
     socket.on('enable', function () {
-        console.log(' > enabling');
+        // console.log(' > enabling');
         queue.push(0xB);
     });
     socket.on('setting', function (req) {
-        console.log(" > updating setting ".concat(req.addr, " to ").concat(req.value));
+        // console.log(` > updating setting ${req.addr} to ${req.value}`);
         queue.push(192 + req.addr);
         queue.push(req.value >> 8);
         queue.push(req.value & 0xFF);
