@@ -1,0 +1,131 @@
+Debug: 3 5 command.c:166 script_debug(): command - adapter driver ftdi
+Debug: 4 5 command.c:166 script_debug(): command - transport select jtag
+Debug: 5 5 command.c:166 script_debug(): command - ftdi device_desc Virtex
+Debug: 6 5 command.c:166 script_debug(): command - ftdi vid_pid 0x0403 0x6010
+Debug: 7 5 command.c:166 script_debug(): command - ftdi channel 0
+Debug: 8 5 command.c:166 script_debug(): command - ftdi layout_init 0x0088 0x008b
+Debug: 9 5 command.c:166 script_debug(): command - ftdi tdo_sample_edge falling
+Debug: 10 5 command.c:166 script_debug(): command - reset_config none
+Debug: 11 5 command.c:166 script_debug(): command - ocd_find cpld/xilinx-xc7.cfg
+Debug: 12 5 configuration.c:99 find_file(): found C:/Program Files/xpack-openocd-0.11.0-3/bin/..//scripts/cpld/xilinx-xc7.cfg
+Debug: 13 5 command.c:166 script_debug(): command - jtag newtap xc7 tap -irlen 6 -ignore-version -expected-id 0x03622093 -expected-id 0x03620093 -expected-id 0x037C4093 -expected-id 0x0362F093 -expected-id 0x037C8093 -expected-id 0x037C7093 -expected-id 0x037C3093 -expected-id 0x0362E093 -expected-id 0x037C2093 -expected-id 0x0362D093 -expected-id 0x0362C093 -expected-id 0x03632093 -expected-id 0x03631093 -expected-id 0x03636093 -expected-id 0x03647093 -expected-id 0x0364C093 -expected-id 0x03651093 -expected-id 0x03747093 -expected-id 0x03656093 -expected-id 0x03752093 -expected-id 0x03751093 -expected-id 0x03671093 -expected-id 0x036B3093 -expected-id 0x036B7093 -expected-id 0x036BB093 -expected-id 0x036BF093 -expected-id 0x03667093 -expected-id 0x03682093 -expected-id 0x03687093 -expected-id 0x03692093 -expected-id 0x03691093 -expected-id 0x03696093 -expected-id 0x036D5093 -expected-id 0x036D9093 -expected-id 0x036DB093
+Debug: 14 5 tcl.c:566 jim_newtap_cmd(): Creating New Tap, Chip: xc7, Tap: tap, Dotted: xc7.tap, 73 params
+Debug: 15 5 tcl.c:591 jim_newtap_cmd(): Processing option: -irlen
+Debug: 16 5 tcl.c:591 jim_newtap_cmd(): Processing option: -ignore-version
+Debug: 17 5 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 18 5 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 19 5 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 20 5 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 21 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 22 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 23 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 24 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 25 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 26 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 27 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 28 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 29 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 30 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 31 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 32 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 33 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 34 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 35 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 36 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 37 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 38 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 39 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 40 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 41 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 42 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 43 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 44 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 45 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 46 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 47 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 48 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 49 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 50 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 51 6 tcl.c:591 jim_newtap_cmd(): Processing option: -expected-id
+Debug: 52 6 core.c:1468 jtag_tap_init(): Created Tap: xc7.tap @ abs position 0, irlen 6, capture: 0x1 mask: 0x3
+Debug: 53 6 command.c:166 script_debug(): command - pld device virtex2 xc7.tap 1
+Debug: 54 6 command.c:166 script_debug(): command - adapter speed 25000
+Debug: 55 6 adapter.c:180 adapter_config_khz(): handle adapter khz
+Debug: 56 6 adapter.c:144 adapter_khz_to_speed(): convert khz to adapter specific speed value
+Debug: 57 6 adapter.c:144 adapter_khz_to_speed(): convert khz to adapter specific speed value
+Debug: 58 6 command.c:166 script_debug(): command - target create xc7.proxy testee -chain-position xc7.tap
+Debug: 59 6 target.c:2193 target_free_all_working_areas_restore(): freeing all working areas
+Debug: 60 6 command.c:166 script_debug(): command - flash bank xc7.spi jtagspi 0x0 0 0 0 xc7.proxy 0x02
+Debug: 61 6 tcl.c:1316 handle_flash_bank_command(): 'jtagspi' driver usage field missing
+Debug: 62 6 command.c:166 script_debug(): command - init
+Debug: 63 6 command.c:166 script_debug(): command - target init
+Debug: 64 6 command.c:166 script_debug(): command - target names
+Debug: 65 6 command.c:166 script_debug(): command - xc7.proxy cget -event gdb-flash-erase-start
+Debug: 66 6 command.c:166 script_debug(): command - xc7.proxy configure -event gdb-flash-erase-start reset init
+Debug: 67 6 command.c:166 script_debug(): command - xc7.proxy cget -event gdb-flash-write-end
+Debug: 68 6 command.c:166 script_debug(): command - xc7.proxy configure -event gdb-flash-write-end reset halt
+Debug: 69 6 command.c:166 script_debug(): command - xc7.proxy cget -event gdb-attach
+Debug: 70 6 command.c:166 script_debug(): command - xc7.proxy configure -event gdb-attach halt 1000
+Debug: 71 6 target.c:1650 handle_target_init_command(): Initializing targets...
+Debug: 72 6 ftdi.c:665 ftdi_initialize(): ftdi interface using shortest path jtag state transitions
+Debug: 73 22 mpsse.c:423 mpsse_purge(): -
+Debug: 74 22 mpsse.c:704 mpsse_loopback_config(): off
+Debug: 75 22 mpsse.c:749 mpsse_set_frequency(): target 25000000 Hz
+Debug: 76 22 mpsse.c:741 mpsse_rtck_config(): off
+Debug: 77 22 mpsse.c:730 mpsse_divide_by_5_config(): off
+Debug: 78 22 mpsse.c:710 mpsse_set_divisor(): 1
+Debug: 79 22 mpsse.c:773 mpsse_set_frequency(): actually 15000000 Hz
+Debug: 80 22 adapter.c:144 adapter_khz_to_speed(): convert khz to adapter specific speed value
+Debug: 81 22 adapter.c:148 adapter_khz_to_speed(): have adapter set up
+Debug: 82 22 mpsse.c:749 mpsse_set_frequency(): target 25000000 Hz
+Debug: 83 23 mpsse.c:741 mpsse_rtck_config(): off
+Debug: 84 23 mpsse.c:730 mpsse_divide_by_5_config(): off
+Debug: 85 23 mpsse.c:710 mpsse_set_divisor(): 1
+Debug: 86 23 mpsse.c:773 mpsse_set_frequency(): actually 15000000 Hz
+Debug: 87 23 adapter.c:144 adapter_khz_to_speed(): convert khz to adapter specific speed value
+Debug: 88 23 adapter.c:148 adapter_khz_to_speed(): have adapter set up
+Info : 89 23 adapter.c:108 adapter_init(): clock speed 25000 kHz
+Debug: 90 23 openocd.c:159 handle_init_command(): Debug Adapter init complete
+Debug: 91 23 command.c:166 script_debug(): command - transport init
+Debug: 92 23 transport.c:230 handle_transport_init(): handle_transport_init
+Debug: 93 23 core.c:824 jtag_add_reset(): SRST line released
+Debug: 94 23 core.c:849 jtag_add_reset(): TRST line released
+Debug: 95 23 core.c:322 jtag_call_event_callbacks(): jtag event: TAP reset
+Debug: 96 23 command.c:166 script_debug(): command - jtag arp_init
+Debug: 97 23 core.c:1503 jtag_init_inner(): Init JTAG chain
+Debug: 98 23 core.c:322 jtag_call_event_callbacks(): jtag event: TAP reset
+Debug: 99 23 core.c:1228 jtag_examine_chain(): DR scan interrogation for IDCODE/BYPASS
+Debug: 100 23 core.c:322 jtag_call_event_callbacks(): jtag event: TAP reset
+Info : 101 23 core.c:1127 jtag_examine_chain_display(): JTAG tap: xc7.tap tap/device found: 0x0362d093 (mfg: 0x049 (Xilinx), part: 0x362d, ver: 0x0)
+Debug: 102 23 core.c:1358 jtag_validate_ircapture(): IR capture validation scan
+Debug: 103 23 core.c:1415 jtag_validate_ircapture(): xc7.tap: IR capture 0x11
+Debug: 104 23 command.c:166 script_debug(): command - dap init
+Debug: 105 23 arm_dap.c:107 dap_init_all(): Initializing all DAPs ...
+Debug: 106 23 openocd.c:176 handle_init_command(): Examining targets...
+Debug: 107 23 target.c:1836 target_call_event_callbacks(): target event 19 (examine-start) for core xc7.proxy
+Debug: 108 23 target.c:1836 target_call_event_callbacks(): target event 21 (examine-end) for core xc7.proxy
+Debug: 109 23 command.c:166 script_debug(): command - flash init
+Debug: 110 23 tcl.c:1386 handle_flash_init_command(): Initializing flash devices...
+Debug: 111 23 command.c:166 script_debug(): command - nand init
+Debug: 112 23 tcl.c:498 handle_nand_init_command(): Initializing NAND devices...
+Debug: 113 23 command.c:166 script_debug(): command - pld init
+Debug: 114 23 pld.c:205 handle_pld_init_command(): Initializing PLDs...
+Debug: 115 23 command.c:166 script_debug(): command - tpiu init
+Debug: 116 23 gdb_server.c:3577 gdb_target_add_one(): skip gdb server for target xc7.proxy
+Debug: 117 23 command.c:166 script_debug(): command - irscan xc7.tap 0x0d
+Debug: 118 23 command.c:166 script_debug(): command - irscan xc7.tap 0x0b
+Debug: 119 23 command.c:166 script_debug(): command - runtest 60000
+Debug: 120 28 command.c:166 script_debug(): command - runtest 2000
+Debug: 121 28 command.c:166 script_debug(): command - irscan xc7.tap 0x3f
+Debug: 122 28 command.c:166 script_debug(): command - runtest 2000
+Debug: 123 28 command.c:166 script_debug(): command - echo 00000000000000
+User : 124 28 command.c:696 handle_echo(): 00000000000000
+Debug: 125 28 command.c:166 script_debug(): command - jtagspi set 0 MX25V1635FM2I 0x200000 0x100 0x03 0 0x02 0xC7 0x10000 0xD8
+Debug: 126 28 jtagspi.c:166 jtagspi_handle_set(): jtagspi_handle_set
+Debug: 127 28 jtagspi.c:90 jtagspi_cmd(): cmd=0x9f write_len=0 data_len=-3
+Debug: 128 28 jtagspi.c:68 jtagspi_set_ir(): loading jtagspi ir
+Error: 129 29 jtagspi.c:413 jtagspi_probe(): Unknown flash device (ID 0x000000)
+Error: 130 29 core.c:302 get_flash_bank_by_num(): auto_probe failed
+Debug: 131 29 command.c:555 run_command(): Command 'jtagspi set' failed with error code -4
+User : 132 30 command.c:619 command_run_line(): 
+Debug: 133 30 target.c:2193 target_free_all_working_areas_restore(): freeing all working areas
