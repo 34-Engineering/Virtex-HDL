@@ -39,8 +39,7 @@ module PythonSPIManager(
     output wire isBooted,
     input VirtexConfig virtexConfig,
     output reg PYTHON_300_PLL_FAULT,
-    output reg [7:0] debug,
-    output reg [7:0] wave
+    output reg [7:0] debug
     );
 
     //SPI Interface

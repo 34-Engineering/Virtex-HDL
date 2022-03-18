@@ -18,12 +18,11 @@ module AppManager(
     input wire USB_SUS, //usb in suspend mode, active low
     input VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
+    output reg enabled,
     input wire [15:0] frameBufferWriteAddr,
     input wire [31:0] frameBufferWriteIn,
     input wire frameBufferWriteEnable,
-    output reg [7:0] debug,
-    input reg [7:0] wave,
-    output reg enabled
+    output reg [7:0] debug
     );
 
     //Codes
@@ -92,12 +91,6 @@ module AppManager(
         newReadData = readDataValid & ~lastReadDataValid;
         lastReadDataValid <= readDataValid;
 
-        // if (~writeBusy & writeData != wave) begin
-        //     writeData <= wave;
-        //     writeDataValid <= 1;
-        // end
-        // else writeDataValid <= 0;
-
         if (USB_ENABLED) begin
             case (state)
                 IDLE: begin
@@ -144,7 +137,6 @@ module AppManager(
                             if (getFrameIndex == 38400) begin
                                 //finish reading frame
                                 state <= IDLE;
-                                // enabled <= ~enabled;
                             end
                             else begin
                                 //read next kernel

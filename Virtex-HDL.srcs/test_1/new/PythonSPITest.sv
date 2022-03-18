@@ -7,26 +7,35 @@
     */
 module PythonSPITest;
 
-    VirtexConfig virtexConfig;
-    reg [5:0] configAddress = 1;
+    reg CLK100 = 0, CLK10 = 0;
+    always #5 CLK100 <= ~CLK100; //100MHz = 10ns period
+    always #50 CLK10 <= ~CLK10; //10MHz = 100ns period
 
-    initial begin
-        virtexConfig = DefaultVirtexConfig;
-        $display("######################################## BALLS ######################################");
-        for (int i = 0; i < 32; i++) begin
-            $display("%d, %b %b", i, virtexConfig[(i << 4) + 15 -: 8], virtexConfig[(i << 4) + 7 -: 8]);
-        end
-        $display("######################################## BALLS ######################################");
-    end
+    reg CONF_MISO = 0;
 
-    // reg CLK = 0;
-    // always #5 CLK <= ~CLK;
+    ConfigManager ConfigManager(
+        .CLK100(CLK100),
+        .CLK10(CLK10),
+        // .SPI_CS(CONF_CS),
+        .SPI_WP(),
+        .SPI_HOLD(),
+        .SPI_CLK(),
+        .SPI_MOSI(),
+        .SPI_MISO(CONF_MISO),
+        // .virtexConfig(),
+        .virtexConfigWriteRequests('{0, 0}),
+        // .bootDone(),
+        .debug()
+    );
+
+    // reg CLK100 = 0;
+    // always #5 CLK100 <= ~CLK100;
 
     // wire SPI_CS, SPI_MOSI, SPI_CLK;
     // reg SPI_MISO = 0;
 
     // PythonSPIManager uut (
-    //     .CLK(CLK),
+    //     .CLK100(CLK100),
     //     .SPI_CS(SPI_CS),
     //     .SPI_MOSI(SPI_MOSI),
     //     .SPI_MISO(SPI_MISO),

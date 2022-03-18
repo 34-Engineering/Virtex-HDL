@@ -86,7 +86,7 @@ function onData(newData: Buffer) {
 function onError(err: any) {
     console.error(err);
 }
-initSerialPort();
+initSerialPort(); //TODO reconnect
 
 //Host
 server.listen(34, function () {

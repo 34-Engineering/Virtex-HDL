@@ -2,53 +2,31 @@
 # Vivado v2021.1 (64-bit)
 # SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
 # IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
-# Start of session at: Wed Feb  9 16:25:50 2022
-# Process ID: 20044
+# Start of session at: Fri Mar 18 17:32:02 2022
+# Process ID: 15336
 # Current directory: C:/Users/liams/Documents/GitHub/Virtex-HDL
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21120 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent12584 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
 # Log file: C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.log
 # Journal file: C:/Users/liams/Documents/GitHub/Virtex-HDL\vivado.jou
 #-----------------------------------------------------------
 start_gui
 open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-open_run synth_1 -name synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+set_property write_incremental_synth_checkpoint false [get_runs synth_1]
 reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+set_property AUTO_INCREMENTAL_CHECKPOINT 0 [get_runs synth_1]
+set_property incremental_checkpoint {} [get_runs synth_1]
 reset_run synth_1
-close_design
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-open_run synth_1 -name synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+launch_simulation
+open_run impl_1
 report_utilization -name utilization_1
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-close_design
-open_run synth_1 -name synth_1
-report_utilization -name utilization_1
-close_design
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-open_run synth_1 -name synth_1
-report_utilization -name utilization_1
-copy_run -name synth_1_copy_1 [get_runs synth_1] 
-set_property STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION auto [get_runs synth_1]
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-close_design
-open_run synth_1 -name synth_1
-open_run synth_1 -name synth_1
-report_utilization -name utilization_1
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-wait_on_run synth_1
-close_design
-open_run synth_1 -name synth_1
+launch_simulation
+launch_simulation
+open_wave_config C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg
+source PythonSPITest.tcl
+relaunch_sim

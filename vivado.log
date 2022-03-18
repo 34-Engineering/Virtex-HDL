@@ -2,508 +2,1064 @@
 # Vivado v2021.1 (64-bit)
 # SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
 # IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
-# Start of session at: Wed Feb  9 16:25:50 2022
-# Process ID: 20044
+# Start of session at: Fri Mar 18 17:32:02 2022
+# Process ID: 15336
 # Current directory: C:/Users/liams/Documents/GitHub/Virtex-HDL
-# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent21120 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent12584 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
 # Log file: C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.log
 # Journal file: C:/Users/liams/Documents/GitHub/Virtex-HDL\vivado.jou
 #-----------------------------------------------------------
 start_gui
 open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr
 WARNING: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1'.
+CRITICAL WARNING: [Project 1-19] Could not find the file 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1/Top.dcp'.
+WARNING: [Project 1-865] Could not find the file C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1/Top.dcp
 Scanning sources...
 Finished scanning sources
 WARNING: [Project 1-509] GeneratedRun file for 'synth_1' not found
-WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_2_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'blk_mem_frame_buffer_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'blk_mem_blobs_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'fifo_python_to_blob_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'fifo_python_stream_synth_1' not found
 WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_0_synth_1' not found
-WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_1_synth_1' not found
-WARNING: [Project 1-509] GeneratedRun file for 'clk_wiz_3_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'fifo_virtex_config_synth_1' not found
+WARNING: [Project 1-509] GeneratedRun file for 'impl_1' not found
 INFO: [IP_Flow 19-234] Refreshing IP repositories
 INFO: [IP_Flow 19-1704] No user IP repositories specified
 INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2021.1/data/ip'.
-open_project: Time (s): cpu = 00:00:14 ; elapsed = 00:00:10 . Memory (MB): peak = 1236.430 ; gain = 0.000
-launch_runs synth_1 -jobs 20
-INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_2'...
-INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_2'...
+open_project: Time (s): cpu = 00:00:16 ; elapsed = 00:00:13 . Memory (MB): peak = 1302.156 ; gain = 63.789
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'blk_mem_frame_buffer'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'blk_mem_blobs'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_python_to_blob'...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_python_stream'...
 INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_0'...
 INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_0'...
-INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_1'...
-INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_1'...
-INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_3'...
-INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_3'...
-[Wed Feb  9 16:29:09 2022] Launched clk_wiz_2_synth_1, clk_wiz_0_synth_1, clk_wiz_1_synth_1, clk_wiz_3_synth_1...
+INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_virtex_config'...
+[Fri Mar 18 17:32:32 2022] Launched blk_mem_frame_buffer_synth_1, blk_mem_blobs_synth_1, fifo_python_to_blob_synth_1, fifo_python_stream_synth_1, clk_wiz_0_synth_1, fifo_virtex_config_synth_1, synth_1...
 Run output will be captured here:
-clk_wiz_2_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_2_synth_1/runme.log
+blk_mem_frame_buffer_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/blk_mem_frame_buffer_synth_1/runme.log
+blk_mem_blobs_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/blk_mem_blobs_synth_1/runme.log
+fifo_python_to_blob_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/fifo_python_to_blob_synth_1/runme.log
+fifo_python_stream_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/fifo_python_stream_synth_1/runme.log
 clk_wiz_0_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log
-clk_wiz_1_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_1_synth_1/runme.log
-clk_wiz_3_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_3_synth_1/runme.log
-[Wed Feb  9 16:29:09 2022] Launched synth_1...
+fifo_virtex_config_synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/fifo_virtex_config_synth_1/runme.log
+synth_1: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
+[Fri Mar 18 17:32:33 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/impl_1/runme.log
+set_property write_incremental_synth_checkpoint false [get_runs synth_1]
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+[Fri Mar 18 17:33:54 2022] Launched synth_1...
 Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
+[Fri Mar 18 17:33:54 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/impl_1/runme.log
+set_property AUTO_INCREMENTAL_CHECKPOINT 0 [get_runs synth_1]
+INFO: [Vivado 12-7078] The incremental_compile property on the run reflects the DCP used to generate the current run results. If you do not want to use "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1/Top.dcp" for future runs, please clear the incremental_compile DCP run property.
+set_property incremental_checkpoint {} [get_runs synth_1]
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+[Fri Mar 18 17:35:20 2022] Launched synth_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
+[Fri Mar 18 17:35:20 2022] Launched impl_1...
+Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/impl_1/runme.log
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'PythonSPITest'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from 'C:/Xilinx/Vivado/2021.1/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File 'C:/Xilinx/Vivado/2021.1/data/xsim/xsim.ini' copied to run dir:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'PythonSPITest' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-100] Fetching design files from 'sources_1'...(this may take a while)...
+INFO: [USF-XSim-101] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xvlog --incr --relax -L uvm -prj PythonSPITest_vlog.prj"
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_frame_buffer/blk_mem_frame_buffer_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec_0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_blobs/blk_mem_blobs_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_to_blob/fifo_python_to_blob_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_stream/fifo_python_stream_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_stream
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_wiz_0
+INFO: [VRFC 10-311] analyzing module clk_wiz_0_clk_wiz
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_virtex_config/fifo_virtex_config_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_dmem
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_memory
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/Top.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ConfigManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/roborio/RoboRIOManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module RoboRIOManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/flash/FlashManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FlashManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/AppManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module AppManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/FastSerial.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FastSerial
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonManager
+INFO: [VRFC 10-2458] undeclared symbol frameBufferFull, assumed default net type wire [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv:311]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonSPIManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPIManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/blob/BlobProcessor.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module BlobProcessor
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonISERDES.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonISERDES
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/led/LEDManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module LEDManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/test_1/new/PythonSPITest.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPITest
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
+WARNING: [VRFC 10-3609] overwriting previous definition of module 'glbl' [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/glbl.v:6]
+run_program: Time (s): cpu = 00:00:00 ; elapsed = 00:00:09 . Memory (MB): peak = 1398.305 ; gain = 0.000
+INFO: [USF-XSim-69] 'compile' step finished in '9' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xelab -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log"
+Vivado Simulator v2021.1
+Copyright 1986-1999, 2001-2021 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2021.1/bin/unwrapped/win64.o/xelab.exe -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+ERROR: [VRFC 10-3818] variable 'debug' is driven by invalid combination of procedural drivers [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv:46]
+WARNING: [VRFC 10-2921] 'debug' driven by this always_ff block should not be driven by any other process [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv:100]
+ERROR: [XSIM 43-3322] Static elaboration of top level Verilog design unit(s) in library work failed.
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+INFO: [USF-XSim-99] Step results log file:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/elaborate.log'
+ERROR: [USF-XSim-62] 'elaborate' step failed with error(s). Please check the Tcl console output or 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/elaborate.log' file for more information.
+ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation.
+launch_simulation: Time (s): cpu = 00:00:02 ; elapsed = 00:00:12 . Memory (MB): peak = 1398.305 ; gain = 0.000
+ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.
+open_run impl_1
 INFO: [Device 21-403] Loading part xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 1466.668 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 151 Unisim elements for replacement
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.073 . Memory (MB): peak = 1591.320 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 516 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
 INFO: [Project 1-479] Netlist was created with Vivado 2021.1
 INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2142.344 ; gain = 0.000
+WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.533 . Memory (MB): peak = 2237.809 ; gain = 0.000
+Restored from archive | CPU: 0.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.533 . Memory (MB): peak = 2237.809 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2237.809 ; gain = 0.000
 INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 15 instances were transformed.
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
+  A total of 13 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 4 instances
+  RAM32M => RAM32M (inverted pins: WCLK) (RAMD32(x6), RAMS32(x2)): 9 instances
 
-open_run: Time (s): cpu = 00:00:16 ; elapsed = 00:00:10 . Memory (MB): peak = 2171.324 ; gain = 877.938
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 16:43:08 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-reset_run synth_1
-WARNING: [Vivado 12-1017] Problems encountered:
-1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1
-
-close_design
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 16:44:29 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.087 . Memory (MB): peak = 2221.438 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 185 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2263.805 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 15 instances were transformed.
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
-
-open_run: Time (s): cpu = 00:00:09 ; elapsed = 00:00:05 . Memory (MB): peak = 2263.805 ; gain = 42.367
+open_run: Time (s): cpu = 00:00:17 ; elapsed = 00:00:14 . Memory (MB): peak = 2400.023 ; gain = 1001.719
+CRITICAL WARNING: [Timing 38-282] The design failed to meet the timing requirements. Please see the timing summary report for details on the timing violations.
+WARNING: [Timing 38-436] There are set_bus_skew constraint(s) in this design. Please run report_bus_skew to ensure that bus skew requirements are met.
 report_utilization -name utilization_1
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 16:56:23 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-close_design
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.484 . Memory (MB): peak = 2397.480 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 4669 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.019 . Memory (MB): peak = 2606.094 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 15 instances were transformed.
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
-
-open_run: Time (s): cpu = 00:00:19 ; elapsed = 00:00:14 . Memory (MB): peak = 2606.094 ; gain = 208.613
-report_utilization -name utilization_1
-close_design
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 18:55:54 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-reset_run synth_1
-WARNING: [Vivado 12-1017] Problems encountered:
-1. Failed to delete one or more files in run directory C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1
-
-WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
-WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 19:50:07 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.117 . Memory (MB): peak = 2606.094 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 667 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-WARNING: [Vivado 12-2489] -period contains time 2.777778 which will be rounded to 2.778 to ensure it is an integer multiple of 1 picosecond [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:126]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2606.094 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 71 instances were transformed.
-  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
-
-open_run: Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2606.094 ; gain = 0.000
-report_utilization -name utilization_1
-copy_run -name synth_1_copy_1 [get_runs synth_1] 
-synth_1_copy_1
-set_property STEPS.SYNTH_DESIGN.ARGS.GATED_CLOCK_CONVERSION auto [get_runs synth_1]
-WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
-WARNING: [IP_Flow 19-4067] Ignoring invalid widget type specified checkbox.Providing a default widget
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 21:17:57 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-close_design
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2793.602 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Common 17-41] Interrupt caught. Command should exit soon. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Common 17-344] 'get_clocks' was cancelled [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_1' for instance 'AppManager/nolabel_line34'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc will not be read for this cell.
-CRITICAL WARNING: [Designutils 20-1275] Could not find cell 'inst' within module 'clk_wiz_3' for instance 'ConfigManager/clk_wiz_3'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc will not be read for this cell.
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-INFO: [Common 17-344] 'open_run' was cancelled
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.131 . Memory (MB): peak = 2814.312 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2828.617 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 71 instances were transformed.
-  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
-
-open_run: Time (s): cpu = 00:00:10 ; elapsed = 00:00:07 . Memory (MB): peak = 2828.617 ; gain = 14.305
-report_utilization -name utilization_1
-reset_run synth_1
-launch_runs synth_1 -jobs 20
-[Wed Feb  9 21:33:12 2022] Launched synth_1...
-Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log
-close_design
-open_run synth_1 -name synth_1
-Design is defaulting to impl run constrset: constrs_1
-Design is defaulting to synth run part: xc7a35tftg256-1
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.dcp' for cell 'AppManager/nolabel_line34'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.dcp' for cell 'ConfigManager/clk_wiz_3'
-INFO: [Project 1-454] Reading design checkpoint 'c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.dcp' for cell 'PythonManager/PythonSPIManager/clk_wiz_0'
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.135 . Memory (MB): peak = 2828.617 ; gain = 0.000
-INFO: [Netlist 29-17] Analyzing 767 Unisim elements for replacement
-INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
-WARNING: [Netlist 29-101] Netlist 'Top' is not ideal for floorplanning, since the cellview 'BlobProcessor' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
-INFO: [Project 1-479] Netlist was created with Vivado 2021.1
-INFO: [Project 1-570] Preparing netlist for logic optimization
-WARNING: [Opt 31-35] Removing redundant IBUF, AppManager/nolabel_line34/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, ConfigManager/clk_wiz_3/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Opt 31-35] Removing redundant IBUF, PythonManager/PythonSPIManager/clk_wiz_0/inst/clkin1_ibufg, from the path connected to top-level port: CLK 
-Resolution: The tool has removed redundant IBUF. To resolve this warning, check for redundant IBUF in the input design.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'AppManager/nolabel_line34/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'ConfigManager/clk_wiz_3/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-WARNING: [Constraints 18-550] Could not create 'IBUF_LOW_PWR' constraint because net 'PythonManager/PythonSPIManager/clk_wiz_0/clk_in1' is not directly connected to top level port. Synthesis is ignored for IBUF_LOW_PWR but preserved for implementation.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2_board.xdc will not be read for any cell of this module.
-CRITICAL WARNING: [Designutils 20-1280] Could not find module 'clk_wiz_2'. The XDC file c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_2/clk_wiz_2.xdc will not be read for any cell of this module.
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0_board.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-INFO: [Timing 38-35] Done setting XDC timing constraints. [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0/clk_wiz_0.xdc] for cell 'PythonManager/PythonSPIManager/clk_wiz_0/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1_board.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_1/clk_wiz_1.xdc] for cell 'AppManager/nolabel_line34/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3_board.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-INFO: [Timing 38-2] Deriving generated clocks [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc:57]
-Finished Parsing XDC File [c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_3/clk_wiz_3.xdc] for cell 'ConfigManager/clk_wiz_3/inst'
-Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-CRITICAL WARNING: [Common 17-69] Command failed: 'M7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:25]
-CRITICAL WARNING: [Common 17-69] Command failed: 'L7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:26]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:27]
-CRITICAL WARNING: [Common 17-69] Command failed: 'N7' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:28]
-WARNING: [Vivado 12-584] No ports matched 'RIO_SDA'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:50]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-WARNING: [Vivado 12-584] No ports matched 'RIO_SCL'. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-CRITICAL WARNING: [Common 17-55] 'set_property' expects at least one object. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:51]
-Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
-CRITICAL WARNING: [Common 17-69] Command failed: 'E8' is not a valid site or package pin name. [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:64]
-CRITICAL WARNING: [Vivado 12-1411] Cannot set LOC property of ports, Cannot set PACKAGE_PIN property of ports,  port FLASH_CS can not be placed on PACKAGE_PIN L12 because the PACKAGE_PIN is occupied by port CONF_CS [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc:65]
-Finished Parsing XDC File [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/constrs_1/new/Virtex.xdc]
-INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
-Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 2882.168 ; gain = 0.000
-INFO: [Project 1-111] Unisim Transformation Summary:
-  A total of 71 instances were transformed.
-  RAM64M => RAM64M (RAMD64E(x4)): 44 instances
-  RAM64M => RAM64M (inverted pins: WCLK) (RAMD64E(x4)): 10 instances
-  RAM64X1D => RAM64X1D (RAMD64E(x2)): 12 instances
-  RAM64X1D => RAM64X1D (inverted pins: WCLK) (RAMD64E(x2)): 5 instances
-
-open_run: Time (s): cpu = 00:00:11 ; elapsed = 00:00:07 . Memory (MB): peak = 2882.168 ; gain = 53.551
-exit
-INFO: [Common 17-206] Exiting Vivado at Wed Feb  9 21:52:48 2022...
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'PythonSPITest'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from 'C:/Xilinx/Vivado/2021.1/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File 'C:/Xilinx/Vivado/2021.1/data/xsim/xsim.ini' copied to run dir:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'PythonSPITest' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-100] Fetching design files from 'sources_1'...(this may take a while)...
+INFO: [USF-XSim-101] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xvlog --incr --relax -L uvm -prj PythonSPITest_vlog.prj"
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_frame_buffer/blk_mem_frame_buffer_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec_0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_blobs/blk_mem_blobs_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_to_blob/fifo_python_to_blob_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_stream/fifo_python_stream_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_stream
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_wiz_0
+INFO: [VRFC 10-311] analyzing module clk_wiz_0_clk_wiz
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_virtex_config/fifo_virtex_config_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_dmem
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_memory
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/Top.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ConfigManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/roborio/RoboRIOManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module RoboRIOManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/flash/FlashManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FlashManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/AppManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module AppManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/FastSerial.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FastSerial
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonManager
+INFO: [VRFC 10-2458] undeclared symbol frameBufferFull, assumed default net type wire [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv:311]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonSPIManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPIManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/blob/BlobProcessor.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module BlobProcessor
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonISERDES.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonISERDES
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/led/LEDManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module LEDManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/test_1/new/PythonSPITest.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPITest
+run_program: Time (s): cpu = 00:00:01 ; elapsed = 00:00:09 . Memory (MB): peak = 2442.637 ; gain = 0.000
+INFO: [USF-XSim-69] 'compile' step finished in '10' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xelab -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log"
+Vivado Simulator v2021.1
+Copyright 1986-1999, 2001-2021 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2021.1/bin/unwrapped/win64.o/xelab.exe -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+ERROR: [VRFC 10-3818] variable 'debug' is driven by invalid combination of procedural drivers [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv:46]
+WARNING: [VRFC 10-2921] 'debug' driven by this always_ff block should not be driven by any other process [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv:101]
+ERROR: [XSIM 43-3322] Static elaboration of top level Verilog design unit(s) in library work failed.
+INFO: [USF-XSim-69] 'elaborate' step finished in '1' seconds
+INFO: [USF-XSim-99] Step results log file:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/elaborate.log'
+ERROR: [USF-XSim-62] 'elaborate' step failed with error(s). Please check the Tcl console output or 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/elaborate.log' file for more information.
+ERROR: [Vivado 12-4473] Detected error while running simulation. Please correct the issue and retry this operation.
+launch_simulation: Time (s): cpu = 00:00:01 ; elapsed = 00:00:11 . Memory (MB): peak = 2442.637 ; gain = 0.000
+ERROR: [Common 17-39] 'launch_simulation' failed due to earlier errors.
+launch_simulation
+Command: launch_simulation 
+INFO: [Vivado 12-12493] Simulation top is 'PythonSPITest'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from 'C:/Xilinx/Vivado/2021.1/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File 'C:/Xilinx/Vivado/2021.1/data/xsim/xsim.ini' copied to run dir:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'PythonSPITest' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-100] Fetching design files from 'sources_1'...(this may take a while)...
+INFO: [USF-XSim-101] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xvlog --incr --relax -L uvm -prj PythonSPITest_vlog.prj"
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_frame_buffer/blk_mem_frame_buffer_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec_0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_blobs/blk_mem_blobs_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_to_blob/fifo_python_to_blob_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_stream/fifo_python_stream_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_stream
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_wiz_0
+INFO: [VRFC 10-311] analyzing module clk_wiz_0_clk_wiz
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_virtex_config/fifo_virtex_config_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_dmem
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_memory
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/Top.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ConfigManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/roborio/RoboRIOManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module RoboRIOManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/flash/FlashManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FlashManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/AppManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module AppManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/FastSerial.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FastSerial
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonManager
+INFO: [VRFC 10-2458] undeclared symbol frameBufferFull, assumed default net type wire [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv:311]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonSPIManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPIManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/blob/BlobProcessor.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module BlobProcessor
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonISERDES.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonISERDES
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/led/LEDManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module LEDManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/test_1/new/PythonSPITest.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPITest
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/glbl.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module glbl
+WARNING: [VRFC 10-3609] overwriting previous definition of module 'glbl' [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim/glbl.v:6]
+run_program: Time (s): cpu = 00:00:00 ; elapsed = 00:00:09 . Memory (MB): peak = 2442.637 ; gain = 0.000
+INFO: [USF-XSim-69] 'compile' step finished in '9' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xelab -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log"
+Vivado Simulator v2021.1
+Copyright 1986-1999, 2001-2021 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2021.1/bin/unwrapped/win64.o/xelab.exe -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package xil_defaultlib.$unit_Top_sv
+Compiling module unisims_ver.GND
+Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.LUT4
+Compiling module unisims_ver.FDRE_default
+Compiling module unisims_ver.LUT5
+Compiling module unisims_ver.x_lut3_mux8
+Compiling module unisims_ver.LUT3
+Compiling module unisims_ver.x_lut2_mux4
+Compiling module unisims_ver.LUT2
+Compiling module xil_defaultlib.fifo_virtex_config_xpm_cdc_gray
+Compiling module xil_defaultlib.fifo_virtex_config_xpm_cdc_gray_...
+Compiling module unisims_ver.x_lut1_mux2
+Compiling module unisims_ver.LUT1
+Compiling module unisims_ver.RAM32M
+Compiling module xil_defaultlib.fifo_virtex_config
+Compiling module xil_defaultlib.ConfigManager_default
+Compiling module xil_defaultlib.PythonSPITest
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot PythonSPITest_behav
+run_program: Time (s): cpu = 00:00:00 ; elapsed = 00:00:05 . Memory (MB): peak = 2442.637 ; gain = 0.000
+INFO: [USF-XSim-69] 'elaborate' step finished in '5' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "PythonSPITest_behav -key {Behavioral:sim_1:Functional:PythonSPITest} -tclbatch {PythonSPITest.tcl} -view {C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Time resolution is 1 ps
+open_wave_config C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg
+source PythonSPITest.tcl
+# set curr_wave [current_wave_config]
+# if { [string length $curr_wave] == 0 } {
+#   if { [llength [get_objects]] > 0} {
+#     add_wave /
+#     set_property needs_save false [current_wave_config]
+#   } else {
+#      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+#   }
+# }
+# run 1000ns
+FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK
+ 52 34
+13312 3400
+FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'PythonSPITest_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 1000ns
+launch_simulation: Time (s): cpu = 00:00:05 ; elapsed = 00:00:17 . Memory (MB): peak = 2455.965 ; gain = 13.328
+relaunch_sim
+Command: launch_simulation -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'PythonSPITest'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from 'C:/Xilinx/Vivado/2021.1/tps/boost_1_72_0'
+INFO: [USF-XSim-7] Finding pre-compiled libraries...
+INFO: [USF-XSim-11] File 'C:/Xilinx/Vivado/2021.1/data/xsim/xsim.ini' copied to run dir:'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-54] Inspecting design source files for 'PythonSPITest' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-100] Fetching design files from 'sources_1'...(this may take a while)...
+INFO: [USF-XSim-101] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xvlog --incr --relax -L uvm -prj PythonSPITest_vlog.prj"
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_frame_buffer/blk_mem_frame_buffer_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_bindec_0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_mux__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_width__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized10
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized11
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized12
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized13
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized14
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized15
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized16
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized17
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized18
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized19
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized20
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized21
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized22
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized23
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized24
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized25
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized26
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized27
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized28
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized29
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized30
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized31
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized32
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized33
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized34
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized7
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized8
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_prim_wrapper__parameterized9
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_frame_buffer_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_blobs/blk_mem_blobs_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_generic_cstr
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_width__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized0
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized1
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized2
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized3
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized5
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_prim_wrapper__parameterized6
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_top
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4
+INFO: [VRFC 10-311] analyzing module blk_mem_blobs_blk_mem_gen_v8_4_4_synth
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_to_blob/fifo_python_to_blob_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_to_blob_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_python_stream/fifo_python_stream_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_python_stream
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_dmem
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_memory
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_python_stream_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_wiz_0
+INFO: [VRFC 10-311] analyzing module clk_wiz_0_clk_wiz
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/fifo_virtex_config/fifo_virtex_config_sim_netlist.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_xpm_cdc_gray__2
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_clk_x_pntrs
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_dmem
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_top
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_fifo_generator_v13_2_5_synth
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_memory
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_rd_status_flags_as
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_reset_blk_ramfifo
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_bin_cntr
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_logic
+INFO: [VRFC 10-311] analyzing module fifo_virtex_config_wr_status_flags_as
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/Top.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module Top
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/config/ConfigManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ConfigManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/roborio/RoboRIOManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module RoboRIOManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/flash/FlashManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FlashManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/AppManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module AppManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/app/FastSerial.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module FastSerial
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonManager
+INFO: [VRFC 10-2458] undeclared symbol frameBufferFull, assumed default net type wire [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonManager.sv:311]
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonSPIManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPIManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/blob/BlobProcessor.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module BlobProcessor
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/python/PythonISERDES.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonISERDES
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/led/LEDManager.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module LEDManager
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/test_1/new/PythonSPITest.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module PythonSPITest
+run_program: Time (s): cpu = 00:00:01 ; elapsed = 00:00:09 . Memory (MB): peak = 2471.941 ; gain = 0.000
+INFO: [USF-XSim-69] 'compile' step finished in '9' seconds
+launch_simulation: Time (s): cpu = 00:00:01 ; elapsed = 00:00:10 . Memory (MB): peak = 2471.941 ; gain = 0.000
+Command: launch_simulation -simset sim_1 -mode behavioral
+INFO: [Vivado 12-12493] Simulation top is 'PythonSPITest'
+INFO: [Vivado 12-5698] Checking validity of IPs in the design for the 'XSim' simulator...
+INFO: [Vivado 12-5682] Launching behavioral simulation in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+INFO: [Vivado 12-4795] Using compiled simulation libraries for IPs
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim'
+"xelab -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log"
+Vivado Simulator v2021.1
+Copyright 1986-1999, 2001-2021 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2021.1/bin/unwrapped/win64.o/xelab.exe -wto 984ba6b2243841ae8556ebb933205c0d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot PythonSPITest_behav xil_defaultlib.PythonSPITest xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package xil_defaultlib.$unit_Top_sv
+Compiling module unisims_ver.GND
+Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.LUT4
+Compiling module unisims_ver.FDRE_default
+Compiling module unisims_ver.LUT5
+Compiling module unisims_ver.x_lut3_mux8
+Compiling module unisims_ver.LUT3
+Compiling module unisims_ver.x_lut2_mux4
+Compiling module unisims_ver.LUT2
+Compiling module xil_defaultlib.fifo_virtex_config_xpm_cdc_gray
+Compiling module xil_defaultlib.fifo_virtex_config_xpm_cdc_gray_...
+Compiling module unisims_ver.x_lut1_mux2
+Compiling module unisims_ver.LUT1
+Compiling module unisims_ver.RAM32M
+Compiling module xil_defaultlib.fifo_virtex_config
+Compiling module xil_defaultlib.ConfigManager_default
+Compiling module xil_defaultlib.PythonSPITest
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot PythonSPITest_behav
+INFO: [USF-XSim-69] 'elaborate' step finished in '4' seconds
+Time resolution is 1 ps
+FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK
+0b00110100 0x34
+0b0011010000000000 0x3400
+FUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCKFUCK
+relaunch_sim: Time (s): cpu = 00:00:01 ; elapsed = 00:00:17 . Memory (MB): peak = 2471.941 ; gain = 12.609

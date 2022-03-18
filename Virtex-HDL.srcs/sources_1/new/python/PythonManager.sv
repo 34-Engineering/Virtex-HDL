@@ -65,8 +65,7 @@ module PythonManager(
     output reg OUT_OF_RLE_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
-    output reg [7:0] debug,
-    output reg [7:0] wave
+    output reg [7:0] debug
     );
 
     wire LVDS_CLK, CLK72;
@@ -116,8 +115,7 @@ module PythonManager(
         .isBooted(isBooted),
         .virtexConfig(virtexConfig),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug(debug),
-        .wave()
+        .debug(debug)
     );
 
     //LVDS Input Buffers
@@ -300,7 +298,7 @@ module PythonManager(
         end
 
         //swap kernel partion
-        kernelPartion <= ~kernelPartion;
+        kernelPartion = ~kernelPartion;
     endtask
 
     //Frame Buffer Writing & Clock Crossing with FIFO

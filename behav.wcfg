@@ -12,69 +12,77 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,273,983.213 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,275,143.214 ns"></ZoomEndTime>
-      <Cursor1Time time="1,274,949.880 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="8,730.001 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="252"></NameColumnWidth>
-      <ValueColumnWidth column_width="98"></ValueColumnWidth>
+      <ValueColumnWidth column_width="94"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="14" />
-   <wvobject fp_name="/PythonSPITest/CLK" type="logic">
-      <obj_property name="ElementShortName">CLK</obj_property>
-      <obj_property name="ObjectShortName">CLK</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/CLK10" type="logic">
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/PythonSPITest/ConfigManager/CLK10" type="logic">
       <obj_property name="ElementShortName">CLK10</obj_property>
       <obj_property name="ObjectShortName">CLK10</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/SPI_CLK" type="logic">
-      <obj_property name="ElementShortName">SPI_CLK</obj_property>
-      <obj_property name="ObjectShortName">SPI_CLK</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/SPI_CS" type="logic">
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_CS" type="logic">
       <obj_property name="ElementShortName">SPI_CS</obj_property>
       <obj_property name="ObjectShortName">SPI_CS</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/SPI_MOSI" type="logic">
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_WP" type="logic">
+      <obj_property name="ElementShortName">SPI_WP</obj_property>
+      <obj_property name="ObjectShortName">SPI_WP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_HOLD" type="logic">
+      <obj_property name="ElementShortName">SPI_HOLD</obj_property>
+      <obj_property name="ObjectShortName">SPI_HOLD</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_CLK" type="logic">
+      <obj_property name="ElementShortName">SPI_CLK</obj_property>
+      <obj_property name="ObjectShortName">SPI_CLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_MOSI" type="logic">
       <obj_property name="ElementShortName">SPI_MOSI</obj_property>
       <obj_property name="ObjectShortName">SPI_MOSI</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/SPI_MISO" type="logic">
+   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_MISO" type="logic">
       <obj_property name="ElementShortName">SPI_MISO</obj_property>
       <obj_property name="ObjectShortName">SPI_MISO</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/isSequencerEnabled" type="logic">
-      <obj_property name="ElementShortName">isSequencerEnabled</obj_property>
-      <obj_property name="ObjectShortName">isSequencerEnabled</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/bootDone" type="logic">
+      <obj_property name="ElementShortName">bootDone</obj_property>
+      <obj_property name="ObjectShortName">bootDone</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/inSequence" type="logic">
-      <obj_property name="ElementShortName">inSequence</obj_property>
-      <obj_property name="ObjectShortName">inSequence</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/inTransaction" type="logic">
+      <obj_property name="ElementShortName">inTransaction</obj_property>
+      <obj_property name="ObjectShortName">inTransaction</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/isBlanking" type="logic">
-      <obj_property name="ElementShortName">isBlanking</obj_property>
-      <obj_property name="ObjectShortName">isBlanking</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/wantsToStartTransaction" type="logic">
+      <obj_property name="ElementShortName">wantsToStartTransaction</obj_property>
+      <obj_property name="ObjectShortName">wantsToStartTransaction</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/commandPointer" type="array">
-      <obj_property name="ElementShortName">commandPointer[4:0]</obj_property>
-      <obj_property name="ObjectShortName">commandPointer[4:0]</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/hasValidData" type="logic">
+      <obj_property name="ElementShortName">hasValidData</obj_property>
+      <obj_property name="ObjectShortName">hasValidData</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/commandNumber" type="array">
-      <obj_property name="ElementShortName">commandNumber[7:0]</obj_property>
-      <obj_property name="ObjectShortName">commandNumber[7:0]</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/byteNumber" type="array">
+      <obj_property name="ElementShortName">byteNumber[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byteNumber[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/bootState" type="array">
-      <obj_property name="ElementShortName">bootState[1:0]</obj_property>
-      <obj_property name="ObjectShortName">bootState[1:0]</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/bootReadNumber" type="array">
+      <obj_property name="ElementShortName">bootReadNumber[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bootReadNumber[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/response" type="array">
-      <obj_property name="ElementShortName">response[15:0]</obj_property>
-      <obj_property name="ObjectShortName">response[15:0]</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/bootWriteNumber" type="array">
+      <obj_property name="ElementShortName">bootWriteNumber[7:0]</obj_property>
+      <obj_property name="ObjectShortName">bootWriteNumber[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/uut/RESET_SENSOR" type="logic">
-      <obj_property name="ElementShortName">RESET_SENSOR</obj_property>
-      <obj_property name="ObjectShortName">RESET_SENSOR</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/bytePointer" type="array">
+      <obj_property name="ElementShortName">bytePointer[2:0]</obj_property>
+      <obj_property name="ObjectShortName">bytePointer[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/bytePointerInv" type="array">
+      <obj_property name="ElementShortName">bytePointerInv[2:0]</obj_property>
+      <obj_property name="ObjectShortName">bytePointerInv[2:0]</obj_property>
    </wvobject>
 </wave_config>

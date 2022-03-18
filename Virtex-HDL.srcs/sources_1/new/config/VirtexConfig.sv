@@ -175,7 +175,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     reserved60: 16'h0,
     reserved61: 16'h0,
     reserved62: 16'h0,
-    memValid: 16'h0034
+    memValid: 16'h3400
 };
 
 function logic [9:0] getConfigAddrIndex(logic [5:0] addr);
