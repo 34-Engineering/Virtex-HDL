@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="8,730.001 ns"></ZoomEndTime>
-      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="42.300001 us"></ZoomEndTime>
+      <Cursor1Time time="38.000000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="252"></NameColumnWidth>
-      <ValueColumnWidth column_width="94"></ValueColumnWidth>
+      <ValueColumnWidth column_width="90"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="16" />
+   <WVObjectSize size="13" />
    <wvobject fp_name="/PythonSPITest/ConfigManager/CLK10" type="logic">
       <obj_property name="ElementShortName">CLK10</obj_property>
       <obj_property name="ObjectShortName">CLK10</obj_property>
@@ -49,40 +49,28 @@
       <obj_property name="ElementShortName">SPI_MISO</obj_property>
       <obj_property name="ObjectShortName">SPI_MISO</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/bootDone" type="logic">
-      <obj_property name="ElementShortName">bootDone</obj_property>
-      <obj_property name="ObjectShortName">bootDone</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/inTransaction" type="logic">
-      <obj_property name="ElementShortName">inTransaction</obj_property>
-      <obj_property name="ObjectShortName">inTransaction</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/wantsToStartTransaction" type="logic">
-      <obj_property name="ElementShortName">wantsToStartTransaction</obj_property>
-      <obj_property name="ObjectShortName">wantsToStartTransaction</obj_property>
-   </wvobject>
    <wvobject fp_name="/PythonSPITest/ConfigManager/hasValidData" type="logic">
       <obj_property name="ElementShortName">hasValidData</obj_property>
       <obj_property name="ObjectShortName">hasValidData</obj_property>
    </wvobject>
    <wvobject fp_name="/PythonSPITest/ConfigManager/byteNumber" type="array">
-      <obj_property name="ElementShortName">byteNumber[7:0]</obj_property>
-      <obj_property name="ObjectShortName">byteNumber[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/bootReadNumber" type="array">
-      <obj_property name="ElementShortName">bootReadNumber[7:0]</obj_property>
-      <obj_property name="ObjectShortName">bootReadNumber[7:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/bootWriteNumber" type="array">
-      <obj_property name="ElementShortName">bootWriteNumber[7:0]</obj_property>
-      <obj_property name="ObjectShortName">bootWriteNumber[7:0]</obj_property>
+      <obj_property name="ElementShortName">byteNumber[8:0]</obj_property>
+      <obj_property name="ObjectShortName">byteNumber[8:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/PythonSPITest/ConfigManager/bytePointer" type="array">
       <obj_property name="ElementShortName">bytePointer[2:0]</obj_property>
       <obj_property name="ObjectShortName">bytePointer[2:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/bytePointerInv" type="array">
-      <obj_property name="ElementShortName">bytePointerInv[2:0]</obj_property>
-      <obj_property name="ObjectShortName">bytePointerInv[2:0]</obj_property>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/state" type="array">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/sequenceIndex" type="array">
+      <obj_property name="ElementShortName">sequenceIndex[10:0]</obj_property>
+      <obj_property name="ObjectShortName">sequenceIndex[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonSPITest/ConfigManager/currentStateEndIndex" type="array">
+      <obj_property name="ElementShortName">currentStateEndIndex[10:0]</obj_property>
+      <obj_property name="ObjectShortName">currentStateEndIndex[10:0]</obj_property>
    </wvobject>
 </wave_config>

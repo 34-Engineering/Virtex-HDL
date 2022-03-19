@@ -12,6 +12,7 @@ module PythonSPITest;
     always #50 CLK10 <= ~CLK10; //10MHz = 100ns period
 
     reg CONF_MISO = 0;
+    always_ff @(negedge CLK10) CONF_MISO = ~CONF_MISO;
 
     ConfigManager ConfigManager(
         .CLK100(CLK100),

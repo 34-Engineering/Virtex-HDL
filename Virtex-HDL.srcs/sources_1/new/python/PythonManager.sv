@@ -298,7 +298,7 @@ module PythonManager(
         end
 
         //swap kernel partion
-        kernelPartion = ~kernelPartion;
+        kernelPartion <= ~kernelPartion;
     endtask
 
     //Frame Buffer Writing & Clock Crossing with FIFO

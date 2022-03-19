@@ -53,8 +53,8 @@
 module ConfigManager(
     input wire CLK100, CLK10,
     output reg SPI_CS, //active low
-    output wire SPI_WP, //active low
-    output wire SPI_HOLD, //active low
+    output wire SPI_WP, //prevent writing when low
+    output wire SPI_HOLD, //pause comms when low
     output wire SPI_CLK,
     output reg SPI_MOSI,
     input wire SPI_MISO,
@@ -64,186 +64,242 @@ module ConfigManager(
     output reg [7:0] debug
     );
 
-    // VirtexConfig virtexConfig = DefaultVirtexConfig;
-    initial virtexConfig = DefaultVirtexConfig;
-
-    localparam [7:0] WRITE_STATUS = 8'h1; //opcode + 8-bits; only modifies bits [3:2]
-    localparam [7:0] WRITE_OP     = 8'h2; //see notes above
-    localparam [7:0] READ_OP      = 8'h3; //see notes above
-    localparam [7:0] DISABLE_WEL  = 8'h4; //opcode only
-    localparam [7:0] READ_STATUS  = 8'h5; //opcode + 8-bits
-    localparam [7:0] ENABLE_WEL   = 8'h6; //opcode only; must occur before every WRITE_STATUS and WRITE
-    localparam [7:0] MEM_VALID_ADDR = 127;
-    localparam [7:0] MEM_VALID_CODE = DefaultVirtexConfig.memValid[15:8];
-
-    //New Config Write FIFO
-    VirtexConfigWriteRequest newConfigFIFOOut;
-    VirtexConfigWriteRequest newConfigFIFOIn = 0;
-    wire newConfigFIFOEmpty, newConfigFIFOFull;
-    reg newConfigFIFORead = 0, newConfigFIFOWrite = 0;
-
-    //State
-    enum logic [2:0] {CHECK_MEM_VALID=0, LOAD_MEM=1, WRITE_DEFAULT_WEL=2,
-        WRITE_DEFAULT=3, WRITE_NEW_WEL=4, WRITE_NEW=5, IDLE=6} state = CHECK_MEM_VALID;
-    assign isBooted = state == IDLE | state == WRITE_NEW_WEL | state == WRITE_NEW;
-
-    /* Sequence
-        Index | 0  1  2  3    -3 -2 -1 End
-        Data  | X  D  D  D ... D D  X  X
-        ClkEn | 0  0  1  1     1 1  0  0
-        CS    | 1  0  0  0     0 0  0  1 */
-    reg [10:0] sequenceIndex = 0;
-    localparam [10:0] stateEndIndexes [7] = '{
-        (3   << 3) + 3, //CHECK_MEM_VALID
-        (129 << 3) + 3, //LOAD_MEM
-        (1   << 3) + 3, //WRITE_DEFAULT_WEL
-        (10  << 3) + 3, //WRITE_DEFAULT
-        (1   << 3) + 3, //WRITE_NEW_WEL
-        (4   << 3) + 3, //WRITE_NEW
-        0 //IDLE
-    };
-    wire [10:0] currentStateEndIndex = stateEndIndexes[state];
-    wire isBlanking = sequenceIndex < 1 | sequenceIndex > currentStateEndIndex-2;
-    assign SPI_CS = sequenceIndex < 1 | sequenceIndex >= currentStateEndIndex;
-    assign SPI_CLK = (sequenceIndex > 1 & sequenceIndex < currentStateEndIndex-1) ? CLK10 : 0;
-    assign SPI_HOLD = 1;
-    assign SPI_WP = state != WRITE_DEFAULT_WEL & state != WRITE_DEFAULT & state != WRITE_NEW_WEL & state != WRITE_NEW;
-    reg [7:0] memValidResponse;
-    wire hasValidData = memValidResponse == MEM_VALID_CODE;
-    wire [8:0] byteNumber = (sequenceIndex - 1) >> 3;
-    wire [2:0] bytePointer = 7 - ((sequenceIndex - 1) - ((sequenceIndex - 1) >> 3 << 3)); //7 down to 1
-    reg [3:0] writeDefaultIndex = 0; //what page we are on
-    wire [7:0] writeDefaultAddr = 7 + (writeDefaultIndex << 3);
-
-    assign debug = memValidResponse;
-    //00110100
-    //11111111
-
-    //Process Loop
-    always_ff @(negedge CLK10) begin
-        //Check EEPROM Memory Validity
-        if (state == CHECK_MEM_VALID & ~isBlanking) begin
-            if (byteNumber == 0) begin
-                SPI_MOSI <= READ_OP[bytePointer];
-            end
-            else if (byteNumber == 1) begin
-                SPI_MOSI <= 0;//MEM_VALID_ADDR[bytePointer];
-            end
-            else if (byteNumber == 2) begin
-                memValidResponse[bytePointer] <= SPI_MISO;
-            end
-        end
-        
-        //Load EEPROM Memory into Virtex Config
-        else if (state == LOAD_MEM & ~isBlanking) begin
-            if (byteNumber == 0) begin
-                SPI_MOSI <= READ_OP[bytePointer];
-            end
-            else if (byteNumber == 1) begin
-                SPI_MOSI <= 0;
-            end
-            else if (byteNumber <= 128) begin
-                //Load EEPROM [0:126] (we already read 127) into virtexConfig [0:62]
-                //split each config into 2x 8-bit parts and then load one bit at a time
-                virtexConfig[(getConfigAddrIndex((byteNumber - 2) >> 1) - (byteNumber[0] ? 8 : 0)) - bytePointer] <= SPI_MOSI;
-            end
-        end
-        
-        //Write Default Virtex Config to EEPROM
-        else if (state == WRITE_DEFAULT_WEL & ~isBlanking) begin
-            SPI_MOSI <= ENABLE_WEL[bytePointer];
-        end
-        else if (state == WRITE_DEFAULT & ~isBlanking) begin
-            if (byteNumber == 0) begin
-                SPI_MOSI <= WRITE_OP[bytePointer];
-            end
-            else if (byteNumber == 1) begin
-                SPI_MOSI <= writeDefaultAddr[bytePointer];
-            end
-            else if (byteNumber <= 9) begin //[0:7] -> [2:9]
-                SPI_MOSI <= 0;//MEM_VALID_CODE[bytePointer];
-                //Write virtexConfig (DefaultVirtexConfig) [0:63] into EEPROM [0:127]
-                //split each config into 2x 8-bit parts and then write one bit at a time
-                // SPI_MOSI <= virtexConfig[(getConfigAddrIndex((byteNumber - 2) >> 1) - (byteNumber[0] ? 8 : 0)) - bytePointer];
-            end
-        end
-
-        //Write New Data to EEPROM & RAM
-        else if (state == WRITE_NEW_WEL & ~isBlanking) begin
-            SPI_MOSI <= ENABLE_WEL[bytePointer];
-            virtexConfig[getConfigAddrIndex(newConfigFIFOOut.addr) -: 16] <= newConfigFIFOOut.data;
-        end
-        else if (state == WRITE_NEW & ~isBlanking) begin
-            if (byteNumber == 0) begin
-                SPI_MOSI <= WRITE_OP[bytePointer];
-            end
-            else if (byteNumber == 1) begin
-                SPI_MOSI <= newConfigFIFOOut.addr[bytePointer];
-            end
-            else if (byteNumber == 2 | bytePointer == 3) begin
-                //write data - split config into 2x 8-bit parts and write out one bit at a time
-                SPI_MOSI <= newConfigFIFOOut.data[(byteNumber[0] ? 7 : 15) - bytePointer];
-            end
-        end
-
-        //Increment & Change State
-        if (sequenceIndex == currentStateEndIndex) begin
-            sequenceIndex <= 0;
-            case (state)
-                CHECK_MEM_VALID: begin
-                    if (hasValidData) state <= LOAD_MEM;
-                    else state <= WRITE_DEFAULT_WEL;
-                end
-                LOAD_MEM: state <= IDLE;
-                WRITE_DEFAULT_WEL: state <= WRITE_DEFAULT;
-                WRITE_DEFAULT: begin
-                    if (writeDefaultIndex == 15) state <= IDLE;
-                    else begin
-                        writeDefaultIndex <= writeDefaultIndex + 1;
-                        state <= WRITE_DEFAULT_WEL;
-                    end
-                end
-                WRITE_NEW_WEL: state <= WRITE_NEW;
-                WRITE_NEW: state <= IDLE;
-            endcase
-        end
-        else sequenceIndex <= sequenceIndex + 1;
-
-        //Read New Data from FIFO
-        newConfigFIFORead <= 0;
-        if (state == IDLE & ~newConfigFIFOEmpty) begin
-            newConfigFIFORead <= 1;
-            state <= WRITE_NEW_WEL;
-        end
-    end
-
-    //New Config Data FIFO
-    fifo_virtex_config fifo_virtex_config(
-        .empty(newConfigFIFOEmpty),
-        .dout(newConfigFIFOOut),
-        .rd_en(newConfigFIFORead),
-        .rd_clk(CLK10),
-        .full(newConfigFIFOFull),
-        .din(newConfigFIFOIn),
-        .wr_en(newConfigFIFOWrite),
-        .wr_clk(CLK100)
-    );
-
-    //Write Requests
-    reg virtexConfigWriteRequestIndex = 0;
+    //No-EEPROM Version
     reg [$size(virtexConfigWriteRequests)-1:0] lastVirtexConfigWriteRequestValids;
     always_ff @(negedge CLK100) begin
-        //New Request //TODO fix potential metastability with virtexConfigWriteRequest
-        if (virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid & ~lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex]) begin
-            //Add to EEPROM Memory Write Queue
-            newConfigFIFOIn <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex];
-            newConfigFIFOWrite <= 1;
+        //TODO fix potential metastability with virtexConfigWriteRequest
+        for (int i = 0; i < $size(virtexConfigWriteRequests); i++) begin
+            if (virtexConfigWriteRequests[i].valid & ~lastVirtexConfigWriteRequestValids[i]) begin
+                //Add to EEPROM Memory Write Queue
+                virtexConfig[getConfigAddrIndex(virtexConfigWriteRequests[i].addr) -: 16] <= 
+                    virtexConfigWriteRequests[i].data;
+            end
 
-            //TODO fault @ newConfigFIFOFull ?
+            lastVirtexConfigWriteRequestValids[i] <= virtexConfigWriteRequests[i].valid;
         end
-        else newConfigFIFOWrite <= 0;
-
-        lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex] <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid;
-        virtexConfigWriteRequestIndex <= ~virtexConfigWriteRequestIndex;
     end
+
+    //TODO work on EEPROM
+    // // VirtexConfig virtexConfig = DefaultVirtexConfig;
+    // initial virtexConfig = DefaultVirtexConfig;
+
+    // localparam logic [7:0] WRITE_STATUS = 8'h1; //opcode + 8-bits; only modifies bits [3:2]
+    // localparam logic [7:0] WRITE_OP     = 8'h2; //see notes above
+    // localparam logic [7:0] READ_OP      = 8'h3; //see notes above
+    // localparam logic [7:0] DISABLE_WEL  = 8'h4; //opcode only
+    // localparam logic [7:0] READ_STATUS  = 8'h5; //opcode + 8-bits
+    // localparam logic [7:0] ENABLE_WEL   = 8'h6; //opcode only; must occur before every WRITE_STATUS and WRITE
+    // localparam logic [7:0] MEM_VALID_ADDR = 8;
+    // localparam logic [7:0] MEM_VALID_CODE = DefaultVirtexConfig.memValid[7:0];
+
+    // //New Config Write FIFO
+    // VirtexConfigWriteRequest newConfigFIFOOut;
+    // VirtexConfigWriteRequest newConfigFIFOIn = 0;
+    // wire newConfigFIFOEmpty, newConfigFIFOFull;
+    // reg newConfigFIFORead = 0, newConfigFIFOWrite = 0;
+
+    // //State
+    // enum logic [3:0] {
+    //     WAIT=0,
+    //     CLEAR_STATUS_WEL=1, CLEAR_STATUS=2,
+    //     CHECK_MEM_VALID=3,
+    //     LOAD_MEM=4,
+    //     WRITE_DEFAULT_WEL=5, WRITE_DEFAULT=6,
+    //     WRITE_NEW_WEL=7, WRITE_NEW=8,
+    //     IDLE=9
+    // } state = WAIT;
+
+    // /* Sequence
+    //     Index | 0  1  2  3    -3 -2 -1 End
+    //     Data  | X  D  D  D ... D D  X  X
+    //     ClkEn | 0  0  1  1     1 1  0  0
+    //     CS    | 1  0  0  0     0 0  0  1 */
+    // reg [10:0] sequenceIndex = 0;
+    // localparam [10:0] stateEndIndexes [10] = '{
+    //     (2   << 3) + 3, //WAIT
+    //     (1   << 3) + 3, //CLEAR_STATUS_WEL
+    //     (2   << 3) + 3, //CLEAR_STATUS
+    //     (3   << 3) + 3, //CHECK_MEM_VALID
+    //     (129 << 3) + 3, //LOAD_MEM
+    //     (1   << 3) + 3, //WRITE_DEFAULT_WEL
+    //     (10  << 3) + 3, //WRITE_DEFAULT
+    //     (1   << 3) + 3, //WRITE_NEW_WEL
+    //     (4   << 3) + 3, //WRITE_NEW
+    //     0 //IDLE
+    // };
+    // wire [10:0] currentStateEndIndex = stateEndIndexes[state];
+    // wire isBlanking = sequenceIndex < 1 | sequenceIndex > currentStateEndIndex-2;
+    // assign SPI_CS = sequenceIndex < 1 | sequenceIndex >= currentStateEndIndex | state == WAIT;
+    // assign SPI_CLK = (sequenceIndex > 1 & sequenceIndex < currentStateEndIndex-1 & state != WAIT) ? CLK10 : 0;
+    // assign SPI_HOLD = 1;
+    // assign SPI_WP = 1;//state == WRITE_DEFAULT_WEL | state == WRITE_DEFAULT | state == WRITE_NEW_WEL | state == WRITE_NEW;
+    // reg [7:0] memValidResponse;
+    // wire hasValidData = memValidResponse == MEM_VALID_CODE;
+    // wire [8:0] byteNumber = (sequenceIndex - 1) >> 3;
+    // wire [8:0] lastByteNumber = (sequenceIndex - 2) >> 3;
+    // wire [2:0] bytePointer = 7 - ((sequenceIndex - 1) - ((sequenceIndex - 1) >> 3 << 3)); //7 down to 1
+    // wire [2:0] nextBytePointer = bytePointer + 1;
+    // reg [3:0] writeDefaultIndex = 0; //what page we are on
+    // wire [7:0] writeDefaultAddr = writeDefaultIndex << 3;
+    // assign isBooted = state == IDLE | state == WRITE_NEW_WEL | state == WRITE_NEW;
+
+    // assign debug = memValidResponse;
+
+    // //01100100
+    // //
+
+    // //Process Loop
+    // always_ff @(negedge CLK10) begin
+    //     //WEL (Enable Write)
+    //     if ((state == CLEAR_STATUS_WEL | state == WRITE_DEFAULT_WEL | state == WRITE_NEW_WEL) & ~isBlanking) begin
+    //         SPI_MOSI <= ENABLE_WEL[bytePointer];
+    //     end
+
+    //     //Clear Status
+    //     if (state == CLEAR_STATUS & ~isBlanking) begin
+    //         if (byteNumber == 0) begin
+    //             SPI_MOSI <= WRITE_STATUS[bytePointer];
+    //         end
+    //         else if (byteNumber == 1) begin
+    //             SPI_MOSI <= 0; //disable block write protection
+    //         end
+    //     end
+
+    //     //Check EEPROM Memory Validity
+    //     if (state == CHECK_MEM_VALID & ~isBlanking) begin
+    //         if (byteNumber == 0) begin
+    //             SPI_MOSI <= READ_OP[bytePointer];
+    //         end
+    //         else if (byteNumber == 1) begin
+    //             SPI_MOSI <= MEM_VALID_ADDR[bytePointer];
+    //         end
+    //     end
+        
+    //     //Load EEPROM Memory into Virtex Config
+    //     else if (state == LOAD_MEM & ~isBlanking) begin
+    //         if (byteNumber == 0) begin
+    //             SPI_MOSI <= READ_OP[bytePointer];
+    //         end
+    //         else if (byteNumber == 1) begin
+    //             SPI_MOSI <= 0;
+    //         end
+    //     end
+        
+    //     //Write Default Virtex Config to EEPROM
+    //     else if (state == WRITE_DEFAULT & ~isBlanking) begin
+    //         if (byteNumber == 0) begin
+    //             SPI_MOSI <= WRITE_OP[bytePointer];
+    //         end
+    //         else if (byteNumber == 1) begin
+    //             SPI_MOSI <= writeDefaultAddr[bytePointer];
+    //         end
+    //         else if (byteNumber <= 9) begin //[0:7] -> [2:9]
+    //             SPI_MOSI <= MEM_VALID_CODE[bytePointer];
+    //             //Write virtexConfig (DefaultVirtexConfig) [0:63] into EEPROM [0:127]
+    //             // SPI_MOSI <= virtexConfig[
+    //             //     getConfigAddrIndex((writeDefaultIndex<<2) + ((byteNumber-2)>>1)) - //get index of 16-bit config register
+    //             //     (byteNumber[0] ? 8:0) - //split 16-bit register into 2x 8-bit
+    //             //     bytePointer //read out one bit at a time
+    //             // ];
+    //         end
+    //     end
+
+    //     //Write New Data to EEPROM & RAM
+    //     else if (state == WRITE_NEW & ~isBlanking) begin
+    //         if (byteNumber == 0) begin
+    //             SPI_MOSI <= WRITE_OP[bytePointer];
+    //         end
+    //         else if (byteNumber == 1) begin
+    //             SPI_MOSI <= newConfigFIFOOut.addr[bytePointer];
+    //         end
+    //         else if (byteNumber == 2 | bytePointer == 3) begin
+    //             SPI_MOSI <= newConfigFIFOOut.data[(byteNumber[0] ? 7 : 15) - bytePointer];
+    //         end
+    //     end
+
+    //     //Increment & Change State
+    //     if (sequenceIndex == currentStateEndIndex) begin
+    //         sequenceIndex <= 0;
+    //         case (state)
+    //             WAIT: state <= CLEAR_STATUS_WEL;
+    //             CLEAR_STATUS_WEL: state <= CLEAR_STATUS;
+    //             CLEAR_STATUS: state <= CHECK_MEM_VALID;
+    //             CHECK_MEM_VALID: begin
+    //                 if (hasValidData) state <= LOAD_MEM;
+    //                 else state <= WRITE_DEFAULT_WEL;
+    //             end
+    //             LOAD_MEM: state <= IDLE;
+    //             WRITE_DEFAULT_WEL: state <= WRITE_DEFAULT;
+    //             WRITE_DEFAULT: begin
+    //                 if (writeDefaultIndex == 15) state <= IDLE;
+    //                 else begin
+    //                     writeDefaultIndex <= writeDefaultIndex + 1;
+    //                     state <= WRITE_DEFAULT_WEL;
+    //                 end
+    //             end
+    //             WRITE_NEW_WEL: state <= WRITE_NEW;
+    //             WRITE_NEW: state <= IDLE;
+    //         endcase
+    //     end
+    //     else sequenceIndex <= sequenceIndex + 1;
+
+    //     //Read New Data from FIFO
+    //     newConfigFIFORead <= 0;
+    //     if (state == IDLE & ~newConfigFIFOEmpty) begin
+    //         newConfigFIFORead <= 1;
+    //         state <= WRITE_NEW_WEL;
+    //     end
+    // end
+
+    // //Read Loop
+    // always_ff @(posedge CLK10) begin
+    //     //Check EEPROM Memory Validity (Read Response)
+    //     if (state == CHECK_MEM_VALID & lastByteNumber == 2) begin
+    //         memValidResponse[nextBytePointer] <= SPI_MISO; //[7:0] [8:0]
+    //     end
+
+    //     //Load EEPROM Memory into Virtex Config (Read Response)
+    //     //FIXME
+    //     else if (state == LOAD_MEM & lastByteNumber <= 128) begin
+    //         //Load EEPROM [0:126] (we already read 127) into virtexConfig [0:62]
+    //         virtexConfig[
+    //             getConfigAddrIndex((byteNumber - 2) >> 1) - //get index of 16-bit config register
+    //             (byteNumber[0] ? 8 : 0) - //split 16-bit register into 2x 8-bit
+    //             nextBytePointer //read out one bit at a time
+    //         ] <= SPI_MISO;
+    //     end
+
+    //     //TODO LOAD FIFO READ INTO VCONFIG
+    //     // virtexConfig[getConfigAddrIndex(newConfigFIFOOut.addr) -: 16] <= newConfigFIFOOut.data;
+    // end
+
+    // //New Config Data FIFO
+    // fifo_virtex_config fifo_virtex_config(
+    //     .empty(newConfigFIFOEmpty),
+    //     .dout(newConfigFIFOOut),
+    //     .rd_en(newConfigFIFORead),
+    //     .rd_clk(CLK10),
+    //     .full(newConfigFIFOFull),
+    //     .din(newConfigFIFOIn),
+    //     .wr_en(newConfigFIFOWrite),
+    //     .wr_clk(CLK100)
+    // );
+
+    // //Write Requests
+    // reg virtexConfigWriteRequestIndex = 0;
+    // reg [$size(virtexConfigWriteRequests)-1:0] lastVirtexConfigWriteRequestValids;
+    // always_ff @(negedge CLK100) begin
+    //     //New Request //TODO fix potential metastability with virtexConfigWriteRequest
+    //     if (virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid & ~lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex]) begin
+    //         //Add to EEPROM Memory Write Queue
+    //         newConfigFIFOIn <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex];
+    //         newConfigFIFOWrite <= 1;
+
+    //         //TODO fault @ newConfigFIFOFull ?
+    //     end
+    //     else newConfigFIFOWrite <= 0;
+
+    //     lastVirtexConfigWriteRequestValids[virtexConfigWriteRequestIndex] <= virtexConfigWriteRequests[virtexConfigWriteRequestIndex].valid;
+    //     virtexConfigWriteRequestIndex <= ~virtexConfigWriteRequestIndex;
+    // end
 endmodule

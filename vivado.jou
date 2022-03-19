@@ -30,3 +30,93 @@ launch_simulation
 open_wave_config C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg
 source PythonSPITest.tcl
 relaunch_sim
+relaunch_sim
+relaunch_sim
+close_sim
+launch_simulation
+open_wave_config C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg
+source PythonSPITest.tcl
+relaunch_sim
+restart
+run all
+current_wave_config {behav.wcfg}
+add_wave {{/PythonSPITest/ConfigManager/state}} 
+current_wave_config {behav.wcfg}
+add_wave {{/PythonSPITest/ConfigManager/sequenceIndex}} 
+restart
+run all
+current_wave_config {behav.wcfg}
+add_wave {{/PythonSPITest/ConfigManager/currentStateEndIndex}} 
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+run 0.2 ms
+relaunch_sim
+run all
+relaunch_sim
+relaunch_sim
+restart
+run all
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs synth_1]
+set_property AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1 [get_runs synth_1]
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+relaunch_sim
+relaunch_sim
+run all
+relaunch_sim
+run all
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 20
+wait_on_run impl_1
+save_wave_config {C:/Users/liams/Documents/GitHub/Virtex-HDL/behav.wcfg}
+close_sim
