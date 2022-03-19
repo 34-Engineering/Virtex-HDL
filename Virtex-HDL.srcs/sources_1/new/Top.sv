@@ -78,7 +78,7 @@ module Top(
         .SPI_MISO(CONF_MISO),
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequests(virtexConfigWriteRequests),
-        .bootDone(configBootDone),
+        .isBooted(configBootDone),
         .debug(debug)
     );
 

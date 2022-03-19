@@ -16,7 +16,7 @@ module PythonSPITest;
     ConfigManager ConfigManager(
         .CLK100(CLK100),
         .CLK10(CLK10),
-        // .SPI_CS(CONF_CS),
+        .SPI_CS(),
         .SPI_WP(),
         .SPI_HOLD(),
         .SPI_CLK(),
@@ -24,7 +24,7 @@ module PythonSPITest;
         .SPI_MISO(CONF_MISO),
         // .virtexConfig(),
         .virtexConfigWriteRequests('{0, 0}),
-        // .bootDone(),
+        .isBooted(),
         .debug()
     );
 
