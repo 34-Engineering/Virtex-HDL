@@ -599,12 +599,12 @@ module BlobProcessor(
 
                 //gap valid between Blob B & target
                 logic [9:0] gapX = min10(
-                    abs10(targetBlobB.boundTopLeft.x - chainBottomRight.x),
-                    abs10(targetBlobB.boundBottomRight.x - chainTopLeft.x)
+                    diff10(targetBlobB.boundTopLeft.x, chainBottomRight.x),
+                    diff10(targetBlobB.boundBottomRight.x, chainTopLeft.x)
                 );
                 logic [9:0] gapY = min10(
-                    abs10(targetBlobB.boundTopLeft.y - chainBottomRight.y),
-                    abs10(targetBlobB.boundBottomRight.y - chainTopLeft.y)
+                    diff10(targetBlobB.boundTopLeft.y, chainBottomRight.y),
+                    diff10(targetBlobB.boundBottomRight.y, chainTopLeft.y)
                 );
                 logic gapValid = inRangeInclusive16(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
                     inRangeInclusive16(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
@@ -675,8 +675,8 @@ module BlobProcessor(
                     leftBlobAngle == BACKWARD & rightBlobAngle == FORWARD : 1;
 
                 //gap valid
-                logic [9:0] gapX = abs10(rightBlob.boundTopLeft.x - leftBlob.boundBottomRight.x);
-                logic [9:0] gapY = abs10(rightBlob.boundTopLeft.y - leftBlob.boundBottomRight.y);
+                logic [9:0] gapX = diff10(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
+                logic [9:0] gapY = diff10(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
                 logic gapValid = inRangeInclusive16(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
                     inRangeInclusive16(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
@@ -825,7 +825,7 @@ module BlobProcessor(
         return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
     endfunction
 
-    //Resetting for New Frame
+    //Resetting for New Frame //TODO callme
     function automatic reset();
         //FORK
         blobIndex = 0;

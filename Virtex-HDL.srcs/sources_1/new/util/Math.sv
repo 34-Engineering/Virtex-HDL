@@ -33,17 +33,20 @@ function automatic logic inRangeInclusive24(logic [23:0] num, min, max);
     return num >= min & num <= max;
 endfunction
 
-//Diff
+//Difference
+function automatic logic [9:0] diff10(logic [9:0] a, b);
+    return (a > b) ? (a - b) : (b - a);
+endfunction
 function automatic logic [23:0] diff24(logic [23:0] a, b);
     return (a > b) ? (a - b) : (b - a);
 endfunction
 
 //Signed Functions
-function automatic logic [9:0] abs10(logic signed [9:0] num);
-    return num > 0 ? num : -num;
+function automatic logic [9:0] abs10(logic signed [10:0] num);
+    return num[10];
 endfunction
-function automatic logic [23:0] abs24(logic signed [23:0] num);
-    return num > 0 ? num : -num;
+function automatic logic [23:0] abs24(logic signed [24:0] num);
+    return num[24];
 endfunction
 
 //20-bit Vector
@@ -65,7 +68,7 @@ typedef struct packed { //80-bit
 function automatic logic [23:0] calcQuadArea(Quad quad);
     Vector [3:0] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
     logic [23:0] total = 0;
-    for (integer i = 0; i < 4; i = i + 1) begin
+    for (int i = 0; i < 4; i = i + 1) begin
         total = total +
         ((points[i].x * points[i == 3 ? 0 : i+1].y) >> 1) - 
         ((points[i == 3 ? 0 : i+1].x * points[i].y) >> 1);
@@ -82,14 +85,14 @@ function automatic logic isValidQuad(Quad quad);
 endfunction
 
 //Quick Division //FIXME better naming?
-function automatic logic [9:0] quickDivide10(logic signed [9:0] dividend, divisor);
+function automatic logic [9:0] quickDivide10(logic signed [10:0] dividend, divisor);
     //returns a 10-bit integer that correctlates to the real quotient
     logic [9:0] out = 0;
-    for (integer i = 0; i < 10; i++) begin
+    for (reg [3:0] i = 0; i < 10; i++) begin
         out[i] = abs10(dividend) > (
             i < 5 ?
-            abs10(divisor) >> abs10(5 - i) :
-            abs10(divisor) << abs10(5 - i)
+            abs10(divisor) >> diff10(5, i) :
+            abs10(divisor) << diff10(5, i)
         );
     end
     return out;

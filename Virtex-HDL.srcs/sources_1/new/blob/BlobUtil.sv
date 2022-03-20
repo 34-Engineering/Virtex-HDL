@@ -104,7 +104,7 @@ function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
 endfunction
 
 //Calculate Blob Angle
-function automatic BlobAngle calcAngle(logic signed [9:0] dx, logic signed [9:0] dy);
+function automatic BlobAngle calcAngle(logic signed [10:0] dx, logic signed [10:0] dy);
     localparam t = 896; //best fit for 10° tolerance
     logic [9:0] h = quickDivide10(dx, dy); //how horizontal the line is
     logic [9:0] v = quickDivide10(dy, dx); //how vertical the line is
@@ -132,10 +132,10 @@ function automatic BlobAngle calcBlobAngle(BlobData blob);
     };
 
     //calculate delta values of center lines
-    logic signed [9:0] dx1 = end1.x - start1.x;
-    logic signed [9:0] dy1 = end1.y - start1.y;
-    logic signed [9:0] dx2 = end2.x - start2.x;
-    logic signed [9:0] dy2 = end2.y - start2.y;
+    logic signed [10:0] dx1 = end1.x - start1.x;
+    logic signed [10:0] dy1 = end1.y - start1.y;
+    logic signed [10:0] dx2 = end2.x - start2.x;
+    logic signed [10:0] dy2 = end2.y - start2.y;
 
     //find angle of center lines
     BlobAngle angle1 = calcAngle(dx1, dy1);
