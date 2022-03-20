@@ -48,11 +48,11 @@ module BlobProcessor(
         .dina(blobBRAMPorts[0].din),
         .douta(blobBRAMPorts[0].dout),
         .wea(blobBRAMPorts[0].we),
-        .addrb(blobBRAMPorts[0].addr),
+        .addrb(blobBRAMPorts[1].addr),
         .clkb(CLK200),
-        .dinb(blobBRAMPorts[0].din),
-        .doutb(blobBRAMPorts[0].dout),
-        .web(blobBRAMPorts[0].we)
+        .dinb(blobBRAMPorts[1].din),
+        .doutb(blobBRAMPorts[1].dout),
+        .web(blobBRAMPorts[1].we)
     );
 
     //Run Length Encoder (registers + wires)
@@ -66,15 +66,15 @@ module BlobProcessor(
     //Blob Processor (registers + wires)
     enum { IDLE, LAST_LINE, MERGE_READ, MERGE_WRITE_1, MERGE_WRITE_2, JOIN_1, JOIN_2, WRITE } blobRunState = IDLE;
     BlobMetadata blobMetadatas [MAX_BLOBS];
-    initial for (int i = 0; i < MAX_BLOBS; i++) blobMetadatas[i] = '{ status: UNSCANED, pointer: NULL_BLOB_ID };
-    reg [MAX_BLOB_ID_SIZE-1:0] blobIndex;
+    initial for (int i = 0; i < MAX_BLOBS; i++) blobMetadatas[i] = '{ status: UNSCANED, pointer: NULL_BLOB_INDEX };
+    BlobIndex blobIndex;
     reg [1:0] blobRunBuffersPartionCurrent; //partion of run buffer (0-2)
     reg [1:0] blobRunBuffersPartionLast;
-    reg [MAX_RUNS_PER_LINE_POINTER_SIZE-1:0] blobRunBufferIndexCurrent; //index in run buffer
-    reg [MAX_RUNS_PER_LINE_POINTER_SIZE-1:0] blobRunBufferIndexLast;
+    RunBufferIndex blobRunBufferIndexCurrent; //index in run buffer
+    RunBufferIndex blobRunBufferIndexLast;
     reg [9:0] blobRunBufferXCurrent; // counter for RLE x position
     reg [9:0] blobRunBufferXLast;
-    reg [MAX_BLOB_ID_SIZE-1:0] blobMasterBlobID; //master blob for run to join into (following joining runs are slaves)
+    BlobIndex blobMasterIndex; //master blob for run to join into (following joining runs are slaves)
     reg blobUsingPort1; //whether blobProcessor is using port1 (so garbage collector won't)
     reg lastIsWorkingOnFrame;
     wire blobProcessorDoneWithLine = blobRunBuffersPartionCurrent == NULL_RUN_BUFFER_PARTION |
@@ -86,7 +86,7 @@ module BlobProcessor(
     wire blobProcessorTooSlow = rlePartionValid & rleRunBuffersPartion == blobRunBuffersPartionLast;
     wire blobProcessorReallyTooSlow = rlePartionValid & rleRunBuffersPartion == blobRunBuffersPartionCurrent;
     wire Run blobLastLineRun = runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast];
-    wire [MAX_BLOB_ID_SIZE-1:0] blobLastLineRunRealBlobID = getRealBlobID(blobLastLineRun.blobID);
+    wire BlobIndex blobLastLineRunBlobPointerIndex = getBlobPointerIndex(blobLastLineRun.blobIndex);
     wire Run blobCurrentRun = runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent];
     wire [9:0] blobCurrentLine = runBuffers[blobRunBuffersPartionCurrent].line;
     wire blobProcessorOnLastLine = runBuffers[blobRunBuffersPartionCurrent].line == IMAGE_HEIGHT-1;
@@ -95,14 +95,14 @@ module BlobProcessor(
     //Target Selector (registers + wires)
     reg targetSelectorDone;
     Target targetCurrent; //current best target for the frame
-    reg [MAX_BLOB_ID_SIZE-1:0] targetIndexA; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
-    reg [MAX_BLOB_ID_SIZE-1:0] targetIndexBs [1:0];  //B0|1
+    BlobIndex targetIndexA; //keeping track of A for DUAL/GROUP; also tracking frame start when == NULL
+    BlobIndex targetIndexBs [1:0];  //B0|1
     reg targetIndexBsValid [1:0];
     BlobData targetBlobA;
     BlobAngle targetBlobAAngle;
-    wire [MAX_BLOB_ID_SIZE-1:0] firstTargetIndex = getNextValidTargetIndex(0);
-    wire [MAX_BLOB_ID_SIZE-1:0] nextTargetIndexA = getNextValidTargetIndex(targetIndexA+1);
-    wire [MAX_BLOB_ID_SIZE-1:0] nextTargetIndex [1:0] = '{getNextValidTargetIndex(targetIndexBs[0]+1), getNextValidTargetIndex(targetIndexBs[1]+1)};
+    wire BlobIndex firstTargetIndex = getNextValidTargetIndex(0);
+    wire BlobIndex nextTargetIndexA = getNextValidTargetIndex(targetIndexA+1);
+    wire BlobIndex nextTargetIndex [1:0] = '{getNextValidTargetIndex(targetIndexBs[0]+1), getNextValidTargetIndex(targetIndexBs[1]+1)};
     Target targetChain; //current chain (for GROUP)
     Target targetChainValid; //biggest valid target for current chain
     reg targetPartion; //tells 0: A|B1 or 1: A|B2
@@ -111,8 +111,8 @@ module BlobProcessor(
 
     //Garbage Collector (registers + wires)
     reg garbagePort;
-    reg [MAX_BLOB_ID_SIZE-1:0] garbageIndex;
-    reg [MAX_BLOB_ID_SIZE-1:0] lastGarbageIndex [1:0] = '{0, 0}; 
+    BlobIndex garbageIndex;
+    BlobIndex lastGarbageIndex [1:0] = '{0, 0}; 
     reg garbageCollectorWasUsingPorts [1:0] = '{0, 0}; //BRAM ports
     reg garbageCollectorDone;
     wire garbageCollectorCanUsePorts [1:0] = '{~isWorkingOnFrame, ~blobUsingPort1};
@@ -136,7 +136,7 @@ module BlobProcessor(
 
         //Garbage Collection Loop
         if (~garbageCollectorDone) begin
-            updateGarbageCollector();
+            // updateGarbageCollector();
         end
         
         //Working on Frame
@@ -186,12 +186,12 @@ module BlobProcessor(
             //FORK
             //new run @ start of line OR color transition
             if ((kernel.pos.x == 0 & x == 0) |
-                kernel.value[x] != (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobID != NULL_BLACK_RUN_BLOB_ID)) begin
+                kernel.value[x] != (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobIndex != NULL_BLACK_RUN_BLOB_INDEX)) begin
 
                 //push run to buffer
                 runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = '{
                     length: 1,
-                    blobID: kernel.value[x] ? NULL_BLOB_ID : NULL_BLACK_RUN_BLOB_ID
+                    blobIndex: kernel.value[x] ? NULL_BLOB_INDEX : NULL_BLACK_RUN_BLOB_INDEX
                 };
 
                 //increment our buffer count for next run
@@ -268,7 +268,7 @@ module BlobProcessor(
         //Handle Run (if we are on a valid partion of the RunBuffer & there are more Runs to handle)
         if (blobPartionCurrentValid & blobRunBufferIndexCurrent < runBuffers[blobRunBuffersPartionCurrent].count) begin
             //run is black => continue to next run
-            if (blobCurrentRun.blobID == NULL_BLACK_RUN_BLOB_ID) begin
+            if (blobCurrentRun.blobIndex == NULL_BLACK_RUN_BLOB_INDEX) begin
                 //continue to next run
                 blobRunBufferXCurrent = blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
                 blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
@@ -280,7 +280,7 @@ module BlobProcessor(
                 if (blobRunState == IDLE) begin
                     //FORK
                     //mark this run as doesn't have another run to join
-                    blobMasterBlobID = NULL_BLOB_ID;
+                    blobMasterIndex = NULL_BLOB_INDEX;
 
                     //reset last run buffer indexes
                     blobRunBufferIndexLast = 0;
@@ -297,29 +297,29 @@ module BlobProcessor(
                     for (int i = 0; i < MAX_RUNS_PER_LINE; i++) begin
                         if (i >= blobRunBufferIndexLast & blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count) begin
                             //FORK
-                            if (blobLastLineRun.blobID != NULL_BLACK_RUN_BLOB_ID) begin
+                            if (blobLastLineRun.blobIndex != NULL_BLACK_RUN_BLOB_INDEX) begin
                                 if (runsOverlap(blobCurrentRun, blobRunBufferXCurrent, blobLastLineRun, blobRunBufferXLast)) begin
                                     //pointer fault
-                                    if (blobLastLineRunRealBlobID == NULL_BLOB_ID) begin
+                                    if (blobLastLineRunBlobPointerIndex == NULL_BLOB_INDEX) begin
                                         BLOB_POINTER_DEPTH_FAULT <= 1;
                                     end
 
                                     //found master (1st valid blob)
-                                    else if (blobMasterBlobID === NULL_BLOB_ID) begin
-                                        blobMasterBlobID = blobLastLineRunRealBlobID;
+                                    else if (blobMasterIndex == NULL_BLOB_INDEX) begin
+                                        blobMasterIndex = blobLastLineRunBlobPointerIndex;
                                     end
 
                                     //found another valid blob => merge with master
-                                    else if (blobLastLineRunRealBlobID != blobMasterBlobID) begin
+                                    else if (blobLastLineRunBlobPointerIndex != blobMasterIndex) begin
                                         //read slave & master blobs
-                                        blobBRAMPorts[0].addr = blobMasterBlobID;
-                                        blobBRAMPorts[1].addr = blobLastLineRunRealBlobID;
+                                        blobBRAMPorts[0].addr = blobMasterIndex;
+                                        blobBRAMPorts[1].addr = blobLastLineRunBlobPointerIndex;
                                         blobUsingPort1 = 1;
 
                                         //mark slave as pointer to master
-                                        blobMetadatas[blobLastLineRunRealBlobID] = '{
+                                        blobMetadatas[blobLastLineRunBlobPointerIndex] = '{
                                             status: POINTER,
-                                            pointer: blobMasterBlobID
+                                            pointer: blobMasterIndex
                                         };
 
                                         //go merge blobs & write once we read them
@@ -338,7 +338,7 @@ module BlobProcessor(
                     //done looping last line => write blob
                     if (blobRunState == LAST_LINE) begin
                         //FORK
-                        blobRunState = blobMasterBlobID == NULL_BLOB_ID ? WRITE : JOIN_1;
+                        blobRunState = blobMasterIndex == NULL_BLOB_INDEX ? WRITE : JOIN_1;
                         //JOIN
                     end
                 end
@@ -362,7 +362,7 @@ module BlobProcessor(
                 if (blobRunState == JOIN_1) begin
                     //FORK
                     //account for read delay
-                    blobBRAMPorts[0].addr = blobMasterBlobID;
+                    blobBRAMPorts[0].addr = blobMasterIndex;
                     blobRunState = JOIN_2;
                     //JOIN
                 end
@@ -376,12 +376,12 @@ module BlobProcessor(
                 else if (blobRunState == WRITE) begin
                     //FORK
                     //add this pixel to blob if we have a valid blob to join
-                    if (blobMasterBlobID != NULL_BLOB_ID) begin
+                    if (blobMasterIndex != NULL_BLOB_INDEX) begin
                         blobBRAMPorts[0].din = mergeBlobs(runToBlob(blobCurrentRun, blobRunBufferXCurrent, blobCurrentLine), blobBRAMPorts[0].dout);
                         blobBRAMPorts[0].we = 1;
 
-                        //set ID of the blob we joined
-                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobMasterBlobID;
+                        //set index of the blob we joined
+                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex = blobMasterIndex;
                     end
                     
                     //not touching a blob => make new blob
@@ -392,8 +392,8 @@ module BlobProcessor(
                         blobBRAMPorts[0].we = 1;
                         blobMetadatas[blobIndex].status = UNSCANED; //tell garbage collector to check this once it is done
 
-                        //set ID of the blob we made in runBuffer
-                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobIndex;
+                        //set index of the blob we made in runBuffer
+                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex = blobIndex;
 
                         
                         if (blobIndex == MAX_BLOBS-1) begin
@@ -444,7 +444,7 @@ module BlobProcessor(
             setNextGarbageIndex();
 
             //Read Port X
-            if (garbageIndex != NULL_BLOB_ID & ~garbageCollectorDone) begin
+            if (garbageIndex != NULL_BLOB_INDEX & ~garbageCollectorDone) begin
                 blobBRAMPorts[garbagePort].addr = garbageIndex;
                 blobBRAMPorts[garbagePort].we = 0;
                 garbageCollectorWasUsingPorts[garbagePort] = 1;
@@ -467,7 +467,7 @@ module BlobProcessor(
     endfunction
     function automatic setNextGarbageIndex();
         //FORK
-        if (garbageIndex == NULL_BLOB_ID | nextValidGarbageIndex == NULL_BLOB_ID) begin
+        if (garbageIndex == NULL_BLOB_INDEX | nextValidGarbageIndex == NULL_BLOB_INDEX) begin
             //still on frame => keep doing garbage duty :(
             if (isWorkingOnFrame) begin
                 garbageIndex = firstValidGarbageIndex;
@@ -483,7 +483,7 @@ module BlobProcessor(
         end
         //JOIN
     endfunction
-    function automatic logic [MAX_BLOB_ID_SIZE-1:0] getNextValidGarbageIndex(logic [MAX_BLOB_ID_SIZE-1:0] startIndex);
+    function automatic BlobIndex getNextValidGarbageIndex(BlobIndex startIndex);
         //find next unscaned blob >= startIndex
         //(and < blobIndex because anything above that is invalid)
         for (int i = 0; i < MAX_BLOBS; i++) begin
@@ -491,23 +491,18 @@ module BlobProcessor(
                 return i;
             end
         end
-        return NULL_BLOB_ID;
+        return NULL_BLOB_INDEX;
     endfunction
     function automatic logic doesBlobMatchCriteria(BlobData blob);
         logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
         logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
-        //TODO fixed point mult
-        logic inAspectRatioRange = inRangeInclusive24(boundWidth,
-            virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
+        logic inAspectRatioRange = isAspectRatioInRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
-        logic [18:0] boundAreaUnshifted = boundWidth * boundHeight;
-        logic inBoundAreaRange = inRangeInclusive16(boundAreaUnshifted >> 1,
-            virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+        logic [23:0] boundAreaUnshifted = boundWidth * boundHeight;
+        logic inBoundAreaRange = inRangeInclusive16(boundAreaUnshifted >> 1, virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
-        //TODO fixed point mult
-        logic inFullnessRange = inRangeInclusive24(blob.area,
-            virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
+        logic inFullnessRange = isFullnessInRange(blob.area, boundAreaUnshifted, virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
 
         logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
 
@@ -525,8 +520,8 @@ module BlobProcessor(
             4 - PROCESS B0 on 0 READ New B0 on 0                        ...
             5 + PROCESS B1 on 1 READ New B1 on 1
             6 - PROCESS B0 on 0 READ New B0 on 0
-            ... till B0|B1 == NULL_BLOB_ID
-            ---- till A == NULL_BLOB_ID */
+            ... till B0|B1 == NULL_BLOB_INDEX
+            ---- till A == NULL_BLOB_INDEX */
 
         //SAVE A from 1
         if (targetHasNewA & ~targetPartion) begin
@@ -538,8 +533,8 @@ module BlobProcessor(
             if (virtexConfig.targetMode == GROUP) begin
                 //Chain is Done. Make it the target if we made a valid target AND
                 //its better than the current one OR we dont have a current one
-                if (targetChainValid.timestamp != NULL_TIMESTAMP &
-                    (targetCurrent.timestamp == NULL_TIMESTAMP | distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) begin
+                if (~isTargetNull(targetChainValid) &
+                    (isTargetNull(targetCurrent) | distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) begin
                         targetCurrent = targetChainValid;
                 end
 
@@ -551,14 +546,12 @@ module BlobProcessor(
                     },
                     width:  targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1,
                     height: targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1,
-                    timestamp: 10,
                     angle: targetBlobAAngle,
                     blobCount: 1
                 };
                 targetChainValid = '{
                     center: 0,
                     width: 0, height: 0,
-                    timestamp: NULL_TIMESTAMP,
                     angle: targetBlobAAngle,
                     blobCount: 0
                 };
@@ -616,8 +609,7 @@ module BlobProcessor(
 
                 if (gapValid & areaDiffValid) begin
                     //aspect ratio of new currentTarget valid
-                    //TODO fixed point mult
-                    logic newAspectRatioValid = inRangeInclusive16(newWidth, virtexConfig.targetAspectRatioMin*newHeight, virtexConfig.targetAspectRatioMax*newHeight);
+                    logic newAspectRatioValid = isAspectRatioInRange(newWidth, newHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                     //bound area of new currentTarget valid
                     logic newBoundAreaValid = inRangeInclusive16(
@@ -630,7 +622,6 @@ module BlobProcessor(
                         center: newCenter,
                         width: newWidth,
                         height: newHeight,
-                        timestamp: 10,
                         blobCount: targetChain.blobCount + 1,
                         angle: targetBlobAAngle
                     };
@@ -681,8 +672,7 @@ module BlobProcessor(
                     inRangeInclusive16(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //aspect ratio valid
-                logic aspectRatioValid = inRangeInclusive24(width, //TODO fixed point mult
-                    virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+                logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area valid
                 logic boundAreaValid = inRangeInclusive16((width * height) >> 1,
@@ -696,12 +686,11 @@ module BlobProcessor(
                 
                 //if this target is valid AND this target is better OR we dont have a target yet
                 if (isAngleValid & gapValid & aspectRatioValid & boundAreaValid & areaDiffValid &
-                    (targetCurrent.timestamp == NULL_TIMESTAMP | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
+                    (isTargetNull(targetCurrent) | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
                     targetCurrent = '{
                         center: center,
                         width: width,
                         height: height,
-                        timestamp: 10,
                         blobCount: 2,
                         angle: leftBlobAngle
                     };
@@ -717,8 +706,8 @@ module BlobProcessor(
             targetIndexBs[targetPartion] = nextTargetIndex[~targetPartion]; //BLOCKING
 
             //Request New A (IF frame init OR no more Bs left (if new B0|1 is NULL | or new B0|1 is invalid AND new new B is NULL))
-            if (targetIndexA == NULL_BLOB_ID | targetIndexBs[targetPartion] == NULL_BLOB_ID | 
-                (targetIndexBs[targetPartion] == targetIndexA & nextTargetIndex[targetPartion] == NULL_BLOB_ID)) begin
+            if (targetIndexA == NULL_BLOB_INDEX | targetIndexBs[targetPartion] == NULL_BLOB_INDEX | 
+                (targetIndexBs[targetPartion] == targetIndexA & nextTargetIndex[targetPartion] == NULL_BLOB_INDEX)) begin
                 //Request New A
                 //we need access to both BRAM ports so we may have to wait
                 //an entire loop for the last B to finish processing
@@ -740,10 +729,10 @@ module BlobProcessor(
         //Reset for New A
         if (targetWantsNewA & ~targetIndexBsValid[0] & ~targetIndexBsValid[1]) begin
             //Set New A (if @ start frame use first valid blob index)
-            targetIndexA = targetIndexA == NULL_BLOB_ID ? firstTargetIndex : nextTargetIndexA; //BLOCKING
+            targetIndexA = targetIndexA == NULL_BLOB_INDEX ? firstTargetIndex : nextTargetIndexA; //BLOCKING
 
             //Finish Frame
-            if (targetIndexA == NULL_BLOB_ID) begin
+            if (targetIndexA == NULL_BLOB_INDEX) begin
                 targetSelectorDone = 1;
 
                 //Save Best Target into Target Slot
@@ -751,7 +740,7 @@ module BlobProcessor(
             end
 
             //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
-            else if (nextTargetIndexA != NULL_BLOB_ID | virtexConfig.targetMode == GROUP) begin
+            else if (nextTargetIndexA != NULL_BLOB_INDEX | virtexConfig.targetMode == GROUP) begin
                 //READ New A on 1
                 blobBRAMPorts[1].addr = targetIndexA;
                 blobBRAMPorts[1].we = 0;
@@ -785,8 +774,7 @@ module BlobProcessor(
         logic [9:0] height = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
 
         //aspect ratio valid
-        logic aspectRatioValid = inRangeInclusive24(width, //TODO fixed point mult
-            virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+        logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
         //bound area valid
         logic boundAreaValid = inRangeInclusive16((width * height) >> 1,
@@ -794,12 +782,11 @@ module BlobProcessor(
 
         //if this target is valid AND this target is better OR we dont have a target yet
         if (aspectRatioValid & boundAreaValid &
-            (targetCurrent.timestamp == NULL_TIMESTAMP | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
+            (isTargetNull(targetCurrent) | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
             targetCurrent = '{
                 center: center,
                 width: width,
                 height: height,
-                timestamp: 10,
                 blobCount: 2,
                 angle: calcBlobAngle(blob)
             };
@@ -810,7 +797,7 @@ module BlobProcessor(
         blobBRAMPorts[partion].we = 0;
         targetIndexBsValid[partion] = 1;
     endfunction
-    function automatic logic [MAX_BLOB_ID_SIZE-1:0] getNextValidTargetIndex(logic [MAX_BLOB_ID_SIZE-1:0] startIndex);
+    function automatic BlobIndex getNextValidTargetIndex(BlobIndex startIndex);
         //find next valid blob >= startIndex
         //(and < blobIndex because anything above that is invalid)
         for (int i = 0; i < MAX_BLOBS; i++) begin
@@ -818,7 +805,7 @@ module BlobProcessor(
                 return i;
             end
         end
-        return NULL_BLOB_ID;
+        return NULL_BLOB_INDEX;
     endfunction
     function automatic logic [18:0] distSqToTargetCenter(Vector v);
         //Distance^2 Between Vector and Target Center
@@ -850,18 +837,16 @@ module BlobProcessor(
             center: 0,
             width: 0,
             height: 0,
-            timestamp: NULL_TIMESTAMP,
             blobCount: 0,
             angle: HORIZONTAL
         };
-        targetIndexA = NULL_BLOB_ID;
+        targetIndexA = NULL_BLOB_INDEX;
         targetIndexBs = '{0, 0};
         targetIndexBsValid = '{0, 0};
         targetChain = '{
             center: 0,
             width: 0,
             height: 0,
-            timestamp: NULL_TIMESTAMP,
             blobCount: 0,
             angle: HORIZONTAL
         };
@@ -869,7 +854,6 @@ module BlobProcessor(
             center: 0,
             width: 0,
             height: 0,
-            timestamp: NULL_TIMESTAMP,
             blobCount: 0,
             angle: HORIZONTAL
         };
@@ -881,17 +865,17 @@ module BlobProcessor(
         //JOIN
     endfunction
 
-    //Get Real Blob ID (AKA Follow Pointer)
-    function automatic logic [MAX_BLOB_ID_SIZE-1:0] getRealBlobID(logic [MAX_BLOB_ID_SIZE-1:0] startID);
-        //without recursion for FPGA :(
+    //Get Blob Pointer Index (follow a blob's pointer)
+    function automatic BlobIndex getBlobPointerIndex(BlobIndex startIndex);
+        BlobIndex index = startIndex;
         for (int i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) begin
-            if (blobMetadatas[startID].status == POINTER) begin
-                startID = blobMetadatas[startID].pointer; //BLOCKING
+            if (blobMetadatas[index].status == POINTER) begin
+                index = blobMetadatas[index].pointer; //BLOCKING
             end
             else begin
-                return startID;
+                return index;
             end
         end
-        return NULL_BLOB_ID;
+        return NULL_BLOB_INDEX;
     endfunction
 endmodule

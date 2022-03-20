@@ -132,6 +132,7 @@ module PythonSPIManager(
                 //read response [11:26] (bc MISO is delayed 1 clock cycle relative to us)
                 else if (commandPointer > 10 & commandPointer < 27) begin
                     //blocking because we immediately use response below
+                    //FIXME remove blocking
                     response[commandPointer - 11] = SPI_MISO;
                 end
 

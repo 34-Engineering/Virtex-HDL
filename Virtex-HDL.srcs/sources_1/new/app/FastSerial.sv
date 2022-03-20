@@ -66,6 +66,7 @@ module FastSerial(
     always_ff @(negedge CLK50) begin
         //new write data
         if (writeDataValid & ~lastWriteDataValid & ~writeBusy) begin
+            //FIXME remove blocking
             writeBusy = 1;
             writePointer = 0;
         end

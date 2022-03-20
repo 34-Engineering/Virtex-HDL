@@ -127,6 +127,7 @@ module Top(
         .USB_SUS(USB_SUS),
         .virtexConfig(virtexConfig),
         .enabled(enabled),
+        .target(target),
         .virtexConfigWriteRequest(virtexConfigWriteRequests[0]),
         .frameBufferWriteAddr(frameBufferWriteAddr),
         .frameBufferWriteIn(frameBufferWriteIn),

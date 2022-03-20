@@ -19,6 +19,7 @@ module AppManager(
     input VirtexConfig virtexConfig,
     output VirtexConfigWriteRequest virtexConfigWriteRequest,
     output reg enabled,
+    input wire Target target,
     input wire [15:0] frameBufferWriteAddr,
     input wire [31:0] frameBufferWriteIn,
     input wire frameBufferWriteEnable,
@@ -32,13 +33,13 @@ module AppManager(
     localparam CONFIG_GET_BIT = 1'b0; //GET = 10, SET = 11
 
     //State
-    enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG} state = IDLE;
+    enum {IDLE, GET_FRAME, GET_CONFIG, SET_CONFIG, GET_TARGET} state = IDLE;
     wire USB_ENABLED = USB_ON & ~USB_PWREN & USB_SUS;
 
     //Frame buffer
     wire CLKInv = ~CLK100;
     reg [15:0] frameBufferAddrRead;
-    reg [31:0] frameBufferReadOut;
+    wire [31:0] frameBufferReadOut;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
         .addra(frameBufferAddrRead),
         .clka(CLKInv),
@@ -58,7 +59,7 @@ module AppManager(
     wire writeBusy;
     wire [7:0] readData;
     wire readDataValid;
-    FastSerial fastSerial (
+    FastSerial fastSerial (//TODO fast serial full sync (every loop dataValid it will write/doesn't care about change)
         .CLK50(CLK50),
         .FSDI(FSDI),
         .FSCLK(FSCLK),
@@ -75,22 +76,17 @@ module AppManager(
     );
 
     //Loop
-    reg [15:0] getFrameIndex = 0;
+    reg [15:0] commandIndex = 0;
     reg [1:0] getFramePartion = 0;
     reg [5:0] configAddress = 0;
-    reg [15:0] configData = 0;
-    reg configPartion = 0;
+    reg [15:0] configDataPartion0 = 0;
     reg lastReadDataValid = 0;
-    reg newReadData = 0;
+    wire newReadData = readDataValid & ~lastReadDataValid; //TODO checkme
     initial virtexConfigWriteRequest = 0;
 
     initial enabled = 0;
 
     always_ff @(posedge CLK50) begin
-        //New Read Data
-        newReadData = readDataValid & ~lastReadDataValid;
-        lastReadDataValid <= readDataValid;
-
         if (USB_ENABLED) begin
             case (state)
                 IDLE: begin
@@ -100,21 +96,25 @@ module AppManager(
                         //Get Frame
                         if (readData == GET_FRAME_CODE) begin
                             state <= GET_FRAME;
-                            getFrameIndex <= 0;
+                            commandIndex <= 0;
                             frameBufferAddrRead <= 0;
                         end
-
-                        //TODO Get Target
-
-                        else if (readData == 8'hA) enabled <= 0;
-                        else if (readData == 8'hB) enabled <= 1;
 
                         //Config
                         else if (readData[7] == CONFIG_BIT) begin
                             configAddress <= readData[5:0];
-                            configPartion <= 0;
+                            commandIndex <= 0;
                             state <= (readData[6] == CONFIG_GET_BIT) ? GET_CONFIG : SET_CONFIG;
                         end
+
+                        //Get Target
+                        if (readData == GET_TARGET_CODE) begin
+                            
+                        end
+
+                        //Enable/Disable
+                        else if (readData == 8'hA) enabled <= 0;
+                        else if (readData == 8'hB) enabled <= 1;
                     end
                 end
 
@@ -134,16 +134,16 @@ module AppManager(
                         writeDataValid <= 1;
 
                         if (getFramePartion == 3) begin
-                            if (getFrameIndex == 38400) begin
+                            if (commandIndex == 38400) begin
                                 //finish reading frame
                                 state <= IDLE;
                             end
                             else begin
                                 //read next kernel
-                                frameBufferAddrRead <= getFrameIndex + 1;
+                                frameBufferAddrRead <= commandIndex + 1;
 
                                 //increment index
-                                getFrameIndex <= getFrameIndex + 1;
+                                commandIndex <= commandIndex + 1;
                             end
                         end
 
@@ -152,14 +152,13 @@ module AppManager(
                 end
 
                 GET_CONFIG: begin
-                    //TODO validate
                     //drop data valid and come back next loop
                     if (writeDataValid) begin
                         writeDataValid <= 0;
                     end
 
                     //write second partion
-                    else if (configPartion & ~writeBusy) begin
+                    else if (commandIndex & ~writeBusy) begin
                         writeData <= virtexConfig[getConfigAddrIndex(configAddress) - 8 -: 8];
                         writeDataValid <= 1;
                         state <= IDLE;
@@ -169,27 +168,50 @@ module AppManager(
                     else if (~writeBusy) begin
                         writeData <= virtexConfig[getConfigAddrIndex(configAddress) -: 8];
                         writeDataValid <= 1;
-                        configPartion <= 1;
+                        commandIndex <= 1;
                     end
                 end
 
                 SET_CONFIG: begin
                     //read second partion
-                    if (configPartion & newReadData) begin
-                        configData[7:0] = readData;
-                        virtexConfigWriteRequest <= '{ addr: configAddress, data: configData, valid: 1 };
+                    if (commandIndex & newReadData) begin
+                        //TODO check if the new `{readData, configDataPartion0}` works
+                        virtexConfigWriteRequest <= '{ addr: configAddress, data: {readData, configDataPartion0}, valid: 1 };
 
-                        configPartion <= 0;
+                        commandIndex <= 0;
                         state <= IDLE;
                     end
 
                     //read first partion
                     else if (newReadData) begin
-                        configData[15:8] <= readData;
-                        configPartion <= 1;
+                        configDataPartion0 <= readData;
+                        commandIndex <= 1;
+                    end
+                end
+
+                GET_TARGET: begin
+                    if (writeDataValid) begin
+                        writeDataValid <= 0;
+                    end
+
+                    else if (~writeBusy) begin
+                        //send target to PC (in 6 bytes)
+                        writeData <= target[(48 - (commandIndex << 3)) -: 8];
+                        writeDataValid <= 1;
+
+                        if (commandIndex == 5) begin
+                            //finish reading frame
+                            state <= IDLE;
+                        end
+                        else begin
+                            //increment index
+                            commandIndex <= commandIndex + 1;
+                        end
                     end
                 end
             endcase
         end
+
+        lastReadDataValid <= readDataValid;
     end
 endmodule

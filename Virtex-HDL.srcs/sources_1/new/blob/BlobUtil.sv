@@ -24,7 +24,7 @@ typedef struct packed { //144-bit
 typedef enum { UNSCANED, VALID, POINTER, GARBAGE } BlobStatus;
 typedef struct packed {
     BlobStatus status;
-    logic [MAX_BLOB_ID_SIZE-1:0] pointer;
+    logic [MAX_BLOB_INDEX_SIZE-1:0] pointer;
 } BlobMetadata;
 
 //Blob Angles
@@ -44,12 +44,12 @@ typedef struct packed {
     logic [11:0] reserved;
 } BlobAnglesEnabled;
 
-//?-bit Target
-typedef struct packed {
+//?Target
+typedef struct packed { //46-bit
     Vector center;
     logic [9:0] width;
     logic [9:0] height;
-    logic [59:0] timestamp; //timestamp is replaced with latency (age) at delivery
+    // logic [15:0] timestamp; //timestamp is replaced with latency (age) at delivery
     logic [3:0] blobCount;
     BlobAngle angle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 } Target;
@@ -63,16 +63,20 @@ typedef enum logic [15:0] {
     GROUP //2+ targets chained together
 } TargetMode;
 
+//Pointer Types
+typedef logic [MAX_BLOB_INDEX_SIZE-1:0] BlobIndex;
+typedef logic [MAX_RUNS_PER_LINE_INDEX_SIZE-1:0] RunBufferIndex;
+
 //Run
 typedef struct packed {
     logic [9:0] length;
-    logic [MAX_BLOB_ID_SIZE-1:0] blobID;
+    BlobIndex blobIndex;
 } Run;
 
 //Run Buffer
 typedef struct packed {
     Run [MAX_RUNS_PER_LINE-1:0] runs;
-    logic [MAX_RUNS_PER_LINE_POINTER_SIZE-1:0] count; //number of runs filled
+    RunBufferIndex count; //number of runs filled
     logic [9:0] line;
 } RunBuffer;
 
@@ -175,16 +179,35 @@ function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] li
     };
 endfunction
 
-//Get Target Age (returns age of the target in nanoseconds)
-function automatic logic [59:0] getTargetAge(Target target);
-    //TODO return currentTime - target.timestamp;
-    return 2;
+//Target Null
+function automatic logic isTargetNull(Target target);
+    return target.blobCount == 0;
 endfunction
+
+//Get Target Age (returns age of the target in nanoseconds)
+// function automatic logic [15:0] getTargetAge(Target target);
+//     //TODO return currentTime - target.timestamp;
+//     return 2;
+// endfunction
 
 //Is Target Stale
 // function automatic logic isTargetStale(Target target);
 //     //TODO
 //     return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
 // endfunction
+
+//In Range/Valid //TODO
+function automatic logic isAspectRatioInRange(logic [9:0] width, height, logic [15:0] min, max);
+    /*
+    fixed point notes:
+    multiply the two numbers as integers and shfit back by the Q num decimal places (which means output int will be very big at first)
+    we should make specific helper functions for multity each config BLOB UTIL FTW
+    */
+    //width, //TODO fixed point mult
+    //virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height
+endfunction
+function automatic logic isFullnessInRange(logic [23:0] area, boundArea, logic [15:0] min, max);
+
+endfunction
 
 `endif

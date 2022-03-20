@@ -187,6 +187,7 @@ module PythonManager(
         if (trainingDone == 5'b11111 & isSequencerEnabled) begin
             if (SYNC == PYTHON_SYNC_FRAME_START) begin
                 //Note: FS replaces LS
+                //FIXME remove blocking
                 isInFrame = 1;
                 kernel.pos = '{x:0, y:0};
                 kernelPartion = 0;
