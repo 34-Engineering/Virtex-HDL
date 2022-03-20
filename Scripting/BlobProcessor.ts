@@ -5,7 +5,7 @@ import { Fault } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { BlobBRAMPort, BLOB_BRAM_PORT_DEFAULT, EMPTY_BLOB  } from "./util/OtherUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_ID, NULL_RUN_BUFFER_PARTION, NULL_BLACK_RUN_BLOB_ID, NULL_TIMESTAMP } from "./BlobConstants";
-import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, doesBlobMatchCriteria, calcBlobAngle, BlobAngle, Target, TargetMode, distSqToTargetCenter } from "./BlobUtil";
+import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, Run, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled } from "./BlobUtil";
 import { inRangeInclusive, overflow, Vector } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
 
@@ -192,7 +192,7 @@ function updateRunLengthEncoder(kernel: Kernel): void {
 
 //Blob Processor Loop
 function updateBlobProcessor(): void {
-    blobBRAMPorts[0].wea = false;
+    blobBRAMPorts[0].we = false;
 
     //Next Line
     if ((blobProcessorDoneWithLine() && blobNextLineAvailable()) || blobProcessorTooSlow() || blobProcessorReallyTooSlow()) {
@@ -263,40 +263,44 @@ function updateBlobProcessor(): void {
             //loop through all runs that were filled up in the last run buffer (line above)
             if (blobRunState == BlobRunState.LAST_LINE) {
                 //FORK
-                for (blobRunBufferIndexLast; blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count; blobRunBufferIndexLast++) {
-                    //FORK
-                    if (blobLastLineRun().blobID !== NULL_BLACK_RUN_BLOB_ID) {
-                        if (runsOverlap(blobCurrentRun(), blobRunBufferXCurrent, blobLastLineRun(), blobRunBufferXLast)) {
-                            //pointer fault
-                            if (blobLastLineRunRealBlobID() == NULL_BLOB_ID) {
-                                faults[2] = Fault.BLOB_POINTER_DEPTH_FAULT;
-                            }
+                for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
+                    if (i >= blobRunBufferIndexLast && blobRunBufferIndexLast < runBuffers[blobRunBuffersPartionLast].count) {
+                        //FORK
+                        if (blobLastLineRun().blobID !== NULL_BLACK_RUN_BLOB_ID) {
+                            if (runsOverlap(blobCurrentRun(), blobRunBufferXCurrent, blobLastLineRun(), blobRunBufferXLast)) {
+                                //pointer fault
+                                if (blobLastLineRunRealBlobID() == NULL_BLOB_ID) {
+                                    faults[2] = Fault.BLOB_POINTER_DEPTH_FAULT;
+                                }
 
-                            //found master (1st valid blob)
-                            else if (blobMasterBlobID === NULL_BLOB_ID) {
-                                blobMasterBlobID = blobLastLineRunRealBlobID();
-                            }
+                                //found master (1st valid blob)
+                                else if (blobMasterBlobID === NULL_BLOB_ID) {
+                                    blobMasterBlobID = blobLastLineRunRealBlobID();
+                                }
 
-                            //found another valid blob => merge with master
-                            else if (blobLastLineRunRealBlobID() !== blobMasterBlobID) {
-                                //read slave & master blobs
-                                blobBRAMPorts[0].addr = blobMasterBlobID;
-                                blobBRAMPorts[1].addr = blobLastLineRunRealBlobID();
-                                blobUsingPort1 = true;
+                                //found another valid blob => merge with master
+                                else if (blobLastLineRunRealBlobID() !== blobMasterBlobID) {
+                                    //read slave & master blobs
+                                    blobBRAMPorts[0].addr = blobMasterBlobID;
+                                    blobBRAMPorts[1].addr = blobLastLineRunRealBlobID();
+                                    blobUsingPort1 = true;
 
-                                //mark slave as pointer to master
-                                blobMetadatas[blobLastLineRunRealBlobID()] = {
-                                    status: BlobStatus.POINTER,
-                                    pointer: blobMasterBlobID
-                                };
+                                    //mark slave as pointer to master
+                                    blobMetadatas[blobLastLineRunRealBlobID()] = {
+                                        status: BlobStatus.POINTER,
+                                        pointer: blobMasterBlobID
+                                    };
 
-                                //go merge blobs & write once we read them
-                                blobRunState = BlobRunState.MERGE_WRITE_1;
+                                    //go merge blobs & write once we read them
+                                    blobRunState = BlobRunState.MERGE_WRITE_1;
+                                }
                             }
                         }
+                        //JOIN
+                        
+                        blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length; //BLOCKING
+                        blobRunBufferIndexLast = blobRunBufferIndexLast + 1;
                     }
-                    //JOIN
-                    blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length; //BLOCKING
                 }
                 //JOIN
 
@@ -318,7 +322,7 @@ function updateBlobProcessor(): void {
             else if (blobRunState == BlobRunState.MERGE_WRITE_2) {
                 //FORK
                 blobBRAMPorts[0].din = mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout);
-                blobBRAMPorts[0].wea = true;
+                blobBRAMPorts[0].we = true;
                 blobUsingPort1 = false;
                 blobRunState = BlobRunState.LAST_LINE;
                 //JOIN
@@ -343,7 +347,7 @@ function updateBlobProcessor(): void {
                 //add this pixel to blob if we have a valid blob to join
                 if (blobMasterBlobID !== NULL_BLOB_ID) {
                     blobBRAMPorts[0].din = mergeBlobs(runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine()), blobBRAMPorts[0].dout);
-                    blobBRAMPorts[0].wea = true;
+                    blobBRAMPorts[0].we = true;
 
                     //set ID of the blob we joined
                     runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobID = blobMasterBlobID;
@@ -354,7 +358,7 @@ function updateBlobProcessor(): void {
                     //create blob at next available index
                     blobBRAMPorts[0].addr = blobIndex;
                     blobBRAMPorts[0].din = runToBlob(blobCurrentRun(), blobRunBufferXCurrent, blobCurrentLine());
-                    blobBRAMPorts[0].wea = true;
+                    blobBRAMPorts[0].we = true;
                     blobMetadatas[blobIndex].status = BlobStatus.UNSCANED; //tell garbage collector to check this once it is done
 
                     //set ID of the blob we made in runBuffer
@@ -420,7 +424,7 @@ function updateGarbageCollector(): void {
         //Read Port X
         if (garbageIndex !== NULL_BLOB_ID && !garbageCollectorDone) {
             blobBRAMPorts[garbagePort].addr = garbageIndex;
-            blobBRAMPorts[garbagePort].wea = false;
+            blobBRAMPorts[garbagePort].we = false;
             garbageCollectorWasUsingPorts[garbagePort] = true;
         }
         else {
@@ -467,6 +471,26 @@ function getNextValidGarbageIndex(startIndex: number): number {
         }
     }
     return NULL_BLOB_ID;
+}
+function doesBlobMatchCriteria(blob: BlobData): boolean {
+    const boundWidth: number = blob.boundBottomRight.x - blob.boundTopLeft.x;
+    const boundHeight: number = blob.boundBottomRight.y - blob.boundTopLeft.y;
+
+    //TODO fixed point mult
+    const inAspectRatioRange: boolean = inRangeInclusive(boundWidth,
+        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
+
+    const boundAreaUnshifted: number = boundWidth * boundHeight;
+    const inBoundAreaRange: boolean = inRangeInclusive(boundAreaUnshifted >> 1,
+        virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+
+    //TODO fixed point mult
+    const inFullnessRange: boolean = inRangeInclusive(blob.area,
+        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
+
+    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]];
+
+    return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
 
 //Target Selector Loop
@@ -707,7 +731,7 @@ function updateTargetSelectorDualGroup() {
         else if (nextTargetIndexA() !== NULL_BLOB_ID || virtexConfig.targetMode === TargetMode.GROUP) {
             //READ New A on 1
             blobBRAMPorts[1].addr = targetIndexA;
-            blobBRAMPorts[1].wea = false;
+            blobBRAMPorts[1].we = false;
 
             //Set New B0
             targetIndexBs[0] = (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? 
@@ -758,7 +782,7 @@ function updateTargetSelectorSingle(blob: BlobData) {
 }
 function targetReadIndex(partion: number) {
     blobBRAMPorts[partion].addr = targetIndexBs[partion];
-    blobBRAMPorts[partion].wea = false;
+    blobBRAMPorts[partion].we = false;
     targetIndexBsValid[partion] = true;
 }
 function getNextValidTargetIndex(startIndex: number): number {
@@ -770,6 +794,10 @@ function getNextValidTargetIndex(startIndex: number): number {
         }
     }
     return NULL_BLOB_ID;
+}
+function distSqToTargetCenter(v: Vector): number {
+    //Distance^2 Between Vector and Target Center
+    return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
 }
 
 //Resetting for New Frame
@@ -853,7 +881,7 @@ let resetFaults = () => faults = [...Array(4)].map(_=>Fault.NO_FAULT);
 let lastAddresses: number[] = [0, 0];
 function updateBRAM() {
     for (const p in blobBRAMPorts) {
-        if (blobBRAMPorts[p].wea) {
+        if (blobBRAMPorts[p].we) {
             //write to din
             blobBRAM[blobBRAMPorts[p].addr] = Object.assign({}, blobBRAMPorts[p].din);
         }

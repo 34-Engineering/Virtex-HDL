@@ -7,8 +7,8 @@
 `include "../util/Math.sv"
 `include "BlobConstants.sv"
 
-//144-bit Blob Data
-typedef struct packed {
+//Blob Data
+typedef struct packed { //144-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
@@ -31,10 +31,10 @@ typedef struct packed {
 typedef enum logic [1:0] {
     //calcAngle() has up to 2°? error (norm < 0.5°?)
     //quad calculation can have up to 20°? error (norm < 1°?)
-    HORIZONTAL, //0 -- (90±~10°)
-    VERTICAL,   //1 || (0±~10°)
-    FORWARD,    //2 //
-    BACKWARD    //3 \\
+    HORIZONTAL=0, /*  -- (90±~10°)  */
+    VERTICAL=1,   /*  || (0±~10°)   */
+    FORWARD=2,    /*  //            */
+    BACKWARD=3    /*  \\            */
 } BlobAngle;
 typedef struct packed {
     logic horizontal;
@@ -49,7 +49,7 @@ typedef struct packed {
     Vector center;
     logic [9:0] width;
     logic [9:0] height;
-    logic [59:0] latency; //timestamp is replaced with latency (age) at delivery
+    logic [59:0] timestamp; //timestamp is replaced with latency (age) at delivery
     logic [3:0] blobCount;
     BlobAngle angle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 } Target;
@@ -76,44 +76,6 @@ typedef struct packed {
     logic [9:0] line;
 } RunBuffer;
 
-//Blob Criteria
-// function automatic logic doesBlobMatchCriteria(BlobData blob);
-//     logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
-//     logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
-
-//     //TODO fixed point mult
-//     logic inAspectRatioRange = inRangeInclusive(boundWidth,
-//         virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
-
-//     logic [18:0] boundAreaUnshifted = boundWidth * boundHeight;
-//     logic inBoundAreaRange = inRangeInclusive(boundAreaUnshifted >> 1,
-//         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
-
-//     //TODO fixed point mult
-//     logic inFullnessRange = inRangeInclusive(blob.area,
-//         virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
-
-//     logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
-
-//     return inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
-// endfunction
-
-//Merging Blobs
-function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
-    return '{
-        boundTopLeft: '{
-            x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
-        },
-        boundBottomRight: '{
-            x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
-        },
-        quad: mergeQuads(blob1.quad, blob2.quad),
-        area: blob1.area + blob2.area
-    };
-endfunction
-
 //Merge Quads
 function automatic Quad mergeQuads (Quad quad1, Quad quad2);
     //this algorithm is not perfect but close enough for choosing rough angle of blob
@@ -125,7 +87,31 @@ function automatic Quad mergeQuads (Quad quad1, Quad quad2);
     };
 endfunction
 
+//Merging Blobs
+function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
+    return '{
+        boundTopLeft: '{
+            x: min10(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: min10(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+        },
+        boundBottomRight: '{
+            x: max10(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: max10(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+        },
+        quad: mergeQuads(blob1.quad, blob2.quad),
+        area: blob1.area + blob2.area
+    };
+endfunction
+
 //Calculate Blob Angle
+function automatic BlobAngle calcAngle(logic signed [9:0] dx, logic signed [9:0] dy);
+    localparam t = 896; //best fit for 10° tolerance
+    logic [9:0] h = quickDivide10(dx, dy); //how horizontal the line is
+    logic [9:0] v = quickDivide10(dy, dx); //how vertical the line is
+    return (h > t & v < t) ? HORIZONTAL :
+           (h < t & v > t) ? VERTICAL   :
+           (dx>0) ^ (dy>0) ? FORWARD : BACKWARD;
+endfunction
 function automatic BlobAngle calcBlobAngle(BlobData blob);
     //make two center lines from quad centers
     Vector start1 = '{
@@ -162,14 +148,6 @@ function automatic BlobAngle calcBlobAngle(BlobData blob);
     //return best angle
     return lengthSq1 > lengthSq2 ? angle1 : angle2;
 endfunction
-function automatic BlobAngle calcAngle(logic signed [9:0] dx, logic signed [9:0] dy);
-    localparam t = 896; //best fit for 10° tolerance
-    logic [9:0] h = quickDivide(dx, dy); //how horizontal the line is
-    logic [9:0] v = quickDivide(dy, dx); //how vertical the line is
-    return (h > t & v < t) ? HORIZONTAL :
-           (h < t & v > t) ? VERTICAL   :
-           (dx>0) ^ (dy>0) ? FORWARD : BACKWARD;
-endfunction
 
 //Runs Overlap
 function automatic logic runsOverlap(Run run1, logic [9:0] start1, Run run2, logic [9:0] start2);
@@ -196,11 +174,6 @@ function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] li
         area: run.length
     };
 endfunction
-
-//Distance^2 Between Vector and Target Center
-// function automatic logic [18:0] distSqToTargetCenter(Vector v);
-//     return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
-// endfunction
 
 //Get Target Age (returns age of the target in nanoseconds)
 function automatic logic [59:0] getTargetAge(Target target);

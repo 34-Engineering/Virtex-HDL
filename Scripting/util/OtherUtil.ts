@@ -22,13 +22,13 @@ export interface BlobBRAMPort {
     addr: number, 
     din: BlobData,
     dout: BlobData,
-    wea: boolean,
+    we: boolean,
 }
 export const BLOB_BRAM_PORT_DEFAULT: BlobBRAMPort = {
     addr: 0,
     din: Object.assign({}, EMPTY_BLOB),
     dout: Object.assign({}, EMPTY_BLOB),
-    wea: false
+    we: false
 }
 
 //Drawing on Raw Image Data

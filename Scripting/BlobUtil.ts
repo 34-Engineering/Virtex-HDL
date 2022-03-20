@@ -1,4 +1,3 @@
-import { virtexConfig } from "./util/VirtexConfig";
 import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
 import { drawLine } from "./util/OtherUtil";
 
@@ -69,28 +68,6 @@ export interface RunBuffer {
     runs: Run[],
     count: number //number of runs
     line: number //[9:0]
-}
-
-//Blob Criteria
-export function doesBlobMatchCriteria(blob: BlobData): boolean {
-    const boundWidth: number = blob.boundBottomRight.x - blob.boundTopLeft.x;
-    const boundHeight: number = blob.boundBottomRight.y - blob.boundTopLeft.y;
-
-    //TODO fixed point mult
-    const inAspectRatioRange: boolean = inRangeInclusive(boundWidth,
-        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
-
-    const boundAreaUnshifted: number = boundWidth * boundHeight;
-    const inBoundAreaRange: boolean = inRangeInclusive(boundAreaUnshifted >> 1,
-        virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
-
-    //TODO fixed point mult
-    const inFullnessRange: boolean = inRangeInclusive(blob.area,
-        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
-
-    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]];
-
-    return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
 
 //Merging Blobs
@@ -206,9 +183,4 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
         },
         area: run.length
     };
-}
-
-//Distance^2 Between Vector and Target Center
-export function distSqToTargetCenter(v: Vector): number {
-    return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
 }

@@ -64,6 +64,9 @@ module ConfigManager(
     output reg [7:0] debug
     );
 
+    //VirtexConfig virtexConfig = DefaultVirtexConfig;
+    initial virtexConfig = DefaultVirtexConfig;
+
     //No-EEPROM Version
     reg [$size(virtexConfigWriteRequests)-1:0] lastVirtexConfigWriteRequestValids;
     always_ff @(negedge CLK100) begin
@@ -80,9 +83,6 @@ module ConfigManager(
     end
 
     //TODO work on EEPROM
-    // // VirtexConfig virtexConfig = DefaultVirtexConfig;
-    // initial virtexConfig = DefaultVirtexConfig;
-
     // localparam logic [7:0] WRITE_STATUS = 8'h1; //opcode + 8-bits; only modifies bits [3:2]
     // localparam logic [7:0] WRITE_OP     = 8'h2; //see notes above
     // localparam logic [7:0] READ_OP      = 8'h3; //see notes above

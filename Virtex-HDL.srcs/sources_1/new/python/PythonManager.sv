@@ -83,15 +83,15 @@ module PythonManager(
     reg isInFrame; //whether the processor is in frame
 
     //Blob Processor
-    Kernel lastKernelR [1:0];
-    always_ff @(posedge CLK200) begin
-        //Cross clock domain w/ dff
-        lastKernelR[1] <= lastKernelR[0];
-    end
+    Kernel blobKernel;
+    reg writeBlobKernel = 0;
     BlobProcessor BlobProcessor(
         .CLK200(CLK200),
-        .kernel(lastKernelR[1]),
+        .CLK72(CLK72),
+        .kernelInput(blobKernel),
+        .kernelInputWrite(writeBlobKernel),
         .target(target),
+        .virtexConfig(virtexConfig),
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
         .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
         .BLOB_POINTER_DEPTH_FAULT(BLOB_POINTER_DEPTH_FAULT),
@@ -180,19 +180,9 @@ module PythonManager(
     reg frameBufferFIFOWrite = 0;
     wire frameBufferFIFOFull;
 
-    // Vector pos = 0;
     always_ff @(posedge CLK72) begin
-        // if (pos.y < 480 & ~frameBufferFIFOFull & ~frameBufferFIFOWrite) begin
-        //     frameBufferFIFOIn = '{ value: 32'hFFFFFFFF, pos: pos };
-        //     frameBufferFIFOWrite = 1;
-        //     if (pos.x < 79) begin
-        //         pos.x <= pos.x + 1;
-        //     end
-        //     else pos <= '{ x: 0, y: pos.y + 1 };
-        // end
-        // else frameBufferFIFOWrite <= 0;
-
         frameBufferFIFOWrite <= 0;
+        writeBlobKernel <= 0;
 
         if (trainingDone == 5'b11111 & isSequencerEnabled) begin
             if (SYNC == PYTHON_SYNC_FRAME_START) begin
@@ -262,7 +252,8 @@ module PythonManager(
             end
             
             //send kernel to blob processor
-            lastKernelR[0] <= kernel;
+            blobKernel <= kernel;
+            writeBlobKernel <= 1;
 
             //send kernel to frame buffer
             frameBufferFIFOIn <= '{ value: kernelMonoValue, pos: kernel.pos };
@@ -298,7 +289,7 @@ module PythonManager(
         end
 
         //swap kernel partion
-        kernelPartion <= ~kernelPartion;
+        kernelPartion = ~kernelPartion;
     endtask
 
     //Frame Buffer Writing & Clock Crossing with FIFO
