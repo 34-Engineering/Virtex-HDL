@@ -59,7 +59,6 @@ module BlobProcessor(
     RunBuffer runBuffers [2:0];
     initial for (int i = 0; i < 3; i++) runBuffers[i] = '{ runs: 0, count: 0, line: NULL_LINE_NUMBER };
     reg [1:0] rleRunBuffersPartion;
-    reg lastKernelValid;
     wire isLastKernel = kernel.pos.y == IMAGE_HEIGHT-1 & kernel.pos.x == KERNEL_MAX_X;
     wire rlePartionValid = rleRunBuffersPartion != NULL_RUN_BUFFER_PARTION;
 
@@ -132,7 +131,7 @@ module BlobProcessor(
             resetGarbageCollector();
             //JOIN
         end
-        lastIsWorkingOnFrame = isWorkingOnFrame;
+        lastIsWorkingOnFrame <= isWorkingOnFrame;
 
         //Garbage Collection Loop
         if (~garbageCollectorDone) begin
@@ -156,10 +155,10 @@ module BlobProcessor(
         else if (~targetSelectorDone & garbageCollectorDone) begin
             if (virtexConfig.targetMode == SINGLE) begin
                 //SINGLE target selection was finished with Garbage Collection
-                targetSelectorDone = 1;
+                targetSelectorDone <= 1;
 
                 //Save Best Target into Target Slot
-                target = targetCurrent;
+                target <= targetCurrent;
             end
             else begin
                 //DUAL/GROUP Target Selection Loop
@@ -169,15 +168,15 @@ module BlobProcessor(
     end
 
     //Run Length Encoding Loop
-    function automatic updateRunLengthEncoder(Kernel kernel);
+    function automatic void updateRunLengthEncoder(Kernel kernel);
         //start of line
         if (kernel.pos.x == 0) begin
             //FORK
             //set line number of our RunBuffer
-            runBuffers[rleRunBuffersPartion].line = kernel.pos.y;
+            runBuffers[rleRunBuffersPartion].line <= kernel.pos.y;
 
             //zero count of our RunBuffer
-            runBuffers[rleRunBuffersPartion].count = 0;
+            runBuffers[rleRunBuffersPartion].count <= 0;
             //JOIN
         end
         
@@ -189,7 +188,7 @@ module BlobProcessor(
                 kernel.value[x] != (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobIndex != NULL_BLACK_RUN_BLOB_INDEX)) begin
 
                 //push run to buffer
-                runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = '{
+                runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] <= '{
                     length: 1,
                     blobIndex: kernel.value[x] ? NULL_BLOB_INDEX : NULL_BLACK_RUN_BLOB_INDEX
                 };
@@ -199,13 +198,13 @@ module BlobProcessor(
                     OUT_OF_RLE_MEM_FAULT <= 1;
                 end
                 else begin
-                    runBuffers[rleRunBuffersPartion].count = runBuffers[rleRunBuffersPartion].count + 1;
+                    runBuffers[rleRunBuffersPartion].count <= runBuffers[rleRunBuffersPartion].count + 1;
                 end
             end
 
             //extend length of last run
             else begin
-                runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length = 
+                runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length <= 
                 runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length + 1;
             end
             //JOIN
@@ -216,19 +215,19 @@ module BlobProcessor(
             //FORK
             if (runBuffers[rleRunBuffersPartion].line == IMAGE_HEIGHT-1) begin
                 //done with frame => null
-                rleRunBuffersPartion = NULL_RUN_BUFFER_PARTION;
+                rleRunBuffersPartion <= NULL_RUN_BUFFER_PARTION;
             end
             else begin
                 //increment buffer partion for next line
-                rleRunBuffersPartion = overflow2(rleRunBuffersPartion + 1, 2);
+                rleRunBuffersPartion <= overflow2(rleRunBuffersPartion + 1, 2);
             end
             //JOIN
         end
     endfunction
 
     //Blob Processor Loop
-    function automatic updateBlobProcessor();
-        blobBRAMPorts[0].we = 0;
+    function automatic void updateBlobProcessor();
+        blobBRAMPorts[0].we <= 0;
 
         //Next Line
         if ((blobProcessorDoneWithLine & blobNextLineAvailable) | blobProcessorTooSlow | blobProcessorReallyTooSlow) begin
@@ -245,23 +244,23 @@ module BlobProcessor(
                 //this can happen on the first line of the image, where blobRunBuffersPartionLast is NULL
                 //get partions for new line
                 logic [1:0] nextPartionLast = blobNextPartionCurrent;
-                blobRunBuffersPartionLast = 
+                blobRunBuffersPartionLast <= 
                     (nextPartionLast != overflow2(blobNextPartionCurrent + 1, 2) & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
-                blobRunBuffersPartionCurrent = overflow2(blobNextPartionCurrent + 1, 2);
+                blobRunBuffersPartionCurrent <= overflow2(blobNextPartionCurrent + 1, 2);
             end
             else begin
                 logic [1:0] nextPartionLast = overflow2(blobRunBuffersPartionCurrent, 2);
-                blobRunBuffersPartionLast = 
+                blobRunBuffersPartionLast <= 
                     (nextPartionLast != blobNextPartionCurrent & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
-                blobRunBuffersPartionCurrent = blobNextPartionCurrent;
+                blobRunBuffersPartionCurrent <= blobNextPartionCurrent;
            end
 
             //Reset Intra-Buffer Indexes
-            blobRunBufferIndexCurrent = 0;
-            blobRunBufferXCurrent = 0;
-            blobRunState = IDLE;
+            blobRunBufferIndexCurrent <= 0;
+            blobRunBufferXCurrent <= 0;
+            blobRunState <= IDLE;
             //JOIN
         end
 
@@ -270,8 +269,8 @@ module BlobProcessor(
             //run is black => continue to next run
             if (blobCurrentRun.blobIndex == NULL_BLACK_RUN_BLOB_INDEX) begin
                 //continue to next run
-                blobRunBufferXCurrent = blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
-                blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
+                blobRunBufferXCurrent <= blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
+                blobRunBufferIndexCurrent <= blobRunBufferIndexCurrent + 1;
             end
 
             //run is white => process
@@ -280,14 +279,14 @@ module BlobProcessor(
                 if (blobRunState == IDLE) begin
                     //FORK
                     //mark this run as doesn't have another run to join
-                    blobMasterIndex = NULL_BLOB_INDEX;
+                    blobMasterIndex <= NULL_BLOB_INDEX;
 
                     //reset last run buffer indexes
-                    blobRunBufferIndexLast = 0;
-                    blobRunBufferXLast = 0;
+                    blobRunBufferIndexLast <= 0;
+                    blobRunBufferXLast <= 0;
 
                     //proceed to look for runs to join OR go straight to writing if on the first line of image
-                    blobRunState = (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? WRITE : LAST_LINE;
+                    blobRunState <= (blobRunBuffersPartionLast == NULL_RUN_BUFFER_PARTION) ? WRITE : LAST_LINE;
                     //JOIN
                 end
  
@@ -306,31 +305,31 @@ module BlobProcessor(
 
                                     //found master (1st valid blob)
                                     else if (blobMasterIndex == NULL_BLOB_INDEX) begin
-                                        blobMasterIndex = blobLastLineRunBlobPointerIndex;
+                                        blobMasterIndex <= blobLastLineRunBlobPointerIndex;
                                     end
 
                                     //found another valid blob => merge with master
                                     else if (blobLastLineRunBlobPointerIndex != blobMasterIndex) begin
                                         //read slave & master blobs
-                                        blobBRAMPorts[0].addr = blobMasterIndex;
-                                        blobBRAMPorts[1].addr = blobLastLineRunBlobPointerIndex;
-                                        blobUsingPort1 = 1;
+                                        blobBRAMPorts[0].addr <= blobMasterIndex;
+                                        blobBRAMPorts[1].addr <= blobLastLineRunBlobPointerIndex;
+                                        blobUsingPort1 <= 1;
 
                                         //mark slave as pointer to master
-                                        blobMetadatas[blobLastLineRunBlobPointerIndex] = '{
+                                        blobMetadatas[blobLastLineRunBlobPointerIndex] <= '{
                                             status: POINTER,
                                             pointer: blobMasterIndex
                                         };
 
                                         //go merge blobs & write once we read them
-                                        blobRunState = MERGE_WRITE_1;
+                                        blobRunState <= MERGE_WRITE_1;
                                     end
                                 end
                             end
                             //JOIN
                             
-                            blobRunBufferXLast = blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length; //BLOCKING
-                            blobRunBufferIndexLast = blobRunBufferIndexLast + 1;
+                            blobRunBufferXLast <= blobRunBufferXLast + runBuffers[blobRunBuffersPartionLast].runs[blobRunBufferIndexLast].length; //BLOCKING
+                            blobRunBufferIndexLast <= blobRunBufferIndexLast + 1;
                         end
                     end
                     //JOIN
@@ -338,7 +337,7 @@ module BlobProcessor(
                     //done looping last line => write blob
                     if (blobRunState == LAST_LINE) begin
                         //FORK
-                        blobRunState = blobMasterIndex == NULL_BLOB_INDEX ? WRITE : JOIN_1;
+                        blobRunState <= blobMasterIndex == NULL_BLOB_INDEX ? WRITE : JOIN_1;
                         //JOIN
                     end
                 end
@@ -346,30 +345,30 @@ module BlobProcessor(
                 else if (blobRunState == MERGE_WRITE_1) begin
                     //account for read delay
                     //FORK
-                    blobRunState = MERGE_WRITE_2;
+                    blobRunState <= MERGE_WRITE_2;
                     //JOIN
                 end
 
                 else if (blobRunState == MERGE_WRITE_2) begin
                     //FORK
-                    blobBRAMPorts[0].din = mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout);
-                    blobBRAMPorts[0].we = 1;
-                    blobUsingPort1 = 0;
-                    blobRunState = LAST_LINE;
+                    blobBRAMPorts[0].din <= mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout);
+                    blobBRAMPorts[0].we <= 1;
+                    blobUsingPort1 <= 0;
+                    blobRunState <= LAST_LINE;
                     //JOIN
                 end
 
                 if (blobRunState == JOIN_1) begin
                     //FORK
                     //account for read delay
-                    blobBRAMPorts[0].addr = blobMasterIndex;
-                    blobRunState = JOIN_2;
+                    blobBRAMPorts[0].addr <= blobMasterIndex;
+                    blobRunState <= JOIN_2;
                     //JOIN
                 end
 
                 else if (blobRunState == JOIN_2) begin
                     //FORK
-                    blobRunState = WRITE;
+                    blobRunState <= WRITE;
                     //JOIN
                 end
 
@@ -377,42 +376,42 @@ module BlobProcessor(
                     //FORK
                     //add this pixel to blob if we have a valid blob to join
                     if (blobMasterIndex != NULL_BLOB_INDEX) begin
-                        blobBRAMPorts[0].din = mergeBlobs(runToBlob(blobCurrentRun, blobRunBufferXCurrent, blobCurrentLine), blobBRAMPorts[0].dout);
-                        blobBRAMPorts[0].we = 1;
+                        blobBRAMPorts[0].din <= mergeBlobs(runToBlob(blobCurrentRun, blobRunBufferXCurrent, blobCurrentLine), blobBRAMPorts[0].dout);
+                        blobBRAMPorts[0].we <= 1;
 
                         //set index of the blob we joined
-                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex = blobMasterIndex;
+                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex <= blobMasterIndex;
                     end
                     
                     //not touching a blob => make new blob
                     else begin
                         //create blob at next available index
-                        blobBRAMPorts[0].addr = blobIndex;
-                        blobBRAMPorts[0].din = runToBlob(blobCurrentRun, blobRunBufferXCurrent, blobCurrentLine);
-                        blobBRAMPorts[0].we = 1;
-                        blobMetadatas[blobIndex].status = UNSCANED; //tell garbage collector to check this once it is done
+                        blobBRAMPorts[0].addr <= blobIndex;
+                        blobBRAMPorts[0].din <= runToBlob(blobCurrentRun, blobRunBufferXCurrent, blobCurrentLine);
+                        blobBRAMPorts[0].we <= 1;
+                        blobMetadatas[blobIndex].status <= UNSCANED; //tell garbage collector to check this once it is done
 
                         //set index of the blob we made in runBuffer
-                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex = blobIndex;
+                        runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].blobIndex <= blobIndex;
 
                         
                         if (blobIndex == MAX_BLOBS-1) begin
                             //fault
                             OUT_OF_BLOB_MEM_FAULT <= 1;
-                            blobIndex = 0;
+                            blobIndex <= 0;
                         end
                         else begin
                             //increment index for next blob
-                            blobIndex = blobIndex + 1;
+                            blobIndex <= blobIndex + 1;
                         end  
                     end
                     //JOIN
 
                     //FORK
                     //continue to next run
-                    blobRunBufferXCurrent = blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
-                    blobRunBufferIndexCurrent = blobRunBufferIndexCurrent + 1;
-                    blobRunState = IDLE;
+                    blobRunBufferXCurrent <= blobRunBufferXCurrent + runBuffers[blobRunBuffersPartionCurrent].runs[blobRunBufferIndexCurrent].length;
+                    blobRunBufferIndexCurrent <= blobRunBufferIndexCurrent + 1;
+                    blobRunState <= IDLE;
                     //JOIN
                 end
             end
@@ -420,7 +419,7 @@ module BlobProcessor(
     endfunction
 
     //Garbage Collector Loop
-    function automatic updateGarbageCollector();
+    function automatic void updateGarbageCollector();
         //Process Port 0|1 (if read from)
         if (garbageCollectorUsingPorts[garbagePort]) begin
             //if blob is finished adding to
@@ -429,7 +428,7 @@ module BlobProcessor(
                 reg valid = doesBlobMatchCriteria(blob);
 
                 //Mark blob as Valid or Garbage
-                blobMetadatas[lastGarbageIndex[1]].status = valid ? VALID : GARBAGE;
+                blobMetadatas[lastGarbageIndex[1]].status <= valid ? VALID : GARBAGE;
 
                 //Single Mode Target Selector
                 if (virtexConfig.targetMode == SINGLE & valid) begin
@@ -445,41 +444,41 @@ module BlobProcessor(
 
             //Read Port X
             if (garbageIndex != NULL_BLOB_INDEX & ~garbageCollectorDone) begin
-                blobBRAMPorts[garbagePort].addr = garbageIndex;
-                blobBRAMPorts[garbagePort].we = 0;
-                garbageCollectorWasUsingPorts[garbagePort] = 1;
+                blobBRAMPorts[garbagePort].addr <= garbageIndex;
+                blobBRAMPorts[garbagePort].we <= 0;
+                garbageCollectorWasUsingPorts[garbagePort] <= 1;
             end
             else begin
-                garbageCollectorWasUsingPorts[garbagePort] = 0;
+                garbageCollectorWasUsingPorts[garbagePort] <= 0;
             end
         end
 
-        lastGarbageIndex[1] = lastGarbageIndex[0];
-        lastGarbageIndex[0] = garbageIndex;
-        garbagePort = ~garbagePort;
+        lastGarbageIndex[1] <= lastGarbageIndex[0];
+        lastGarbageIndex[0] <= garbageIndex;
+        garbagePort <= ~garbagePort;
     endfunction
-    function automatic resetGarbageCollector();
-        garbagePort = 0;
-        garbageIndex = 0;
-        lastGarbageIndex = '{0, 0};
-        garbageCollectorWasUsingPorts = '{0, 0};
-        garbageCollectorDone = 0;
+    function automatic void resetGarbageCollector();
+        garbagePort <= 0;
+        garbageIndex <= 0;
+        lastGarbageIndex <= '{0, 0};
+        garbageCollectorWasUsingPorts <= '{0, 0};
+        garbageCollectorDone <= 0;
     endfunction
-    function automatic setNextGarbageIndex();
+    function automatic void setNextGarbageIndex();
         //FORK
         if (garbageIndex == NULL_BLOB_INDEX | nextValidGarbageIndex == NULL_BLOB_INDEX) begin
             //still on frame => keep doing garbage duty :(
             if (isWorkingOnFrame) begin
-                garbageIndex = firstValidGarbageIndex;
+                garbageIndex <= firstValidGarbageIndex;
             end
 
             //done with frame => stop garbage duty :)
             else begin
-                garbageCollectorDone = 1;
+                garbageCollectorDone <= 1;
             end
         end
         else begin
-            garbageIndex = nextValidGarbageIndex;
+            garbageIndex <= nextValidGarbageIndex;
         end
         //JOIN
     endfunction
@@ -510,7 +509,7 @@ module BlobProcessor(
     endfunction
     
     //Target Selector Loop
-    function automatic updateTargetSelectorDualGroup();
+    function automatic void updateTargetSelectorDualGroup();
         /*  DUAL/GROUP
             ------------------------------------------------------
             0 -                 READ New B0 on 0 READ New A on 1       (B0 is invalid @ start)
@@ -525,9 +524,9 @@ module BlobProcessor(
 
         //SAVE A from 1
         if (targetHasNewA & ~targetPartion) begin
-            targetBlobA = blobBRAMPorts[1].dout;
-            targetBlobAAngle = calcBlobAngle(targetBlobA);
-            targetHasNewA = 0; //BLOCKING
+            targetBlobA <= blobBRAMPorts[1].dout;
+            targetBlobAAngle <= calcBlobAngle(targetBlobA);
+            targetHasNewA <= 0; //BLOCKING
 
             //Wrap up + Reset for GROUP Mode
             if (virtexConfig.targetMode == GROUP) begin
@@ -535,11 +534,11 @@ module BlobProcessor(
                 //its better than the current one OR we dont have a current one
                 if (~isTargetNull(targetChainValid) &
                     (isTargetNull(targetCurrent) | distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) begin
-                        targetCurrent = targetChainValid;
+                        targetCurrent <= targetChainValid;
                 end
 
                 //Reset Group Target Selector
-                targetChain = '{
+                targetChain <= '{
                     center: '{
                         x: (targetBlobA.boundBottomRight.x + targetBlobA.boundTopLeft.x) >> 1,
                         y: (targetBlobA.boundBottomRight.y + targetBlobA.boundTopLeft.y) >> 1
@@ -549,7 +548,7 @@ module BlobProcessor(
                     angle: targetBlobAAngle,
                     blobCount: 1
                 };
-                targetChainValid = '{
+                targetChainValid <= '{
                     center: 0,
                     width: 0, height: 0,
                     angle: targetBlobAAngle,
@@ -618,7 +617,7 @@ module BlobProcessor(
                         virtexConfig.targetBoundAreaMax);
 
                     //join current target
-                    targetChain = '{
+                    targetChain <= '{
                         center: newCenter,
                         width: newWidth,
                         height: newHeight,
@@ -628,7 +627,7 @@ module BlobProcessor(
 
                     if (newAspectRatioValid & newBoundAreaValid) begin
                         //set current valid target
-                        targetChainValid = targetChain;
+                        targetChainValid <= targetChain;
                     end
                 end
             end
@@ -687,7 +686,7 @@ module BlobProcessor(
                 //if this target is valid AND this target is better OR we dont have a target yet
                 if (isAngleValid & gapValid & aspectRatioValid & boundAreaValid & areaDiffValid &
                     (isTargetNull(targetCurrent) | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
-                    targetCurrent = '{
+                    targetCurrent <= '{
                         center: center,
                         width: width,
                         height: height,
@@ -698,12 +697,12 @@ module BlobProcessor(
             end
 
             //Clear Valitity
-            targetIndexBsValid[targetPartion] = 0;
+            targetIndexBsValid[targetPartion] <= 0;
         end
 
         if (~targetWantsNewA) begin
             //Set New B0|1 (our current partion has the oldest index, so our new index one will be the next step ahead of the other partion's index)
-            targetIndexBs[targetPartion] = nextTargetIndex[~targetPartion]; //BLOCKING
+            targetIndexBs[targetPartion] <= nextTargetIndex[~targetPartion]; //BLOCKING
 
             //Request New A (IF frame init OR no more Bs left (if new B0|1 is NULL | or new B0|1 is invalid AND new new B is NULL))
             if (targetIndexA == NULL_BLOB_INDEX | targetIndexBs[targetPartion] == NULL_BLOB_INDEX | 
@@ -711,14 +710,14 @@ module BlobProcessor(
                 //Request New A
                 //we need access to both BRAM ports so we may have to wait
                 //an entire loop for the last B to finish processing
-                targetWantsNewA = 1;
+                targetWantsNewA <= 1;
             end
 
             //READ New B0|1
             else begin
                 //increment B0|1 again (because new B0|1 is invalid aka overlaps A in GROUP mode)
                 if (targetIndexBs[targetPartion] == targetIndexA) begin
-                    targetIndexBs[targetPartion] = nextTargetIndex[targetPartion];
+                    targetIndexBs[targetPartion] <= nextTargetIndex[targetPartion];
                 end
 
                 //READ New B0|1 on 0|1
@@ -729,42 +728,42 @@ module BlobProcessor(
         //Reset for New A
         if (targetWantsNewA & ~targetIndexBsValid[0] & ~targetIndexBsValid[1]) begin
             //Set New A (if @ start frame use first valid blob index)
-            targetIndexA = targetIndexA == NULL_BLOB_INDEX ? firstTargetIndex : nextTargetIndexA; //BLOCKING
+            targetIndexA <= targetIndexA == NULL_BLOB_INDEX ? firstTargetIndex : nextTargetIndexA; //BLOCKING
 
             //Finish Frame
             if (targetIndexA == NULL_BLOB_INDEX) begin
-                targetSelectorDone = 1;
+                targetSelectorDone <= 1;
 
                 //Save Best Target into Target Slot
-                target = targetCurrent;
+                target <= targetCurrent;
             end
 
             //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
             else if (nextTargetIndexA != NULL_BLOB_INDEX | virtexConfig.targetMode == GROUP) begin
                 //READ New A on 1
-                blobBRAMPorts[1].addr = targetIndexA;
-                blobBRAMPorts[1].we = 0;
+                blobBRAMPorts[1].addr <= targetIndexA;
+                blobBRAMPorts[1].we <= 0;
 
                 //Set New B0
-                targetIndexBs[0] = (virtexConfig.targetMode == GROUP & firstTargetIndex != targetIndexA) ? 
+                targetIndexBs[0] <= (virtexConfig.targetMode == GROUP & firstTargetIndex != targetIndexA) ? 
                     firstTargetIndex : nextTargetIndexA;
 
                 //READ New B0 on 0
                 targetReadIndex(0);
 
                 //Update State
-                targetHasNewA = 1;
-                targetWantsNewA = 0;
-                targetPartion = 1;
+                targetHasNewA <= 1;
+                targetWantsNewA <= 0;
+                targetPartion <= 1;
             end
         end
 
         //Swap Partion (or hold 0 for new A)
         else begin
-            targetPartion = ~targetPartion;
+            targetPartion <= ~targetPartion;
         end
     endfunction
-    function automatic updateTargetSelectorSingle(BlobData blob);
+    function automatic void updateTargetSelectorSingle(BlobData blob);
         //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
         Vector center = '{
             x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
@@ -783,7 +782,7 @@ module BlobProcessor(
         //if this target is valid AND this target is better OR we dont have a target yet
         if (aspectRatioValid & boundAreaValid &
             (isTargetNull(targetCurrent) | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
-            targetCurrent = '{
+            targetCurrent <= '{
                 center: center,
                 width: width,
                 height: height,
@@ -792,10 +791,10 @@ module BlobProcessor(
             };
         end
     endfunction
-    function automatic targetReadIndex(logic partion);
-        blobBRAMPorts[partion].addr = targetIndexBs[partion];
-        blobBRAMPorts[partion].we = 0;
-        targetIndexBsValid[partion] = 1;
+    function automatic void targetReadIndex(logic partion);
+        blobBRAMPorts[partion].addr <= targetIndexBs[partion];
+        blobBRAMPorts[partion].we <= 0;
+        targetIndexBsValid[partion] <= 1;
     endfunction
     function automatic BlobIndex getNextValidTargetIndex(BlobIndex startIndex);
         //find next valid blob >= startIndex
@@ -813,53 +812,51 @@ module BlobProcessor(
     endfunction
 
     //Resetting for New Frame //TODO callme
-    function automatic reset();
+    function automatic void reset();
         //FORK
-        blobIndex = 0;
-        blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
-        blobRunBuffersPartionLast = NULL_RUN_BUFFER_PARTION;
-        blobUsingPort1 = 0;
+        blobIndex <= 0;
+        blobRunBuffersPartionCurrent <= NULL_RUN_BUFFER_PARTION;
+        blobRunBuffersPartionLast <= NULL_RUN_BUFFER_PARTION;
+        blobUsingPort1 <= 0;
         
-        rleRunBuffersPartion = 0;
-        kernel.valid = 0;
-        lastKernelValid = 0;
+        rleRunBuffersPartion <= 0;
         for (int i = 0; i < 3; i++) begin
-            runBuffers[i].count = 0;
-            runBuffers[i].line = NULL_LINE_NUMBER;
+            runBuffers[i].count <= 0;
+            runBuffers[i].line <= NULL_LINE_NUMBER;
         end
-        lastIsWorkingOnFrame = 0;
+        lastIsWorkingOnFrame <= 0;
 
         resetGarbageCollector();
 
         //TARGET_SELECTOR_TOO_SLOW_FAULT if ~targetSelectorDone
-        targetSelectorDone = 0;
-        targetCurrent = '{
+        targetSelectorDone <= 0;
+        targetCurrent <= '{
             center: 0,
             width: 0,
             height: 0,
             blobCount: 0,
             angle: HORIZONTAL
         };
-        targetIndexA = NULL_BLOB_INDEX;
-        targetIndexBs = '{0, 0};
-        targetIndexBsValid = '{0, 0};
-        targetChain = '{
+        targetIndexA <= NULL_BLOB_INDEX;
+        targetIndexBs <= '{0, 0};
+        targetIndexBsValid <= '{0, 0};
+        targetChain <= '{
             center: 0,
             width: 0,
             height: 0,
             blobCount: 0,
             angle: HORIZONTAL
         };
-        targetChainValid = '{
+        targetChainValid <= '{
             center: 0,
             width: 0,
             height: 0,
             blobCount: 0,
             angle: HORIZONTAL
         };
-        targetPartion = 0;
-        targetHasNewA = 0;
-        targetWantsNewA = 0;
+        targetPartion <= 0;
+        targetHasNewA <= 0;
+        targetWantsNewA <= 0;
 
         resetKernelFIFO <= 1;
         //JOIN
@@ -870,7 +867,7 @@ module BlobProcessor(
         BlobIndex index = startIndex;
         for (int i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) begin
             if (blobMetadatas[index].status == POINTER) begin
-                index = blobMetadatas[index].pointer; //BLOCKING
+                index <= blobMetadatas[index].pointer; //BLOCKING
             end
             else begin
                 return index;

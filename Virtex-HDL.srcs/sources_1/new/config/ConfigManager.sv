@@ -58,14 +58,19 @@ module ConfigManager(
     output wire SPI_CLK,
     output reg SPI_MOSI,
     input wire SPI_MISO,
+    `ifndef SIM
     output VirtexConfig virtexConfig,
+    `endif
     input VirtexConfigWriteRequest virtexConfigWriteRequests [1:0],
     output wire isBooted,
     output reg [7:0] debug
     );
 
-    //VirtexConfig virtexConfig = DefaultVirtexConfig;
+    `ifdef SIM
+    VirtexConfig virtexConfig = DefaultVirtexConfig;
+    `else
     initial virtexConfig = DefaultVirtexConfig;
+    `endif
 
     //No-EEPROM Version
     reg [$size(virtexConfigWriteRequests)-1:0] lastVirtexConfigWriteRequestValids;
