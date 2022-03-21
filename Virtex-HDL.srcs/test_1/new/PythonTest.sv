@@ -1,16 +1,15 @@
 `timescale 1ns / 1ps
-`include "../../sources_1/new/Util.sv"
 
-/* Python300SimTest
+/* Python300Test
 
     */
-module Python300SimTest;
+module Python300Test;
 
-    reg CLK = 0;
-    always #5 CLK <= ~CLK;
+    // reg CLK = 0;
+    // always #5 CLK <= ~CLK;
 
-    Python300Sim (
+    // Python300Sim (
 
-    );
+    // );
 
 endmodule

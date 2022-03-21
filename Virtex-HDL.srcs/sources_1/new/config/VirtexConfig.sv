@@ -117,7 +117,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     frameLength: 41500,
 
     //target params
-    targetMode: GROUP,
+    targetMode: SINGLE,
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 16'hFFFF,//30,
     targetBlobYGapMin: 0,
@@ -127,7 +127,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     targetBoundAreaMin: 0,
     targetBoundAreaMax: 16'hFFFF,//0xffff,
     targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 100,//100,
+    targetBlobAreaDiffMax: 16'hFFFF,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

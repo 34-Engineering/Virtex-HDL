@@ -35,24 +35,24 @@ export let virtexConfig: VirtexConfig = {
     //target params
     targetMode: TargetMode.SINGLE,
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 0xffff,//30,
+    targetBlobXGapMax: 0xFFFF,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 0xffff,//30,
+    targetBlobYGapMax: 0xFFFF,//30,
     targetAspectRatioMin: 0,//2,
-    targetAspectRatioMax: 0xffff,//4,
+    targetAspectRatioMax: 0xFFFF,//4,
     targetBoundAreaMin: 0,
-    targetBoundAreaMax: 0xffff,//0xffff,
+    targetBoundAreaMax: 0xFFFF,//0xffff,
     targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 100,//100,
+    targetBlobAreaDiffMax: 0xFFFF,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 
     //blob params
     blobAspectRatioMin: 0,
-    blobAspectRatioMax: 0xffff,
-    blobBoundAreaMin: 50,
-    blobBoundAreaMax: 0xffff,
+    blobAspectRatioMax: 0xFFFF,
+    blobBoundAreaMin: 0,//50,
+    blobBoundAreaMax: 0xFFFF,
     blobFullnessMin: 0,
-    blobFullnessMax: 0xffff,
+    blobFullnessMax: 0xFFFF,
     blobAnglesEnabled: { horizontal: true, vertical: true, forward: true, backward: true }
 };

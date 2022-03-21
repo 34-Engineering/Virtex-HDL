@@ -3,74 +3,125 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="PythonSPITest_behav.wdb" id="1">
+      <db_ref path="BlobTest_behav.wdb" id="1">
          <top_modules>
-            <top_module name="PythonSPITest" />
+            <top_module name="BlobTest" />
             <top_module name="\$unit_Top_sv " />
             <top_module name="glbl" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
-      <ZoomEndTime time="42.300001 us"></ZoomEndTime>
-      <Cursor1Time time="38.000000 us"></Cursor1Time>
+      <ZoomStartTime time="49.991333 us"></ZoomStartTime>
+      <ZoomEndTime time="1,215.991334 us"></ZoomEndTime>
+      <Cursor1Time time="1,021.658000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="252"></NameColumnWidth>
-      <ValueColumnWidth column_width="90"></ValueColumnWidth>
+      <ValueColumnWidth column_width="82"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="13" />
-   <wvobject fp_name="/PythonSPITest/ConfigManager/CLK10" type="logic">
-      <obj_property name="ElementShortName">CLK10</obj_property>
-      <obj_property name="ObjectShortName">CLK10</obj_property>
+   <WVObjectSize size="23" />
+   <wvobject fp_name="/BlobTest/CLK200" type="logic">
+      <obj_property name="ElementShortName">CLK200</obj_property>
+      <obj_property name="ObjectShortName">CLK200</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_CS" type="logic">
-      <obj_property name="ElementShortName">SPI_CS</obj_property>
-      <obj_property name="ObjectShortName">SPI_CS</obj_property>
+   <wvobject fp_name="/BlobTest/CLK72" type="logic">
+      <obj_property name="ElementShortName">CLK72</obj_property>
+      <obj_property name="ObjectShortName">CLK72</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_WP" type="logic">
-      <obj_property name="ElementShortName">SPI_WP</obj_property>
-      <obj_property name="ObjectShortName">SPI_WP</obj_property>
+   <wvobject fp_name="/BlobTest/pos" type="array">
+      <obj_property name="ElementShortName">pos</obj_property>
+      <obj_property name="ObjectShortName">pos</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_HOLD" type="logic">
-      <obj_property name="ElementShortName">SPI_HOLD</obj_property>
-      <obj_property name="ObjectShortName">SPI_HOLD</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/kernel" type="array">
+      <obj_property name="ElementShortName">kernel</obj_property>
+      <obj_property name="ObjectShortName">kernel</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_CLK" type="logic">
-      <obj_property name="ElementShortName">SPI_CLK</obj_property>
-      <obj_property name="ObjectShortName">SPI_CLK</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/target" type="array">
+      <obj_property name="ElementShortName">target</obj_property>
+      <obj_property name="ObjectShortName">target</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_MOSI" type="logic">
-      <obj_property name="ElementShortName">SPI_MOSI</obj_property>
-      <obj_property name="ObjectShortName">SPI_MOSI</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/blobIndex" type="array">
+      <obj_property name="ElementShortName">blobIndex[11:0]</obj_property>
+      <obj_property name="ObjectShortName">blobIndex[11:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/SPI_MISO" type="logic">
-      <obj_property name="ElementShortName">SPI_MISO</obj_property>
-      <obj_property name="ObjectShortName">SPI_MISO</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/runBuffers" type="array">
+      <obj_property name="ElementShortName">runBuffers[2:0]</obj_property>
+      <obj_property name="ObjectShortName">runBuffers[2:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/hasValidData" type="logic">
-      <obj_property name="ElementShortName">hasValidData</obj_property>
-      <obj_property name="ObjectShortName">hasValidData</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/rleRunBuffersPartion" type="array">
+      <obj_property name="ElementShortName">rleRunBuffersPartion[1:0]</obj_property>
+      <obj_property name="ObjectShortName">rleRunBuffersPartion[1:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/byteNumber" type="array">
-      <obj_property name="ElementShortName">byteNumber[8:0]</obj_property>
-      <obj_property name="ObjectShortName">byteNumber[8:0]</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/isLastKernel" type="logic">
+      <obj_property name="ElementShortName">isLastKernel</obj_property>
+      <obj_property name="ObjectShortName">isLastKernel</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/bytePointer" type="array">
-      <obj_property name="ElementShortName">bytePointer[2:0]</obj_property>
-      <obj_property name="ObjectShortName">bytePointer[2:0]</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/targetSelectorDone" type="logic">
+      <obj_property name="ElementShortName">targetSelectorDone</obj_property>
+      <obj_property name="ObjectShortName">targetSelectorDone</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/state" type="array">
-      <obj_property name="ElementShortName">state[2:0]</obj_property>
-      <obj_property name="ObjectShortName">state[2:0]</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageCollectorDone" type="logic">
+      <obj_property name="ElementShortName">garbageCollectorDone</obj_property>
+      <obj_property name="ObjectShortName">garbageCollectorDone</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/sequenceIndex" type="array">
-      <obj_property name="ElementShortName">sequenceIndex[10:0]</obj_property>
-      <obj_property name="ObjectShortName">sequenceIndex[10:0]</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/isWorkingOnFrame" type="logic">
+      <obj_property name="ElementShortName">isWorkingOnFrame</obj_property>
+      <obj_property name="ObjectShortName">isWorkingOnFrame</obj_property>
    </wvobject>
-   <wvobject fp_name="/PythonSPITest/ConfigManager/currentStateEndIndex" type="array">
-      <obj_property name="ElementShortName">currentStateEndIndex[10:0]</obj_property>
-      <obj_property name="ObjectShortName">currentStateEndIndex[10:0]</obj_property>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageIndex" type="array">
+      <obj_property name="ElementShortName">garbageIndex[11:0]</obj_property>
+      <obj_property name="ObjectShortName">garbageIndex[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/lastGarbageIndex" type="array">
+      <obj_property name="ElementShortName">lastGarbageIndex[1:0][11:0]</obj_property>
+      <obj_property name="ObjectShortName">lastGarbageIndex[1:0][11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageCollectorWasUsingPorts" type="array">
+      <obj_property name="ElementShortName">garbageCollectorWasUsingPorts[1:0]</obj_property>
+      <obj_property name="ObjectShortName">garbageCollectorWasUsingPorts[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageCollectorDone" type="logic">
+      <obj_property name="ElementShortName">garbageCollectorDone</obj_property>
+      <obj_property name="ObjectShortName">garbageCollectorDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageCollectorCanUsePorts" type="array">
+      <obj_property name="ElementShortName">garbageCollectorCanUsePorts[1:0]</obj_property>
+      <obj_property name="ObjectShortName">garbageCollectorCanUsePorts[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbageCollectorUsingPorts" type="array">
+      <obj_property name="ElementShortName">garbageCollectorUsingPorts[1:0]</obj_property>
+      <obj_property name="ObjectShortName">garbageCollectorUsingPorts[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/nextValidGarbageIndex" type="array">
+      <obj_property name="ElementShortName">nextValidGarbageIndex[11:0]</obj_property>
+      <obj_property name="ObjectShortName">nextValidGarbageIndex[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/firstValidGarbageIndex" type="array">
+      <obj_property name="ElementShortName">firstValidGarbageIndex[11:0]</obj_property>
+      <obj_property name="ObjectShortName">firstValidGarbageIndex[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/garbagePort" type="logic">
+      <obj_property name="ElementShortName">garbagePort</obj_property>
+      <obj_property name="ObjectShortName">garbagePort</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/endCounter" type="array">
+      <obj_property name="ElementShortName">endCounter[10:0]</obj_property>
+      <obj_property name="ObjectShortName">endCounter[10:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/BlobTest/BlobProcessor/blobBRAMPorts" type="array">
+      <obj_property name="ElementShortName">blobBRAMPorts[1:0]</obj_property>
+      <obj_property name="ObjectShortName">blobBRAMPorts[1:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/BlobTest/BlobProcessor/blobBRAMPorts[1]" type="array">
+         <obj_property name="ElementShortName">[1]</obj_property>
+         <obj_property name="ObjectShortName">[1]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/BlobTest/BlobProcessor/blobBRAMPorts[0]" type="array">
+         <obj_property name="ElementShortName">[0]</obj_property>
+         <obj_property name="ObjectShortName">[0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>

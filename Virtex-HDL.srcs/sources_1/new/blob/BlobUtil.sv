@@ -65,6 +65,7 @@ typedef enum logic [15:0] {
 
 //Pointer Types
 typedef logic [MAX_BLOB_INDEX_SIZE-1:0] BlobIndex;
+typedef logic [1:0] RunBufferPartion;
 typedef logic [MAX_RUNS_PER_LINE_INDEX_SIZE-1:0] RunBufferIndex;
 
 //Run
@@ -180,6 +181,7 @@ function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] li
 endfunction
 
 //Target Null
+localparam Target NULL_TARGET = '{ center:0, width:0, height:0, blobCount:0, angle:HORIZONTAL };
 function automatic logic isTargetNull(Target target);
     return target.blobCount == 0;
 endfunction

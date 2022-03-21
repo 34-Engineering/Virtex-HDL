@@ -6,7 +6,7 @@
 
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
 localparam MAX_BLOBS = 2000; //288,000-bits
-localparam MAX_BLOB_INDEX_SIZE = $clog2(MAX_BLOBS) + 1; //ex: 13 -> [12:0]
+localparam MAX_BLOB_INDEX_SIZE = $clog2(MAX_BLOBS) + 1; //ex: 11 -> [10:0]
 
 //max depth getRealBlobID() will follow a pointer (under normal cond: max needed ~3)
 localparam MAX_BLOB_POINTER_DEPTH = 5;

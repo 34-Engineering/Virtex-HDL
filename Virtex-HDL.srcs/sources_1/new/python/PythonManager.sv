@@ -65,6 +65,7 @@ module PythonManager(
     output reg OUT_OF_RLE_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
+    output reg KERNEL_FIFO_FULL_FAULT,
     output reg [7:0] debug
     );
 
@@ -95,7 +96,8 @@ module PythonManager(
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
         .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
         .BLOB_POINTER_DEPTH_FAULT(BLOB_POINTER_DEPTH_FAULT),
-        .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT)
+        .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
+        .KERNEL_FIFO_FULL_FAULT(KERNEL_FIFO_FULL_FAULT)
     );
 
     //Python SPI Manager

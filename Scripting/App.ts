@@ -11,6 +11,7 @@ import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
 import { NULL_BLACK_RUN_BLOB_ID, NULL_TIMESTAMP } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
+import { Vector } from './util/Math';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -26,7 +27,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2022_1.png';
+let imageFile = 'Rectangles.png';
 const IMAGES_INPUT_PATH = 'images';
 const autoStepFrame = true;
 
@@ -37,6 +38,10 @@ app.set('view engine', 'ejs');
 app.get('/', (req: express.Request, res: express.Response) => {
     res.render(path.join(__dirname, '/App'), { drawOptions, imageFile, imageFiles });
 });
+
+//Write Image to File
+const writeOutputFile = true;
+let outputFileContent = "";
 
 //Blob Processor + Python Sim
 let kx: number, ky: number; //(0,0) to (79,479)
@@ -60,6 +65,10 @@ function update() {
             tempKernel.value[ix] = threshold;
         }
         BlobProcessor.sendKernel(tempKernel);
+
+        if (writeOutputFile) {
+            outputFileContent += "8'b" + tempKernel.value.map(item => item ? 1 : 0).join("") + ",\n";
+        }
 
         if (kx === KERNEL_MAX_X) {
             if (ky !== IMAGE_HEIGHT - 1) {
@@ -232,7 +241,12 @@ function step(count: number) {
         if (!BlobProcessor.isDone()) {
             update();
         }
-        else break;
+        else {
+            if (writeOutputFile) {
+                fs.writeFileSync("image.txt", outputFileContent);
+            }
+            break;
+        }
     }
 }
 
@@ -255,10 +269,22 @@ app.post('/reset', (req: express.Request, res: express.Response) => {
 app.post('/init', (req: express.Request, res: express.Response) => {
     try {
         reset();
-        if (autoStepFrame) {
-            step(Number.MAX_SAFE_INTEGER);
-        }
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
+
+        //FIXME
+        const center: Vector = { x: 0x0d3, y: 0x0b3 };
+        const width = 0x1a8;
+        const height = 0x162;
+        drawRect(image.data,
+            { x: center.x - (width/2), y: center.y - (height/2) }, 
+            { x: center.x + (width/2), y: center.y + (height/2) },
+            [255, 0, 0, 100]
+        );
+        res.send({ image, faults: getFaults(), error: false });
+
+        // if (autoStepFrame) {
+        //     step(Number.MAX_SAFE_INTEGER);
+        // }
+        // res.send({ image: drawImage(), faults: getFaults(), error: false });
     }
     catch (e) { res.send({ error: e }); }
 });

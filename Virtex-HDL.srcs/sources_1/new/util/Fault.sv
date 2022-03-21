@@ -13,6 +13,7 @@ typedef struct packed {
     logic OUT_OF_RLE_MEM;      //out of runs (probably too noisy)
     logic BLOB_POINTER_DEPTH;  //tried recursively following blob pointer, but it was too deep
     logic BLOB_PROCESSOR_SLOW; //blob processor took too long on line(s) (probably too noisy)
+    logic KERNEL_FIFO_FULL;    //blob run length encoder wasn't reading kernels fast enough
 } Faults;
 
 `endif

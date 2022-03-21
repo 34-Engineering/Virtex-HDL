@@ -111,6 +111,7 @@ module Top(
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
         .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
+        .KERNEL_FIFO_FULL_FAULT(faults.KERNEL_FIFO_FULL),
         .debug()
     );
 

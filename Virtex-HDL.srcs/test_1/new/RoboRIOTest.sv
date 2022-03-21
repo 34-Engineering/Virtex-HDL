@@ -5,11 +5,11 @@
     */
 module RoboRIOManagerTest;
 
-    reg CLK = 0;
-    always #5 CLK <= ~CLK;
+    // reg CLK = 0;
+    // always #5 CLK <= ~CLK;
 
-    RoboRIOManager (
+    // RoboRIOManager (
 
-    );
+    // );
 
 endmodule
