@@ -19,16 +19,20 @@ const io = new Server(server);
 io.on('connection', (socket) => {
     console.log('Web Connected');
 
-    socket.on('read', async () => {
-        const data = fs.readFileSync("output.txt");
-
-        io.emit('frame', data);
-    });
+    // socket.on('read', async () => {
+    //     const data = fs.readFileSync("output.txt");
+    //     io.emit('frame', data);
+    // });
 
     socket.on('disconnect', () => {
         console.log('Web Disconnected');
     });
 });
+
+setInterval(() => {
+    const data = fs.readFileSync("output.txt");
+    io.emit('frame', data);
+}, 50);
 
 //Host
 server.listen(34, function () {

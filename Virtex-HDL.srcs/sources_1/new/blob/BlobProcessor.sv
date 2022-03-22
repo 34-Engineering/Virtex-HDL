@@ -208,10 +208,9 @@ module BlobProcessor(
         
         //encode every pixel in kernel
         for (int x = 7; x >= 0; x--) begin
-            $fwrite(fd, "%d", kernel.value[x]);
             //FORK
             //new run @ start of line OR color transition
-            if ((kernel.pos.x == 0 & x == 0) |
+            if ((kernel.pos.x == 0 & x == 7) |
                 kernel.value[x] != (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobIndex != NULL_BLACK_RUN_BLOB_INDEX)) begin
 
                 //push run to buffer
@@ -227,10 +226,14 @@ module BlobProcessor(
                 else begin
                     runBuffers[rleRunBuffersPartion].count = runBuffers[rleRunBuffersPartion].count + 1;
                 end
+
+                $fwrite(fd, "%d", kernel.value[x]);
             end
 
             //extend length of last run
             else begin
+                $fwrite(fd, "%d", 1'b0);
+
                 runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length = 
                 runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].length + 1;
             end
