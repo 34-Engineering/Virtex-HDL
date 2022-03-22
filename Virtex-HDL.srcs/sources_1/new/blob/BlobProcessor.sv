@@ -17,7 +17,8 @@ module BlobProcessor(
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
     output reg KERNEL_FIFO_FULL_FAULT,
-    output reg TARGET_SELECTOR_TOO_SLOW_FAULT //TODO pull down?
+    output reg TARGET_SELECTOR_TOO_SLOW_FAULT, //TODO pull down?
+    input wire test
     );
 
     //FIFO Kernel Input
@@ -25,7 +26,6 @@ module BlobProcessor(
     wire hasNewKernel = ~kernelFIFOEmpty;
     Kernel kernel;
     reg readNewKernel = 0;
-    reg resetKernelFIFO = 1;
     fifo_python_to_blob fifo_python_to_blob (
         .full(kernelFIFOFull),
         .din(kernelInput),
@@ -35,9 +35,9 @@ module BlobProcessor(
         .dout(kernel),
         .rd_en(readNewKernel),
         .rd_clk(CLK200),
-        .rst(resetKernelFIFO)
+        .rst(0)
     );
-    always_comb if (kernelFIFOFull & ~resetKernelFIFO) KERNEL_FIFO_FULL_FAULT = 1;
+    always_comb if (kernelFIFOFull) KERNEL_FIFO_FULL_FAULT = 1;
 
     //Blob BRAM
     typedef struct packed {
@@ -125,10 +125,25 @@ module BlobProcessor(
     reg garbageCollectorLastLoop;
     wire garbageCollectorDone = garbageCollectorLastLoop & garbageCollectorUsingPorts == '{0, 0};
 
+    integer fd;
+    initial begin
+        //saves into Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim
+        fd = $fopen("../../../../Typescript/BlobDebugger/output.txt", "w");
+        if (fd) begin
+            $display("--------------- OPENED FILE ---------------");
+        end
+        else $display("--------------- ERROR OPENING FILE ---------------");
+    end
+    
+    always_ff @(posedge test) begin
+        $fclose(fd);
+        $display("--------------- CLOSED & WROTE FILE ---------------");
+        $finish;
+    end
+    
+
     //Main Process Loop
     always_ff @(negedge CLK200) begin
-        resetKernelFIFO <= 0;
-
         //Reset All @ Frame Start
         if (kernel.pos == 0 & ~lastKernelZero) begin
             reset();
@@ -145,9 +160,9 @@ module BlobProcessor(
         lastIsWorkingOnFrame <= isWorkingOnFrame;
 
         //Garbage Collection Loop
-        if (~garbageCollectorDone) begin
-            updateGarbageCollector();
-        end
+        // if (~garbageCollectorDone) begin
+        //     updateGarbageCollector();
+        // end
         
         //Working on Frame
         readNewKernel <= hasNewKernel;
@@ -159,23 +174,23 @@ module BlobProcessor(
             end
 
             //Blob Processor Loop
-            updateBlobProcessor();
+            // updateBlobProcessor();
         end
 
         //Done with Frame
-        else if (~targetSelectorDone & garbageCollectorDone) begin
-            if (virtexConfig.targetMode == SINGLE) begin
-                //SINGLE target selection was finished with Garbage Collection
-                targetSelectorDone <= 1;
+        // else if (~targetSelectorDone & garbageCollectorDone) begin
+        //     if (virtexConfig.targetMode == SINGLE) begin
+        //         //SINGLE target selection was finished with Garbage Collection
+        //         targetSelectorDone <= 1;
 
-                //Save Best Target into Target Slot
-                target = targetCurrent;
-            end
-            else begin
-                //DUAL/GROUP Target Selection Loop
-                updateTargetSelectorDualGroup();
-            end
-        end
+        //         //Save Best Target into Target Slot
+        //         target = targetCurrent;
+        //     end
+        //     else begin
+        //         //DUAL/GROUP Target Selection Loop
+        //         updateTargetSelectorDualGroup();
+        //     end
+        // end
     end
 
     //Run Length Encoding Loop
@@ -192,7 +207,8 @@ module BlobProcessor(
         end
         
         //encode every pixel in kernel
-        for (int x = 0; x < 8; x++) begin
+        for (int x = 7; x >= 0; x--) begin
+            $fwrite(fd, "%d", kernel.value[x]);
             //FORK
             //new run @ start of line OR color transition
             if ((kernel.pos.x == 0 & x == 0) |
@@ -223,6 +239,7 @@ module BlobProcessor(
 
         //end line
         if (kernel.pos.x == KERNEL_MAX_X) begin
+            $fwrite(fd, "\n");
             //FORK
             if (runBuffers[rleRunBuffersPartion].line == IMAGE_HEIGHT-1) begin
                 //done with frame => null
@@ -865,8 +882,6 @@ module BlobProcessor(
         targetPartion = 0;
         targetHasNewA = 0;
         targetWantsNewA = 0;
-
-        resetKernelFIFO = 1;
         //JOIN
     endfunction
 

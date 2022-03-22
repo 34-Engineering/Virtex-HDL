@@ -2,7 +2,7 @@
 /Virtex-HDL.gen
 /Virtex-HDL.runs
 /Virtex-HDL.sim
-Scripting/node_modules
-Scripting/.DS_Store
-Serial/node_modules
-.DS_Store
+**/node_modules
+**/.DS_Store
+vivado.log
+vivado.jou

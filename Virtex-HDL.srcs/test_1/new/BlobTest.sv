@@ -2,6 +2,7 @@
 
 `define SIM 1
 
+`include "../../sources_1/new/blob/BlobUtil.sv"
 `include "./Image.sv"
 
 /* BlobTest
@@ -14,6 +15,7 @@ module BlobTest;
     always #(500/72) CLK72 <= ~CLK72;
 
     Vector pos = 0;
+    reg end1 = 0;
     Kernel blobKernel = 0;
     reg writeBlobKernel = 0;
     Target target;
@@ -34,13 +36,14 @@ module BlobTest;
             writeBlobKernel <= ~writeBlobKernel;
         end
         else begin
+            end1 <= 1;
             writeBlobKernel <= 0;
 
-            //new frame
-            if (endCounter == 2047) begin
-                pos <= 0;
-            end
-            endCounter <= endCounter + 1;
+            // //new frame
+            // if (endCounter == 2047) begin
+            //     pos <= 0;
+            // end
+            // endCounter <= endCounter + 1;
         end
     end
 
@@ -54,7 +57,8 @@ module BlobTest;
         .OUT_OF_BLOB_MEM_FAULT(),
         .OUT_OF_RLE_MEM_FAULT(),
         .BLOB_POINTER_DEPTH_FAULT(),
-        .BLOB_PROCESSOR_SLOW_FAULT()
+        .BLOB_PROCESSOR_SLOW_FAULT(),
+        .test(end1)
     );
 
 endmodule

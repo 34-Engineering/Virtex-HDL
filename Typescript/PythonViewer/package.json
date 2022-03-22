@@ -1,20 +1,20 @@
 {
-  "name": "blob-processor-testing",
+  "name": "python-viewer",
   "version": "0.1.0",
   "description": "",
   "main": "App.ts",
   "scripts": {
-    "start": "nodemon",
-    "table-gen": "ts-node util/TableGen.ts"
+    "start": "ts-node App.ts"
   },
   "author": "34 Engineering, LLC",
   "license": "GPL-3.0",
   "dependencies": {
     "ejs": "^3.1.6",
     "express": "^4.17.3",
-    "nodemon": "^2.0.15",
     "pngjs": "^6.0.0",
-    "ts-node": "^10.5.0"
+    "serialport": "^10.4.0",
+    "socket.io": "^4.4.1",
+    "ts-node": "^10.7.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
