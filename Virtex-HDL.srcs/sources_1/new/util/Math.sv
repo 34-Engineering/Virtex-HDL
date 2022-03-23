@@ -8,25 +8,25 @@ package Math;
 
     //Min/Max (picks the smaller/bigger number between the two)
     // let min(a, b) = (a < b) ? a : b;
-    `define min(a, b) (a < b) ? a : b
+    `define Math_min(a, b) (a < b) ? a : b
     // let max(a, b) = (a > b) ? a : b;
-    `define max(a, b) (a > b) ? a : b
+    `define Math_max(a, b) (a > b) ? a : b
 
     //Overflow (overflows number between 0 & max by 1 increment max)
     // let overflow(num, max) = (num > max) ? 0 : ((num < 0) ? max : num);
-    `define overflow(num, max) (num > max) ? 0 : ((num < 0) ? max : num)
+    `define Math_overflow(num, max) (num > max) ? 0 : ((num < 0) ? max : num)
 
     //In Range
     // let inRangeInclusive(num, min, max) = num >= min & num <= max;
-    `define inRangeInclusive(num, min, max) num >= min & num <= max
+    `define Math_inRangeInclusive(num, min, max) num >= min & num <= max
 
     //Difference
     // let diff(a, b) = (a > b) ? (a - b) : (b - a);
-    `define diff(a, b) (a > b) ? (a - b) : (b - a)
+    `define Math_diff(a, b) (a > b) ? (a - b) : (b - a)
 
     //Absolute Value (of signed number counted [N:0])
     // let abs(num) = num[$bits(num)-1];
-    `define abs(num) num[$bits(num)-1]
+    `define Math_abs(num) num[$bits(num)-1]
 
     //Vector 2d 10-bit (20-bit total)
     typedef struct packed {
@@ -69,10 +69,10 @@ package Math;
         //returns a 10-bit integer that correctlates to the real quotient
         logic [9:0] out = 0;
         for (reg [3:0] i = 0; i < 10; i++) begin
-            out[i] = `abs(dividend) > (
+            out[i] = `Math_abs(dividend) > (
                 i < 5 ?
-                `abs(divisor) >> `diff(5, i) :
-                `abs(divisor) << `diff(5, i)
+                `Math_abs(divisor) >> `Math_diff(5, i) :
+                `Math_abs(divisor) << `Math_diff(5, i)
             );
         end
         return out;

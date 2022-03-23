@@ -96,12 +96,12 @@ endfunction
 function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
     return '{
         boundTopLeft: '{
-            x: `min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: `min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+            x: `Math_min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: `Math_min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
         },
         boundBottomRight: '{
-            x: `max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: `max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+            x: `Math_max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: `Math_max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
         quad: mergeQuad10s(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
@@ -195,9 +195,10 @@ function automatic logic isAspectRatioInRange(logic [9:0] width, height, logic [
     */
     //width, //TODO fixed point mult
     //virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height
+    return 1;
 endfunction
 function automatic logic isFullnessInRange(logic [23:0] area, boundArea, logic [15:0] min, max);
-
+    return 1;
 endfunction
 
 `endif

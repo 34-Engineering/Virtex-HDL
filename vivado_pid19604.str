@@ -1,0 +1,1258 @@
+/*
+
+Xilinx Vivado v2021.1 (64-bit) [Major: 2021, Minor: 1]
+SW Build: 3247384 on Thu Jun 10 19:36:33 MDT 2021
+IP Build: 3246043 on Fri Jun 11 00:30:35 MDT 2021
+
+Process ID (PID): 19604
+License: Customer
+Mode: GUI Mode
+
+Current time: 	Wed Mar 23 16:00:25 EDT 2022
+Time zone: 	Eastern Standard Time (America/New_York)
+
+OS: Windows 10
+OS Version: 10.0
+OS Architecture: amd64
+Available processors (cores): 20
+
+Screen size: 5120x1440
+Screen resolution (DPI): 100
+Available screens: 1
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+Scale size: 12
+
+Java version: 	11.0.2 64-bit
+Java home: 	C:/Xilinx/Vivado/2021.1/tps/win64/jre11.0.2
+Java executable: 	C:/Xilinx/Vivado/2021.1/tps/win64/jre11.0.2/bin/java.exe
+Java initial memory (-Xms): 	256 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	liams
+User home directory: C:/Users/liams
+User working directory: C:/Users/liams/Documents/GitHub/Virtex-HDL
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: C:/Xilinx/Vivado
+HDI_APPROOT: C:/Xilinx/Vivado/2021.1
+RDI_DATADIR: C:/Xilinx/Vivado/2021.1/data
+RDI_BINDIR: C:/Xilinx/Vivado/2021.1/bin
+
+Vivado preferences file: C:/Users/liams/AppData/Roaming/Xilinx/Vivado/2021.1/vivado.xml
+Vivado preferences directory: C:/Users/liams/AppData/Roaming/Xilinx/Vivado/2021.1/
+Vivado layouts directory: C:/Users/liams/AppData/Roaming/Xilinx/Vivado/2021.1/data/layouts
+PlanAhead jar file: 	C:/Xilinx/Vivado/2021.1/lib/classes/planAhead.jar
+Vivado log file: 	C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.log
+Vivado journal file: 	C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.jou
+Engine tmp dir: 	C:/Users/liams/Documents/GitHub/Virtex-HDL/.Xil/Vivado-19604-RISC-IV
+
+Xilinx Environment Variables
+----------------------------
+XILINX: C:/Xilinx/Vivado/2021.1/ids_lite/ISE
+XILINX_DSP: C:/Xilinx/Vivado/2021.1/ids_lite/ISE
+XILINX_HLS: C:\Xilinx\Vitis_HLS\2021.1
+XILINX_PLANAHEAD: C:/Xilinx/Vivado/2021.1
+XILINX_VIVADO: C:/Xilinx/Vivado/2021.1
+XILINX_VIVADO_HLS: C:/Xilinx/Vivado/2021.1
+
+
+GUI allocated memory:	256 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 1,247 MB
+
+Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// TclEventType: PROJECT_OPEN_DIALOG
+// Tcl Message: start_gui 
+// TclEventType: PROJECT_OPEN_DIALOG
+// [GUI Memory]: 78 MB (+79437kb) [00:00:03]
+// [Engine Memory]: 1,247 MB (+1155979kb) [00:00:03]
+// bz (cs):  Open Project : addNotify
+// Opening Vivado Project: C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr. Version: Vivado v2021.1 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// TclEventType: FLOW_ADDED
+// Tcl Message: open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: LOAD_FEATURE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,247 MB. GUI used memory: 59 MB. Current time: 3/23/22, 4:00:26 PM EDT
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 114 MB (+33328kb) [00:00:15]
+// WARNING: HEventQueue.dispatchEvent() is taking  1780 ms.
+// Tcl Message: open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1704] No user IP repositories specified INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'C:/Xilinx/Vivado/2021.1/data/ip'. 
+// Project name: Virtex-HDL; location: C:/Users/liams/Documents/GitHub/Virtex-HDL; part: xc7a35tftg256-1
+// Tcl Message: open_project: Time (s): cpu = 00:00:18 ; elapsed = 00:00:13 . Memory (MB): peak = 1238.637 ; gain = 0.000 
+dismissDialog("Open Project"); // bz
+// Tcl Command: 'rdi::info_commands {device::*}'
+// Tcl Command: 'rdi::info_commands {debug::*}'
+// Tcl Command: 'rdi::info_commands {*}'
+// a (cs): Critical Messages: addNotify
+// [GUI Memory]: 127 MB (+7683kb) [00:00:20]
+selectButton(PAResourceAtoD.CmdMsgDialog_OK, "OK"); // f
+dismissDialog("Critical Messages"); // a
+// [GUI Memory]: 139 MB (+6262kb) [00:00:27]
+// Elapsed time: 10 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cs): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_YES, "Yes"); // a
+// bz (cs):  Resetting Runs : addNotify
+dismissDialog("No Implementation Results Available"); // A
+dismissDialog("Resetting Runs"); // bz
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// bz (cs):  Generate Bitstream : addNotify
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+// TclEventType: FILE_SET_CHANGE
+selectButton(RDIResource.ProgressDialog_CANCEL, "Cancel"); // a
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs impl_1 -to_step write_bitstream -jobs 20 
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'blk_mem_frame_buffer'... INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'blk_mem_blobs'... INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_python_to_blob'... INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_python_stream'... INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_0'... INFO: [Common 17-365] Interrupt caught but 'launch_runs' cannot be canceled. Please wait for command to finish. INFO: [IP_Flow 19-3499] Reset cancelled 'Synthesis' target for IP 'clk_wiz_0'. 
+// TclEventType: RUN_MODIFY
+// [GUI Memory]: 146 MB (+209kb) [00:00:37]
+// TclEventType: RUN_MODIFY
+// [GUI Memory]: 154 MB (+686kb) [00:00:37]
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Wed Mar 23 16:00:55 2022] Launched impl_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/impl_1/runme.log 
+// Tcl Message: INFO: [Common 17-681] Processing pending cancel. 
+dismissDialog("Generate Bitstream"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+selectButton(RDIResourceCommand.RDICommands_SETTINGS, "settings"); // E
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// d (cs): Settings: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Settings"); // d
+selectButton(PAResourceQtoS.SyntheticaStateMonitor_CANCEL, "Cancel"); // h
+// bz (cs):  Resetting Runs : addNotify
+selectButton("OptionPane.button", "Cancel Process"); // JButton
+// [GUI Memory]: 175 MB (+13163kb) [00:00:43]
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run blk_mem_frame_buffer_synth_1 
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run blk_mem_blobs_synth_1 
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Tcl Message: reset_run fifo_python_to_blob_synth_1 
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+selectButton(RDIResource.ProgressDialog_BACKGROUND, "Background"); // a
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run fifo_python_stream_synth_1 
+selectButton(RDIResourceCommand.RDICommands_SETTINGS, "settings"); // E
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// TclEventType: RUN_STATUS_CHANGE
+// d (cs): Settings: addNotify
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run clk_wiz_0_synth_1 
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run fifo_virtex_config_synth_1 
+selectTree(PAResourceQtoS.SettingsDialog_PROJECT_TREE, "[projectRoot, Synthesis]", 3, false); // B
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+dismissDialog("Resetting Runs"); // bz
+selectCheckBox(PAResourceOtoP.ProgramOptionsPanelImpl_WRITE_INCREMENTAL_SYNTHESIS, "Write Incremental Synthesis", true); // g: TRUE
+selectButton(PAResourceItoN.IncrementalRunPanel_TURN_INCREMENTAL_IMPLEMENTATION_ON, (String) null); // t
+// bX (d): Incremental Synthesis: addNotify
+selectRadioButton(PAResourceItoN.IncrementalCompileChooserPanel_SPECIFY_DESIGN_CHECKPOINT, "Specify design checkpoint"); // a
+selectRadioButton(PAResourceItoN.IncrementalCompileChooserPanel_AUTOMATICALLY_USE_CHECKPOINT, "Automatically use the checkpoint from the previous run"); // a
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// Tcl Command: 'set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs synth_1]'
+dismissDialog("Incremental Synthesis"); // bX
+// TclEventType: RUN_OPTIONS_MODIFIED
+// Tcl Command: 'set_property AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1 [get_runs synth_1]'
+// Tcl Message: set_property AUTO_INCREMENTAL_CHECKPOINT 1 [get_runs synth_1] 
+// Tcl Message: set_property AUTO_INCREMENTAL_CHECKPOINT.DIRECTORY C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/utils_1/imports/synth_1 [get_runs synth_1] 
+selectButton(RDIResource.BaseDialog_APPLY, "Apply"); // a
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Settings"); // d
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cs): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_YES, "Yes"); // a
+// bz (cs):  Resetting Runs : addNotify
+dismissDialog("No Implementation Results Available"); // A
+dismissDialog("Resetting Runs"); // bz
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// bz (cs):  Generate Bitstream : addNotify
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: launch_runs impl_1 -to_step write_bitstream -jobs 20 
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_0'... INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'fifo_virtex_config'... 
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Wed Mar 23 16:01:29 2022] Launched impl_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/impl_1/runme.log 
+dismissDialog("Generate Bitstream"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,298 MB. GUI used memory: 120 MB. Current time: 3/23/22, 4:01:56 PM EDT
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// HMemoryUtils.trashcanNow. Engine heap size: 1,330 MB. GUI used memory: 120 MB. Current time: 3/23/22, 4:02:11 PM EDT
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// [Engine Memory]: 1,330 MB (+21956kb) [00:01:54]
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// [GUI Memory]: 190 MB (+6768kb) [00:02:03]
+// [GUI Memory]: 202 MB (+3125kb) [00:02:04]
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// [GUI Memory]: 218 MB (+5173kb) [00:02:09]
+// [GUI Memory]: 230 MB (+1162kb) [00:02:10]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,372 MB. GUI used memory: 121 MB. Current time: 3/23/22, 4:02:31 PM EDT
+// Elapsed time: 163 seconds
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "synth_design ERROR", 2, false); // az
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "synth_design ERROR", 2, false, false, false, false, false, true); // az - Double Click
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "synth_design ERROR", 2, false); // az
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "synth_design ERROR", 2, false, false, false, false, false, true); // az - Double Click
+selectTab((HResource) null, (HResource) null, "Tcl Console", 0); // aK
+selectTab((HResource) null, (HResource) null, "Log", 2); // aK
+selectTab((HResource) null, (HResource) null, "Reports", 3); // aK
+expandTreeTable(PAResourceEtoH.ExpReportTreePanel_EXP_REPORT_TREE_TABLE, "Synthesis ;  ;  ;  ; ", 0); // O
+expandTreeTable(PAResourceEtoH.ExpReportTreePanel_EXP_REPORT_TREE_TABLE, "Synth Design (synth_design) ;  ;  ;  ; ", 1); // O
+expandTreeTable(PAResourceEtoH.ExpReportTreePanel_EXP_REPORT_TREE_TABLE, "Out-of-Context Module Runs ;  ;  ;  ; ", 4); // O
+expandTreeTable(PAResourceEtoH.ExpReportTreePanel_EXP_REPORT_TREE_TABLE, "Synth Design (synth_design) ;  ;  ;  ; ", 7); // O
+collapseTreeTable(PAResourceEtoH.ExpReportTreePanel_EXP_REPORT_TREE_TABLE, "Synth Design (synth_design) ;  ;  ;  ; ", 7); // O
+selectTab((HResource) null, (HResource) null, "Tcl Console", 0); // aK
+selectTab((HResource) null, (HResource) null, "Design Runs", 4); // aK
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "clk_wiz_0_synth_1", 0, false); // az
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "clk_wiz_0_synth_1", 0, false, false, false, false, false, true); // az - Double Click
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "fifo_virtex_config_synth_1 ; fifo_virtex_config ; synth_design Complete! ;  ;  ;  ;  ;  ;  ;  ; 46 ; 102 ; 0.0 ; 0 ; 0 ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:30 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 11, "synth_design Complete!", 2, false); // az
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "clk_wiz_0_synth_1 ; clk_wiz_0 ; synth_design ERROR ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; Wed Mar 23 16:01:40 EDT 2022 ; 00:00:08 ; Vivado Synthesis Defaults (Vivado Synthesis 2021) ; Vivado Synthesis Default Reports (Vivado Synthesis 2021) ; xc7a35tftg256-1 ; Vivado Synthesis Defaults", 10, "synth_design ERROR", 2, false); // az
+selectTab((HResource) null, (HResource) null, "Tcl Console", 0); // aK
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 563, 208); // dS
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 738, 217); // dS
+typeControlKey(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, "RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR", 'c'); // dS
+// Elapsed time: 24 seconds
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv)]", 2); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, false); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, false, false, false, false, false, true); // D - Double Click
+// Run Command: PAResourceCommand.PACommandNames_RECUSTOMIZE_CORE
+// N (cs):  Re-customize IP : addNotify
+// r (cs): Re-customize IP: addNotify
+dismissDialog("Re-customize IP"); // N
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Re-customize IP"); // r
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, false); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, false, false, false, false, false, true); // D - Double Click
+// Run Command: PAResourceCommand.PACommandNames_RECUSTOMIZE_CORE
+// N (cs):  Re-customize IP : addNotify
+// r (cs): Re-customize IP: addNotify
+dismissDialog("Re-customize IP"); // N
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectRadioButton((HResource) null, "PLL"); // cQ
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectRadioButton((HResource) null, "MMCM"); // cQ
+// Elapsed time: 16 seconds
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Output Clocks", 1); // cV
+selectCheckBox((HResource) null, "reset", false); // g: FALSE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectCheckBox((HResource) null, "locked", false); // g: FALSE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Port Renaming", 2); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "MMCM Settings", 3); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Summary", 4); // cV
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Re-customize IP"); // r
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILESET_UPDATE_IP
+// aI (cs): Generate Output Products: addNotify
+selectButton(PAResourceQtoS.SimpleOutputProductDialog_GENERATE_OUTPUT_PRODUCTS_IMMEDIATELY, "Generate"); // a
+// bz (cs):  Managing Output Products : addNotify
+// Tcl Message: generate_target all [get_files  C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_1/clk_wiz_0.xci] 
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'clk_wiz_0'... INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'clk_wiz_0'... 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Change Log' target for IP 'clk_wiz_0'... 
+// Tcl Message: catch { config_ip_cache -export [get_ips -all clk_wiz_0] } 
+// Tcl Message: export_ip_user_files -of_objects [get_files C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_1/clk_wiz_0.xci] -no_script -sync -force -quiet 
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+selectButton(RDIResource.ProgressDialog_BACKGROUND, "Background"); // a
+// Tcl Message: reset_run clk_wiz_0_synth_1 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs clk_wiz_0_synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:05:52 2022] Launched clk_wiz_0_synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log 
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: INFO: [Vivado 12-4357] Exporting simulation files for 'clk_wiz_0'... please wait for 'clk_wiz_0_synth_1' run to finish... 
+// Tcl Message: wait_on_run clk_wiz_0_synth_1 
+// Tcl Message: [Wed Mar 23 16:05:52 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: [Wed Mar 23 16:05:57 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// Tcl Message: [Wed Mar 23 16:06:02 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Tcl Message: [Wed Mar 23 16:06:07 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// Tcl Message: [Wed Mar 23 16:06:07 2022] clk_wiz_0_synth_1 finished 
+// Tcl Message: wait_on_run: Time (s): cpu = 00:00:03 ; elapsed = 00:00:15 . Memory (MB): peak = 1366.414 ; gain = 0.000 
+// TclEventType: PROJECT_CHANGE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// Elapsed time: 17 seconds
+dismissDialog("Managing Output Products"); // bz
+selectButton("OptionPane.button", "OK"); // JButton
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 14, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run clk_wiz_0_synth_1 
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// bz (cs):  Starting Design Runs : addNotify
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:06:18 2022] Launched clk_wiz_0_synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log [Wed Mar 23 16:06:18 2022] Launched synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log 
+dismissDialog("Starting Design Runs"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,412 MB. GUI used memory: 154 MB. Current time: 3/23/22, 4:06:41 PM EDT
+// [Engine Memory]: 1,412 MB (+16011kb) [00:06:25]
+// Elapsed time: 25 seconds
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 145, 73); // dS
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 51, 74); // dS
+typeControlKey(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, "RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR", 'c'); // dS
+// Elapsed time: 103 seconds
+selectButton(RDIResourceCommand.RDICommands_SETTINGS, "settings"); // E
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// d (cs): Settings: addNotify
+selectButton(PAResourceItoN.IncrementalRunPanel_TURN_INCREMENTAL_IMPLEMENTATION_ON, (String) null); // t
+// bX (d): Incremental Synthesis: addNotify
+selectRadioButton(PAResourceItoN.IncrementalCompileChooserPanel_SPECIFY_DESIGN_CHECKPOINT, "New design checkpoint"); // a
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// Tcl Command: 'set_property AUTO_INCREMENTAL_CHECKPOINT 0 [get_runs synth_1]'
+// TclEventType: RUN_OPTIONS_MODIFIED
+dismissDialog("Incremental Synthesis"); // bX
+// Tcl Message: set_property AUTO_INCREMENTAL_CHECKPOINT 0 [get_runs synth_1] 
+// HOptionPane Warning: 'This incremental compile/synthesis file does not exist. (Could Not Find Checkpoint)'
+selectButton("OptionPane.button", "OK"); // JButton
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// Tcl Message: set_property write_incremental_synth_checkpoint true [get_runs synth_1] 
+dismissDialog("Settings"); // d
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 14, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run clk_wiz_0_synth_1 
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// bz (cs):  Starting Design Runs : addNotify
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:08:44 2022] Launched clk_wiz_0_synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log [Wed Mar 23 16:08:45 2022] Launched synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log 
+dismissDialog("Starting Design Runs"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// Elapsed time: 19 seconds
+selectCodeEditor(RDIResource.TclConsoleView_TCL_CONSOLE_CODE_EDITOR, 578, 114); // dS
+selectButton(RDIResourceCommand.RDICommands_SETTINGS, "settings"); // E
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// d (cs): Settings: addNotify
+selectCheckBox(PAResourceOtoP.ProgramOptionsPanelImpl_WRITE_INCREMENTAL_SYNTHESIS, "Write Incremental Synthesis", false); // g: FALSE
+selectCheckBox(PAResourceOtoP.ProgramOptionsPanelImpl_WRITE_INCREMENTAL_SYNTHESIS, "Write Incremental Synthesis", true); // g: TRUE
+selectButton(PAResourceItoN.IncrementalRunPanel_TURN_INCREMENTAL_IMPLEMENTATION_ON, (String) null); // t
+// bX (d): Incremental Synthesis: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Incremental Synthesis"); // bX
+selectCheckBox(PAResourceOtoP.ProgramOptionsPanelImpl_WRITE_INCREMENTAL_SYNTHESIS, "Write Incremental Synthesis", false); // g: FALSE
+selectButton(RDIResource.BaseDialog_APPLY, "Apply"); // a
+// TclEventType: RUN_OPTIONS_MODIFIED
+// Tcl Message: set_property write_incremental_synth_checkpoint false [get_runs synth_1] 
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Settings"); // d
+// TclEventType: FILE_SET_CHANGE
+// Elapsed time: 11 seconds
+closeMainWindow("Virtex-HDL - [C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr] - Vivado 2021.1"); // cs
+// Run Command: PAResourceCommand.PACommandNames_EXIT
+// A (cs): Exit Vivado: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Exit Vivado"); // A
+// Elapsed time: 42 seconds
+selectButton(RDIResourceCommand.RDICommands_SETTINGS, "settings"); // E
+// Run Command: RDIResourceCommand.RDICommands_SETTINGS
+// d (cs): Settings: addNotify
+// Elapsed time: 12 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Settings"); // d
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cs): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_NO, "No"); // a
+dismissDialog("No Implementation Results Available"); // A
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 14, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run clk_wiz_0_synth_1 
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// bz (cs):  Starting Design Runs : addNotify
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:10:27 2022] Launched clk_wiz_0_synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log [Wed Mar 23 16:10:27 2022] Launched synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log 
+dismissDialog("Starting Design Runs"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// Elapsed time: 16 seconds
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, false); // D
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7); // D
+// A (cs): Show IP Hierarchy: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// TclEventType: DG_GRAPH_STALE
+dismissDialog("Show IP Hierarchy"); // A
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci), clk_wiz_0_clk_wiz (clk_wiz_0_clk_wiz.v)]", 8, false); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci), clk_wiz_0_clk_wiz (clk_wiz_0_clk_wiz.v)]", 8, false); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci), clk_wiz_0_clk_wiz (clk_wiz_0_clk_wiz.v)]", 8, false, false, false, false, false, true); // D - Double Click
+// Launch External Editor: '"C:/Users/liams/AppData/Local/Programs/Microsoft VS Code/Code.exe" -g "c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/clk_wiz_0_1/clk_wiz_0_clk_wiz.v":70'
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, true); // D - Node
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, true, false, false, false, false, true); // D - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_RECUSTOMIZE_CORE
+// N (cs):  Re-customize IP : addNotify
+// r (cs): Re-customize IP: addNotify
+dismissDialog("Re-customize IP"); // N
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Output Clocks", 1); // cV
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+// [GUI Memory]: 246 MB (+4929kb) [00:10:50]
+dismissDialog("Re-customize IP"); // r
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv)]", 2, true); // D - Node
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv)]", 2, true, false, false, false, false, true); // D - Double Click - Node
+// Launch External Editor: '"C:/Users/liams/AppData/Local/Programs/Microsoft VS Code/Code.exe" -g "C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/new/Top.sv":14'
+expandTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv)]", 2); // D
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, true); // D - Node
+selectTree(PAResourceEtoH.FileSetPanel_FILE_SET_PANEL_TREE, "[root, Design Sources, Top (Top.sv), clk_wiz_0 : clk_wiz_0 (clk_wiz_0.xci)]", 7, true, false, false, false, true, false); // D - Popup Trigger - Node
+selectMenu(PAResourceQtoS.SrcMenu_IP_DOCUMENTATION, "IP Documentation"); // ak
+selectMenuItem(RDIResourceCommand.RDICommands_DELETE, "Remove File from Project..."); // an
+// Run Command: RDIResourceCommand.RDICommands_DELETE
+// aE (cs): Remove Sources: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+dismissDialog("Remove Sources"); // aE
+// Tcl Message: export_ip_user_files -of_objects  [get_files C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_1/clk_wiz_0.xci] -no_script -reset -force -quiet 
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_DELETE
+// aE (cs): Remove Sources: addNotify
+// bz (aE):  Remove Sources : addNotify
+// TclEventType: RUN_DELETE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_DELETE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: PROJ_DESIGN_MODE_SET
+// Tcl Message: remove_files  -fileset clk_wiz_0 C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_1/clk_wiz_0.xci 
+// Tcl Message: INFO: [Project 1-386] Moving file 'C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_1/clk_wiz_0.xci' from fileset 'clk_wiz_0' to fileset 'sources_1'. 
+dismissDialog("Remove Sources"); // bz
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Project Manager, IP Catalog]", 4, false); // o
+// Run Command: PAResourceCommand.PACommandNames_CORE_GEN
+// bz (SwingUtilities.SharedOwnerFrame):  Open IP Catalog : addNotify
+dismissDialog("Open IP Catalog"); // bz
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", "clock wiz"); // OverlayTextField
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clocking Wizard ; AXI4 ; Production ; Included ; xilinx.com:ip:clk_wiz:6.0", 3, "Clocking Wizard", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clocking Wizard ; AXI4 ; Production ; Included ; xilinx.com:ip:clk_wiz:6.0", 3); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clocking Wizard ; AXI4 ; Production ; Included ; xilinx.com:ip:clk_wiz:6.0", 3, "Clocking Wizard", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+// r (cs): Customize IP: addNotify
+selectCheckBox((HResource) null, "Minimize Power", true); // g: TRUE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectCheckBox((HResource) null, "Safe Clock Startup", true); // g: TRUE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+// Elapsed time: 13 seconds
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Output Clocks", 1); // cV
+selectCheckBox((HResource) null, "clk_out2", true); // g: TRUE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectCheckBox((HResource) null, "clk_out3", true); // g: TRUE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+setText("CLKOUT1 REQUESTED OUT FREQ", "10"); // B
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+setText("CLKOUT2 REQUESTED OUT FREQ", "50"); // B
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+setText("CLKOUT3 REQUESTED OUT FREQ", "200", true); // B
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectCheckBox((HResource) null, "reset", false); // g: FALSE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectCheckBox((HResource) null, "locked", false); // g: FALSE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Clocking Options", 0); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Output Clocks", 1); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Clocking Options", 0); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Output Clocks", 1); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Port Renaming", 2); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "MMCM Settings", 3); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Summary", 4); // cV
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// TclEventType: CREATE_IP_CORE
+dismissDialog("Customize IP"); // r
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: create_ip -name clk_wiz -vendor xilinx.com -library ip -version 6.0 -module_name clk_wiz_0 
+// bz (cs):  Customize IP : addNotify
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PACKAGER_OBJECT_ADD
+// TclEventType: PACKAGER_OBJECT_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILESET_UPDATE_IP
+// TclEventType: FILE_SET_CHANGE
+// [GUI Memory]: 273 MB (+15622kb) [00:11:57]
+// Tcl Message: generate_target {instantiation_template} [get_files c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_2/clk_wiz_0.xci] 
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Instantiation Template' target for IP 'clk_wiz_0'... 
+// aI (cs): Generate Output Products: addNotify
+dismissDialog("Customize IP"); // bz
+selectButton(PAResourceQtoS.SimpleOutputProductDialog_GENERATE_OUTPUT_PRODUCTS_IMMEDIATELY, "Generate"); // a
+// bz (cs):  Managing Output Products : addNotify
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: generate_target all [get_files  c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_2/clk_wiz_0.xci] 
+// Tcl Message: INFO: [IP_Flow 19-1686] Generating 'Synthesis' target for IP 'clk_wiz_0'... INFO: [IP_Flow 19-1686] Generating 'Simulation' target for IP 'clk_wiz_0'... INFO: [IP_Flow 19-1686] Generating 'Implementation' target for IP 'clk_wiz_0'... INFO: [IP_Flow 19-1686] Generating 'Change Log' target for IP 'clk_wiz_0'... 
+// Tcl Message: catch { config_ip_cache -export [get_ips -all clk_wiz_0] } 
+// Tcl Message: export_ip_user_files -of_objects [get_files c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_2/clk_wiz_0.xci] -no_script -sync -force -quiet 
+// TclEventType: FILE_SET_NEW
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_ADD
+// Tcl Message: create_ip_run [get_files -of_objects [get_fileset sources_1] c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.srcs/sources_1/ip/clk_wiz_0_2/clk_wiz_0.xci] 
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs clk_wiz_0_synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:12:17 2022] Launched clk_wiz_0_synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/clk_wiz_0_synth_1/runme.log 
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: INFO: [Vivado 12-4357] Exporting simulation files for 'clk_wiz_0'... please wait for 'clk_wiz_0_synth_1' run to finish... 
+// Tcl Message: wait_on_run clk_wiz_0_synth_1 
+// Tcl Message: [Wed Mar 23 16:12:17 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// TclEventType: RUN_STATUS_CHANGE
+// Tcl Message: [Wed Mar 23 16:12:23 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// Tcl Message: [Wed Mar 23 16:12:28 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// Tcl Message: [Wed Mar 23 16:12:33 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// Tcl Message: [Wed Mar 23 16:12:43 2022] Waiting for clk_wiz_0_synth_1 to finish... 
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STATUS_CHANGE
+// TclEventType: RUN_STEP_COMPLETED
+// HMemoryUtils.trashcanNow. Engine heap size: 1,415 MB. GUI used memory: 183 MB. Current time: 3/23/22, 4:12:46 PM EDT
+// Tcl Message: [Wed Mar 23 16:12:48 2022] clk_wiz_0_synth_1 finished 
+// Tcl Message: wait_on_run: Time (s): cpu = 00:00:02 ; elapsed = 00:00:30 . Memory (MB): peak = 1454.367 ; gain = 37.469 
+// TclEventType: PROJECT_CHANGE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: PACKAGER_MESSAGE_RESET
+// TclEventType: PACKAGER_UNLOAD_CORE
+// TclEventType: FILE_SET_CHANGE
+// Elapsed time: 35 seconds
+selectButton("OptionPane.button", "OK"); // JButton
+// [Engine Memory]: 1,492 MB (+10231kb) [00:12:35]
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Run Synthesis]", 14, false); // o
+// Run Command: PAResourceCommand.PACommandNames_RUN_SYNTHESIS
+// bz (cs):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_run synth_1 
+// bz (cs):  Starting Design Runs : addNotify
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: launch_runs synth_1 -jobs 20 
+// Tcl Message: [Wed Mar 23 16:12:54 2022] Launched synth_1... Run output will be captured here: C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.runs/synth_1/runme.log 
+dismissDialog("Starting Design Runs"); // bz
+// TclEventType: RUN_STATUS_CHANGE
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Alliance Partners ;  ;  ;  ; ", 1); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Arm ;  ;  ;  ; ", 2); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Arm ;  ;  ;  ; ", 2); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bluespec ;  ;  ;  ; ", 3); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bluespec ;  ;  ;  ; ", 3); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Arm ;  ;  ;  ; ", 2); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Arm ;  ;  ;  ; ", 2); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4, "Design-gateway", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4, "Design-gateway", 0, true, false, false, false, false, true); // L - Double Click - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4, "Design-gateway", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IntelliProp ;  ;  ;  ; ", 6); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bluespec ;  ;  ;  ; ", 3); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bluespec ;  ;  ;  ; ", 3); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design-gateway ;  ;  ;  ; ", 4); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IntelliProp ;  ;  ;  ; ", 5); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IP-Maker ;  ;  ;  ; ", 6); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IP-Maker ;  ;  ;  ; ", 6, "IP-Maker", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IP-Maker ;  ;  ;  ; ", 6); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "iWaveSystems ;  ;  ;  ; ", 7, "iWaveSystems", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "iWaveSystems ;  ;  ;  ; ", 7); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "iWaveSystems ;  ;  ;  ; ", 7); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Northwest Logic ;  ;  ;  ; ", 8); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Northwest Logic ;  ;  ;  ; ", 8); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SoC-e ;  ;  ;  ; ", 9); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SoC-e ;  ;  ;  ; ", 9); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Xylon ;  ;  ;  ; ", 10); // L
+// Elapsed time: 10 seconds
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Xylon ;  ;  ;  ; ", 10); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Alliance Partners ;  ;  ;  ; ", 1); // L
+// Elapsed time: 11 seconds
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", "SPI"); // OverlayTextField
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Quad SPI ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_quad_spi:3.2", 4, "AXI Quad SPI", 0, false); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Quad SPI ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_quad_spi:3.2", 4, "AXI Quad SPI", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Quad SPI ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_quad_spi:3.2", 4); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Quad SPI ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_quad_spi:3.2", 4, "AXI Quad SPI", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+// Elapsed time: 14 seconds
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", "Serial"); // OverlayTextField
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Serial RapidIO Gen2 ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:srio_gen2:4.1", 8, "Serial RapidIO Gen2", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Serial RapidIO Gen2 ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:srio_gen2:4.1", 8); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Serial RapidIO Gen2 ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:srio_gen2:4.1", 8, "Serial RapidIO Gen2", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", (String) null); // OverlayTextField
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 5); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Infrastructure ;  ;  ;  ; ", 4); // L
+// Elapsed time: 18 seconds
+setText("PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE_SEARCH_FIELD", (String) null); // OverlayTextField
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 45, "AXIS Infrastructure", 0, false); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 45, "AXIS Infrastructure", 0, false); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 45); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Clock Converter ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_clock_converter:2.1", 20, "AXI Clock Converter", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Clock Converter ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_clock_converter:2.1", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Clock Converter ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_clock_converter:2.1", 20, "AXI Clock Converter", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Clock Converter ; AXI4 ; Production ; Included ; xilinx.com:ip:axi_clock_converter:2.1", 20, "AXI Clock Converter", 0, false); // L
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI-Stream FIFO ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:axi_fifo_mm_s:4.2", 5, "AXI-Stream FIFO", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI-Stream FIFO ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:axi_fifo_mm_s:4.2", 5); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI-Stream FIFO ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:axi_fifo_mm_s:4.2", 5, "AXI-Stream FIFO", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Infrastructure ;  ;  ;  ; ", 4); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive & Industrial ;  ;  ;  ; ", 3); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive ;  ;  ;  ; ", 4, "Automotive", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive ;  ;  ;  ; ", 4); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive ;  ;  ;  ; ", 4, "Automotive", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CANFD ; AXI4 ; Production ; Purchase ; xilinx.com:ip:canfd:3.0", 6, "CANFD", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CANFD ; AXI4 ; Production ; Purchase ; xilinx.com:ip:canfd:3.0", 6); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CANFD ; AXI4 ; Production ; Purchase ; xilinx.com:ip:canfd:3.0", 6, "CANFD", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive ;  ;  ;  ; ", 4); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Automotive & Industrial ;  ;  ;  ; ", 3); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Audio Connectivity & Processing ;  ;  ;  ; ", 2); // L
+// Elapsed time: 11 seconds
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Audio Connectivity & Processing ;  ;  ;  ; ", 2); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Basic Elements ;  ;  ;  ; ", 7); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Accumulators ;  ;  ;  ; ", 8); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Accumulator ;  ; Production ; Included ; xilinx.com:ip:c_accum:12.0", 9, "Accumulator", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Accumulator ;  ; Production ; Included ; xilinx.com:ip:c_accum:12.0", 9); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Accumulator ;  ; Production ; Included ; xilinx.com:ip:c_accum:12.0", 9, "Accumulator", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Constant ;  ; Production ; Included ; xilinx.com:ip:xlconstant:1.1", 11, "Constant", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Constant ;  ; Production ; Included ; xilinx.com:ip:xlconstant:1.1", 11); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Constant ;  ; Production ; Included ; xilinx.com:ip:xlconstant:1.1", 11, "Constant", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// HOptionPane Warning: 'IP 'Constant' can be used within IP Integrator only. (Add IP)'
+selectButton("OptionPane.button", "OK"); // JButton
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Counters ;  ;  ;  ; ", 12); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory Elements ;  ;  ;  ; ", 15); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Registers, Shifters & Pipelining ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "oddr ;  ; Production ; Included ; xilinx.com:ip:oddr:1.0", 18, "oddr", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "oddr ;  ; Production ; Included ; xilinx.com:ip:oddr:1.0", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "oddr ;  ; Production ; Included ; xilinx.com:ip:oddr:1.0", 18, "oddr", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Basic Elements ;  ;  ;  ; ", 7); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Communication & Networking ;  ;  ;  ; ", 8); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Error Correction ;  ;  ;  ; ", 9, "Error Correction", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Error Correction ;  ;  ;  ; ", 9); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Error Correction ;  ;  ;  ; ", 9, "Error Correction", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Error Correction ;  ;  ;  ; ", 9, "Error Correction", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Error Correction ;  ;  ;  ; ", 9); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Ethernet ;  ;  ;  ; ", 10); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI 1G/2.5G Ethernet Subsystem ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:axi_ethernet:7.2", 13, "AXI 1G/2.5G Ethernet Subsystem", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI 1G/2.5G Ethernet Subsystem ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:axi_ethernet:7.2", 13); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI 1G/2.5G Ethernet Subsystem ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:axi_ethernet:7.2", 13, "AXI 1G/2.5G Ethernet Subsystem", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// k (cs):  Customize IP : addNotify
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_CLOSE_DIAGRAM
+// r (cs): Customize IP: addNotify
+// [Engine Memory]: 1,656 MB (+93467kb) [00:15:53]
+dismissDialog("Customize IP"); // k
+// HMemoryUtils.trashcanNow. Engine heap size: 1,658 MB. GUI used memory: 199 MB. Current time: 3/23/22, 4:16:11 PM EDT
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Tri Mode Ethernet MAC ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:tri_mode_ethernet_mac:9.0", 18, "Tri Mode Ethernet MAC", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Tri Mode Ethernet MAC ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:tri_mode_ethernet_mac:9.0", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Tri Mode Ethernet MAC ; AXI4, AXI4-Stream ; Production ; Purchase ; xilinx.com:ip:tri_mode_ethernet_mac:9.0", 18, "Tri Mode Ethernet MAC", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+setText("Component Name", "tri_mode_ethernet_mac_0"); // B
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Ethernet ;  ;  ;  ; ", 10); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11, "Modulation", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11, "Modulation", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "DDS Compiler ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:dds_compiler:6.0", 12, "DDS Compiler", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "DDS Compiler ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:dds_compiler:6.0", 12); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "DDS Compiler ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:dds_compiler:6.0", 12, "DDS Compiler", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+// [Engine Memory]: 1,741 MB (+1846kb) [00:16:07]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,745 MB. GUI used memory: 203 MB. Current time: 3/23/22, 4:16:26 PM EDT
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Implementation", 1); // cV
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Detailed Implementation", 2); // cV
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11, "Modulation", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 11, "Modulation", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Networking ;  ;  ;  ; ", 12); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Networking ;  ;  ;  ; ", 12); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Serial Interfaces ;  ;  ;  ; ", 13); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Serial Interfaces ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Telecommunications ;  ;  ;  ; ", 14); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Wireless ;  ;  ;  ; ", 36); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Communication & Networking ;  ;  ;  ; ", 8); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9, "Debug & Verification", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug ;  ;  ;  ; ", 11); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "BSCAN to JTAG Converter ;  ; Production ; Included ; xilinx.com:ip:bscan_jtag:1.0", 12, "BSCAN to JTAG Converter", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "BSCAN to JTAG Converter ;  ; Production ; Included ; xilinx.com:ip:bscan_jtag:1.0", 12); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "BSCAN to JTAG Converter ;  ; Production ; Included ; xilinx.com:ip:bscan_jtag:1.0", 12, "BSCAN to JTAG Converter", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+// Elapsed time: 12 seconds
+dismissDialog("Customize IP"); // r
+// Elapsed time: 96 seconds
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "ILA (Integrated Logic Analyzer) ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:ila:6.2", 14, "ILA (Integrated Logic Analyzer)", 0, false); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "BSCAN to JTAG Converter ;  ; Production ; Included ; xilinx.com:ip:bscan_jtag:1.0", 12, "BSCAN to JTAG Converter", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug Bridge ;  ; Production ; Included ; xilinx.com:ip:debug_bridge:3.0", 13, "Debug Bridge", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "JTAG to AXI Master ; AXI4 ; Production ; Included ; xilinx.com:ip:jtag_axi:1.2", 15, "JTAG to AXI Master", 0, false); // L
+// Elapsed time: 36 seconds
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9); // L
+// Elapsed time: 33 seconds
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RTL Kernel Wizard ;  ; Production ; Included ; xilinx.com:ip:rtl_kernel_wizard:1.0", 16, "RTL Kernel Wizard", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RTL Kernel Wizard ;  ; Production ; Included ; xilinx.com:ip:rtl_kernel_wizard:1.0", 16); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RTL Kernel Wizard ;  ; Production ; Included ; xilinx.com:ip:rtl_kernel_wizard:1.0", 16, "RTL Kernel Wizard", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// k (cs):  Customize IP : addNotify
+// r (cs): RTL Kernel Wizard: addNotify
+dismissDialog("Customize IP"); // k
+// HMemoryUtils.trashcanNow. Engine heap size: 1,826 MB. GUI used memory: 213 MB. Current time: 3/23/22, 4:20:16 PM EDT
+// [Engine Memory]: 1,839 MB (+11964kb) [00:20:04]
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("RTL Kernel Wizard"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Dynamic Function eXchange ;  ;  ;  ; ", 12); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Dynamic Function eXchange ;  ;  ;  ; ", 12); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Digital Signal Processing ;  ;  ;  ; ", 11); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design Gateway ;  ;  ;  ; ", 10); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design Gateway ;  ;  ;  ; ", 10); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 9, "Debug & Verification", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Building Blocks ;  ;  ;  ; ", 12); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Building Blocks ;  ;  ;  ; ", 12); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Filters ;  ;  ;  ; ", 13); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Filters ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 14); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 14); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Modulation ;  ;  ;  ; ", 14, "Modulation", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Transforms ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Transforms ;  ;  ;  ; ", 15, "Transforms", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Transforms ;  ;  ;  ; ", 15); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Waveform Synthesis ;  ;  ;  ; ", 17); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Trig Functions ;  ;  ;  ; ", 16); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Digital Signal Processing ;  ;  ;  ; ", 11); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Dynamic Function eXchange ;  ;  ;  ; ", 12); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Dynamic Function eXchange ;  ;  ;  ; ", 12); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Infrastructure ;  ;  ;  ; ", 14); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Infrastructure ;  ;  ;  ; ", 14); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Peripheral ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "High Speed Peripheral ;  ;  ;  ; ", 16, "High Speed Peripheral", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "High Speed Peripheral ;  ;  ;  ; ", 16); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Low Speed Peripheral ;  ;  ;  ; ", 20); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Low Speed Peripheral ;  ;  ;  ; ", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI USB2 Device ; AXI4 ; Production ; Purchase ; xilinx.com:ip:axi_usb2_device:5.0", 19, "AXI USB2 Device", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI USB2 Device ; AXI4 ; Production ; Purchase ; xilinx.com:ip:axi_usb2_device:5.0", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI USB2 Device ; AXI4 ; Production ; Purchase ; xilinx.com:ip:axi_usb2_device:5.0", 19, "AXI USB2 Device", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+// HMemoryUtils.trashcanNow. Engine heap size: 1,844 MB. GUI used memory: 203 MB. Current time: 3/23/22, 4:21:06 PM EDT
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "High Speed Peripheral ;  ;  ;  ; ", 16); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXI Peripheral ;  ;  ;  ; ", 15); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 16); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "AXIS Infrastructure ;  ;  ;  ; ", 16); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clock & Reset ;  ;  ;  ; ", 17, "Clock & Reset", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clock & Reset ;  ;  ;  ; ", 17); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clock & Reset ;  ;  ;  ; ", 17); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 18); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug ;  ;  ;  ; ", 20); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Debug & Verification ;  ;  ;  ; ", 18); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Interprocessor Communication ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Mutex ; AXI4 ; Production ; Included ; xilinx.com:ip:mutex:2.1", 21, "Mutex", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Mailbox ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:mailbox:2.1", 20, "Mailbox", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Mailbox ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:mailbox:2.1", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Mailbox ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:mailbox:2.1", 20, "Mailbox", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Interprocessor Communication ;  ;  ;  ; ", 19); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory and Memory Controller ;  ;  ;  ; ", 20); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory and Memory Controller ;  ;  ;  ; ", 20); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Processor ;  ;  ;  ; ", 21); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Processor ;  ;  ;  ; ", 21); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Triple Modular Redundancy ;  ;  ;  ; ", 22); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Triple Modular Redundancy ;  ;  ;  ; ", 22); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Utility ;  ;  ;  ; ", 23); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Utility ;  ;  ;  ; ", 23); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Utility ;  ;  ;  ; ", 23); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Fixed Interval Timer ;  ; Production ; Included ; xilinx.com:ip:fit_timer:2.0", 24, "Fixed Interval Timer", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Fixed Interval Timer ;  ; Production ; Included ; xilinx.com:ip:fit_timer:2.0", 24); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Fixed Interval Timer ;  ; Production ; Included ; xilinx.com:ip:fit_timer:2.0", 24, "Fixed Interval Timer", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Embedded Processing ;  ;  ;  ; ", 13); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clocking ;  ;  ;  ; ", 15); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Clocking ;  ;  ;  ; ", 15); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "IO Interfaces ;  ;  ;  ; ", 16); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SelectIO Interface Wizard ;  ; Production ; Included ; xilinx.com:ip:selectio_wiz:5.1", 17, "SelectIO Interface Wizard", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SelectIO Interface Wizard ;  ; Production ; Included ; xilinx.com:ip:selectio_wiz:5.1", 17); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SelectIO Interface Wizard ;  ; Production ; Included ; xilinx.com:ip:selectio_wiz:5.1", 17, "SelectIO Interface Wizard", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+selectComboBox("Interface Template (USE_TEMPLATE)", "Camera Link Receiver", 4); // bY
+selectComboBox("Interface Template (USE_TEMPLATE)", "Custom", 0); // bY
+selectTab(PAResourceTtoZ.XPG_TabbedPane_TABBED_PANE, (HResource) null, "Clock Setup", 1); // cV
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Soft Error Mitigation ;  ;  ;  ; ", 18, "Soft Error Mitigation", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Soft Error Mitigation ;  ;  ;  ; ", 18); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Soft Error Mitigation ;  ;  ;  ; ", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Soft Error Mitigation ;  ;  ;  ; ", 18, "Soft Error Mitigation", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC ;  ;  ;  ; ", 19); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC ;  ;  ;  ; ", 19); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14, "FPGA Features and Design", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC Wizard ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:xadc_wiz:3.3", 20, "XADC Wizard", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC Wizard ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:xadc_wiz:3.3", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC Wizard ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:xadc_wiz:3.3", 20, "XADC Wizard", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XADC ;  ;  ;  ; ", 19, "XADC", 0, true); // L - Node
+// [GUI Memory]: 288 MB (+1814kb) [00:22:08]
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15, "Kernels", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Kernels ;  ;  ;  ; ", 15); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14, "FPGA Features and Design", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Math Functions ;  ;  ;  ; ", 16); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Adders & Subtracters ;  ;  ;  ; ", 17); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Conversions ;  ;  ;  ; ", 19); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Conversions ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Conversions ;  ;  ;  ; ", 19, "Conversions", 0, true, false, false, false, false, true); // L - Double Click - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Floating Point ;  ;  ;  ; ", 22); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Floating-point ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:floating_point:7.1", 23, "Floating-point", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Floating-point ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:floating_point:7.1", 23); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Floating-point ; AXI4-Stream ; Production ; Included ; xilinx.com:ip:floating_point:7.1", 23, "Floating-point", 0, false, false, false, false, false, true); // L - Double Click
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// k (cs):  Customize IP : addNotify
+// r (cs): Customize IP: addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  1098 ms.
+dismissDialog("Customize IP"); // k
+selectRadioButton((HResource) null, "Float-to-fixed"); // cQ
+selectRadioButton((HResource) null, "Logarithm"); // cQ
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Multipliers ;  ;  ;  ; ", 24, "Multipliers", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Multipliers ;  ;  ;  ; ", 24); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Multipliers ;  ;  ;  ; ", 24); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Multipliers ;  ;  ;  ; ", 24, "Multipliers", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Square Root ;  ;  ;  ; ", 25, "Square Root", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Square Root ;  ;  ;  ; ", 25); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Square Root ;  ;  ;  ; ", 25, "Square Root", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Square Root ;  ;  ;  ; ", 25, "Square Root", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Trig Functions ;  ;  ;  ; ", 27, "Trig Functions", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Trig Functions ;  ;  ;  ; ", 27); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Trig Functions ;  ;  ;  ; ", 27, "Trig Functions", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Math Functions ;  ;  ;  ; ", 16, "Math Functions", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Math Functions ;  ;  ;  ; ", 16); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Design Gateway ;  ;  ;  ; ", 10, "Design Gateway", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Math Functions ;  ;  ;  ; ", 16, "Math Functions", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memories & Storage Elements ;  ;  ;  ; ", 17, "Memories & Storage Elements", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memories & Storage Elements ;  ;  ;  ; ", 17); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memories & Storage Elements ;  ;  ;  ; ", 17, "Memories & Storage Elements", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19, "FIFOs", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19, "FIFOs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19, "FIFOs", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FIFOs ;  ;  ;  ; ", 19, "FIFOs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory Interface Generators ;  ;  ;  ; ", 20, "Memory Interface Generators", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory Interface Generators ;  ;  ;  ; ", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memory Interface Generators ;  ;  ;  ; ", 20, "Memory Interface Generators", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "ECC ;  ; Production ; Included ; xilinx.com:ip:ecc:2.0", 18, "ECC", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "ECC ;  ; Production ; Included ; xilinx.com:ip:ecc:2.0", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "ECC ;  ; Production ; Included ; xilinx.com:ip:ecc:2.0", 18, "ECC", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// r (cs): Customize IP: addNotify
+applyEscape(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, (String) null); // L
+selectButton(RDIResource.BaseDialog_CANCEL, "Cancel"); // a
+dismissDialog("Customize IP"); // r
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22, "RAMs & ROMs", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22, "RAMs & ROMs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22, "RAMs & ROMs", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs ;  ;  ;  ; ", 22, "RAMs & ROMs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23, "RAMs & ROMs & BRAM", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23, "RAMs & ROMs & BRAM", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23, "RAMs & ROMs & BRAM", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RAMs & ROMs & BRAM ;  ;  ;  ; ", 23, "RAMs & ROMs & BRAM", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memories & Storage Elements ;  ;  ;  ; ", 17, "Memories & Storage Elements", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Memories & Storage Elements ;  ;  ;  ; ", 17); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Digital Signal Processing ;  ;  ;  ; ", 11, "Digital Signal Processing", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18, "SDAccel DSA Infrastructure", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18, "SDAccel DSA Infrastructure", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18, "SDAccel DSA Infrastructure", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "SDAccel DSA Infrastructure ;  ;  ;  ; ", 18, "SDAccel DSA Infrastructure", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Standard Bus Interfaces ;  ;  ;  ; ", 19, "Standard Bus Interfaces", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Standard Bus Interfaces ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Standard Bus Interfaces ;  ;  ;  ; ", 19, "Standard Bus Interfaces", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RapidIO ;  ;  ;  ; ", 21, "RapidIO", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RapidIO ;  ;  ;  ; ", 21); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "RapidIO ;  ;  ;  ; ", 21, "RapidIO", 0, false, false, false, false, false, true); // L - Double Click
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "PCI ;  ;  ;  ; ", 20, "PCI", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "PCI ;  ;  ;  ; ", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "PCI ;  ;  ;  ; ", 20, "PCI", 0, false, false, false, false, false, true); // L - Double Click
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Standard Bus Interfaces ;  ;  ;  ; ", 19, "Standard Bus Interfaces", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Standard Bus Interfaces ;  ;  ;  ; ", 19); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Math Functions ;  ;  ;  ; ", 16, "Math Functions", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video & Image Processing ;  ;  ;  ; ", 20, "Video & Image Processing", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video & Image Processing ;  ;  ;  ; ", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video & Image Processing ;  ;  ;  ; ", 20, "Video & Image Processing", 0, false, false, false, false, false, true); // L - Double Click
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "2D Graphics Accelerator Bit Block Transfer ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibitblt:0.0", 21, "2D Graphics Accelerator Bit Block Transfer", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "2D Graphics Accelerator Bit Block Transfer ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibitblt:0.0", 21); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "2D Graphics Accelerator Bit Block Transfer ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibitblt:0.0", 21, "2D Graphics Accelerator Bit Block Transfer", 0, false, false, false, false, false, true); // L - Double Click
+selectButton("OptionPane.button", "OK"); // JButton
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bitmap 2.5D Graphics Accelerator ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibmp:0.0", 24, "Bitmap 2.5D Graphics Accelerator", 0, false); // L
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bitmap 2.5D Graphics Accelerator ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibmp:0.0", 24); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Bitmap 2.5D Graphics Accelerator ; AXI4 ; Production ; Purchase ; logicbricks.com:logicbricks:logibmp:0.0", 24, "Bitmap 2.5D Graphics Accelerator", 0, false, false, false, false, false, true); // L - Double Click
+selectButton("OptionPane.button", "OK"); // JButton
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Gamma LUT ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:v_gamma_lut:1.1", 25, "Gamma LUT", 0, false); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video & Image Processing ;  ;  ;  ; ", 20, "Video & Image Processing", 0, false); // L
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video & Image Processing ;  ;  ;  ; ", 20); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "FPGA Features and Design ;  ;  ;  ; ", 14, "FPGA Features and Design", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video Connectivity ;  ;  ;  ; ", 21, "Video Connectivity", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video Connectivity ;  ;  ;  ; ", 21); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "Video Connectivity ;  ;  ;  ; ", 21, "Video Connectivity", 0, false, false, false, false, false, true); // L - Double Click
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true); // L - Node
+collapseTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "MIPI DSI Tx Subsystem ; AXI4, AXI4-Stream ; Production ; Included ; xilinx.com:ip:mipi_dsi_tx_subsystem:2.2", 25, "MIPI DSI Tx Subsystem", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "XPMs ;  ;  ;  ; ", 26, "XPMs", 0, true); // L - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CDCs ;  ;  ;  ; ", 27, "CDCs", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CDCs ;  ;  ;  ; ", 27); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "CDCs ;  ;  ;  ; ", 27, "CDCs", 0, true, false, false, false, false, true); // L - Double Click - Node
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "xpm_cdc ;  ; Production ; Included ; xilinx.com:ip:xpm_cdc_gen:1.0", 28, "xpm_cdc", 0, true); // L - Node
+expandTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "xpm_cdc ;  ; Production ; Included ; xilinx.com:ip:xpm_cdc_gen:1.0", 28); // L
+selectTreeTable(PAResourceAtoD.CoreTreeTablePanel_CORE_TREE_TABLE, "xpm_cdc ;  ; Production ; Included ; xilinx.com:ip:xpm_cdc_gen:1.0", 28, "xpm_cdc", 0, true, false, false, false, false, true); // L - Double Click - Node
+// Run Command: PAResourceCommand.PACommandNames_CUSTOMIZE_CORE
+// HOptionPane Warning: 'IP 'xpm_cdc' can be used within IP Integrator only. (Add IP)'
+selectButton("OptionPane.button", "OK"); // JButton
+closeView(PAResourceOtoP.PAViews_IP_CATALOG, "IP Catalog"); // W
+// Elapsed time: 533 seconds
+selectTab((HResource) null, (HResource) null, "Design Runs", 4); // aK
+selectButton(PAResourceQtoS.RunGadget_SHOW_WARNING_AND_ERROR_MESSAGES_IN_MESSAGES, "12 warnings"); // h
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+selectCheckBox(PAResourceItoN.MsgView_INFORMATION_MESSAGES, (String) null, true); // g: TRUE
+// Elapsed time: 18 seconds
+collapseTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Synthesis, Out-of-Context Module Runs]", 21); // ah
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE

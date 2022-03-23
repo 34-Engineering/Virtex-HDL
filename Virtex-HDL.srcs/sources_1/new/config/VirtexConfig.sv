@@ -134,7 +134,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     //blob params
     blobAspectRatioMin: 0,
     blobAspectRatioMax: 16'hFFFF,
-    blobBoundAreaMin: 50,
+    blobBoundAreaMin: 100 >> 1,
     blobBoundAreaMax: 16'hFFFF,
     blobFullnessMin: 0,
     blobFullnessMax: 16'hFFFF,

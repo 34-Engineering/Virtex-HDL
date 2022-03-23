@@ -17,8 +17,7 @@ module BlobProcessor(
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
     output reg KERNEL_FIFO_FULL_FAULT,
-    output reg TARGET_SELECTOR_TOO_SLOW_FAULT, //TODO pull down?
-    input wire test
+    output reg TARGET_SELECTOR_TOO_SLOW_FAULT //TODO pull down?
     );
 
     //FIFO Kernel Input
@@ -83,7 +82,7 @@ module BlobProcessor(
     wire blobProcessorDoneWithLine = blobRunBuffersPartionCurrent == NULL_RUN_BUFFER_PARTION |
         blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count; //done with line @ on NULL line OR all runs processed
     `define blobPartionCurrentValid (blobRunBuffersPartionCurrent != NULL_RUN_BUFFER_PARTION)
-    wire RunBufferPartion blobNextPartionCurrent = `overflow(blobRunBuffersPartionCurrent + 1, 2); //note: `overflow(NULL+1)=0
+    wire RunBufferPartion blobNextPartionCurrent = `Math_overflow(blobRunBuffersPartionCurrent + 1, 2); //note: `Math_overflow(NULL+1)=0
     wire blobNextLineAvailable = rleRunBuffersPartion != blobNextPartionCurrent &
         runBuffers[blobNextPartionCurrent].line != NULL_LINE_NUMBER; //can move next line @ rle is done with it & its a valid location
     wire blobProcessorTooSlow = rlePartionValid & rleRunBuffersPartion == blobRunBuffersPartionLast;
@@ -124,17 +123,7 @@ module BlobProcessor(
     wire BlobIndex nextValidGarbageIndex = getNextValidGarbageIndex(garbageIndex + 1);
     wire BlobIndex firstValidGarbageIndex = getNextValidGarbageIndex(0);
     reg garbageCollectorLastLoop;
-    wire garbageCollectorDone = garbageCollectorLastLoop & garbageCollectorUsingPorts == '{0, 0};
-
-    //FIXME SIM
-    integer fd;
-    initial begin
-        //saves into Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim
-        fd = $fopen("../../../../Typescript/BlobDebugger/output.txt", "w");
-    end
-    always_ff @(posedge test) begin
-        $fclose(fd);
-    end
+    wire garbageCollectorDone = garbageCollectorLastLoop & garbageCollectorUsingPorts[0] == 0 & garbageCollectorUsingPorts[1] == 0;
 
     //Main Process Loop
     always_ff @(negedge CLK200) begin
@@ -153,15 +142,14 @@ module BlobProcessor(
 
         //Reset Garbage Collector @ Frame End
         if (~isWorkingOnFrame & lastIsWorkingOnFrame) begin
-            //reset garbage collector @ frame end because garbageIndex
-            //may have passed blobs that were still being worked on
+            //reset to go run over all blobs (some may have been skipped temp)
             resetGarbageCollector();
         end
         lastIsWorkingOnFrame <= isWorkingOnFrame;
 
         //Garbage Collection Loop
         if (~garbageCollectorDone) begin
-            updateGarbageCollector();
+            // updateGarbageCollector();
         end
         
         //Working on Frame
@@ -181,7 +169,7 @@ module BlobProcessor(
         else if (~targetSelectorDone & garbageCollectorDone) begin
             if (virtexConfig.targetMode == SINGLE) begin
                 //SINGLE target selection was finished with Garbage Collection
-                targetSelectorDone <= 1;
+                targetSelectorDone = 1;
 
                 //Save Best Target into Target Slot
                 target = targetCurrent;
@@ -245,7 +233,7 @@ module BlobProcessor(
             end
             else begin
                 //increment buffer partion for next line
-                rleRunBuffersPartion = `overflow(rleRunBuffersPartion + 1, 2);
+                rleRunBuffersPartion = `Math_overflow(rleRunBuffersPartion + 1, 2);
             end
             //JOIN
         end
@@ -269,12 +257,12 @@ module BlobProcessor(
                 //get partions for new line
                 logic [1:0] nextPartionLast = blobNextPartionCurrent;
                 blobRunBuffersPartionLast = 
-                    (nextPartionLast != `overflow(blobNextPartionCurrent + 1, 2) & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
+                    (nextPartionLast != `Math_overflow(blobNextPartionCurrent + 1, 2) & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
-                blobRunBuffersPartionCurrent = `overflow(blobNextPartionCurrent + 1, 2);
+                blobRunBuffersPartionCurrent = `Math_overflow(blobNextPartionCurrent + 1, 2);
             end
             else begin
-                logic [1:0] nextPartionLast = `overflow(blobRunBuffersPartionCurrent, 2);
+                logic [1:0] nextPartionLast = `Math_overflow(blobRunBuffersPartionCurrent, 2);
                 blobRunBuffersPartionLast = 
                     (nextPartionLast != blobNextPartionCurrent & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
@@ -454,6 +442,15 @@ module BlobProcessor(
             if (~isWorkingOnFrame | (`blobPartionCurrentValid & blob.boundBottomRight.y + 2 < `blobCurrentLine)) begin
                 reg valid = doesBlobMatchCriteria(blob);
 
+                //FIXME SIM
+                `ifdef SIM
+                int fd = $fopen("../../../../Typescript/BlobDebugger/output.txt", "w");
+                if (!fd) $display(" <===> ERROR OPENING FILE <===>");
+                $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                $fclose(fd);
+                $display("{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                `endif
+
                 //Mark blob as Valid or Garbage
                 blobMetadatas[lastGarbageIndex[1]].status = valid ? VALID : GARBAGE;
 
@@ -483,10 +480,10 @@ module BlobProcessor(
         garbagePort <= ~garbagePort;
     endfunction
     function automatic void resetGarbageCollector();
-        garbagePort = 0;
+        garbagePort <= 0;
         garbageIndex = 0;
-        lastGarbageIndex = '{0, 0};
-        garbageCollectorWasUsingPorts = '{0, 0};
+        lastGarbageIndex <= '{0, 0};
+        garbageCollectorWasUsingPorts <= '{0, 0};
         garbageCollectorLastLoop = 0;
     endfunction
     function automatic void setNextGarbageIndex();
@@ -518,20 +515,20 @@ module BlobProcessor(
         return NULL_BLOB_INDEX;
     endfunction
     function automatic logic doesBlobMatchCriteria(BlobData blob);
+        logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
+        logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
+
+        logic inAspectRatioRange = isAspectRatioInRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+
+        logic [23:0] boundAreaUnshifted = boundWidth * boundHeight;
+        logic inBoundAreaRange = `Math_inRangeInclusive(boundAreaUnshifted >> 1, virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+
+        logic inFullnessRange = isFullnessInRange(blob.area, boundAreaUnshifted, virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
+
+        logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
+
         //FIXME
-        // logic [9:0] boundWidth = blob.boundBottomRight.x - blob.boundTopLeft.x;
-        // logic [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
-
-        // logic inAspectRatioRange = isAspectRatioInRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-
-        // logic [23:0] boundAreaUnshifted = boundWidth * boundHeight;
-        // logic inBoundAreaRange = `inRangeInclusive(boundAreaUnshifted >> 1, virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
-
-        // logic inFullnessRange = isFullnessInRange(blob.area, boundAreaUnshifted, virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
-
-        // logic isValidAngle = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
-
-        return 1;//inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
+        return inBoundAreaRange;//inAspectRatioRange & inBoundAreaRange & inFullnessRange & isValidAngle;
     endfunction
     
     //Target Selector Loop
@@ -601,12 +598,12 @@ module BlobProcessor(
                     y: targetChain.center.y + (targetChain.height >> 1)
                 };
                 Math::Vector2d10 newTopLeft = '{
-                    x: `min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
-                    y: `min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
+                    x: `Math_min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
+                    y: `Math_min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
                 };
                 Math::Vector2d10 newBottomRight = '{
-                    x: `max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
-                    y: `max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
+                    x: `Math_max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
+                    y: `Math_max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
                 };
                 Math::Vector2d10 newCenter = '{
                     x: (newTopLeft.x + newBottomRight.x) >> 1,
@@ -616,28 +613,28 @@ module BlobProcessor(
                 logic [9:0] newHeight = newBottomRight.y - newTopLeft.y + 1;
 
                 //gap valid between Blob B & target
-                logic [9:0] gapX = `min(
-                    `diff(targetBlobB.boundTopLeft.x, chainBottomRight.x),
-                    `diff(targetBlobB.boundBottomRight.x, chainTopLeft.x)
+                logic [9:0] gapX = `Math_min(
+                    `Math_diff(targetBlobB.boundTopLeft.x, chainBottomRight.x),
+                    `Math_diff(targetBlobB.boundBottomRight.x, chainTopLeft.x)
                 );
-                logic [9:0] gapY = `min(
-                    `diff(targetBlobB.boundTopLeft.y, chainBottomRight.y),
-                    `diff(targetBlobB.boundBottomRight.y, chainTopLeft.y)
+                logic [9:0] gapY = `Math_min(
+                    `Math_diff(targetBlobB.boundTopLeft.y, chainBottomRight.y),
+                    `Math_diff(targetBlobB.boundBottomRight.y, chainTopLeft.y)
                 );
-                logic gapValid = `inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    `inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                logic gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //area diff between Blob A & B
                 logic [23:0] areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
                 logic [23:0] areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
-                logic areaDiffValid = `inRangeInclusive(`diff(areaBlobA, areaBlobB), virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
+                logic areaDiffValid = `Math_inRangeInclusive(`Math_diff(areaBlobA, areaBlobB), virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
                 if (gapValid & areaDiffValid) begin
                     //aspect ratio of new currentTarget valid
                     logic newAspectRatioValid = isAspectRatioInRange(newWidth, newHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                     //bound area of new currentTarget valid
-                    logic newBoundAreaValid = `inRangeInclusive(
+                    logic newBoundAreaValid = `Math_inRangeInclusive(
                         (newWidth * newHeight) >> 1,
                         virtexConfig.targetBoundAreaMin,
                         virtexConfig.targetBoundAreaMax);
@@ -670,12 +667,12 @@ module BlobProcessor(
 
                 //make enclosing bound
                 Math::Vector2d10 topLeft = '{
-                    x: `min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-                    y: `min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
+                    x: `Math_min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                    y: `Math_min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
                 };
                 Math::Vector2d10 bottomRight = '{
-                    x: `max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-                    y: `max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                    x: `Math_max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                    y: `Math_max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
                 };
                 Math::Vector2d10 center = '{
                     x: (topLeft.x + bottomRight.x) >> 1,
@@ -691,22 +688,22 @@ module BlobProcessor(
                     leftBlobAngle == BACKWARD & rightBlobAngle == FORWARD : 1;
 
                 //gap valid
-                logic [9:0] gapX = `diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
-                logic [9:0] gapY = `diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
-                logic gapValid = `inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    `inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                logic [9:0] gapX = `Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
+                logic [9:0] gapY = `Math_diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
+                logic gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //aspect ratio valid
                 logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area valid
-                logic boundAreaValid = `inRangeInclusive((width * height) >> 1,
+                logic boundAreaValid = `Math_inRangeInclusive((width * height) >> 1,
                     virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
                 //area diff valid
                 logic [23:0] areaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
                 logic [23:0] areaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
-                logic areaDiffValid = `inRangeInclusive(`diff(areaRight, areaLeft),
+                logic areaDiffValid = `Math_inRangeInclusive(`Math_diff(areaRight, areaLeft),
                     virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
                 
                 //if this target is valid AND this target is better OR we dont have a target yet
@@ -802,13 +799,11 @@ module BlobProcessor(
         logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
         //bound area valid
-        logic boundAreaValid = `inRangeInclusive((width * height) >> 1,
+        logic boundAreaValid = `Math_inRangeInclusive((width * height) >> 1,
             virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
-        $display("TARGET: {x:%d, y:%d}, width:%d, height:%d, angle:%d, %b %b", center.x, center.y, width, height, calcBlobAngle(blob), aspectRatioValid, boundAreaValid);
-
         //if this target is valid AND this target is better OR we dont have a target yet
-        if (//aspectRatioValid & boundAreaValid &
+        if (aspectRatioValid & boundAreaValid &
             (isTargetNull(targetCurrent) | distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
             targetCurrent = '{
                 center: center,
@@ -819,6 +814,8 @@ module BlobProcessor(
             };
             $display("GOOD TARGET: {x:%d, y:%d}, width:%d, height:%d, angle:%d", targetCurrent.center.x, targetCurrent.center.y, targetCurrent.width, targetCurrent.height, targetCurrent.angle);
         end
+        else
+            $display("BAD TARGET: {x:%d, y:%d}, width:%d, height:%d, angle:%d, %b %b", center.x, center.y, width, height, calcBlobAngle(blob), aspectRatioValid, boundAreaValid);
     endfunction
     function automatic void targetReadIndex(logic partion);
         blobBRAMPorts[partion].addr <= targetIndexBs[partion];
@@ -843,8 +840,6 @@ module BlobProcessor(
     //Resetting for New Frame
     initial reset();
     function automatic void reset();
-        $display(" --- RESETTING BLOB PROCESSOR --- ");
-        
         //FORK
         blobIndex = 0;
         blobRunBuffersPartionCurrent = NULL_RUN_BUFFER_PARTION;
@@ -856,7 +851,6 @@ module BlobProcessor(
             runBuffers[i].count = 0;
             runBuffers[i].line = NULL_LINE_NUMBER;
         end
-        lastIsWorkingOnFrame = 0;
 
         resetGarbageCollector();
 

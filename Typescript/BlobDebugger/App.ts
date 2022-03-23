@@ -5,6 +5,7 @@ import * as http from 'http';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
 import * as v8 from 'v8';
+import { drawRect } from '../BlobScripting/util/OtherUtil';
 
 //Express (PC->Web)
 const app: express.Application = express();
@@ -17,7 +18,7 @@ app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/s
 const server = http.createServer(app);
 
 //Read Image
-const IMAGE_URL = '../images/2019_Single.png';
+const IMAGE_URL = '../images/2019.png';
 let image = PNG.sync.read(fs.readFileSync(IMAGE_URL));
 
 //Write Bitfile for System Verilog
@@ -48,11 +49,18 @@ setInterval(() => {
     let tempImage = v8.deserialize(v8.serialize(image));
 
     //Read Blobs
-    const data = fs.readFileSync("output.txt");
+    const lines = fs.readFileSync("output.txt").toString().split("\n");
 
     //Draw Blobs
+    for (const line of lines) {
+        if (line.length < 1) continue;
 
-
+        try {
+            const blob = JSON.parse(line.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": '));
+            drawRect(tempImage.data, blob.topLeft, blob.bottomRight, [255, 0, 0, 100]);
+        }
+        catch (e) { console.error("PARSE ERROR"); }
+    }
 
     //Send Frame
     io.emit('frame', tempImage.data);

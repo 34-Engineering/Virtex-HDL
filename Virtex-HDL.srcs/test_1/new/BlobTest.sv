@@ -16,7 +16,6 @@ module BlobTest;
     always #(500/72) CLK72 <= ~CLK72;
 
     Math::Vector2d10 pos = 0;
-    reg end1 = 0;
     Kernel blobKernel = 0;
     reg writeBlobKernel = 0;
     Target target;
@@ -37,7 +36,6 @@ module BlobTest;
             writeBlobKernel <= ~writeBlobKernel;
         end
         else begin
-            end1 <= 1;
             writeBlobKernel <= 0;
 
             // //new frame
@@ -58,8 +56,7 @@ module BlobTest;
         .OUT_OF_BLOB_MEM_FAULT(),
         .OUT_OF_RLE_MEM_FAULT(),
         .BLOB_POINTER_DEPTH_FAULT(),
-        .BLOB_PROCESSOR_SLOW_FAULT(),
-        .test(end1)
+        .BLOB_PROCESSOR_SLOW_FAULT()
     );
 
 endmodule
