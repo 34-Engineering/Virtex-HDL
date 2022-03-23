@@ -128,28 +128,12 @@ module BlobProcessor(
 
     //FIXME SIM
     integer fd;
-    bit [639:0] [479:0] frame = 0;
     initial begin
         //saves into Virtex-HDL/Virtex-HDL.sim/sim_1/behav/xsim
         fd = $fopen("../../../../Typescript/BlobDebugger/output.txt", "w");
-        if (fd) begin
-            $display("--------------- OPENED FILE ---------------");
-        end
-        else $display("--------------- ERROR OPENING FILE ---------------");
     end
     always_ff @(posedge test) begin
-        $display("--------------- DRAWING FRAME ---------------");
-
-        for (int y = 0; y < 480; y++) begin
-            for (int x = 0; x < 640; x++) begin
-                $fwrite(fd, "%b", frame[y][x]);
-            end
-            $fwrite(fd, "\n");
-        end
-
         $fclose(fd);
-        $display("--------------- CLOSED & WROTE FILE ---------------");
-        // $finish;
     end
 
     //Main Process Loop
@@ -171,15 +155,14 @@ module BlobProcessor(
         if (~isWorkingOnFrame & lastIsWorkingOnFrame) begin
             //reset garbage collector @ frame end because garbageIndex
             //may have passed blobs that were still being worked on
-            $display(" ### RESET GARBAGE COLLECTOR ### ");
             resetGarbageCollector();
         end
         lastIsWorkingOnFrame <= isWorkingOnFrame;
 
         //Garbage Collection Loop
-        // if (~garbageCollectorDone) begin
-        //     updateGarbageCollector();
-        // end
+        if (~garbageCollectorDone) begin
+            updateGarbageCollector();
+        end
         
         //Working on Frame
         readNewKernel <= hasNewKernel;
@@ -195,19 +178,19 @@ module BlobProcessor(
         end
 
         //Done with Frame
-        // else if (~targetSelectorDone & garbageCollectorDone) begin
-        //     if (virtexConfig.targetMode == SINGLE) begin
-        //         //SINGLE target selection was finished with Garbage Collection
-        //         targetSelectorDone <= 1;
+        else if (~targetSelectorDone & garbageCollectorDone) begin
+            if (virtexConfig.targetMode == SINGLE) begin
+                //SINGLE target selection was finished with Garbage Collection
+                targetSelectorDone <= 1;
 
-        //         //Save Best Target into Target Slot
-        //         target = targetCurrent;
-        //     end
-        //     else begin
-        //         //DUAL/GROUP Target Selection Loop
-        //         updateTargetSelectorDualGroup();
-        //     end
-        // end
+                //Save Best Target into Target Slot
+                target = targetCurrent;
+            end
+            else begin
+                //DUAL/GROUP Target Selection Loop
+                updateTargetSelectorDualGroup();
+            end
+        end
     end
 
     //Run Length Encoding Loop
@@ -316,8 +299,6 @@ module BlobProcessor(
 
             //run is white => process
             else begin
-                frame[`blobCurrentLine][blobRunBufferXCurrent] = 1;
-
                 //start run (if done with last one, or last one timed out)
                 if (blobRunState == IDLE) begin
                     //FORK
@@ -468,20 +449,15 @@ module BlobProcessor(
         //Process Port 0|1 (if read from)
         if (garbageCollectorUsingPorts[garbagePort]) begin
             BlobData blob = blobBRAMPorts[garbagePort].dout;
-            $display("111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
-            $display("--- %b %b %b ---", ~isWorkingOnFrame, `blobPartionCurrentValid, blob.boundBottomRight.y + 2 < `blobCurrentLine);
 
             //if blob is finished adding to
             if (~isWorkingOnFrame | (`blobPartionCurrentValid & blob.boundBottomRight.y + 2 < `blobCurrentLine)) begin
                 reg valid = doesBlobMatchCriteria(blob);
 
-                $display("222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222");
-
                 //Mark blob as Valid or Garbage
                 blobMetadatas[lastGarbageIndex[1]].status = valid ? VALID : GARBAGE;
 
                 //Single Mode Target Selector
-                $display("DISPLAY MOMA %b", valid);
                 if (virtexConfig.targetMode == SINGLE & valid) begin
                     updateTargetSelectorSingle(blob);
                 end
@@ -867,7 +843,7 @@ module BlobProcessor(
     //Resetting for New Frame
     initial reset();
     function automatic void reset();
-        $display("RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/RESET/");
+        $display(" --- RESETTING BLOB PROCESSOR --- ");
         
         //FORK
         blobIndex = 0;

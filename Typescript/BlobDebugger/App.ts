@@ -3,6 +3,8 @@ import path from 'path';
 import { Server } from 'socket.io';
 import * as http from 'http';
 import * as fs from 'fs';
+import { PNG } from 'pngjs';
+import * as v8 from 'v8';
 
 //Express (PC->Web)
 const app: express.Application = express();
@@ -14,15 +16,27 @@ app.use("/socket.io.js", express.static(path.join(__dirname, 'node_modules/socke
 app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js.map')));
 const server = http.createServer(app);
 
+//Read Image
+const IMAGE_URL = '../images/2019_Single.png';
+let image = PNG.sync.read(fs.readFileSync(IMAGE_URL));
+
+//Write Bitfile for System Verilog
+let bitfile = '';
+for (let i = 0; i < image.data.length; i += 32) {
+    let bit = "8'b";
+    for (let b = 0; b < 32; b += 4) {
+        const val = (image.data[i+b] + image.data[i+b+1] + image.data[i+b+2]) / 3;
+        bit += (val > 128) ? 1 : 0;
+    }
+    bitfile += ((i > 0) ? ",\n" : "") + bit;
+}
+bitfile = `\`ifndef IMAGE_DONE\n\`define IMAGE_DONE\nreg [7:0] image [38400] = '{\n${bitfile}\n};\n\`endif`;
+fs.writeFileSync("../../Virtex-HDL.srcs/test_1/new/Image.sv", bitfile);
+
 //Socket (PC->Web)
 const io = new Server(server);
 io.on('connection', (socket) => {
     console.log('Web Connected');
-
-    // socket.on('read', async () => {
-    //     const data = fs.readFileSync("output.txt");
-    //     io.emit('frame', data);
-    // });
 
     socket.on('disconnect', () => {
         console.log('Web Disconnected');
@@ -30,9 +44,19 @@ io.on('connection', (socket) => {
 });
 
 setInterval(() => {
+    //Copy Image
+    let tempImage = v8.deserialize(v8.serialize(image));
+
+    //Read Blobs
     const data = fs.readFileSync("output.txt");
-    io.emit('frame', data);
-}, 50);
+
+    //Draw Blobs
+
+
+
+    //Send Frame
+    io.emit('frame', tempImage.data);
+}, 100);
 
 //Host
 server.listen(34, function () {

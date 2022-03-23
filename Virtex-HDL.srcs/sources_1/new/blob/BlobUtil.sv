@@ -186,17 +186,6 @@ function automatic logic isTargetNull(Target target);
     return target.blobCount == 0;
 endfunction
 
-//Get Target Age (returns age of the target in nanoseconds)
-// function automatic logic [15:0] getTargetAge(Target target);
-//     //TODO return currentTime - target.timestamp;
-//     return 2;
-// endfunction
-
-//Is Target Stale
-// function automatic logic isTargetStale(Target target);
-//     return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
-// endfunction
-
 //In Range/Valid //TODO
 function automatic logic isAspectRatioInRange(logic [9:0] width, height, logic [15:0] min, max);
     /*

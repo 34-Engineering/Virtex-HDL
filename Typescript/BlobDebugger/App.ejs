@@ -66,28 +66,7 @@
 
         function drawFrame() {
             const img = ctx.createImageData(640, 480);
-            let x = 0, y = 0;
-            for (let i = 0; i < frame.length; i++) {
-                //Pixel
-                if (frame[i] == 48 || frame[i] == 49) {
-                    const isOne = frame[i] == 49; //48 = 0
-                    const val = isOne ? 255 : 0;
-
-                    const idx = (y * 640 + x) << 2;
-                    img.data[idx + 0] = val;
-                    img.data[idx + 1] = val;
-                    img.data[idx + 2] = val;
-                    img.data[idx + 3] = 255;
-                    
-                    x++;
-                }
-
-                //New Line
-                else if (frame[i] == 10) {
-                    y++;
-                    x = 0;
-                }
-            }
+            img.data.set(frame);
             ctx.putImageData(img, 0, 0);
         }
 

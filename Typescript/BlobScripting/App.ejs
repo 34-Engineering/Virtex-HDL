@@ -202,15 +202,8 @@
                 
                 //Draw Image to Canvas
                 const frame = ctx.createImageData(res.image.width, res.image.height);
-                // this should work but doesn't :l
-                frame.data = new Uint8ClampedArray(res.image.data.data);
-                for (let i = 0; i < frame.data.length; i++) {
-                    frame.data[i+0] = res.image.data.data[i+0];
-                    frame.data[i+1] = res.image.data.data[i+1];
-                    frame.data[i+2] = res.image.data.data[i+2];
-                    frame.data[i+3] = res.image.data.data[i+3];
-                }
-                ctx.putImageData(frame, 0, 0);  
+                frame.data.set(res.image.data.data);
+                ctx.putImageData(frame, 0, 0);
             }
         }
 

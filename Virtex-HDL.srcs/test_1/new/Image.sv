@@ -1,6 +1,5 @@
 `ifndef IMAGE_DONE
 `define IMAGE_DONE
-
 reg [7:0] image [38400] = '{
 8'b00000000,
 8'b00000000,
@@ -38403,5 +38402,4 @@ reg [7:0] image [38400] = '{
 8'b00000000,
 8'b00000000
 };
-
 `endif
