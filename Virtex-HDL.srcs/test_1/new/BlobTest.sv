@@ -2,6 +2,7 @@
 
 `define SIM 1
 
+`include "../../sources_1/new/util/Math.sv"
 `include "../../sources_1/new/blob/BlobUtil.sv"
 `include "./Image.sv"
 
@@ -14,7 +15,7 @@ module BlobTest;
     always #(500/200) CLK200 <= ~CLK200;
     always #(500/72) CLK72 <= ~CLK72;
 
-    Vector pos = 0;
+    Math::Vector2d10 pos = 0;
     reg end1 = 0;
     Kernel blobKernel = 0;
     reg writeBlobKernel = 0;

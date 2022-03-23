@@ -96,12 +96,12 @@ endfunction
 function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
     return '{
         boundTopLeft: '{
-            x: Math::min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: Math::min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+            x: `min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: `min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
         },
         boundBottomRight: '{
-            x: Math::max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: Math::max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+            x: `max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: `max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
         quad: mergeQuad10s(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area

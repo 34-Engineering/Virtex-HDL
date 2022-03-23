@@ -83,7 +83,7 @@ module BlobProcessor(
     wire blobProcessorDoneWithLine = blobRunBuffersPartionCurrent == NULL_RUN_BUFFER_PARTION |
         blobRunBufferIndexCurrent >= runBuffers[blobRunBuffersPartionCurrent].count; //done with line @ on NULL line OR all runs processed
     `define blobPartionCurrentValid (blobRunBuffersPartionCurrent != NULL_RUN_BUFFER_PARTION)
-    wire RunBufferPartion blobNextPartionCurrent = Math::overflow(blobRunBuffersPartionCurrent + 1, 2); //note: Math::overflow(NULL+1)=0
+    wire RunBufferPartion blobNextPartionCurrent = `overflow(blobRunBuffersPartionCurrent + 1, 2); //note: `overflow(NULL+1)=0
     wire blobNextLineAvailable = rleRunBuffersPartion != blobNextPartionCurrent &
         runBuffers[blobNextPartionCurrent].line != NULL_LINE_NUMBER; //can move next line @ rle is done with it & its a valid location
     wire blobProcessorTooSlow = rlePartionValid & rleRunBuffersPartion == blobRunBuffersPartionLast;
@@ -126,6 +126,7 @@ module BlobProcessor(
     reg garbageCollectorLastLoop;
     wire garbageCollectorDone = garbageCollectorLastLoop & garbageCollectorUsingPorts == '{0, 0};
 
+    //FIXME SIM
     integer fd;
     bit [639:0] [479:0] frame = 0;
     initial begin
@@ -136,7 +137,6 @@ module BlobProcessor(
         end
         else $display("--------------- ERROR OPENING FILE ---------------");
     end
-    
     always_ff @(posedge test) begin
         $display("--------------- DRAWING FRAME ---------------");
 
@@ -149,9 +149,8 @@ module BlobProcessor(
 
         $fclose(fd);
         $display("--------------- CLOSED & WROTE FILE ---------------");
-        $finish;
+        // $finish;
     end
-    
 
     //Main Process Loop
     always_ff @(negedge CLK200) begin
@@ -231,11 +230,6 @@ module BlobProcessor(
             if ((kernel.pos.x == 0 & x == 0) |
                 kernel.value[7-x] != (runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count-1].blobIndex != NULL_BLACK_RUN_BLOB_INDEX)) begin
 
-                // $display("kx:%d, dx:%d, x:%d, v:%d, o:%d, NULL:%d, BLACK:%d", kernel.pos.x, x, kernel.pos.x + x, kernel.value[x], kernel.value[x] ? NULL_BLOB_INDEX : NULL_BLACK_RUN_BLOB_INDEX, NULL_BLOB_INDEX, NULL_BLACK_RUN_BLOB_INDEX);
-                // if (kernel.value[7-x]) begin
-                //     frame[kernel.pos.y][(kernel.pos.x<<3) + x] = 1;
-                // end
-
                 //push run to buffer
                 runBuffers[rleRunBuffersPartion].runs[runBuffers[rleRunBuffersPartion].count] = '{
                     length: 1,
@@ -268,7 +262,7 @@ module BlobProcessor(
             end
             else begin
                 //increment buffer partion for next line
-                rleRunBuffersPartion = Math::overflow(rleRunBuffersPartion + 1, 2);
+                rleRunBuffersPartion = `overflow(rleRunBuffersPartion + 1, 2);
             end
             //JOIN
         end
@@ -292,12 +286,12 @@ module BlobProcessor(
                 //get partions for new line
                 logic [1:0] nextPartionLast = blobNextPartionCurrent;
                 blobRunBuffersPartionLast = 
-                    (nextPartionLast != Math::overflow(blobNextPartionCurrent + 1, 2) & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
+                    (nextPartionLast != `overflow(blobNextPartionCurrent + 1, 2) & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
-                blobRunBuffersPartionCurrent = Math::overflow(blobNextPartionCurrent + 1, 2);
+                blobRunBuffersPartionCurrent = `overflow(blobNextPartionCurrent + 1, 2);
             end
             else begin
-                logic [1:0] nextPartionLast = Math::overflow(blobRunBuffersPartionCurrent, 2);
+                logic [1:0] nextPartionLast = `overflow(blobRunBuffersPartionCurrent, 2);
                 blobRunBuffersPartionLast = 
                     (nextPartionLast != blobNextPartionCurrent & runBuffers[nextPartionLast].line != NULL_LINE_NUMBER) ?
                     nextPartionLast : NULL_RUN_BUFFER_PARTION;
@@ -349,7 +343,7 @@ module BlobProcessor(
                                 if (runsOverlap(`blobCurrentRun, blobRunBufferXCurrent, blobLastLineRun, blobRunBufferXLast)) begin
                                     //pointer fault
                                     if (blobLastLineRunBlobPointerIndex == NULL_BLOB_INDEX) begin
-                                        BLOB_POINTER_DEPTH_FAULT = 1;
+                                        BLOB_POINTER_DEPTH_FAULT <= 1;
                                     end
 
                                     //found master (1st valid blob)
@@ -448,7 +442,7 @@ module BlobProcessor(
                         
                         if (blobIndex == MAX_BLOBS-1) begin
                             //fault
-                            OUT_OF_BLOB_MEM_FAULT = 1;
+                            OUT_OF_BLOB_MEM_FAULT <= 1;
                             blobIndex = 0;
                         end
                         else begin
@@ -555,7 +549,7 @@ module BlobProcessor(
         // logic inAspectRatioRange = isAspectRatioInRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
         // logic [23:0] boundAreaUnshifted = boundWidth * boundHeight;
-        // logic inBoundAreaRange = Math::inRangeInclusive(boundAreaUnshifted >> 1, virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+        // logic inBoundAreaRange = `inRangeInclusive(boundAreaUnshifted >> 1, virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
         // logic inFullnessRange = isFullnessInRange(blob.area, boundAreaUnshifted, virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
 
@@ -631,12 +625,12 @@ module BlobProcessor(
                     y: targetChain.center.y + (targetChain.height >> 1)
                 };
                 Math::Vector2d10 newTopLeft = '{
-                    x: Math::min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
-                    y: Math::min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
+                    x: `min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
+                    y: `min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
                 };
                 Math::Vector2d10 newBottomRight = '{
-                    x: Math::max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
-                    y: Math::max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
+                    x: `max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
+                    y: `max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
                 };
                 Math::Vector2d10 newCenter = '{
                     x: (newTopLeft.x + newBottomRight.x) >> 1,
@@ -646,28 +640,28 @@ module BlobProcessor(
                 logic [9:0] newHeight = newBottomRight.y - newTopLeft.y + 1;
 
                 //gap valid between Blob B & target
-                logic [9:0] gapX = Math::min(
-                    Math::diff(targetBlobB.boundTopLeft.x, chainBottomRight.x),
-                    Math::diff(targetBlobB.boundBottomRight.x, chainTopLeft.x)
+                logic [9:0] gapX = `min(
+                    `diff(targetBlobB.boundTopLeft.x, chainBottomRight.x),
+                    `diff(targetBlobB.boundBottomRight.x, chainTopLeft.x)
                 );
-                logic [9:0] gapY = Math::min(
-                    Math::diff(targetBlobB.boundTopLeft.y, chainBottomRight.y),
-                    Math::diff(targetBlobB.boundBottomRight.y, chainTopLeft.y)
+                logic [9:0] gapY = `min(
+                    `diff(targetBlobB.boundTopLeft.y, chainBottomRight.y),
+                    `diff(targetBlobB.boundBottomRight.y, chainTopLeft.y)
                 );
-                logic gapValid = Math::inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    Math::inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                logic gapValid = `inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //area diff between Blob A & B
                 logic [23:0] areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
                 logic [23:0] areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
-                logic areaDiffValid = Math::inRangeInclusive(Math::diff(areaBlobA, areaBlobB), virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
+                logic areaDiffValid = `inRangeInclusive(`diff(areaBlobA, areaBlobB), virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
                 if (gapValid & areaDiffValid) begin
                     //aspect ratio of new currentTarget valid
                     logic newAspectRatioValid = isAspectRatioInRange(newWidth, newHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                     //bound area of new currentTarget valid
-                    logic newBoundAreaValid = Math::inRangeInclusive(
+                    logic newBoundAreaValid = `inRangeInclusive(
                         (newWidth * newHeight) >> 1,
                         virtexConfig.targetBoundAreaMin,
                         virtexConfig.targetBoundAreaMax);
@@ -700,12 +694,12 @@ module BlobProcessor(
 
                 //make enclosing bound
                 Math::Vector2d10 topLeft = '{
-                    x: Math::min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-                    y: Math::min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
+                    x: `min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                    y: `min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
                 };
                 Math::Vector2d10 bottomRight = '{
-                    x: Math::max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-                    y: Math::max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                    x: `max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                    y: `max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
                 };
                 Math::Vector2d10 center = '{
                     x: (topLeft.x + bottomRight.x) >> 1,
@@ -721,22 +715,22 @@ module BlobProcessor(
                     leftBlobAngle == BACKWARD & rightBlobAngle == FORWARD : 1;
 
                 //gap valid
-                logic [9:0] gapX = Math::diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
-                logic [9:0] gapY = Math::diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
-                logic gapValid = Math::inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    Math::inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                logic [9:0] gapX = `diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
+                logic [9:0] gapY = `diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
+                logic gapValid = `inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //aspect ratio valid
                 logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area valid
-                logic boundAreaValid = Math::inRangeInclusive((width * height) >> 1,
+                logic boundAreaValid = `inRangeInclusive((width * height) >> 1,
                     virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
                 //area diff valid
                 logic [23:0] areaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
                 logic [23:0] areaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
-                logic areaDiffValid = Math::inRangeInclusive(Math::diff(areaRight, areaLeft),
+                logic areaDiffValid = `inRangeInclusive(`diff(areaRight, areaLeft),
                     virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
                 
                 //if this target is valid AND this target is better OR we dont have a target yet
@@ -832,7 +826,7 @@ module BlobProcessor(
         logic aspectRatioValid = isAspectRatioInRange(width, height, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
         //bound area valid
-        logic boundAreaValid = Math::inRangeInclusive((width * height) >> 1,
+        logic boundAreaValid = `inRangeInclusive((width * height) >> 1,
             virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
         $display("TARGET: {x:%d, y:%d}, width:%d, height:%d, angle:%d, %b %b", center.x, center.y, width, height, calcBlobAngle(blob), aspectRatioValid, boundAreaValid);
