@@ -10,11 +10,11 @@
 //Kernel
 typedef struct packed { //28-bit
     logic [7:0] value; //threshold
-    Vector pos; //(0, 0) to (79, 479)
+    Math::Vector2d10 pos; //(0, 0) to (79, 479)
 } Kernel;
 typedef struct packed { //52-bit
     logic [7:0] [3:0] value;
-    Vector pos; //(0, 0) to (79, 479)
+    Math::Vector2d10 pos; //(0, 0) to (79, 479)
 } KernelMono;
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 

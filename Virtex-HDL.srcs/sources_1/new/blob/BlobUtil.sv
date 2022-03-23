@@ -7,6 +7,11 @@
 `include "../util/Math.sv"
 `include "BlobConstants.sv"
 
+//Index/Partion Types
+typedef logic [$clog2(MAX_BLOBS+3)-1:0] BlobIndex; //+3 is to account for NULL_BLOB_INDEX & NULL_BLACK_RUN_BLOB_INDEX)
+typedef logic [0:1] RunBufferPartion;
+typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is the +2 for? there is no null, dont we just need +1?
+
 //Blob Data
 typedef struct packed { //144-bit
     /*Note: relative side of pixel
@@ -14,9 +19,9 @@ typedef struct packed { //144-bit
         top right (1, 1) means pixel #(1, 0)
         bottom right (2, 2) means pixel #(1, 1)
     this makes area calculations easier*/
-    Vector boundTopLeft;
-    Vector boundBottomRight;
-    Quad quad;
+    Math::Vector2d10 boundTopLeft;
+    Math::Vector2d10 boundBottomRight;
+    Math::Quad10 quad;
     logic [23:0] area;
 } BlobData;
 
@@ -24,7 +29,7 @@ typedef struct packed { //144-bit
 typedef enum { UNSCANED, VALID, POINTER, GARBAGE } BlobStatus;
 typedef struct packed {
     BlobStatus status;
-    logic [MAX_BLOB_INDEX_SIZE-1:0] pointer;
+    BlobIndex pointer;
 } BlobMetadata;
 
 //Blob Angles
@@ -46,7 +51,7 @@ typedef struct packed {
 
 //?Target
 typedef struct packed { //46-bit
-    Vector center;
+    Math::Vector2d10 center;
     logic [9:0] width;
     logic [9:0] height;
     // logic [15:0] timestamp; //timestamp is replaced with latency (age) at delivery
@@ -63,11 +68,6 @@ typedef enum logic [15:0] {
     GROUP //2+ targets chained together
 } TargetMode;
 
-//Pointer Types
-typedef logic [MAX_BLOB_INDEX_SIZE-1:0] BlobIndex;
-typedef logic [1:0] RunBufferPartion;
-typedef logic [MAX_RUNS_PER_LINE_INDEX_SIZE-1:0] RunBufferIndex;
-
 //Run
 typedef struct packed {
     logic [9:0] length;
@@ -81,8 +81,8 @@ typedef struct packed {
     logic [9:0] line;
 } RunBuffer;
 
-//Merge Quads
-function automatic Quad mergeQuads (Quad quad1, Quad quad2);
+//Merge Math::Quad10s
+function automatic Math::Quad10 mergeQuad10s (Math::Quad10 quad1, Math::Quad10 quad2);
     //this algorithm is not perfect but close enough for choosing rough angle of blob
     return '{
         topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
@@ -96,14 +96,14 @@ endfunction
 function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
     return '{
         boundTopLeft: '{
-            x: min10(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: min10(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+            x: Math::min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: Math::min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
         },
         boundBottomRight: '{
-            x: max10(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: max10(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+            x: Math::max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: Math::max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        quad: mergeQuads(blob1.quad, blob2.quad),
+        quad: mergeQuad10s(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
     };
 endfunction
@@ -111,27 +111,27 @@ endfunction
 //Calculate Blob Angle
 function automatic BlobAngle calcAngle(logic signed [10:0] dx, logic signed [10:0] dy);
     localparam t = 896; //best fit for 10° tolerance
-    logic [9:0] h = quickDivide10(dx, dy); //how horizontal the line is
-    logic [9:0] v = quickDivide10(dy, dx); //how vertical the line is
+    logic [9:0] h = Math::quickDivide10(dx, dy); //how horizontal the line is
+    logic [9:0] v = Math::quickDivide10(dy, dx); //how vertical the line is
     return (h > t & v < t) ? HORIZONTAL :
            (h < t & v > t) ? VERTICAL   :
            (dx>0) ^ (dy>0) ? FORWARD : BACKWARD;
 endfunction
 function automatic BlobAngle calcBlobAngle(BlobData blob);
     //make two center lines from quad centers
-    Vector start1 = '{
+    Math::Vector2d10 start1 = '{
         x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1,
         y: (blob.quad.topLeft.y + blob.quad.topRight.y) >> 1
     };
-    Vector end1 = '{
+    Math::Vector2d10 end1 = '{
         x: (blob.quad.bottomLeft.x   + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) >> 1
     };
-    Vector start2 = '{
+    Math::Vector2d10 start2 = '{
         x: (blob.quad.topLeft.x + blob.quad.bottomLeft.x) >> 1,
         y: (blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) >> 1
     };
-    Vector end2 = '{
+    Math::Vector2d10 end2 = '{
         x: (blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.topRight.y   + blob.quad.bottomRight.y-1) >> 1
     };
@@ -194,7 +194,6 @@ endfunction
 
 //Is Target Stale
 // function automatic logic isTargetStale(Target target);
-//     //TODO
 //     return target.timestamp == NULL_TIMESTAMP | getTargetAge(target) > TARGET_AGE_STALE;
 // endfunction
 
