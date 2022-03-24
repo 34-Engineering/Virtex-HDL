@@ -21,7 +21,6 @@ localparam MAX_RUNS_PER_LINE = 60;
 localparam NULL_BLACK_RUN_BLOB_INDEX = MAX_BLOBS+1;
 localparam NULL_LINE_NUMBER = IMAGE_HEIGHT;
 localparam NULL_BLOB_INDEX = MAX_BLOBS;
-localparam NULL_RUN_BUFFER_PARTION = 3;
 // localparam NULL_TIMESTAMP = 0;
 
 `endif

@@ -7,9 +7,8 @@
 `include "../util/Math.sv"
 `include "BlobConstants.sv"
 
-//Index/Partion Types
+//Index Types
 typedef logic [$clog2(MAX_BLOBS+3)-1:0] BlobIndex; //+3 is to account for NULL_BLOB_INDEX & NULL_BLACK_RUN_BLOB_INDEX)
-typedef logic [0:1] RunBufferPartion;
 typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is the +2 for? there is no null, dont we just need +1?
 
 //Blob Data
@@ -80,6 +79,7 @@ typedef struct packed {
     RunBufferIndex count; //number of runs filled
     logic [9:0] line;
 } RunBuffer;
+localparam RunBuffer NULL_RUN_BUFFER = '{ runs:0, count:0, line:NULL_LINE_NUMBER };
 
 //Merge Math::Quad10s
 function automatic Math::Quad10 mergeQuad10s (Math::Quad10 quad1, Math::Quad10 quad2);

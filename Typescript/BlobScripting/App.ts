@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'path';
+import { Server } from 'socket.io';
+import * as http from 'http';
 import * as fs from 'fs';
 import * as v8 from 'v8';
 import * as BlobProcessor from "./BlobProcessor";
@@ -31,13 +33,14 @@ let imageFile = '2019_Single.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
-//EJS Page
+//Express (PC->Web)
 const imageFiles = fs.readdirSync(IMAGES_INPUT_PATH);
 app.use('/assets', express.static('assets', {maxAge: '1d'}));
 app.set('view engine', 'ejs');
-app.get('/', (req: express.Request, res: express.Response) => {
-    res.render(path.join(__dirname, '/App'), { drawOptions, imageFile, imageFiles });
-});
+app.get('/', (req: express.Request, res: express.Response) => res.render(path.join(__dirname, '/App'), { drawOptions, imageFile, imageFiles }));
+app.use("/socket.io.js", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js')));
+app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/socket.io/client-dist/socket.io.js.map')));
+const server = http.createServer(app);
 
 //Blob Processor + Python Sim
 let kx: number, ky: number; //(0,0) to (79,479)
@@ -104,6 +107,15 @@ function reset() {
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
+}
+function getFaults() {
+    const arr: string[] = [];
+    for (const fault of BlobProcessor.faults) {
+        if (fault !== Fault.NO_FAULT) {
+            arr.push(Fault[fault]);
+        }
+    }
+    return arr;
 }
 
 //Image
@@ -237,62 +249,47 @@ function step(count: number) {
     }
 }
 
-//Actions
-app.use(express.json());
-app.post('/step', (req: express.Request, res: express.Response) => {
-    try {
-        step(req.body.count);
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/reset', (req: express.Request, res: express.Response) => {
-    try {
-        reset();
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/init', (req: express.Request, res: express.Response) => {
-    try {
-        reset();
-        if (autoStepFrame) {
-            step(Number.MAX_SAFE_INTEGER);
-        }
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/changeImageFile', (req: express.Request, res: express.Response) => {
-    try {
-        imageFile = req.body.file;
-        reset();
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-app.post('/changeDrawOption', (req: express.Request, res: express.Response) => {
-    try {
-        drawOptions[req.body.option] = !!req.body.enabled;
-        res.send({ image: drawImage(), faults: getFaults(), error: false });
-    }
-    catch (e) { res.send({ error: e }); }
-});
-function getFaults() {
-    const arr: string[] = [];
-    for (const fault of BlobProcessor.faults) {
-        if (fault !== Fault.NO_FAULT) {
-            arr.push(Fault[fault]);
-        }
-    }
-    return arr;
+//Socket (PC->Web)
+const io = new Server(server);
+function sendFrame() {
+    io.emit('frame', { frame: drawImage().data, faults: getFaults() });
 }
+io.on('connection', (socket) => {
+    console.log('Web Connected');
+
+    socket.on('disconnect', () => {
+        console.log('Web Disconnected');
+    });
+
+    socket.on('step', (req) => {
+        step(req.count);
+        sendFrame();
+    });
+    socket.on('reset', () => {
+        reset();
+        sendFrame();
+    });
+    socket.on('init', () => {
+        reset();
+        if (autoStepFrame) step(Number.MAX_SAFE_INTEGER);
+        sendFrame();
+    });
+    socket.on('changeImageFile', (req) => {
+        imageFile = req.file;
+        reset();
+        sendFrame();
+    });
+    socket.on('changeDrawOption', (req) => {
+        drawOptions[req.option] = !!req.enabled;
+        sendFrame();
+    });
+});
+
+setInterval(() => {
+    io.emit('ping', process.pid);
+}, 250);
 
 //Host Webapp
-app.post('/ping', (req: express.Request, res: express.Response) => {
-    res.send({ pid: process.pid });
-});
-const port: number = 34;
-app.listen(port, () => {
-  return console.log(`Blob App @ http://localhost:${port}`);
+server.listen(34, function () {
+    console.log(`Hosting @ http://localhost:${34}`);
 });
