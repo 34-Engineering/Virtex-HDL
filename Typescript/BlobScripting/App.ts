@@ -9,7 +9,7 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/DrawUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
-import { NULL_TIMESTAMP } from './BlobConstants';
+import { NULL_BLOB_INDEX, NULL_TIMESTAMP } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
 import { Vector2d10 } from './util/Math';
@@ -30,7 +30,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2019_Single.png';
+let imageFile = '2019.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
@@ -139,72 +139,67 @@ function drawImage(): any {
     //Deep Copy Image
     let tempImage = deepCopy(image);
 
-    //FIXME
-    // //Draw Blob Color
-    // if (drawOptions.blobColor) {
-    //     for (let y = 0; y < BlobProcessor.blobColorBuffer.length; y++) {
-    //         let runBufferX: number = 0;
-    //         for (let i = 0; i < BlobProcessor.blobColorBuffer[y].count; i++) {
-    //             const run = BlobProcessor.blobColorBuffer[y].runs[i];
+    //Draw Blob Color
+    if (drawOptions.blobColor) {
+        for (let y = 0; y < BlobProcessor.blobColorBuffer.length; y++) {
+            for (let i = 0; i < BlobProcessor.blobColorBuffer[y].count; i++) {
+                const run = BlobProcessor.blobColorBuffer[y].runs[i];
 
-    //             //if run is black ignore it
-    //             if (run.blobIndex !== NULL_BLACK_RUN_BLOB_INDEX) {                    
-    //                 //if run has pointer blobIndex => follow it
-    //                 const realBlobIndex: number = BlobProcessor.blobMetadatas[run.blobIndex].status == 
-    //                     BlobStatus.POINTER ? BlobProcessor.getRealBlobIndexDebug(run.blobIndex) : run.blobIndex;
+                //if run is black ignore it
+                if (run.blobIndex !== NULL_BLOB_INDEX || BlobProcessor.blobMetadatas[run.blobIndex]?.status == BlobStatus.POINTER) {                    
+                    //if run has pointer blobIndex => follow it
+                    const realBlobIndex: number = BlobProcessor.getBlobPointerIndexDebug(run.blobIndex);
 
-    //                 //if run has valid blobIndex (or valid pointer blobIndex) => draw it
-    //                 if (BlobProcessor.blobMetadatas[realBlobIndex].status !== BlobStatus.GARBAGE) {
-    //                     for (let x = runBufferX; x < runBufferX + run.length; x++) {
-    //                         drawPixel(tempImage.data, { x, y }, [
-    //                             //generate unique color based on pos
-    //                             Math.sin(realBlobIndex * 50) * 200 + 55,
-    //                             Math.sin(realBlobIndex * 100) * 200 + 55,
-    //                             Math.sin(realBlobIndex * 200) * 200 + 55,
-    //                             255
-    //                         ]);
-    //                     }
-    //                 }
-    //             }
-                
-    //             runBufferX = runBufferX + run.length;
-    //         }      
-    //     }
-    // }
+                    //if run has valid blobIndex (or valid pointer blobIndex) => draw it
+                    if (BlobProcessor.blobMetadatas[realBlobIndex].status !== BlobStatus.GARBAGE) {
+                        for (let x = run.start; x <= run.end; x++) {
+                            drawPixel(tempImage.data, { x, y }, [
+                                //generate unique color based on blob index
+                                Math.sin(realBlobIndex * 50) * 200 + 55,
+                                Math.sin(realBlobIndex * 100) * 200 + 55,
+                                Math.sin(realBlobIndex * 200) * 200 + 55,
+                                255
+                            ]);
+                        }
+                    }
+                }
+            }      
+        }
+    }
 
     //Draw Blob Bounding Box + Polygon + Ellipse
     for (let i = 0; i < BlobProcessor.getBlobIndex(); i++) {
         const blob = blobBRAMMem[i];
-        console.log(blob);
-        // if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
-        //     BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
-            // if (drawOptions.blobAngle) {
-            //     calcBlobAngle(blob, tempImage.data);
-            // }
+        // console.log(blob);
+        if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
+            BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
+            if (drawOptions.blobAngle) {
+                calcBlobAngle(blob, tempImage.data);
+            }
 
-            // if (drawOptions.blobEllipse) {
-            //     drawEllipse(tempImage.data,
-            //         blob.boundTopLeft,
-            //         blob.boundBottomRight,
-            //         [0, 0, 255, 100]
-            //     );
-            // }
+            if (drawOptions.blobEllipse) {
+                drawEllipse(tempImage.data,
+                    blob.boundTopLeft,
+                    blob.boundBottomRight,
+                    [0, 0, 255, 100]
+                );
+            }
 
-            // if (drawOptions.blobQuad10) {
-            //     drawQuad10(tempImage.data, blob.quad, [0, 255, 0, 100]);
-            // }
+            if (drawOptions.blobQuad10) {
+                drawQuad10(tempImage.data, blob.quad, [0, 255, 0, 100]);
+            }
 
             if (drawOptions.blobBound) {
                 drawRect(tempImage.data, blob.boundTopLeft, blob.boundBottomRight, [255, 0, 0, 100]);
             }
 
-            // if (drawOptions.blobQuad10Corners) {
-            //     drawCenterFillSquare(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, 2, [255, 255, 0, 255]); //yellow
-            //     drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
-            //     drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
-            //     drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
-            // }
-        // }
+            if (drawOptions.blobQuad10Corners) {
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, 2, [255, 255, 0, 255]); //yellow
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
+                drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
+            }
+        }
     }
 
     // //Draw Target
@@ -222,17 +217,17 @@ function drawImage(): any {
     //     drawCenterFillSquare(tempImage.data, BlobProcessor.target.center, 2, [125, 255, 125, 255]);
     // }
 
-    // //Draw Kernel Pos & Line
-    // if (drawOptions.kernelPos) {
-    //     drawCenterFillSquare(tempImage.data, { x: kx*8, y: ky }, 2, [255, 215, 0, 128]);
-    // }
-    // if (drawOptions.kernelLine) {
-    //     drawLine(tempImage.data,
-    //         { x: 0, y: ky },
-    //         { x: IMAGE_WIDTH-1, y: ky },
-    //         [255, 215, 0, 128]
-    //     );
-    // }
+    //Draw Kernel Pos & Line
+    if (drawOptions.kernelPos) {
+        drawCenterFillSquare(tempImage.data, { x: kx*8, y: ky }, 2, [255, 215, 0, 128]);
+    }
+    if (drawOptions.kernelLine) {
+        drawLine(tempImage.data,
+            { x: 0, y: ky },
+            { x: IMAGE_WIDTH-1, y: ky },
+            [255, 215, 0, 128]
+        );
+    }
 
     // //Draw Crosshair
     // if (drawOptions.crosshair) {
@@ -253,7 +248,7 @@ function drawImage(): any {
     // }
 
     //Return Drawn Image
-    return tempImage.data;
+    return tempImage;
 }
 
 //Step
@@ -268,11 +263,12 @@ async function step(count: number) {
     }
     console.log(" ----------------------------- DONE ----------------------------- ");
     sendFrame();
+    fs.writeFileSync('out.png', PNG.sync.write(drawImage()));
 }
 //Socket (PC->Web)
 const io = new Server(server);
 function sendFrame() {
-    io.emit('frame', { frame: drawImage(), faults: getFaults() });
+    io.emit('frame', { frame: drawImage().data, faults: getFaults() });
 }
 io.on('connection', (socket) => {
     console.log('Web Connected');

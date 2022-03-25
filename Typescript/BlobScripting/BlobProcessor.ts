@@ -33,6 +33,10 @@ import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
 import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem } from "./util/VerilogUtil";
 import { draw, pythonDone } from "./App";
+import { deepCopy } from "./util/DrawUtil";
+
+//(scripting only)
+let blobColorBuffer: RunBuffer[] = [];
 
 //Run FIFO
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
@@ -132,6 +136,8 @@ function updateBlobMaker(): void {
 
         //transfer current line buffer => last line buffer
         _("lastLineBuffer <= ", currentLineBuffer);
+        //(scripting only)
+        blobColorBuffer[currentLineBuffer.line] = deepCopy(currentLineBuffer);
 
         //reset current line buffer
         _("currentLineBufferX <= 0");
@@ -145,8 +151,6 @@ function updateBlobMaker(): void {
         if (blobMakerState == BlobMakerState.NONE) {
             //Process FIFO Read
             if (blobJustResetLine || justResetFrame || runFIFORead) {
-                // console.log("NEW RUN", runFIFOOut, currentLineBufferX, currentLineBufferX + runFIFOOut.length - 1);
-
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -199,27 +203,27 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
                 runsOverlap(currentLineBufferX, currentLineBufferX + runFIFOOut.length - 1, //if this run is touching it
                     lastLineBuffer.runs[i].start, lastLineBuffer.runs[i].end))
             {
+                const iBlobIndex: BlobIndex = getBlobPointerIndex(lastLineBuffer.runs[i].blobIndex);
+
                 //First touching run => Join it's blob
                 if (!currentRunHasJoinedBlob()) {
                     //set new state
                     _("blobMakerState <= BlobMakerState.JOIN");
 
                     //read Blob from BRAM
-                    _("blobBRAMPorts[0].addr <= ", i);
+                    _("blobBRAMPorts[0].addr <= ", iBlobIndex);
                     _("blobSkipCycle <= 1");
                 }
 
                 //2nd+ touching run => Merge this blob with master blob
-                else if (getBlobPointerIndex(lastLineBuffer.runs[i].blobIndex) != currentLineBuffer.runs[currentLineBuffer.count].blobIndex) {
-                    //set new state
-                    //FIXME
-                    _("blobMakerState <= BlobMakerState.MAKE");
-                    // _("blobMakerState <= BlobMakerState.MERGE");
+                else if (iBlobIndex != currentLineBuffer.runs[currentLineBuffer.count].blobIndex) {
+                    // set new state
+                    _("blobMakerState <= BlobMakerState.MERGE");
 
-                    //read Blobs from BRAM
-                    // _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
-                    // _("blobBRAMPorts[1].addr <= ", i);
-                    // _("blobSkipCycle <= 1");
+                    // read Blobs from BRAM
+                    _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
+                    _("blobBRAMPorts[1].addr <= ", iBlobIndex);
+                    _("blobSkipCycle <= 1");
                 }
             }
         }
@@ -228,7 +232,6 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
     //Join Blob
     else if (ustate == BlobMakerState.JOIN) {
         //write back to BRAM
-        //FIXME
         _("blobBRAMPorts[0].din <= ", mergeBlobs(currentRunAsBlob(), blobBRAMPorts[0].dout));
         _("blobBRAMPorts[0].we <= 1");
 
@@ -269,7 +272,6 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
 
     //Make new Blob
     else if (ustate == BlobMakerState.MAKE) {
-        // console.log("MAKE", blobIndex, currentRunAsBlob(), currentLineBufferX, runFIFOOut);
         //write to BRAM
         _("blobBRAMPorts[0].din <= ", currentRunAsBlob());
         _("blobBRAMPorts[0].addr <= ", blobIndex);
@@ -371,4 +373,6 @@ function processNonblocking() {
 }
 let isDone = () => Boolean(targetSelectorDone);
 let getBlobIndex = () => blobIndex;
-export { addToRunFIFO, always_ff, isDone, getBlobIndex, blobMetadatas, target };
+let getBlobPointerIndexDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
+    getBlobPointerIndexDebug(blobMetadatas[startID].pointer) : startID;
+export { addToRunFIFO, always_ff, isDone, getBlobIndex, blobMetadatas, target, blobColorBuffer, getBlobPointerIndexDebug };

@@ -36,6 +36,8 @@ module FlashManager(
         .TDO2(1'b1)
     );
 
+    //TODO INTERCEPT JTAG PROBE & OVERRIDE P/N
+
     //Connect User Logic to Config Logic
     wire SPI_CLK;
     STARTUPE2 STARTUPE2 (
