@@ -31,13 +31,12 @@ import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER,
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run } from "./BlobUtil";
 import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
-import { reg1, reg10, BlobIndex, reg24, processNonblocking, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, _, makeZeroBlobData } from "./util/VerilogUtil";
-
-let isPythonInFrame: reg1;
+import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, makeZeroBlobData } from "./util/VerilogUtil";
+import { draw, pythonDone } from "./App";
 
 //Run FIFO
 let runFIFOEmpty: reg1, runFIFORead: reg1;
-let runFIFOOut: Run;
+let runFIFOOut: Run = {length:0, line:0, black:0};
 
 //Blob BRAM
 interface BlobBRAMPort {
@@ -49,34 +48,47 @@ interface BlobBRAMPort {
 let blobBRAMPorts: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
 
 //Module State
-let lastLine: reg10;
+let lastLine: reg10 = 0;
 let justResetFrame: reg1 = 0;
 
 //Blob Maker
 enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE };
 let blobMakerState: BlobMakerState = BlobMakerState.NONE;
-let blobMakerDone = () => (isPythonInFrame && !runFIFOEmpty && blobMakerState == BlobMakerState.NONE);
-let blobSkipCycle: reg1;
+let blobMakerDone = () => (!pythonDone && runFIFOEmpty && blobMakerState == BlobMakerState.NONE);
+let blobSkipCycle: reg1 = 0;
+let blobJustResetLine: reg1 = 0;
 
-let blobIndex: BlobIndex;
+let blobIndex: BlobIndex = 0;
 let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_INDEX }));
 
-let currentLineBuffer: RunBuffer;
-let currentLineBufferX: reg10;
-let currentLineBufferIndex: RunBufferIndex;
-let lastLineBuffer: RunBuffer;
+let currentLineBuffer: RunBuffer = {runs:[], count:0, line:0};
+let currentLineBufferX: reg10 = 0;
+let lastLineBuffer: RunBuffer = {runs:[], count:0, line:0};
 let currentRunAsBlob = () => runToBlob(currentLineBufferX, runFIFOOut.length, runFIFOOut.line);
-let currentRunHasJoinedBlob = () => currentLineBuffer.runs[currentLineBufferIndex].blobIndex != NULL_BLOB_INDEX;
+let currentRunHasJoinedBlob = () => currentLineBuffer.runs[currentLineBuffer.count]?.blobIndex != NULL_BLOB_INDEX;
 
 //Target Selector
+let target: Target; //"best" target for the last frame
+let targetCurrent: Target; //"best" target for the current frame
+let targetChain: Target; //the current chain for group mode (may be invalid)
+let targetChainValid: Target; //the last valid chain target in group mode
+let targetSelectorIndexA: BlobIndex;
+let targetSelectorIndexB: BlobIndex;
+let nextTargetSelectorIndex: BlobIndex;
+let targetSelectorDone: reg1 = 0;
+
 //TODO
 
 //200MHz Clocked Loop
-function always_ff() {
+function always_ff(): void {
+    //defaults & counters
     _("blobBRAMPorts[0].we <= 0");
     _("blobBRAMPorts[1].we <= 0");
     _("justResetFrame <= 0");
-    _("lastLine <= " + runFIFOOut.line);
+    _("lastLine <= ", runFIFOOut.line);
+    _("runFIFORead <= 0");
+    _("blobSkipCycle <= 0");
+    _("blobJustResetLine <= 0");
 
     //Reset @ New Frame
     if (runFIFOOut.line == 0 && lastLine != 0) {
@@ -84,9 +96,9 @@ function always_ff() {
     }
 
     //Update Target Selector
-    else if (blobMakerDone()) {
-        updateTargetSelectorSingle();
-    }
+    // else if (blobMakerDone()) {
+    //     updateTargetSelectorSingle();
+    // }
 
     //Update Blob Maker
     else {
@@ -104,44 +116,60 @@ function always_ff() {
 }
 
 //Blob Maker (runs => blobs)
-function updateBlobMaker() {
-    //defaults
-    _("runFIFORead <= 0");
-    _("blobSkipCycle <= 0");
-
+function updateBlobMaker(): void {
     //New Line*
     if (runFIFOOut.line != lastLine) {
+        //flag reset
+        _("blobJustResetLine <= 1");
+
         //transfer current line buffer => last line buffer
-        _("lastLineBuffer <= " + currentLineBuffer);
+        _("lastLineBuffer <= ", currentLineBuffer);
+
+        //reset current line buffer
         _("currentLineBufferX <= 0");
-        _("currentLineBufferIndex <= 0");
+        _("currentLineBuffer.count <= 0");
+        _("currentLineBuffer.line <= ", (runFIFOOut.line));
     }
 
     else if (!blobSkipCycle) {
         //New Run*
         if (blobMakerState == BlobMakerState.NONE) {
-            //Run is Black => Continue
-            if (runFIFOOut.black) {
-                _("currentLineBuffer.runs[currentLineBufferIndex] <= " + {
-                    start: currentLineBufferX,
-                    end: currentLineBufferX + runFIFOOut.length - 1,
-                    blobIndex: NULL_BLOB_INDEX
-                });
-                _("currentLineBufferIndex <= " + (currentLineBufferIndex + 1));
-                _("currentLineBufferX <= " + (currentLineBufferX + runFIFOOut.length));
-                _("runFIFORead <= 1");
-            }
-            
-            //Run is White => Search & Join OR Make new Blob
-            else if (runFIFOOut.line > 0) {
-                _("blobMakerState <= BlobMakerState.SEARCH");
-                updateOnBlobMakerState(BlobMakerState.SEARCH);
+            //Process FIFO Read
+            if (blobJustResetLine || justResetFrame || runFIFORead) {
+                // console.log("NEW RUN", runFIFOOut, currentLineBufferX, currentLineBufferX + runFIFOOut.length - 1);
+
+                //Run is Black => Continue
+                if (runFIFOOut.black) {
+                    _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
+                        start: currentLineBufferX,
+                        end: currentLineBufferX + runFIFOOut.length - 1,
+                        blobIndex: NULL_BLOB_INDEX
+                    });
+                    _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
+                    _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
+
+                    if (!runFIFOEmpty) _("runFIFORead <= 1");
+                }
+                
+                //Run is White => Search & Join OR Make new Blob
+                else if (runFIFOOut.line > 0) {
+                    // for (let x = currentLineBufferX; x <= currentLineBufferX + runFIFOOut.length - 1; x++)
+                    //     draw(x, runFIFOOut.line);
+
+                    _("blobMakerState <= BlobMakerState.SEARCH");
+                    updateOnBlobMakerState(BlobMakerState.SEARCH);
+                }
+
+                //Run is White (and no line above) => Make new Blob
+                else {
+                    _("blobMakerState <= BlobMakerState.MAKE");
+                    updateOnBlobMakerState(BlobMakerState.MAKE);
+                }
             }
 
-            //Run is White (and no line above) => Make new Blob
-            else {
-                _("blobMakerState <= BlobMakerState.MAKE");
-                updateOnBlobMakerState(BlobMakerState.MAKE);
+            //Read from FIFO
+            else if (!runFIFOEmpty) {
+                _("runFIFORead <= 1");
             }
         }
 
@@ -149,7 +177,7 @@ function updateBlobMaker() {
         else updateOnBlobMakerState(blobMakerState);
     }
 }
-function updateOnBlobMakerState(ustate: BlobMakerState) {
+function updateOnBlobMakerState(ustate: BlobMakerState): void {
     //Search through runs from last line & Check if this run is touching them
     if (ustate == BlobMakerState.SEARCH) {
         //defaults
@@ -170,18 +198,18 @@ function updateOnBlobMakerState(ustate: BlobMakerState) {
                     _("blobMakerState <= BlobMakerState.JOIN");
 
                     //read Blob from BRAM
-                    _("blobBRAMPorts[0].addr <= " + i);
+                    _("blobBRAMPorts[0].addr <= ", i);
                     _("blobSkipCycle <= 1");
                 }
 
                 //2nd+ touching run => Merge this blob with master blob
-                else if (getBlobPointerIndex(lastLineBuffer.runs[i].blobIndex) != currentLineBuffer.runs[currentLineBufferIndex].blobIndex) {
+                else if (getBlobPointerIndex(lastLineBuffer.runs[i].blobIndex) != currentLineBuffer.runs[currentLineBuffer.count].blobIndex) {
                     //set new state
                     _("blobMakerState <= BlobMakerState.MERGE");
 
                     //read Blobs from BRAM
-                    _("blobBRAMPorts[0].addr <= " + currentLineBuffer.runs[currentLineBufferIndex].blobIndex);
-                    _("blobBRAMPorts[1].addr <= " + i);
+                    _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
+                    _("blobBRAMPorts[1].addr <= ", i);
                     _("blobSkipCycle <= 1");
                 }
             }
@@ -191,11 +219,11 @@ function updateOnBlobMakerState(ustate: BlobMakerState) {
     //Join Blob
     else if (ustate == BlobMakerState.JOIN) {
         //write back to BRAM
-        _("blobBRAMPorts[0].din <= " + mergeBlobs(currentRunAsBlob(), blobBRAMPorts[0].dout));
+        _("blobBRAMPorts[0].din <= ", mergeBlobs(currentRunAsBlob(), blobBRAMPorts[0].dout));
         _("blobBRAMPorts[0].we <= 1");
 
         //save to current line run buffer
-        _("currentLineBuffer.runs[currentLineBufferIndex] <= " + {
+        _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
             end: currentLineBufferX + runFIFOOut.length - 1,
             blobIndex: blobBRAMPorts[0].addr
@@ -208,11 +236,11 @@ function updateOnBlobMakerState(ustate: BlobMakerState) {
     //Merge two intersecting Blobs (U/V/W Case)
     else if (ustate == BlobMakerState.MERGE) {
         //mark slave as pointer
-        _(`blobMetadatas[${blobBRAMPorts[1].addr}].status <= ` + BlobStatus.POINTER);
-        _(`blobMetadatas[${blobBRAMPorts[1].addr}].pointer <= ` + blobBRAMPorts[0].addr);
+        _(`blobMetadatas[${blobBRAMPorts[1].addr}].status <= `, BlobStatus.POINTER);
+        _(`blobMetadatas[${blobBRAMPorts[1].addr}].pointer <= `, blobBRAMPorts[0].addr);
 
         //write back master to BRAM
-        _("blobBRAMPorts[0].din <= " + mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout));
+        _("blobBRAMPorts[0].din <= ", mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout));
         _("blobBRAMPorts[0].we <= 1");
 
         //go back to searching
@@ -222,47 +250,48 @@ function updateOnBlobMakerState(ustate: BlobMakerState) {
     //Join End (had joined a blob & is done now)
     else if (ustate == BlobMakerState.JOIN_END) {
         //prepare for new run
-        _("currentLineBufferIndex <= " + (currentLineBufferIndex + 1));
-        _("currentLineBufferX <= " + (currentLineBufferX + runFIFOOut.length));
+        _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
+        _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
         _("blobMakerState <= BlobMakerState.NONE");
-        _("runFIFORead <= 1");
+        if (!runFIFOEmpty) _("runFIFORead <= 1");
     }
 
     //Make new Blob
     else if (ustate == BlobMakerState.MAKE) {
         //write to BRAM
-        _("blobBRAMPorts[0].din <= " + currentRunAsBlob());
-        _("blobBRAMPorts[0].addr <= " + blobIndex);
+        _("blobBRAMPorts[0].din <= ", currentRunAsBlob());
+        _("blobBRAMPorts[0].addr <= ", blobIndex);
         _("blobBRAMPorts[0].we <= 1");
 
         //save to current line run buffer
-        _("currentLineBuffer.runs[currentLineBufferIndex] <= " + {
+        _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
             end: currentLineBufferX + runFIFOOut.length - 1,
             blobIndex: blobIndex
         });
 
         //increment blob counter
-        _("blobIndex <= " + (blobIndex + 1));
+        _("blobIndex <= ", (blobIndex + 1));
 
         //prepare for new run
-        _("currentLineBufferIndex <= " + (currentLineBufferIndex + 1));
-        _("currentLineBufferX <= " + (currentLineBufferX + runFIFOOut.length));
+        _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
+        _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
         _("blobMakerState <= BlobMakerState.NONE");
-        _("runFIFORead <= 1");
+        if (!runFIFOEmpty) _("runFIFORead <= 1");
     }
 }
 
 //Target Selector (blobs => target)
-function updateTargetSelectorDualGroup() {
+function updateTargetSelectorDualGroup(): void {
     //TODO
 }
-function updateTargetSelectorSingle() {
+function updateTargetSelectorSingle(): void {
     //TODO
+    targetSelectorDone = 1;
 }
 
 //Combinational Logic
-function always_comb() {
+function always_comb(): void {
     //Find New Indexes
     for (let i = 0; i < MAX_BLOBS; i++) {
         //choose target selector indexes
@@ -290,12 +319,40 @@ function getBlobPointerIndex(startIndex: BlobIndex): BlobIndex {
     return NULL_BLOB_INDEX;
 }
 
-//Global Reset for New Frame
-function frameReset() {
-    justResetFrame = 1;
 
+//Global Reset for New Frame
+function frameReset(): void {
+    //Flag Reset
+    _("justResetFrame <= 0");
+
+    //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
+    _("blobIndex <= 0");
+    _("blobSkipCycle <= 0");
+    _("blobMakerState <= BlobMakerState.NONE");
+
+    //Target Selector Reset
+    _("targetSelectorDone <= 0");
     //TODO
 }
 
 //(scripting only)
-let addToRunFIFO = (obj: { in: Run }) => forceAddRunFIFO(obj);
+let addToRunFIFO = (run: Run) => forceAddRunFIFO(run);
+let nonblockingQueue: {name: string, val: string}[] = [];
+function _(ass: string, val?: any) {
+    const arr = ass.split(" <= ");
+    nonblockingQueue.push({
+        name: arr[0],
+        val: (val !== undefined) ? JSON.stringify(val) : arr[1]
+    });
+}
+function processNonblocking() {
+    for (const assignment of nonblockingQueue) {
+        //TODO overflow
+        try { eval(`${assignment.name} = ${assignment.val};`); }
+        catch (e) { console.error(`Error evaluating "${assignment.name}" to "${assignment.val}"`); }
+    }
+    nonblockingQueue = [];
+}
+let isDone = () => Boolean(targetSelectorDone);
+let getBlobIndex = () => blobIndex;
+export { addToRunFIFO, always_ff, isDone, getBlobIndex, blobMetadatas, target };

@@ -10,41 +10,28 @@ export let boolToReg1 = (bool: boolean): reg1 => bool ? 1 : 0;
 export type reg2 = 0|1|2|3;
 export type reg3 = 0|1|2|3|4|5|6|7;
 export type reg4 = 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15;
+export type reg8 = number;
 export type reg10 = number;
 export type signed_reg10 = number; //[10:0]
 export type BlobIndex = number; //[MAX_BLOB_INDEX_SIZE-1:0]
 export type RunBufferIndex = number; //[MAX_RUN_BUFFER_INDEX-1:0]
 export type reg24 = number; //[23:0] (area)
 
-//Non-Blocking Assignments
-let nonblockingQueue: {name: string, val: string}[] = [];
-export function _(str: string) {
-    const arr = str.split(" <= ");
-    nonblockingQueue.push({ name: arr[0], val: arr[1] });
-}
-export function processNonblocking() {
-    for (const assignment of nonblockingQueue) {
-        try {
-            eval(`${assignment.name} = ${assignment.val};`);
-        }
-        catch (e) {
-            console.error(`Error evaluaiting ${assignment.name} to ${assignment.val}:`, e);
-        }
-    }
-    nonblockingQueue = [];
-}
-
 //Run FIFO
 let runFIFOMem: Run[] = [];
-let lastRunFIFOShifted: Run;
-export function forceAddRunFIFO(obj: {in: Run}) {
-    runFIFOMem.push(obj.in);
+let lastRunFIFOShifted: Run = {length:0, line:0, black:0};
+export let runFIFOLength = () => runFIFOMem.length;
+export function forceAddRunFIFO(run: Run) {
+    runFIFOMem.push(run);
 }
 export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
     if (obj.read) {
-        if (runFIFOMem.length < 1) console.error("ERROR CANNOT READ FROM EMPTY FIFO");
-
-        lastRunFIFOShifted = runFIFOMem.shift();
+        if (runFIFOMem.length < 1) {
+            console.error("ERROR CANNOT READ FROM EMPTY FIFO");
+        }
+        
+        const out = runFIFOMem.shift();
+        if (out != undefined) lastRunFIFOShifted = out;
     }
     
     return [
@@ -54,7 +41,7 @@ export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
 }
 
 //Blob BRAM
-let blobBRAMMem: BlobData[] = [];
+export let blobBRAMMem: BlobData[] = [];
 let lastAddra: BlobIndex = NULL_BLOB_INDEX;
 let lastAddrb: BlobIndex = NULL_BLOB_INDEX;
 let douta: BlobData, doutb: BlobData;

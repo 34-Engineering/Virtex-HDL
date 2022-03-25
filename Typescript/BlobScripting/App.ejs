@@ -89,7 +89,7 @@
         /* sidebar */
         .sidebar {
             padding: 6px 0 0 0;
-            width: 450px;
+            width: 470px;
             background: repeating-linear-gradient(45deg, black, rgb(5,0,5) 15%, rgb(8,0,8) 20%);
         }
 
@@ -201,7 +201,7 @@
         socket.on('frame', (req) => {
             //Update Faults
             document.querySelector('.faults').innerText = req.faults.join(', ');
-                
+            
             //Draw Image to Canvas
             const img = ctx.createImageData(640, 480);
             img.data.set(new Uint8Array(req.frame));
