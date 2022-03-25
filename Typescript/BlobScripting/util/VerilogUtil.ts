@@ -1,6 +1,6 @@
 // VerilogUtil - Types and Functions to simulate Verilog/FPGA behaivor
 
-import { NULL_BLOB_INDEX } from "../BlobConstants";
+import { MAX_BLOBS, NULL_BLOB_INDEX } from "../BlobConstants";
 import { BlobData, Run } from "../BlobUtil";
 import { deepCopy } from "./DrawUtil";
 
@@ -18,7 +18,7 @@ export type RunBufferIndex = number; //[MAX_RUN_BUFFER_INDEX-1:0]
 export type reg24 = number; //[23:0] (area)
 
 //Run FIFO
-let runFIFOMem: Run[] = [];
+export let runFIFOMem: Run[] = [];
 let lastRunFIFOShifted: Run = {length:0, line:0, black:0};
 export let runFIFOLength = () => runFIFOMem.length;
 export function forceAddRunFIFO(run: Run) {
@@ -41,7 +41,7 @@ export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
 }
 
 //Blob BRAM
-export let blobBRAMMem: BlobData[] = [];
+export let blobBRAMMem: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, makeZeroBlobData())));
 let lastAddra: BlobIndex = NULL_BLOB_INDEX;
 let lastAddrb: BlobIndex = NULL_BLOB_INDEX;
 let douta: BlobData, doutb: BlobData;

@@ -14,7 +14,7 @@ import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
 import { Vector2d10 } from './util/Math';
 import { deepCopy } from './util/DrawUtil';
-import { blobBRAMMem, boolToReg1, runFIFOLength } from './util/VerilogUtil';
+import { blobBRAMMem, boolToReg1, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -59,8 +59,14 @@ function update() {
             const value = (image.data[idx] + image.data[idx + 1] + image.data[idx + 2]) / 3;
             const threshold = value > virtexConfig.threshold;
             
-            //end run @ end line OR color change
-            if (px == (IMAGE_WIDTH-1) || runBlack == threshold) {
+            //@ line start
+            if (px == 0) {
+                runStart = px;
+                runBlack = !threshold;
+            }
+
+            //@ end line 
+            else if (px == (IMAGE_WIDTH-1)) {
                 BlobProcessor.addToRunFIFO({
                     length: px - runStart, //no +1 because px is after line
                     line: ky,
@@ -68,8 +74,14 @@ function update() {
                 });
             }
 
-            //new run @ line start OR color change
-            if (px == 0 || runBlack == threshold) {
+            //@ color change
+            else if (runBlack == threshold) {
+                BlobProcessor.addToRunFIFO({
+                    length: px - runStart, //no +1 because px is after line
+                    line: ky,
+                    black: boolToReg1(runBlack)
+                });
+
                 runStart = px;
                 runBlack = !threshold;
             }
@@ -164,8 +176,8 @@ function drawImage(): any {
     for (let i = 0; i < BlobProcessor.getBlobIndex(); i++) {
         const blob = blobBRAMMem[i];
         console.log(blob);
-        if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
-            BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
+        // if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
+        //     BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
             // if (drawOptions.blobAngle) {
             //     calcBlobAngle(blob, tempImage.data);
             // }
@@ -192,7 +204,7 @@ function drawImage(): any {
             //     drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue
             //     drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
             // }
-        }
+        // }
     }
 
     // //Draw Target
@@ -241,12 +253,12 @@ function drawImage(): any {
     // }
 
     //Return Drawn Image
-    return tempImage;
+    return tempImage.data;
 }
 
 //Step
 async function step(count: number) {
-    console.log("PROCESSING ALL");
+    console.log(" ------------------------ PROCESSING ALL ------------------------ ");
     //update sim "count" times
     for (let i = 0; i < count; i++) {
         // if (!BlobProcessor.isDone()) { //FIXME
@@ -254,31 +266,26 @@ async function step(count: number) {
         // }
         // else break;
     }
-    console.log("DONE");
+    console.log(" ----------------------------- DONE ----------------------------- ");
     sendFrame();
 }
-
 //Socket (PC->Web)
 const io = new Server(server);
 function sendFrame() {
-    io.emit('frame', { frame: drawImage().data, faults: getFaults() });
+    io.emit('frame', { frame: drawImage(), faults: getFaults() });
 }
 io.on('connection', (socket) => {
     console.log('Web Connected');
+    sendFrame();
 
     socket.on('disconnect', () => {
         console.log('Web Disconnected');
     });
-
     socket.on('step', (req) => {
         step(req.count);
     });
     socket.on('reset', () => {
         reset();
-    });
-    socket.on('init', async () => {
-        reset();
-        if (autoStepFrame) step(5 * 80 * 480 + 1000);
     });
     socket.on('changeImageFile', (req) => {
         imageFile = req.file;
@@ -289,6 +296,9 @@ io.on('connection', (socket) => {
         sendFrame();
     });
 });
+//init
+reset();
+if (autoStepFrame) step(5 * 80 * 480 + 50000);
 
 setInterval(() => {
     io.emit('ping', process.pid);

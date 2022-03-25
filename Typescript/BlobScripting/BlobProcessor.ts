@@ -31,11 +31,11 @@ import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER,
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run } from "./BlobUtil";
 import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
-import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, makeZeroBlobData } from "./util/VerilogUtil";
+import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem } from "./util/VerilogUtil";
 import { draw, pythonDone } from "./App";
 
 //Run FIFO
-let runFIFOEmpty: reg1, runFIFORead: reg1;
+let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
 let runFIFOOut: Run = {length:0, line:0, black:0};
 
 //Blob BRAM
@@ -61,9 +61,17 @@ let blobJustResetLine: reg1 = 0;
 let blobIndex: BlobIndex = 0;
 let blobMetadatas: BlobMetadata[] = [...Array(MAX_BLOBS)].map(_=>({ status: BlobStatus.UNSCANED, pointer: NULL_BLOB_INDEX }));
 
-let currentLineBuffer: RunBuffer = {runs:[], count:0, line:0};
+let currentLineBuffer: RunBuffer = {
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, end:0, blobIndex:NULL_BLOB_INDEX })),
+    count:0,
+    line:0
+};
 let currentLineBufferX: reg10 = 0;
-let lastLineBuffer: RunBuffer = {runs:[], count:0, line:0};
+let lastLineBuffer: RunBuffer = {
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, end:0, blobIndex:NULL_BLOB_INDEX })),
+    count:0,
+    line:0
+};
 let currentRunAsBlob = () => runToBlob(currentLineBufferX, runFIFOOut.length, runFIFOOut.line);
 let currentRunHasJoinedBlob = () => currentLineBuffer.runs[currentLineBuffer.count]?.blobIndex != NULL_BLOB_INDEX;
 
@@ -109,7 +117,7 @@ function always_ff(): void {
     processNonblocking();
     always_comb();
     [ runFIFOEmpty, runFIFOOut ] = processRunFIFO({ read: runFIFORead });
-    [ blobBRAMPorts[0].din, blobBRAMPorts[1].din ] = processBlobBRAM({
+    [ blobBRAMPorts[0].dout, blobBRAMPorts[1].dout ] = processBlobBRAM({
         addra: blobBRAMPorts[0].addr, dina: blobBRAMPorts[0].din, wea: blobBRAMPorts[0].we, 
         addrb: blobBRAMPorts[1].addr, dinb: blobBRAMPorts[1].din, web: blobBRAMPorts[1].we
     });
@@ -128,6 +136,7 @@ function updateBlobMaker(): void {
         //reset current line buffer
         _("currentLineBufferX <= 0");
         _("currentLineBuffer.count <= 0");
+        _(`currentLineBuffer.runs[0] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
         _("currentLineBuffer.line <= ", (runFIFOOut.line));
     }
 
@@ -147,15 +156,13 @@ function updateBlobMaker(): void {
                     });
                     _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
                     _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
+                    _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
 
                     if (!runFIFOEmpty) _("runFIFORead <= 1");
                 }
                 
                 //Run is White => Search & Join OR Make new Blob
                 else if (runFIFOOut.line > 0) {
-                    // for (let x = currentLineBufferX; x <= currentLineBufferX + runFIFOOut.length - 1; x++)
-                    //     draw(x, runFIFOOut.line);
-
                     _("blobMakerState <= BlobMakerState.SEARCH");
                     updateOnBlobMakerState(BlobMakerState.SEARCH);
                 }
@@ -189,7 +196,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         //Search
         for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
             if (i < lastLineBuffer.count && lastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX && //if valid index in lastLineBuffer
-                runsOverlap(currentLineBufferX, currentLineBufferX + runFIFOOut.length + 1, //if this run is touching it
+                runsOverlap(currentLineBufferX, currentLineBufferX + runFIFOOut.length - 1, //if this run is touching it
                     lastLineBuffer.runs[i].start, lastLineBuffer.runs[i].end))
             {
                 //First touching run => Join it's blob
@@ -205,12 +212,14 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
                 //2nd+ touching run => Merge this blob with master blob
                 else if (getBlobPointerIndex(lastLineBuffer.runs[i].blobIndex) != currentLineBuffer.runs[currentLineBuffer.count].blobIndex) {
                     //set new state
-                    _("blobMakerState <= BlobMakerState.MERGE");
+                    //FIXME
+                    _("blobMakerState <= BlobMakerState.MAKE");
+                    // _("blobMakerState <= BlobMakerState.MERGE");
 
                     //read Blobs from BRAM
-                    _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
-                    _("blobBRAMPorts[1].addr <= ", i);
-                    _("blobSkipCycle <= 1");
+                    // _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
+                    // _("blobBRAMPorts[1].addr <= ", i);
+                    // _("blobSkipCycle <= 1");
                 }
             }
         }
@@ -219,6 +228,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
     //Join Blob
     else if (ustate == BlobMakerState.JOIN) {
         //write back to BRAM
+        //FIXME
         _("blobBRAMPorts[0].din <= ", mergeBlobs(currentRunAsBlob(), blobBRAMPorts[0].dout));
         _("blobBRAMPorts[0].we <= 1");
 
@@ -252,16 +262,21 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         //prepare for new run
         _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
         _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
+        _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
         _("blobMakerState <= BlobMakerState.NONE");
         if (!runFIFOEmpty) _("runFIFORead <= 1");
     }
 
     //Make new Blob
     else if (ustate == BlobMakerState.MAKE) {
+        // console.log("MAKE", blobIndex, currentRunAsBlob(), currentLineBufferX, runFIFOOut);
         //write to BRAM
         _("blobBRAMPorts[0].din <= ", currentRunAsBlob());
         _("blobBRAMPorts[0].addr <= ", blobIndex);
         _("blobBRAMPorts[0].we <= 1");
+
+        //write metadata
+        _(`blobMetadatas[${blobIndex}].status <= `, BlobStatus.UNSCANED);
 
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -276,6 +291,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         //prepare for new run
         _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
         _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
+        _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
         _("blobMakerState <= BlobMakerState.NONE");
         if (!runFIFOEmpty) _("runFIFORead <= 1");
     }

@@ -229,6 +229,7 @@ module PythonManager(
     localparam THRESHOLD_TEMP = 8'd20;
     localparam DOUT_SEL_H = 7;
     task processImageData();
+    //FIXME BARREL SHIFTER + RLE -> BLOB FIFO
         //load partion 2 of kernel (see page 40)
         if (kernelPartion) begin
             if (kernelOdd) begin

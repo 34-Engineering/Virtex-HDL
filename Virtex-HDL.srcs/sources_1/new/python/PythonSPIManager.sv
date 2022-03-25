@@ -23,6 +23,8 @@
     10th bit = r/w
     MSB first
     Some registers can only be changed while the sequencer is disabled
+
+    //TODO temperature shutoff
      */
 module PythonSPIManager(
     input wire CLK100, CLK10,

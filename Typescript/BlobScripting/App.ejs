@@ -193,7 +193,6 @@
     <script>
         //Connect Socket to Typescript App
         let socket = io();
-        socket.emit('init');
 
         //Draw Frame
         let canvas = document.getElementById('canvas');
@@ -218,13 +217,13 @@
         }
 
         //Ping (keep track of what process we were using and if a new process spawns, reload page)
-        let PID;
-        socket.on('ping', (newPID) => {
-            if (!PID) PID = newPID;
-            else if (newPID !== PID) {
-                window.location.reload();
-            }
-        });
+        // let PID;
+        // socket.on('ping', (newPID) => {
+        //     if (!PID) PID = newPID;
+        //     else if (newPID !== PID) {
+        //         window.location.reload();
+        //     }
+        // });
 
         //Handle Step Button (which repeat if you hold them)
         let stepButtonHoldInterval, stepButtonHoldCounter;
