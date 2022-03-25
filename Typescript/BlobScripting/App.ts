@@ -3,26 +3,26 @@ import path from 'path';
 import { Server } from 'socket.io';
 import * as http from 'http';
 import * as fs from 'fs';
-import * as v8 from 'v8';
 import * as BlobProcessor from "./BlobProcessor";
 import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
-import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad, drawRect } from './util/OtherUtil';
+import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/OtherUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
-import { NULL_BLACK_RUN_BLOB_ID, NULL_TIMESTAMP } from './BlobConstants';
+import { NULL_BLACK_RUN_BLOB_INDEX, NULL_TIMESTAMP } from './BlobConstants';
 import { Fault } from './util/Fault';
 import { PNG } from 'pngjs';
-import { Vector } from './util/Math';
+import { Vector2d10 } from './util/Math';
+import { deepCopy } from './util/DrawUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
 let drawOptions: {[index: string]: boolean} = {
     blobColor: true,
     blobBound: true,
-    blobQuad: false,
+    blobQuad10: false,
     blobAngle: true,
-    blobQuadCorners: false,
+    blobQuad10Corners: false,
     blobEllipse: false,
     target: true,
     crosshair: true,
@@ -121,7 +121,7 @@ function getFaults() {
 //Image
 function drawImage(): any {
     //Deep Copy Image
-    let tempImage = v8.deserialize(v8.serialize(image));
+    let tempImage = deepCopy(image);
 
     //Draw Blob Color
     if (drawOptions.blobColor) {
@@ -131,19 +131,19 @@ function drawImage(): any {
                 const run = BlobProcessor.blobColorBuffer[y].runs[i];
 
                 //if run is black ignore it
-                if (run.blobID !== NULL_BLACK_RUN_BLOB_ID) {                    
-                    //if run has pointer blobID => follow it
-                    const realBlobID: number = BlobProcessor.blobMetadatas[run.blobID].status == 
-                        BlobStatus.POINTER ? BlobProcessor.getRealBlobIDDebug(run.blobID) : run.blobID;
+                if (run.blobIndex !== NULL_BLACK_RUN_BLOB_INDEX) {                    
+                    //if run has pointer blobIndex => follow it
+                    const realBlobIndex: number = BlobProcessor.blobMetadatas[run.blobIndex].status == 
+                        BlobStatus.POINTER ? BlobProcessor.getRealBlobIndexDebug(run.blobIndex) : run.blobIndex;
 
-                    //if run has valid blobID (or valid pointer blobID) => draw it
-                    if (BlobProcessor.blobMetadatas[realBlobID].status !== BlobStatus.GARBAGE) {
+                    //if run has valid blobIndex (or valid pointer blobIndex) => draw it
+                    if (BlobProcessor.blobMetadatas[realBlobIndex].status !== BlobStatus.GARBAGE) {
                         for (let x = runBufferX; x < runBufferX + run.length; x++) {
                             drawPixel(tempImage.data, { x, y }, [
                                 //generate unique color based on pos
-                                Math.sin(realBlobID * 50) * 200 + 55,
-                                Math.sin(realBlobID * 100) * 200 + 55,
-                                Math.sin(realBlobID * 200) * 200 + 55,
+                                Math.sin(realBlobIndex * 50) * 200 + 55,
+                                Math.sin(realBlobIndex * 100) * 200 + 55,
+                                Math.sin(realBlobIndex * 200) * 200 + 55,
                                 255
                             ]);
                         }
@@ -172,15 +172,15 @@ function drawImage(): any {
                 );
             }
 
-            if (drawOptions.blobQuad) {
-                drawQuad(tempImage.data, blob.quad, [0, 255, 0, 100]);
+            if (drawOptions.blobQuad10) {
+                drawQuad10(tempImage.data, blob.quad, [0, 255, 0, 100]);
             }
 
             if (drawOptions.blobBound) {
                 drawRect(tempImage.data, blob.boundTopLeft, blob.boundBottomRight, [255, 0, 0, 100]);
             }
 
-            if (drawOptions.blobQuadCorners) {
+            if (drawOptions.blobQuad10Corners) {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topLeft.x      , y: blob.quad.topLeft.y       }, 2, [255, 255, 0, 255]); //yellow
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.topRight.x-1   , y: blob.quad.topRight.y      }, 2, [0, 255, 255, 255]); //cyan
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomRight.x-1, y: blob.quad.bottomRight.y-1 }, 2, [0,   0, 255, 255]); //blue

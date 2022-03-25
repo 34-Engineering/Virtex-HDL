@@ -15,7 +15,7 @@ The FPGA handles the following tasks:
  7) EEPROM SPI Interface for Saving Virtex Configurations
  8) JTAG Boundry Scan to Flash Memory Interface
 
-## Terminology
+## Nomenclature
 
 Blob: a group of touching pixels
 

@@ -1,5 +1,6 @@
-import { inRangeInclusive, max, min, Quad, quickDivide, Vector } from "./util/Math";
-import { drawLine } from "./util/OtherUtil";
+import { inRangeInclusive, max, min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
+import { drawLine } from "./util/DrawUtil";
+import { BlobIndex, boolToReg1, reg1, reg10, reg24, reg4, signed_reg10 } from "./util/VerilogUtil";
 
 //144-bit Blob Data
 export interface BlobData {
@@ -8,29 +9,27 @@ export interface BlobData {
         top right (1, 1) means pixel #(1, 0)
         bottom right (2, 2) means pixel #(1, 1)
     this makes area calculations easier*/
-    boundTopLeft: Vector,
-    boundBottomRight: Vector,
-    quad: Quad,
-    area: number //[23:0]
+    boundTopLeft: Vector2d10,
+    boundBottomRight: Vector2d10,
+    quad: Quad10,
+    area: reg24
 }
 
 //Blob Metadata
-export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE };
+export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE }; //[1:0]
 export interface BlobMetadata {
-    status: BlobStatus; //[1:0]
-    pointer: number; //[MAX_BLOB_ID_SIZE-1:0]
+    status: BlobStatus;
+    pointer: BlobIndex;
 }
 
 //?-bit Target
 export interface Target {
-    center: Vector;
-    width: number; //[9:0]
-    height: number; //[9:0]
-    timestamp: number; //[?:0] timestamp is replaced with latency at delivery
-    blobCount: number; //[3:0]
+    center: Vector2d10;
+    width: reg10;
+    height: reg10;
+    blobCount: reg4;
     angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
-
 
 //Blob Angles
 export enum BlobAngle { //[1:0]
@@ -58,16 +57,21 @@ export const enum TargetMode {
 }
 
 //Run
-export interface Run {
-    length: number, //[9:0]
-    blobID: number //[MAX_BLOB_ID_SIZE-1:0]
+export interface Run { //for Python => Blob Processor
+    length: reg10,
+    line: reg10,
+    black: reg1
 }
 
 //Run Buffer
 export interface RunBuffer {
-    runs: Run[],
-    count: number //number of runs
-    line: number //[9:0]
+    runs: {
+        start: reg10,
+        end: reg10,
+        blobIndex: BlobIndex
+    }[],
+    count: number, //number of runs
+    line: reg10
 }
 
 //Merging Blobs
@@ -81,13 +85,13 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
             x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
             y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
-        quad: mergeQuads(blob1.quad, blob2.quad),
+        quad: mergeQuad10s(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
     };
 }
 
-//Merge Quads
-function mergeQuads(quad1: Quad, quad2: Quad): Quad {
+//Merge Quad10s
+function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
     //this algorithm is not perfect but close enough for choosing rough angle of blob
     return {
         topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
@@ -100,19 +104,19 @@ function mergeQuads(quad1: Quad, quad2: Quad): Quad {
 //Calculate Blob Angle
 export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     //make two center lines from quad centers
-    const start1: Vector = {
+    const start1: Vector2d10 = {
         x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1,
         y: (blob.quad.topLeft.y + blob.quad.topRight.y) >> 1
     };
-    const end1: Vector = {
+    const end1: Vector2d10 = {
         x: (blob.quad.bottomLeft.x   + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.bottomLeft.y-1 + blob.quad.bottomRight.y-1) >> 1
     };
-    const start2: Vector = {
+    const start2: Vector2d10 = {
         x: (blob.quad.topLeft.x + blob.quad.bottomLeft.x) >> 1,
         y: (blob.quad.topLeft.y + blob.quad.bottomLeft.y-1) >> 1
     };
-    const end2: Vector = {
+    const end2: Vector2d10 = {
         x: (blob.quad.topRight.x-1 + blob.quad.bottomRight.x-1) >> 1,
         y: (blob.quad.topRight.y   + blob.quad.bottomRight.y-1) >> 1
     };
@@ -150,7 +154,7 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     //return best angle
     return lengthSq1 > lengthSq2 ? angle1 : angle2;
 }
-function calcAngle(dx: number, dy: number): BlobAngle {
+function calcAngle(dx: signed_reg10, dy: signed_reg10): BlobAngle {
     const t = 896; //best fit for 10° tolerance
     const h = quickDivide(dx, dy); //how horizontal the line is
     const v = quickDivide(dy, dx); //how vertical the line is
@@ -160,18 +164,18 @@ function calcAngle(dx: number, dy: number): BlobAngle {
 }
 
 //Runs Overlap
-export function runsOverlap(run1: Run, start1: number, run2: Run, start2: number): boolean {
+export function runsOverlap(start1: reg10, stop1: reg10, start2: reg10, stop2: reg10): reg1 {
     //widen run1 to join diagonals, then check overlap
-    const stop1 = run1.length + start1 - 1;
-    const stop2 = run2.length + start2 - 1;
-    return (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) || //start2 inside run1
-           (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) || //stop2 inside run1
-           (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1);   //run2 covers all of run1
+    return boolToReg1(
+        (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) || //start2 inside run1
+        (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) || //stop2 inside run1
+        (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1)    //run2 covers all of run1
+    );
 }
 
 //Run to Blob
-export function runToBlob(run: Run, start: number, line: number): BlobData {
-    const stop = run.length + start - 1;
+export function runToBlob(start: reg10, length: reg10, line: reg10): BlobData {
+    const stop: reg10 = length + start - 1;
     return {
         boundTopLeft:     {x:start , y:line  },
         boundBottomRight: {x:stop+1, y:line+1},
@@ -181,6 +185,6 @@ export function runToBlob(run: Run, start: number, line: number): BlobData {
             bottomRight:  {x:stop+1, y:line+1},
             bottomLeft:   {x:start , y:line+1},
         },
-        area: run.length
+        area: length
     };
 }

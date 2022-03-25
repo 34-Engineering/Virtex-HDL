@@ -5,6 +5,8 @@
 /* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs
 
     Signal LEDs: 3-bit registers where 0 = red, 1 = blue, 2 = green (RGB)
+
+    //TODO LOWER FREQUENCY
 */
 module LEDManager(
     input wire CLK100,
@@ -16,6 +18,10 @@ module LEDManager(
     input wire Target target,
     input wire [7:0] debug
     );
+
+    //TODO LOWER FREQUENCY
+    //TODO LOWER FREQUENCY
+    //TODO LOWER FREQUENCY
 
     localparam brightness = 400;
 

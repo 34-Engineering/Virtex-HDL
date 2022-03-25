@@ -1,74 +1,48 @@
-//OtherUtil.ts (scripting only)
-
-import { BlobData } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
-import { Quad, Vector } from "./Math";
+import { Quad10, Vector2d10 } from "./Math";
+import * as v8 from 'v8';
 
-//Blob Data
-export const EMPTY_BLOB: BlobData = {
-    boundTopLeft: {x:0, y:0},
-    boundBottomRight: {x:0, y:0},
-    quad: {
-        topLeft: {x:0, y:0},
-        topRight: {x:0, y:0},
-        bottomRight: {x:0, y:0},
-        bottomLeft: {x:0, y:0},
-    },
-    area: 0
-};
-
-//BRAM
-export interface BlobBRAMPort {
-    addr: number, 
-    din: BlobData,
-    dout: BlobData,
-    we: boolean,
-}
-export const BLOB_BRAM_PORT_DEFAULT: BlobBRAMPort = {
-    addr: 0,
-    din: Object.assign({}, EMPTY_BLOB),
-    dout: Object.assign({}, EMPTY_BLOB),
-    we: false
+export function deepCopy(obj: any): any {
+    return v8.deserialize(v8.serialize(obj));
 }
 
-//Drawing on Raw Image Data
 export function calculateIDX(x: number, y: number): number {
     return (IMAGE_WIDTH * Math.round(y) + Math.round(x)) << 2;
 }
 
-export function drawEllipse(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
-    const center: Vector = {
+export function drawEllipse(data: any, topLeft: Vector2d10, bottomRight: Vector2d10, color: number[]) {
+    const center: Vector2d10 = {
         x: (topLeft.x + bottomRight.x) >> 1,
         y: (topLeft.y + bottomRight.y) >> 1
     };
-    const radius: Vector = {
+    const radius: Vector2d10 = {
         x: center.x - topLeft.x + 1,
         y: center.y - topLeft.y + 1
     };
 
     drawPixel(data, center, color);
 
-    let lv1: Vector | undefined = undefined, lv2: Vector | undefined = undefined;
+    let lv1: Vector2d10 | undefined = undefined, lv2: Vector2d10 | undefined = undefined;
 
     for (let x: number = center.x - radius.x; x <= center.x + radius.x; x++) {
         const q: number = radius.y*Math.sqrt((radius.x+center.x-x)*(radius.x-center.x+x));
         const y1: number = (radius.x*center.y + q) / radius.x;
         const y2: number = (radius.x*center.y - q) / radius.x;
 
-        const v1: Vector = {x, y: y1};
-        const v2: Vector = {x, y: y2};
+        const v1: Vector2d10 = {x, y: y1};
+        const v2: Vector2d10 = {x, y: y2};
 
         if (lv1 && lv2) {
             drawLine(data, lv1, v1, color);
             drawLine(data, lv2, v2, color);
         }
         
-        lv1 = Object.assign({}, v1);
-        lv2 = Object.assign({}, v2);
+        lv1 = deepCopy(v1);
+        lv2 = deepCopy(v2);
     }
 }
 
-export function drawPixel(data: any, p: Vector, color: number[]) {
+export function drawPixel(data: any, p: Vector2d10, color: number[]) {
     p = { x: Math.round(p.x), y: Math.round(p.y) };
 
     // source: https://github.com/aloisdeniel/node-pngjs-draw/blob/master/index.js
@@ -82,11 +56,11 @@ export function drawPixel(data: any, p: Vector, color: number[]) {
     data[idx+2] = Math.round(color[2] * alpha + data[idx+2] * (1-alpha));
 }
 
-export function drawCenterFillSquare(data: any, p: Vector, offset: number, color: number[]) {
+export function drawCenterFillSquare(data: any, p: Vector2d10, offset: number, color: number[]) {
     drawFillRect(data, { x: p.x-offset, y: p.y-offset }, { x: p.x+offset, y: p.y+offset }, color);
 }
 
-export function drawFillRect(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
+export function drawFillRect(data: any, topLeft: Vector2d10, bottomRight: Vector2d10, color: number[]) {
     for (let y = topLeft.y; y < bottomRight.y; y++) {
         for (let x = topLeft.x; x < bottomRight.x; x++) {
             drawPixel(data, {x, y}, color);
@@ -94,8 +68,8 @@ export function drawFillRect(data: any, topLeft: Vector, bottomRight: Vector, co
     }
 }
 
-export function drawRect(data: any, topLeft: Vector, bottomRight: Vector, color: number[]) {
-    drawQuad(data, {
+export function drawRect(data: any, topLeft: Vector2d10, bottomRight: Vector2d10, color: number[]) {
+    drawQuad10(data, {
         topLeft: topLeft,
         topRight: { x: bottomRight.x, y: topLeft.y },
         bottomRight: bottomRight,
@@ -103,7 +77,7 @@ export function drawRect(data: any, topLeft: Vector, bottomRight: Vector, color:
     }, color);
 }
 
-export function drawQuad(data: any, quad: Quad, color: number[]) {
+export function drawQuad10(data: any, quad: Quad10, color: number[]) {
     drawLine(
         data,
         { x: quad.topLeft.x   , y: quad.topLeft.y },
@@ -130,7 +104,7 @@ export function drawQuad(data: any, quad: Quad, color: number[]) {
     );
 }
 
-export function drawLine(data: any, p1: Vector, p2: Vector, color: number[]) {    
+export function drawLine(data: any, p1: Vector2d10, p2: Vector2d10, color: number[]) {    
     // derived from https://github.com/aloisdeniel/node-pngjs-draw/blob/master/index.js
     let x = Math.round(p1.x), y = Math.round(p1.y);
     const x1 = Math.round(p2.x), y1 = Math.round(p2.y);

@@ -23,8 +23,6 @@
     10th bit = r/w
     MSB first
     Some registers can only be changed while the sequencer is disabled
-
-    //TODO update based on changed to virtexConfig
      */
 module PythonSPIManager(
     input wire CLK100, CLK10,
