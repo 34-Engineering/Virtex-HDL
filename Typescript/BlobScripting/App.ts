@@ -10,7 +10,7 @@ import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
 import { NULL_BLOB_INDEX, NULL_TIMESTAMP } from './BlobConstants';
-import { Fault } from './util/Fault';
+import { Faults } from './util/Fault';
 import { PNG } from 'pngjs';
 import { Vector2d10 } from './util/Math';
 import { deepCopy } from './util/DrawUtil';
@@ -104,38 +104,38 @@ function update() {
     loopCount = loopCount + 1;
 }
 function reset() {
-    //reset sim
+    //reset python sim
     kx = 0, ky = 0;
     pythonDone = false;
     loopCount = 0;
+
+    //reset blob processor
+    BlobProcessor.clearFaults();
+    for (let i = 0; i < BlobProcessor.blobColorBuffer.length; i++) {
+        BlobProcessor.blobColorBuffer[i].count = 0;
+    }
 
     //read image
     const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
     image = PNG.sync.read(fs.readFileSync(imageUrl));
 
     //send frame
-    sendFrame();
+    sendFrame(true);
 }
 function getFaults() {
-    const arr: string[] = [];
-    //FIXME
-    // for (const fault of BlobProcessor.faults) {
-    //     if (fault !== Fault.NO_FAULT) {
-    //         arr.push(Fault[fault]);
-    //     }
-    // }
+    const arr: (keyof Faults)[] = [];
+    for (const fault in BlobProcessor.faults) {
+        if (BlobProcessor.faults[fault as keyof Faults] == 1) {
+            arr.push(fault as keyof Faults);
+        }
+    }
     return arr;
 }
 
-//FIXME
-export function draw(x: number, y: number): void {
-    const idx = calculateIDX(x, y);
-    image.data[idx] = 255;
-    image.data[idx+1] = 0;
-}
-
 //Image
-function drawImage(): any {
+function drawImage(clearDraw?: boolean): any {
+    if (clearDraw) return image;
+
     //Deep Copy Image
     let tempImage = deepCopy(image);
 
@@ -253,22 +253,20 @@ function drawImage(): any {
 
 //Step
 async function step(count: number) {
-    console.log(" ------------------------ PROCESSING ALL ------------------------ ");
     //update sim "count" times
     for (let i = 0; i < count; i++) {
-        // if (!BlobProcessor.isDone()) { //FIXME
+        if (!BlobProcessor.isDone()) {
             update();
-        // }
-        // else break;
+        }
+        else break;
     }
-    console.log(" ----------------------------- DONE ----------------------------- ");
     sendFrame();
     fs.writeFileSync('out.png', PNG.sync.write(drawImage()));
 }
 //Socket (PC->Web)
 const io = new Server(server);
-function sendFrame() {
-    io.emit('frame', { frame: drawImage().data, faults: getFaults() });
+function sendFrame(clearDraw?: boolean) {
+    io.emit('frame', { frame: drawImage(clearDraw).data, faults: getFaults() });
 }
 io.on('connection', (socket) => {
     console.log('Web Connected');
@@ -278,23 +276,32 @@ io.on('connection', (socket) => {
         console.log('Web Disconnected');
     });
     socket.on('step', (req) => {
+        console.log("Stepping", req.count);
         step(req.count);
     });
     socket.on('reset', () => {
+        console.log("Reset");
         reset();
     });
     socket.on('changeImageFile', (req) => {
+        console.log("Changing image file to", req.file);
         imageFile = req.file;
         reset();
     });
     socket.on('changeDrawOption', (req) => {
+        console.log("Changing", req.option, "to", !!req.enabled);
         drawOptions[req.option] = !!req.enabled;
         sendFrame();
     });
 });
-//init
+
+//Init
 reset();
-if (autoStepFrame) step(5 * 80 * 480 + 50000);
+if (autoStepFrame) {
+    console.log("Auto Stepping");
+    step(Number.MAX_SAFE_INTEGER);
+    console.log("Done Auto Stepping");
+}
 
 setInterval(() => {
     io.emit('ping', process.pid);

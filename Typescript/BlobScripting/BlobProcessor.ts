@@ -25,18 +25,19 @@ mark them as garbage (if they don't meet blob criteria from Virtex Config).
 */
 
 import { IMAGE_HEIGHT } from "./util/Constants";
-import { Fault } from "./util/Fault";
+import { Faults } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { MAX_BLOBS, MAX_BLOB_POINTER_DEPTH, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP } from "./BlobConstants";
 import { BlobData, BlobMetadata, BlobStatus, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run } from "./BlobUtil";
 import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
 import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, forceAddRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem } from "./util/VerilogUtil";
-import { draw, pythonDone } from "./App";
+import { pythonDone } from "./App";
 import { deepCopy } from "./util/DrawUtil";
 
 //(scripting only)
 let blobColorBuffer: RunBuffer[] = [];
+let faults: Faults;
 
 //Run FIFO
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
@@ -58,7 +59,7 @@ let justResetFrame: reg1 = 0;
 //Blob Maker
 enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE };
 let blobMakerState: BlobMakerState = BlobMakerState.NONE;
-let blobMakerDone = () => (!pythonDone && runFIFOEmpty && blobMakerState == BlobMakerState.NONE);
+let blobMakerDone = () => (pythonDone && runFIFOEmpty && blobMakerState == BlobMakerState.NONE);
 let blobSkipCycle: reg1 = 0;
 let blobJustResetLine: reg1 = 0;
 
@@ -88,7 +89,6 @@ let targetSelectorIndexA: BlobIndex;
 let targetSelectorIndexB: BlobIndex;
 let nextTargetSelectorIndex: BlobIndex;
 let targetSelectorDone: reg1 = 0;
-
 //TODO
 
 //200MHz Clocked Loop
@@ -107,14 +107,14 @@ function always_ff(): void {
         frameReset();
     }
 
-    //Update Target Selector
-    // else if (blobMakerDone()) {
-    //     updateTargetSelectorSingle();
-    // }
-
     //Update Blob Maker
-    else {
+    else if (!blobMakerDone()) {
         updateBlobMaker();
+    }
+    
+    //Update Target Selector
+    else if (!targetSelectorDone) {
+        updateTargetSelector();
     }
 
     //(scripting only)
@@ -135,9 +135,11 @@ function updateBlobMaker(): void {
         _("blobJustResetLine <= 1");
 
         //transfer current line buffer => last line buffer
-        _("lastLineBuffer <= ", currentLineBuffer);
-        //(scripting only)
-        blobColorBuffer[currentLineBuffer.line] = deepCopy(currentLineBuffer);
+        if (runFIFOOut.line != 0) {
+            _("lastLineBuffer <= ", currentLineBuffer);
+            //(scripting only)
+            blobColorBuffer[currentLineBuffer.line] = deepCopy(currentLineBuffer);
+        }
 
         //reset current line buffer
         _("currentLineBufferX <= 0");
@@ -298,14 +300,80 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         if (!runFIFOEmpty) _("runFIFORead <= 1");
     }
 }
+function getBlobPointerIndex(startIndex: BlobIndex): BlobIndex {
+    //follow a blob's pointer
+    let index: BlobIndex = startIndex;
+    for (let i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) {
+        if (blobMetadatas[index].status == BlobStatus.POINTER) {
+            index = blobMetadatas[index].pointer; //BLOCKING
+        }
+        else {
+            return index;
+        }
+    }
+    _("faults.BLOB_POINTER_DEPTH_FAULT <= 1");
+    return NULL_BLOB_INDEX;
+}
 
 //Target Selector (blobs => target)
+function updateTargetSelector(): void {
+    //READ BLOB ON A/B
+
+    //if doesBlobMatchCriteria() => updateTargetSelector() ELSE flag GARBAGE
+}
 function updateTargetSelectorDualGroup(): void {
     //TODO
 }
 function updateTargetSelectorSingle(): void {
+    //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
+    const center: Vector = {
+        x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
+        y: (blob.boundBottomRight.y + blob.boundTopLeft.y) >> 1
+    };
+    const width:  number = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
+    const height: number = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
+
+    //aspect ratio valid
+    const aspectRatioValid: boolean = inRangeInclusive(width, //TODO fixed point mult
+        virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+
+    //bound area valid
+    const boundAreaValid: boolean = inRangeInclusive((width * height) >> 1,
+        virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+
+    //if this target is valid AND this target is better OR we dont have a target yet
+    if (aspectRatioValid && boundAreaValid &&
+        (targetCurrent.timestamp === NULL_TIMESTAMP || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) {
+        targetCurrent = {
+            center, width, height,
+            timestamp: 10,
+            blobCount: 2,
+            angle: calcBlobAngle(blob)
+        };
+    }
+
     //TODO
     targetSelectorDone = 1;
+}
+function doesBlobMatchCriteria(blob: BlobData): boolean {
+    const boundWidth: number = blob.boundBottomRight.x - blob.boundTopLeft.x;
+    const boundHeight: number = blob.boundBottomRight.y - blob.boundTopLeft.y;
+
+    //TODO fixed point mult
+    const inAspectRatioRange: boolean = inRangeInclusive(boundWidth,
+        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
+
+    const boundAreaUnshifted: number = boundWidth * boundHeight;
+    const inBoundAreaRange: boolean = inRangeInclusive(boundAreaUnshifted >> 1,
+        virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
+
+    //TODO fixed point mult
+    const inFullnessRange: boolean = inRangeInclusive(blob.area,
+        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
+
+    const isValidAngle: boolean = virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]];
+
+    return inAspectRatioRange && inBoundAreaRange && inFullnessRange && isValidAngle;
 }
 
 //Combinational Logic
@@ -318,30 +386,20 @@ function always_comb(): void {
         }
     }
 
-    //TODO Faults
-    //OUT_OF_BLOB_MEM
-}
-
-//Get Blob Pointer Index (follow a blob's pointer)
-function getBlobPointerIndex(startIndex: BlobIndex): BlobIndex {
-    let index: BlobIndex = startIndex;
-    for (let i = 0; i < MAX_BLOB_POINTER_DEPTH; i++) {
-        if (blobMetadatas[index].status == BlobStatus.POINTER) {
-            index = blobMetadatas[index].pointer; //BLOCKING
-        }
-        else {
-            return index;
-        }
+    if (blobIndex >= NULL_BLOB_INDEX) {
+        faults.OUT_OF_BLOB_MEM_FAULT = 1;
     }
-    //TODO fault
-    return NULL_BLOB_INDEX;
+    if (currentLineBuffer.count >= MAX_RUNS_PER_LINE) {
+        faults.OUT_OF_RLE_MEM_FAULT = 1;
+    }
 }
-
 
 //Global Reset for New Frame
 function frameReset(): void {
+    //TODO blob processor too slow fault
+
     //Flag Reset
-    _("justResetFrame <= 0");
+    _("justResetFrame <= 1");
 
     //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
     _("blobIndex <= 0");
@@ -375,4 +433,13 @@ let isDone = () => Boolean(targetSelectorDone);
 let getBlobIndex = () => blobIndex;
 let getBlobPointerIndexDebug = (startID: number): number => blobMetadatas[startID].status == BlobStatus.POINTER ? 
     getBlobPointerIndexDebug(blobMetadatas[startID].pointer) : startID;
-export { addToRunFIFO, always_ff, isDone, getBlobIndex, blobMetadatas, target, blobColorBuffer, getBlobPointerIndexDebug };
+let clearFaults = () => faults = {
+    PYTHON_300_PLL_FAULT: 0,
+    IR_LED_FAULT: 0,
+    OUT_OF_BLOB_MEM_FAULT: 0,
+    OUT_OF_RLE_MEM_FAULT: 0,
+    BLOB_POINTER_DEPTH_FAULT: 0,
+    BLOB_PROCESSOR_TOO_SLOW_FAULT: 0
+};
+clearFaults();
+export { addToRunFIFO, always_ff, isDone, getBlobIndex, blobMetadatas, target, blobColorBuffer, getBlobPointerIndexDebug, faults, clearFaults };
