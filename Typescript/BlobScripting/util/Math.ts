@@ -1,6 +1,6 @@
 //Math.ts
 
-import { reg10, signed_reg10 } from "./VerilogUtil";
+import { boolToReg1, reg1, reg10, signed_reg10 } from "./VerilogUtil";
 
 //Range Functions
 export function min(num1: number, num2: number): number { //MACRO
@@ -15,9 +15,9 @@ export function overflow(num: number, max: number): number { //MACRO
     //overflow number between 0 & max by 1 increment max
     return num > max ? 0 : (num < 0 ? max : num);
 }
-export function inRangeInclusive(num: number, min: number, max: number): boolean {  //MACRO
+export function inRangeInclusive(num: number, min: number, max: number): reg1 {  //MACRO
     //if number is in range (inclusive / [])
-    return num >= min && num <= max;
+    return boolToReg1(num >= min && num <= max);
 }
 
 //Vector2d10s

@@ -1,7 +1,7 @@
 // VerilogUtil - Types and Functions to simulate Verilog/FPGA behaivor
 
 import { MAX_BLOBS, NULL_BLOB_INDEX } from "../BlobConstants";
-import { BlobData, Run } from "../BlobUtil";
+import { BlobAngle, BlobData, Run, Target } from "../BlobUtil";
 import { deepCopy } from "./DrawUtil";
 
 //Types
@@ -21,9 +21,8 @@ export type reg24 = number; //[23:0] (area)
 export let runFIFOMem: Run[] = [];
 let lastRunFIFOShifted: Run = {length:0, line:0, black:0};
 export let runFIFOLength = () => runFIFOMem.length;
-export function forceAddRunFIFO(run: Run) {
-    runFIFOMem.push(run);
-}
+export let forceAddRunFIFO = (run: Run) => runFIFOMem.push(run);
+export let clearRunFIFO = () => runFIFOMem = [];
 export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
     if (obj.read) {
         if (runFIFOMem.length < 1) {
@@ -79,4 +78,14 @@ export function makeZeroBlobData(): BlobData {
         },
         area: 0
     };
+}
+
+export function makeZeroTarget(): Target {
+    return {
+        center: {x:0, y:0},
+        width: 0,
+        height: 0,
+        blobCount: 0,
+        angle: BlobAngle.HORIZONTAL
+    }
 }

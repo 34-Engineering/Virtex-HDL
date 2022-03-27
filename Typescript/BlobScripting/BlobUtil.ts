@@ -15,13 +15,6 @@ export interface BlobData {
     area: reg24
 }
 
-//Blob Metadata
-export enum BlobStatus { UNSCANED, VALID, POINTER, GARBAGE }; //[1:0]
-export interface BlobMetadata {
-    status: BlobStatus;
-    pointer: BlobIndex;
-}
-
 //?-bit Target
 export interface Target {
     center: Vector2d10;
@@ -188,3 +181,6 @@ export function runToBlob(start: reg10, length: reg10, line: reg10): BlobData {
         area: length
     };
 }
+
+//Target Null
+export let isTargetNull = (target: Target) => target.blobCount == 0;

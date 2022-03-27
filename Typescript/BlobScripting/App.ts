@@ -8,13 +8,13 @@ import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/DrawUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobAngle, BlobStatus, calcBlobAngle } from './BlobUtil';
-import { NULL_BLOB_INDEX, NULL_TIMESTAMP } from './BlobConstants';
+import { BlobAngle, calcBlobAngle, isTargetNull } from './BlobUtil';
+import { NULL_BLOB_INDEX } from './BlobConstants';
 import { Faults } from './util/Fault';
 import { PNG } from 'pngjs';
 import { Vector2d10 } from './util/Math';
 import { deepCopy } from './util/DrawUtil';
-import { blobBRAMMem, boolToReg1, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
+import { blobBRAMMem, boolToReg1, clearRunFIFO, forceAddRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -65,10 +65,10 @@ function update() {
                 runBlack = !threshold;
             }
 
-            //@ end line 
+            //@ end line
             else if (px == (IMAGE_WIDTH-1)) {
-                BlobProcessor.addToRunFIFO({
-                    length: px - runStart, //no +1 because px is after line
+                forceAddRunFIFO({
+                    length: px - runStart + 1,
                     line: ky,
                     black: boolToReg1(runBlack)
                 });
@@ -76,7 +76,7 @@ function update() {
 
             //@ color change
             else if (runBlack == threshold) {
-                BlobProcessor.addToRunFIFO({
+                forceAddRunFIFO({
                     length: px - runStart, //no +1 because px is after line
                     line: ky,
                     black: boolToReg1(runBlack)
@@ -104,28 +104,28 @@ function update() {
     loopCount = loopCount + 1;
 }
 function reset() {
+    //read image
+    const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
+    image = PNG.sync.read(fs.readFileSync(imageUrl));
+
     //reset python sim
     kx = 0, ky = 0;
     pythonDone = false;
     loopCount = 0;
+    clearRunFIFO();
 
     //reset blob processor
     BlobProcessor.clearFaults();
-    for (let i = 0; i < BlobProcessor.blobColorBuffer.length; i++) {
-        BlobProcessor.blobColorBuffer[i].count = 0;
-    }
-
-    //read image
-    const imageUrl = path.join(IMAGES_INPUT_PATH, imageFile);
-    image = PNG.sync.read(fs.readFileSync(imageUrl));
+    while (BlobProcessor.isDone())
+        update();
 
     //send frame
     sendFrame(true);
 }
 function getFaults() {
     const arr: (keyof Faults)[] = [];
-    for (const fault in BlobProcessor.faults) {
-        if (BlobProcessor.faults[fault as keyof Faults] == 1) {
+    for (const fault in BlobProcessor.getFaults()) {
+        if (BlobProcessor.getFaults()[fault as keyof Faults] == 1) {
             arr.push(fault as keyof Faults);
         }
     }
@@ -141,23 +141,20 @@ function drawImage(clearDraw?: boolean): any {
 
     //Draw Blob Color
     if (drawOptions.blobColor) {
-        for (let y = 0; y < BlobProcessor.blobColorBuffer.length; y++) {
-            for (let i = 0; i < BlobProcessor.blobColorBuffer[y].count; i++) {
-                const run = BlobProcessor.blobColorBuffer[y].runs[i];
+        for (let y = 0; y < Math.min(BlobProcessor.getBlobColorBuffer().length, ky); y++) {
+            for (let i = 0; i < BlobProcessor.getBlobColorBuffer()[y].count; i++) {
+                const run = BlobProcessor.getBlobColorBuffer()[y].runs[i];
 
                 //if run is black ignore it
-                if (run.blobIndex !== NULL_BLOB_INDEX || BlobProcessor.blobMetadatas[run.blobIndex]?.status == BlobStatus.POINTER) {                    
-                    //if run has pointer blobIndex => follow it
-                    const realBlobIndex: number = BlobProcessor.getBlobPointerIndexDebug(run.blobIndex);
-
+                if (run.blobIndex !== NULL_BLOB_INDEX) {                    
                     //if run has valid blobIndex (or valid pointer blobIndex) => draw it
-                    if (BlobProcessor.blobMetadatas[realBlobIndex].status !== BlobStatus.GARBAGE) {
+                    if (!BlobProcessor.getBlobGarbageList()[i]) {
                         for (let x = run.start; x <= run.end; x++) {
                             drawPixel(tempImage.data, { x, y }, [
                                 //generate unique color based on blob index
-                                Math.sin(realBlobIndex * 50) * 200 + 55,
-                                Math.sin(realBlobIndex * 100) * 200 + 55,
-                                Math.sin(realBlobIndex * 200) * 200 + 55,
+                                Math.sin(run.blobIndex * 50) * 200 + 55,
+                                Math.sin(run.blobIndex * 100) * 200 + 55,
+                                Math.sin(run.blobIndex * 200) * 200 + 55,
                                 255
                             ]);
                         }
@@ -171,8 +168,7 @@ function drawImage(clearDraw?: boolean): any {
     for (let i = 0; i < BlobProcessor.getBlobIndex(); i++) {
         const blob = blobBRAMMem[i];
         // console.log(blob);
-        if (BlobProcessor.blobMetadatas[i].status == BlobStatus.VALID ||
-            BlobProcessor.blobMetadatas[i].status == BlobStatus.UNSCANED) {
+        if (!BlobProcessor.getBlobGarbageList()[i]) {
             if (drawOptions.blobAngle) {
                 calcBlobAngle(blob, tempImage.data);
             }
@@ -202,20 +198,21 @@ function drawImage(clearDraw?: boolean): any {
         }
     }
 
-    // //Draw Target
-    // if (drawOptions.target && BlobProcessor.target.timestamp !== NULL_TIMESTAMP) {
-    //     //bound
-    //     drawRect(tempImage.data, {
-    //         x: BlobProcessor.target.center.x - (BlobProcessor.target.width >> 1),
-    //         y: BlobProcessor.target.center.y - (BlobProcessor.target.height >> 1)
-    //     }, {
-    //         x: BlobProcessor.target.center.x + (BlobProcessor.target.width >> 1),
-    //         y: BlobProcessor.target.center.y + (BlobProcessor.target.height >> 1)
-    //     }, [125, 255, 125, 255]);
+    //Draw Target
+    if (drawOptions.target && !isTargetNull(BlobProcessor.getTarget())) {
 
-    //     //center
-    //     drawCenterFillSquare(tempImage.data, BlobProcessor.target.center, 2, [125, 255, 125, 255]);
-    // }
+        //bound
+        drawRect(tempImage.data, {
+            x: BlobProcessor.getTarget().center.x - (BlobProcessor.getTarget().width >> 1),
+            y: BlobProcessor.getTarget().center.y - (BlobProcessor.getTarget().height >> 1)
+        }, {
+            x: BlobProcessor.getTarget().center.x + (BlobProcessor.getTarget().width >> 1),
+            y: BlobProcessor.getTarget().center.y + (BlobProcessor.getTarget().height >> 1)
+        }, [125, 255, 125, 255]);
+
+        //center
+        drawCenterFillSquare(tempImage.data, BlobProcessor.getTarget().center, 2, [125, 255, 125, 255]);
+    }
 
     //Draw Kernel Pos & Line
     if (drawOptions.kernelPos) {
@@ -229,23 +226,23 @@ function drawImage(clearDraw?: boolean): any {
         );
     }
 
-    // //Draw Crosshair
-    // if (drawOptions.crosshair) {
-    //     drawLine(tempImage.data, {
-    //         x: virtexConfig.targetCenterX,
-    //         y: virtexConfig.targetCenterY - 4.5 
-    //     }, {
-    //         x: virtexConfig.targetCenterX,
-    //         y: virtexConfig.targetCenterY + 5
-    //     }, [0, 255, 100, 255]);
-    //     drawLine(tempImage.data, {
-    //         x: virtexConfig.targetCenterX - 4,
-    //         y: virtexConfig.targetCenterY
-    //     }, {
-    //         x: virtexConfig.targetCenterX + 5,
-    //         y: virtexConfig.targetCenterY
-    //     }, [0, 255, 100, 255]);
-    // }
+    //Draw Crosshair
+    if (drawOptions.crosshair) {
+        drawLine(tempImage.data, {
+            x: virtexConfig.targetCenterX,
+            y: virtexConfig.targetCenterY - 4.5 
+        }, {
+            x: virtexConfig.targetCenterX,
+            y: virtexConfig.targetCenterY + 5
+        }, [0, 255, 100, 255]);
+        drawLine(tempImage.data, {
+            x: virtexConfig.targetCenterX - 4,
+            y: virtexConfig.targetCenterY
+        }, {
+            x: virtexConfig.targetCenterX + 5,
+            y: virtexConfig.targetCenterY
+        }, [0, 255, 100, 255]);
+    }
 
     //Return Drawn Image
     return tempImage;
@@ -289,7 +286,7 @@ io.on('connection', (socket) => {
         reset();
     });
     socket.on('changeDrawOption', (req) => {
-        console.log("Changing", req.option, "to", !!req.enabled);
+        console.log("Changing draw", req.option, "to", !!req.enabled);
         drawOptions[req.option] = !!req.enabled;
         sendFrame();
     });
