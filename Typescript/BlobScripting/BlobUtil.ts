@@ -1,4 +1,4 @@
-import { inRangeInclusive, max, min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
+import { Math_inRangeInclusive, Math_max, Math_min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
 import { drawLine } from "./util/DrawUtil";
 import { BlobIndex, boolToReg1, reg1, reg10, reg16, reg24, reg4, signed_reg10 } from "./util/VerilogUtil";
 
@@ -71,12 +71,12 @@ export interface RunBuffer {
 export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
     return {
         boundTopLeft: {
-            x: min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
-            y: min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
+            x: Math_min(blob1.boundTopLeft.x, blob2.boundTopLeft.x),
+            y: Math_min(blob1.boundTopLeft.y, blob2.boundTopLeft.y)
         },
         boundBottomRight: {
-            x: max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
-            y: max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
+            x: Math_max(blob1.boundBottomRight.x, blob2.boundBottomRight.x),
+            y: Math_max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
         quad: mergeQuad10s(blob1.quad, blob2.quad),
         area: blob1.area + blob2.area
@@ -153,7 +153,7 @@ function calcAngle(dx: signed_reg10, dy: signed_reg10): BlobAngle {
     const v = quickDivide(dy, dx); //how vertical the line is
     return (h > t && v < t) ? BlobAngle.HORIZONTAL :
            (h < t && v > t) ? BlobAngle.VERTICAL   :
-           Math.sign(dx) * Math.sign(dy) < 0 ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
+           boolToReg1(dx>0) ^ boolToReg1(dy>0) ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
 }
 
 //Runs Overlap
@@ -187,8 +187,8 @@ export let isTargetNull = (target: Target) => target.blobCount == 0;
 
 //In Range/Valid (NOTE: this is only Typescript impl & will be very different in HDL)
 export function isAspectRatioInRange(width: reg10, height: reg10, min: reg16, max: reg16): reg1 {
-    return inRangeInclusive(width, min*height, max*height); //in replacement of inRangeInclusive(width/height, min, max)
+    return Math_inRangeInclusive(width, min*height, max*height); //in replacement of inRangeInclusive(width/height, min, max)
 }
 export function isFullnessInRange(area: reg24, boundArea: reg24, min: reg16, max: reg16): reg1 {
-    return inRangeInclusive(area, min*boundArea, max*boundArea);
+    return Math_inRangeInclusive(area, min*boundArea, max*boundArea);
 }

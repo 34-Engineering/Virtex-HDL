@@ -49,7 +49,20 @@ GROUP:
 Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
 
-//TODO remove Math (abs -> diff)
+//TODO if target selector is too slow we can double the speed by doing double processing (but also doubles area)
+
+FIXME what is
+{
+    boundTopLeft: { x: 0, y: 0 },
+    boundBottomRight: { x: 0, y: 1 },
+    quad: {
+        topLeft: { x: 0, y: 0 },
+        topRight: { x: 0, y: 0 },
+        bottomRight: { x: 0, y: 1 },
+        bottomLeft: { x: 0, y: 1 }
+    },
+    area: 0
+}
 */
 
 import { IMAGE_HEIGHT } from "./util/Constants";
@@ -57,7 +70,7 @@ import { Faults } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP } from "./BlobConstants";
 import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, isAspectRatioInRange, isFullnessInRange } from "./BlobUtil";
-import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
+import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
 import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1 } from "./util/VerilogUtil";
 import { pythonDone } from "./App";
@@ -352,8 +365,6 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
 
 //Target Selector (blobs => target)
 function updateTargetSelector(): void {
-    //TODO double processing/speed? (but doubles area)
-
     //Increment Init Step
     if (targetInitStep != 3) {
         _("targetInitStep <= ", targetInitStep+1);
@@ -371,8 +382,6 @@ function updateTargetSelector(): void {
     }
 }
 function updateTargetSelectorDualGroup(): void {
-    process.stdout.write(targetInitStep + (targetPartion?"+":"-"));
-
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
         targetInitStep, targetPartion, commands
@@ -386,34 +395,14 @@ function updateTargetSelectorDualGroup(): void {
         3 -                 PROCESS B0 on 0 READ New B0 on 0
           ... till B0|1 == NULL_BLOB_INDEX
         ---- till A == NULL_BLOB_INDEX */
-    
-    //process.stdout.write("");
 
     //SAVE A from 1
     if (targetInitStep == 2) {
-        process.stdout.write(" SAVE A from 1");
-
         let newTargetBlobA: BlobData = blobBRAMPorts[1].dout;
         let newTargetBlobAAngle: BlobAngle = calcBlobAngle(newTargetBlobA);
 
-        /*FIXME what is
-        {
-            boundTopLeft: { x: 0, y: 0 },
-            boundBottomRight: { x: 0, y: 1 },
-            quad: {
-                topLeft: { x: 0, y: 0 },
-                topRight: { x: 0, y: 0 },
-                bottomRight: { x: 0, y: 1 },
-                bottomLeft: { x: 0, y: 1 }
-            },
-            area: 0
-        }*/
-        // console.log(newTargetBlobA, blobBRAMMem[targetIndexA]);
-
         //Garbage A => Skip & Flag Garbage
         if (!doesBlobMatchCriteria(newTargetBlobA)) {
-            process.stdout.write(" (a_garbo)");
-
             //Flag Garbage
             _(`blobGarbageList[${targetIndexA}] <= 1`);
     
@@ -427,7 +416,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //Setup for Group Mode
         else if (virtexConfig.targetMode === TargetMode.GROUP) {
-            process.stdout.write("(up_grp)");
             _("targetChain <= ", {
                 center: {
                     x: (newTargetBlobA.boundBottomRight.x + newTargetBlobA.boundTopLeft.x) >> 1,
@@ -447,14 +435,12 @@ function updateTargetSelectorDualGroup(): void {
 
     //PROCESS
     if (targetInitStep == 3 && !blobGarbageList[targetIndexA]) {
-        process.stdout.write(" PROCESS B" + targetPartion + "(" + targetIndexA + "-" + targetIndexBs[targetPartion] + ")");
         //Get Blob
         let targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
         let targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
         //Skip & Flag Garbage
         if (!doesBlobMatchCriteria(targetBlobB)) {
-            process.stdout.write("(b_garbo)")
             _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
         }
 
@@ -470,12 +456,12 @@ function updateTargetSelectorDualGroup(): void {
                 y: targetChain.center.y + (targetChain.height >> 1)
             };
             const newTopLeft: Vector2d10 = {
-                x: Math.min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
-                y: Math.min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
+                x: Math_min(targetBlobB.boundTopLeft.x, chainTopLeft.x),
+                y: Math_min(targetBlobB.boundTopLeft.y, chainTopLeft.y)
             };
             const newBottomRight: Vector2d10 = {
-                x: Math.max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
-                y: Math.max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
+                x: Math_max(targetBlobB.boundBottomRight.x, chainBottomRight.x),
+                y: Math_max(targetBlobB.boundBottomRight.y, chainBottomRight.y)
             };
             const newCenter: Vector2d10 = {
                 x: (newTopLeft.x + newBottomRight.x) >> 1,
@@ -485,21 +471,21 @@ function updateTargetSelectorDualGroup(): void {
             const newHeight: reg10 = newBottomRight.y - newTopLeft.y + 1;
 
             //gap valid between Blob B & target
-            const gapX: reg10 = Math.min(
-                Math.abs(targetBlobB.boundTopLeft.x - chainBottomRight.x),
-                Math.abs(targetBlobB.boundBottomRight.x - chainTopLeft.x)
+            const gapX: reg10 = Math_min(
+                Math_diff(targetBlobB.boundTopLeft.x, chainBottomRight.x),
+                Math_diff(targetBlobB.boundBottomRight.x, chainTopLeft.x)
             );
-            const gapY: reg10 = Math.min(
-                Math.abs(targetBlobB.boundTopLeft.y - chainBottomRight.y),
-                Math.abs(targetBlobB.boundBottomRight.y - chainTopLeft.y)
+            const gapY: reg10 = Math_min(
+                Math_diff(targetBlobB.boundTopLeft.y, chainBottomRight.y),
+                Math_diff(targetBlobB.boundBottomRight.y, chainTopLeft.y)
             );
-            const gapValid: reg1 = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-                inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+            const gapValid: reg1 = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
+                Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
             //area diff between Blob A & B
             const areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
             const areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
-            const areaDiffValid: reg1 = inRangeInclusive(Math.abs(areaBlobA - areaBlobB),
+            const areaDiffValid: reg1 = Math_inRangeInclusive(Math_diff(areaBlobA, areaBlobB),
                 virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
             if (gapValid && areaDiffValid) {
@@ -510,7 +496,7 @@ function updateTargetSelectorDualGroup(): void {
                     virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area of new currentTarget valid
-                const newBoundAreaValid: reg1 = inRangeInclusive((newWidth * newHeight) >> 1,
+                const newBoundAreaValid: reg1 = Math_inRangeInclusive((newWidth * newHeight) >> 1,
                     virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
                 const newTargetChain: Target = {
@@ -523,7 +509,6 @@ function updateTargetSelectorDualGroup(): void {
 
                 //set current valid target
                 if (newAspectRatioValid && newBoundAreaValid) {
-                    process.stdout.write(`(vl_sn)`);
                     _("targetChainValid <= ", newTargetChain);
                 }
 
@@ -535,7 +520,6 @@ function updateTargetSelectorDualGroup(): void {
                 if (targetWillGetNewA() && !isTargetNull(realTargetChainValid) &&
                    (isTargetNull(targetCurrent) || distSqToTargetCenter(realTargetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
                     _("targetCurrent <= ", realTargetChainValid);
-                    process.stdout.write("(lw_best)");
                 }
             }
         }
@@ -552,12 +536,12 @@ function updateTargetSelectorDualGroup(): void {
 
             //make enclosing bound
             const topLeft: Vector2d10 = {
-                x: Math.min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-                y: Math.min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
+                x: Math_min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                y: Math_min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
             };
             const bottomRight: Vector2d10 = {
-                x: Math.max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-                y: Math.max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                x: Math_max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                y: Math_max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
             };
             const center: Vector2d10 = {
                 x: (topLeft.x + bottomRight.x) >> 1,
@@ -573,23 +557,23 @@ function updateTargetSelectorDualGroup(): void {
                 leftBlobAngle == BlobAngle.BACKWARD && rightBlobAngle == BlobAngle.FORWARD : true);
 
             //gap valid
-            const gapX: reg10 = Math.abs(rightBlob.boundTopLeft.x - leftBlob.boundBottomRight.x);
-            const gapY: reg10 = Math.abs(rightBlob.boundTopLeft.y - leftBlob.boundBottomRight.y);
-            const gapValid: reg1 = inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-                inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+            const gapX: reg10 = Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
+            const gapY: reg10 = Math_diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
+            const gapValid: reg1 = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
+                Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
             //aspect ratio valid
             const aspectRatioValid: reg1 = isAspectRatioInRange(width, height,
                 virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
             //bound area valid
-            const boundAreaValid: reg1 = inRangeInclusive((width * height) >> 1,
+            const boundAreaValid: reg1 = Math_inRangeInclusive((width * height) >> 1,
                 virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
             //area diff valid
             const areaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
             const areaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
-            const areaDiffValid: reg1 = inRangeInclusive(Math.abs(areaRight - areaLeft),
+            const areaDiffValid: reg1 = Math_inRangeInclusive(Math_diff(areaRight, areaLeft),
                 virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
             
             //if this target is valid AND this target is better OR we dont have a target yet
@@ -606,10 +590,8 @@ function updateTargetSelectorDualGroup(): void {
 
     //READ
     if (targetInitStep != 0 && !targetWantsNewA) {
-        process.stdout.write(" READ New B" + targetPartion);
         //Request New A
         if (nextTargetIndexBs[targetPartion]() == NULL_BLOB_INDEX) {
-            process.stdout.write("(No B -> Want new A)");
             //Request New A (we must request because we have to wait for last B to finish processing)
             _("targetWantsNewA <= 1");
 
@@ -629,14 +611,11 @@ function updateTargetSelectorDualGroup(): void {
 
     //Reset for New A OR Finish
     if (targetWillGetNewA()) {
-        process.stdout.write(" READ New A on 1");
-
         //Reset Target Partion
         _("targetPartion <= 0");
 
         //Finish
         if (nextTargetIndexA() === NULL_BLOB_INDEX) {
-            process.stdout.write("(Done)");
             //transfer best target to target
             _("target <= ", targetCurrent);
 
@@ -646,7 +625,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (initTargetIndexB() !== NULL_BLOB_INDEX) {
-            process.stdout.write("(" + nextTargetIndexA() + ")");
             //READ New A on 1
             _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
 
@@ -658,15 +636,12 @@ function updateTargetSelectorDualGroup(): void {
         
         //No Valid Bs for this A => Go get new A
         else {
-            process.stdout.write("(Skip)");
             _("targetInitStep <= 0");
         }
 
         //Set New A
         _("targetIndexA <= ", nextTargetIndexA());
     }
-
-    process.stdout.write("\n");
 }
 function updateTargetSelectorSingle(): void {
     /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
@@ -711,7 +686,7 @@ function updateTargetSelectorSingle(): void {
                 virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
             //bound area valid
-            const boundAreaValid: reg1 = inRangeInclusive((width * height) >> 1,
+            const boundAreaValid: reg1 = Math_inRangeInclusive((width * height) >> 1,
                 virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
             //if this target is valid AND this target is better OR we dont have a target yet
@@ -758,7 +733,7 @@ function doesBlobMatchCriteria(blob: BlobData): reg1 {
         virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
     const boundAreaUnshifted: reg24 = boundWidth * boundHeight;
-    const inBoundAreaRange: reg1 = inRangeInclusive(boundAreaUnshifted >> 1,
+    const inBoundAreaRange: reg1 = Math_inRangeInclusive(boundAreaUnshifted >> 1,
         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
     const inFullnessRange: reg1 = isFullnessInRange(blob.area, boundAreaUnshifted,
@@ -828,7 +803,7 @@ function _(ass: string, val?: any) {
 }
 function processNonblocking() {
     for (const assignment of nonblockingQueue) {
-        //TODO overflow
+        //TODO Math_overflow
         try { eval(`${assignment.name} = ${assignment.val};`); }
         catch (e) { console.error(`ERROR EVALUATING "${assignment.name}" TO "${assignment.val}"`); }
     }

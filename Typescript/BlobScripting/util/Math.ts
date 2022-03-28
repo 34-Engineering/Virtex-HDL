@@ -3,21 +3,27 @@
 import { boolToReg1, reg1, reg10, signed_reg10 } from "./VerilogUtil";
 
 //Range Functions
-export function min(num1: number, num2: number): number { //MACRO
+export function Math_min(num1: number, num2: number): number { //MACRO
     //returns the smaller of the two numbers
     return num1 < num2 ? num1 : num2;
 }
-export function max(num1: number, num2: number): number { //MACRO
+export function Math_max(num1: number, num2: number): number { //MACRO
     //returns the larger of the two numbers
     return num1 > num2 ? num1 : num2;
 }
-export function overflow(num: number, max: number): number { //MACRO
+export function Math_overflow(num: number, max: number): number { //MACRO
     //overflow number between 0 & max by 1 increment max
     return num > max ? 0 : (num < 0 ? max : num);
 }
-export function inRangeInclusive(num: number, min: number, max: number): reg1 {  //MACRO
+export function Math_inRangeInclusive(num: number, min: number, max: number): reg1 {  //MACRO
     //if number is in range (inclusive / [])
     return boolToReg1(num >= min && num <= max);
+}
+export function Math_diff(a: number, b: number): number { //MACRO
+    return (a > b) ? (a - b) : (b - a);
+}
+export function Math_abs(num: number): number {
+    return Math.abs(num); //will be diff in HDL
 }
 
 //Vector2d10s
