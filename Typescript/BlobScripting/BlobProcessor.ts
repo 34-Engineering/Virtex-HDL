@@ -50,7 +50,6 @@ Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
 
 //TODO remove Math (abs -> diff)
-//TODO blob 1 line short?
 */
 
 import { IMAGE_HEIGHT } from "./util/Constants";
@@ -371,7 +370,7 @@ function updateTargetSelector(): void {
     }
 }
 function updateTargetSelectorDualGroup(): void {
-    // console.log(targetInitStep, targetPartion?'+':'-', targetIndexA, targetIndexBs, [nextTargetIndexBs[0](), nextTargetIndexBs[1]()], [nextTargetIndexBsUnaccounted[0](), nextTargetIndexBsUnaccounted[1]()], targetWantsNewA);
+    process.stdout.write(targetInitStep + (targetPartion?"+":"-"));
 
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
@@ -384,17 +383,21 @@ function updateTargetSelectorDualGroup(): void {
         3 -                 PROCESS B0 on 0 READ New B0 on 0
         3 +                 PROCESS B1 on 1 READ New B1 on 1
         3 -                 PROCESS B0 on 0 READ New B0 on 0
-          ... till B0|B1 == NULL_BLOB_INDEX
+          ... till B0|1 == NULL_BLOB_INDEX
         ---- till A == NULL_BLOB_INDEX */
     
+    //process.stdout.write("");
+
     //SAVE A from 1
     if (targetInitStep == 2) {
+        process.stdout.write(" SAVE A from 1");
+
         let newTargetBlobA: BlobData = blobBRAMPorts[1].dout;
         let newTargetBlobAAngle: BlobAngle = calcBlobAngle(newTargetBlobA);
 
         //Garbage A => Skip & Flag Garbage
         if (!doesBlobMatchCriteria(blobBRAMPorts[1].dout)) {
-            // console.log("GARBAGE A");
+            process.stdout.write(" (GARBAGE A)");
 
             //Flag Garbage
             _(`blobGarbageList[${blobBRAMPorts[1].addr}] <= 1`);
@@ -408,6 +411,7 @@ function updateTargetSelectorDualGroup(): void {
         }
 
         //Wrap up + Reset for GROUP Mode
+        //TODO something is wrong with this I think? A/B indexes are properly lined up... what else could it be? tValid?
         else if (virtexConfig.targetMode === TargetMode.GROUP) {
             //Chain is Done. Make it the target if we made a valid target AND
             //its better than the current one OR we dont have a current one
@@ -417,6 +421,7 @@ function updateTargetSelectorDualGroup(): void {
             }
 
             //Reset Group Target Selector
+            // console.log(newTargetBlobA);
             _("targetChain <= ", {
                 center: {
                     x: (newTargetBlobA.boundBottomRight.x + newTargetBlobA.boundTopLeft.x) >> 1,
@@ -436,7 +441,7 @@ function updateTargetSelectorDualGroup(): void {
 
     //PROCESS
     if (targetInitStep == 3) {
-        console.log("PROCESS B" + targetPartion, "<->", targetIndexA, "AGAINST", targetIndexBs[targetPartion]);
+        process.stdout.write("PROCESS B" + targetPartion + "(" + targetIndexA + "-" + targetIndexBs[targetPartion] + ")");
         //Get Blob
         let targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
         let targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
@@ -581,9 +586,10 @@ function updateTargetSelectorDualGroup(): void {
 
     //READ
     if (targetInitStep != 0 && !targetWantsNewA) {
+        process.stdout.write(" READ New B" + targetPartion);
         //Request New A
         if (nextTargetIndexBs[targetPartion]() == NULL_BLOB_INDEX) {
-            // console.log("READ -> NEW A");
+            process.stdout.write("(No B -> Want new A)");
             //Request New A (we must request because we have to wait for last B to finish processing)
             _("targetWantsNewA <= 1");
 
@@ -593,7 +599,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New B0|1
         else {
-            // console.log("READ -> New B" + targetPartion);
             //READ New B0|1
             _(`blobBRAMPorts[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
 
@@ -604,12 +609,14 @@ function updateTargetSelectorDualGroup(): void {
 
     //Reset for New A OR Finish
     if (targetWantsNewA && targetIndexBs[invertReg1(targetPartion)] == NULL_BLOB_INDEX) {
+        process.stdout.write(" READ New A");
+
         //Reset Target Partion
         _("targetPartion <= 0");
 
         //Finish
         if (nextTargetIndexA() === NULL_BLOB_INDEX) {
-            // console.log("\n\n\nNEW A -> DONE");
+            process.stdout.write(" (No A -> Done)");
             //transfer best target to target
             _("target <= ", targetCurrent);
 
@@ -619,7 +626,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (initTargetIndexB() !== NULL_BLOB_INDEX) {
-            // console.log("\n\n\nNEW A -> GOOD");
             //READ New A on 1
             _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
 
@@ -631,7 +637,7 @@ function updateTargetSelectorDualGroup(): void {
         
         //No Valid Bs for this A => Go get new A
         else {
-            // console.log("\n\n\nNEW A -> SKIP");
+            process.stdout.write(" (No Bs -> Skip)");
             _("targetInitStep <= 0");
         }
 
@@ -639,7 +645,7 @@ function updateTargetSelectorDualGroup(): void {
         _("targetIndexA <= ", nextTargetIndexA());
     }
 
-    // console.log("");
+    process.stdout.write("\n");
 }
 function updateTargetSelectorSingle(): void {
     /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
