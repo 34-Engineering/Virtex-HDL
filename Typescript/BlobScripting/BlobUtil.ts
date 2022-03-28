@@ -1,6 +1,6 @@
 import { inRangeInclusive, max, min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
 import { drawLine } from "./util/DrawUtil";
-import { BlobIndex, boolToReg1, reg1, reg10, reg24, reg4, signed_reg10 } from "./util/VerilogUtil";
+import { BlobIndex, boolToReg1, reg1, reg10, reg16, reg24, reg4, signed_reg10 } from "./util/VerilogUtil";
 
 //144-bit Blob Data
 export interface BlobData {
@@ -184,3 +184,11 @@ export function runToBlob(start: reg10, length: reg10, line: reg10): BlobData {
 
 //Target Null
 export let isTargetNull = (target: Target) => target.blobCount == 0;
+
+//In Range/Valid (NOTE: this is only Typescript impl & will be very different in HDL)
+export function isAspectRatioInRange(width: reg10, height: reg10, min: reg16, max: reg16): reg1 {
+    return inRangeInclusive(width, min*height, max*height); //in replacement of inRangeInclusive(width/height, min, max)
+}
+export function isFullnessInRange(area: reg24, boundArea: reg24, min: reg16, max: reg16): reg1 {
+    return inRangeInclusive(area, min*boundArea, max*boundArea);
+}

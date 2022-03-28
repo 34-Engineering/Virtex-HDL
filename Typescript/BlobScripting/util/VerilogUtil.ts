@@ -8,15 +8,16 @@ import { deepCopy } from "./DrawUtil";
 export type reg1 = 0|1;
 export let boolToReg1 = (bool: boolean): reg1 => bool ? 1 : 0;
 export let invertReg1 = (reg: reg1): reg1 => boolToReg1(!Boolean(reg));
-export type reg2 = 0|1|2|3;
-export type reg3 = 0|1|2|3|4|5|6|7;
-export type reg4 = number;
-export type reg8 = number;
-export type reg10 = number;
+export type reg2 = 0|1|2|3; //[1:0]
+export type reg3 = 0|1|2|3|4|5|6|7; //[2:0]
+export type reg4 = number; //[3:0]
+export type reg8 = number; //[7:0]
+export type reg10 = number; //[9:0]
 export type signed_reg10 = number; //[10:0]
+export type reg16 = number; //[15:0]
+export type reg24 = number; //[23:0] (area)
 export type BlobIndex = number; //[MAX_BLOB_INDEX_SIZE-1:0]
 export type RunBufferIndex = number; //[MAX_RUN_BUFFER_INDEX-1:0]
-export type reg24 = number; //[23:0] (area)
 
 //Run FIFO
 export let runFIFOMem: Run[] = [];

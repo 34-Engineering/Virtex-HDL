@@ -56,7 +56,7 @@ import { IMAGE_HEIGHT } from "./util/Constants";
 import { Faults } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP } from "./BlobConstants";
-import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull } from "./BlobUtil";
+import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, isAspectRatioInRange, isFullnessInRange } from "./BlobUtil";
 import { inRangeInclusive, overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
 import { reg1, reg10, BlobIndex, reg24, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1 } from "./util/VerilogUtil";
@@ -506,8 +506,8 @@ function updateTargetSelectorDualGroup(): void {
                 //TODO MAX_TARGET_SIZE (1023) fault
 
                 //aspect ratio of new currentTarget valid
-                const newAspectRatioValid: reg1 = inRangeInclusive(newWidth, //TODO fixed point mult
-                    virtexConfig.targetAspectRatioMin*newHeight, virtexConfig.targetAspectRatioMax*newHeight);
+                const newAspectRatioValid: reg1 = isAspectRatioInRange(newWidth, newHeight,
+                    virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area of new currentTarget valid
                 const newBoundAreaValid: reg1 = inRangeInclusive((newWidth * newHeight) >> 1,
@@ -579,8 +579,8 @@ function updateTargetSelectorDualGroup(): void {
                 inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
             //aspect ratio valid
-            const aspectRatioValid: reg1 = inRangeInclusive(width, //TODO fixed point mult
-                virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+            const aspectRatioValid: reg1 = isAspectRatioInRange(width, height,
+                virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
             //bound area valid
             const boundAreaValid: reg1 = inRangeInclusive((width * height) >> 1,
@@ -707,8 +707,8 @@ function updateTargetSelectorSingle(): void {
             const height: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
 
             //aspect ratio valid
-            const aspectRatioValid: reg1 = inRangeInclusive(width, //TODO fixed point mult
-                virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height);
+            const aspectRatioValid: reg1 = isAspectRatioInRange(width, height,
+                virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
             //bound area valid
             const boundAreaValid: reg1 = inRangeInclusive((width * height) >> 1,
@@ -754,17 +754,15 @@ function doesBlobMatchCriteria(blob: BlobData): reg1 {
     const boundWidth: reg10 = blob.boundBottomRight.x - blob.boundTopLeft.x;
     const boundHeight: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
-    //TODO fixed point mult
-    const inAspectRatioRange: reg1 = inRangeInclusive(boundWidth,
-        virtexConfig.blobAspectRatioMin*boundHeight, virtexConfig.blobAspectRatioMax*boundHeight);
+    const inAspectRatioRange: reg1 = isAspectRatioInRange(boundWidth, boundHeight,
+        virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
     const boundAreaUnshifted: reg24 = boundWidth * boundHeight;
     const inBoundAreaRange: reg1 = inRangeInclusive(boundAreaUnshifted >> 1,
         virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
-    //TODO fixed point mult
-    const inFullnessRange: reg1 = inRangeInclusive(blob.area,
-        virtexConfig.blobFullnessMin*boundAreaUnshifted, virtexConfig.blobFullnessMax*boundAreaUnshifted);
+    const inFullnessRange: reg1 = isFullnessInRange(blob.area, boundAreaUnshifted,
+        virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
 
     const isValidAngle: reg1 = boolToReg1(virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]]);
 
