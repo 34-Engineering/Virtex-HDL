@@ -9,6 +9,9 @@ export const MAX_RUNS_PER_LINE = 60;
 //size of run fifo (python -> blob processor)
 export const RUN_FIFO_LENGTH = 512;
 
+//max amount of blobs in target group (tied to Target.blobCount register size)
+export const MAX_TARGET_GROUP_SIZE = (2 << (10-1)) - 1;
+
 //null values
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 export const NULL_BLOB_INDEX = MAX_BLOBS;

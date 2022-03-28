@@ -49,7 +49,7 @@ GROUP:
 Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
 
-//TODO if target selector is too slow we can double the speed by doing double processing (but also doubles area)
+Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
 
 FIXME what is
 {
@@ -68,7 +68,7 @@ FIXME what is
 import { IMAGE_HEIGHT } from "./util/Constants";
 import { Faults } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
-import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP } from "./BlobConstants";
+import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
 import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, isAspectRatioInRange, isFullnessInRange } from "./BlobUtil";
 import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
@@ -145,7 +145,7 @@ let nextTargetIndexBs = [
                      (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(targetIndexBs[0]+2) : nextTargetIndexBsUnaccounted[1]()
 ];
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
-let targetSelectorDone: reg1 = 0;
+let targetSelectorDone: reg1 = 1;
 
 //200MHz Clocked Loop
 function always_ff(): void {
@@ -488,9 +488,7 @@ function updateTargetSelectorDualGroup(): void {
             const areaDiffValid: reg1 = Math_inRangeInclusive(Math_diff(areaBlobA, areaBlobB),
                 virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
-            if (gapValid && areaDiffValid) {
-                //TODO MAX_TARGET_SIZE (1023) fault
-
+            if (gapValid && areaDiffValid && targetChain.blobCount < MAX_TARGET_GROUP_SIZE) {
                 //aspect ratio of new currentTarget valid
                 const newAspectRatioValid: reg1 = isAspectRatioInRange(newWidth, newHeight,
                     virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
@@ -521,6 +519,10 @@ function updateTargetSelectorDualGroup(): void {
                    (isTargetNull(targetCurrent) || distSqToTargetCenter(realTargetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
                     _("targetCurrent <= ", realTargetChainValid);
                 }
+            }
+
+            else if (targetChain.blobCount == MAX_TARGET_GROUP_SIZE) {
+                faults.MAX_TARGET_GROUP_SIZE_FAULT = 1;
             }
         }
 
@@ -767,7 +769,10 @@ function always_comb(): void {
 function frameReset(): void {
     console.log(" --- FRAME RESET --- ")
 
-    //TODO BLOB_PROCESSOR_TOO_SLOW_FAULT
+    //Fault if Blob Processor Not Done with Last Frame
+    if (!targetSelectorDone) {
+        faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
+    }
 
     //Flag Reset
     _("justResetFrame <= 1");
@@ -803,7 +808,7 @@ function _(ass: string, val?: any) {
 }
 function processNonblocking() {
     for (const assignment of nonblockingQueue) {
-        //TODO Math_overflow
+        //TODO overflow on register size
         try { eval(`${assignment.name} = ${assignment.val};`); }
         catch (e) { console.error(`ERROR EVALUATING "${assignment.name}" TO "${assignment.val}"`); }
     }
@@ -821,7 +826,8 @@ let clearFaults = () => faults = {
     OUT_OF_BLOB_MEM_FAULT: 0,
     OUT_OF_RLE_MEM_FAULT: 0,
     BLOB_POINTER_DEPTH_FAULT: 0,
-    BLOB_PROCESSOR_TOO_SLOW_FAULT: 0
+    BLOB_PROCESSOR_TOO_SLOW_FAULT: 0,
+    MAX_TARGET_GROUP_SIZE_FAULT: 0
 };
 clearFaults();
 export { always_ff, isDone, getBlobIndex, getBlobGarbageList, getTarget, getBlobColorBuffer, getFaults, clearFaults };

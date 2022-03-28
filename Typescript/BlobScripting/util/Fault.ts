@@ -7,5 +7,6 @@ export interface Faults {
     OUT_OF_BLOB_MEM_FAULT: reg1, //tried to create more blobs than available in mem => image is too noisy
     OUT_OF_RLE_MEM_FAULT: reg1, //out of runs => image is too noisy
     BLOB_POINTER_DEPTH_FAULT: reg1, //tried recursively following blob pointer, but it was too deep
-    BLOB_PROCESSOR_TOO_SLOW_FAULT: reg1 //blob processor took too long on line(s)
+    BLOB_PROCESSOR_TOO_SLOW_FAULT: reg1, //blob processor took too long on line(s)
+    MAX_TARGET_GROUP_SIZE_FAULT: reg1
 };

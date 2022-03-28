@@ -53,6 +53,8 @@ let image: any;
 function update() {
     //"36MHz" Kernel Reading (PythonManager)
     if (loopCount % 5 == 0 && !pythonDone) {
+        if (kx == KERNEL_MAX_X && (ky+1) % 80 == 0) console.log("LINE:", ky, "FIFO LEN:", runFIFOLength(), "BLOBS:", BlobProcessor.getBlobIndex());
+
         for (let ix = 0; ix < 8; ix++) {
             const px = kx * 8 + ix; //kernelPos * kernelSize + intraKernelPos/pixelOffset
             const idx = calculateIDX(px, ky);
@@ -96,7 +98,6 @@ function update() {
         if (kx === KERNEL_MAX_X) {
             if (ky !== IMAGE_HEIGHT - 1) {
                 ky = ky + 1;
-                if (ky % 80 == 0) console.log("LINE:", ky, "FIFO LEN:", runFIFOLength(), "BLOBS:", BlobProcessor.getBlobIndex());
                 kx = 0;
             }
             else pythonDone = true;
