@@ -10,7 +10,7 @@ export let boolToReg1 = (bool: boolean): reg1 => bool ? 1 : 0;
 export let invertReg1 = (reg: reg1): reg1 => boolToReg1(!Boolean(reg));
 export type reg2 = 0|1|2|3;
 export type reg3 = 0|1|2|3|4|5|6|7;
-export type reg4 = 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15;
+export type reg4 = number;
 export type reg8 = number;
 export type reg10 = number;
 export type signed_reg10 = number; //[10:0]

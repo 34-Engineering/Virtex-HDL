@@ -20,7 +20,7 @@ export interface Target {
     center: Vector2d10;
     width: reg10;
     height: reg10;
-    blobCount: reg4;
+    blobCount: reg10;
     angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
 

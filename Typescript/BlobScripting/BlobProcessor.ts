@@ -111,9 +111,14 @@ let target: Target = makeZeroTarget(); //"best" target for the last frame
 let targetCurrent: Target = makeZeroTarget(); //"best" target for the current frame
 let targetChain: Target = makeZeroTarget(); //the current chain for group mode (may be invalid)
 let targetChainValid: Target = makeZeroTarget(); //the last valid chain target in group mode
+let targetBlobA: BlobData;
+let targetBlobAAngle: BlobAngle;
+let targetInitStep: reg2 = 0; //stops counting @ 3
+let targetPartion: reg1 = 0;
 let targetIndexA: BlobIndex = NULL_BLOB_INDEX;
 let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX];
 let targetWantsNewA: reg1 = 1;
+let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) &&targetIndexBs[invertReg1(targetPartion)] == NULL_BLOB_INDEX);
 let firstTargetIndex = (): BlobIndex => getNextValidTargetIndex(0);
 let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX) ? firstTargetIndex() : getNextValidTargetIndex(targetIndexA+1); //if @ start frame init with first target index, else use next target index
 let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : nextTargetIndexA();
@@ -125,11 +130,7 @@ let nextTargetIndexBs = [
     (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? getNextValidTargetIndex(targetIndexBs[1]+2) : nextTargetIndexBsUnaccounted[0](),
     (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() :
                      (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(targetIndexBs[0]+2) : nextTargetIndexBsUnaccounted[1]()
-]; 
-let targetBlobA: BlobData;
-let targetBlobAAngle: BlobAngle;
-let targetInitStep: reg2 = 0; //stops counting @ 3
-let targetPartion: reg1 = 0;
+];
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
 let targetSelectorDone: reg1 = 0;
 
@@ -395,12 +396,26 @@ function updateTargetSelectorDualGroup(): void {
         let newTargetBlobA: BlobData = blobBRAMPorts[1].dout;
         let newTargetBlobAAngle: BlobAngle = calcBlobAngle(newTargetBlobA);
 
+        /*FIXME what is
+        {
+            boundTopLeft: { x: 0, y: 0 },
+            boundBottomRight: { x: 0, y: 1 },
+            quad: {
+                topLeft: { x: 0, y: 0 },
+                topRight: { x: 0, y: 0 },
+                bottomRight: { x: 0, y: 1 },
+                bottomLeft: { x: 0, y: 1 }
+            },
+            area: 0
+        }*/
+        // console.log(newTargetBlobA, blobBRAMMem[targetIndexA]);
+
         //Garbage A => Skip & Flag Garbage
-        if (!doesBlobMatchCriteria(blobBRAMPorts[1].dout)) {
-            process.stdout.write(" (GARBAGE A)");
+        if (!doesBlobMatchCriteria(newTargetBlobA)) {
+            process.stdout.write(" (a_garbo)");
 
             //Flag Garbage
-            _(`blobGarbageList[${blobBRAMPorts[1].addr}] <= 1`);
+            _(`blobGarbageList[${targetIndexA}] <= 1`);
     
             //Request New A
             _("targetWantsNewA <= 1");
@@ -410,18 +425,9 @@ function updateTargetSelectorDualGroup(): void {
             _("targetIndexBs[1] <= ", NULL_BLOB_INDEX);
         }
 
-        //Wrap up + Reset for GROUP Mode
-        //TODO something is wrong with this I think? A/B indexes are properly lined up... what else could it be? tValid?
+        //Setup for Group Mode
         else if (virtexConfig.targetMode === TargetMode.GROUP) {
-            //Chain is Done. Make it the target if we made a valid target AND
-            //its better than the current one OR we dont have a current one
-            if (!isTargetNull(targetChainValid) &&
-                (isTargetNull(targetCurrent) || distSqToTargetCenter(targetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
-                _("targetCurrent <= ", targetChainValid);
-            }
-
-            //Reset Group Target Selector
-            // console.log(newTargetBlobA);
+            process.stdout.write("(up_grp)");
             _("targetChain <= ", {
                 center: {
                     x: (newTargetBlobA.boundBottomRight.x + newTargetBlobA.boundTopLeft.x) >> 1,
@@ -440,14 +446,15 @@ function updateTargetSelectorDualGroup(): void {
     }
 
     //PROCESS
-    if (targetInitStep == 3) {
-        process.stdout.write("PROCESS B" + targetPartion + "(" + targetIndexA + "-" + targetIndexBs[targetPartion] + ")");
+    if (targetInitStep == 3 && !blobGarbageList[targetIndexA]) {
+        process.stdout.write(" PROCESS B" + targetPartion + "(" + targetIndexA + "-" + targetIndexBs[targetPartion] + ")");
         //Get Blob
         let targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
         let targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
         //Skip & Flag Garbage
         if (!doesBlobMatchCriteria(targetBlobB)) {
+            process.stdout.write("(b_garbo)")
             _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
         }
 
@@ -496,6 +503,8 @@ function updateTargetSelectorDualGroup(): void {
                 virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
             if (gapValid && areaDiffValid) {
+                //TODO MAX_TARGET_SIZE (1023) fault
+
                 //aspect ratio of new currentTarget valid
                 const newAspectRatioValid: reg1 = inRangeInclusive(newWidth, //TODO fixed point mult
                     virtexConfig.targetAspectRatioMin*newHeight, virtexConfig.targetAspectRatioMax*newHeight);
@@ -504,19 +513,30 @@ function updateTargetSelectorDualGroup(): void {
                 const newBoundAreaValid: reg1 = inRangeInclusive((newWidth * newHeight) >> 1,
                     virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
-                //set current valid target
-                if (newAspectRatioValid && newBoundAreaValid) {
-                    _("targetChainValid <= ", targetChain);
-                }
-
-                //join current target
-                _("targetChain <= ", {
+                const newTargetChain: Target = {
                     center: newCenter,
                     width: newWidth,
                     height: newHeight,
                     blobCount: targetChain.blobCount + 1,
                     angle: targetBlobAAngle
-                });
+                };
+
+                //set current valid target
+                if (newAspectRatioValid && newBoundAreaValid) {
+                    process.stdout.write(`(vl_sn)`);
+                    _("targetChainValid <= ", newTargetChain);
+                }
+
+                //join current target
+                _("targetChain <= ", newTargetChain);
+
+                //transfer targetChainValid -> targetCurrent @ end (if valid targetChainValid & we don't have targetCurrent or targetChainValid is better than targetCurrent)
+                let realTargetChainValid: Target = (newAspectRatioValid && newBoundAreaValid) ? newTargetChain : targetChainValid;
+                if (targetWillGetNewA() && !isTargetNull(realTargetChainValid) &&
+                   (isTargetNull(targetCurrent) || distSqToTargetCenter(realTargetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
+                    _("targetCurrent <= ", realTargetChainValid);
+                    process.stdout.write("(lw_best)");
+                }
             }
         }
 
@@ -608,15 +628,15 @@ function updateTargetSelectorDualGroup(): void {
     }
 
     //Reset for New A OR Finish
-    if (targetWantsNewA && targetIndexBs[invertReg1(targetPartion)] == NULL_BLOB_INDEX) {
-        process.stdout.write(" READ New A");
+    if (targetWillGetNewA()) {
+        process.stdout.write(" READ New A on 1");
 
         //Reset Target Partion
         _("targetPartion <= 0");
 
         //Finish
         if (nextTargetIndexA() === NULL_BLOB_INDEX) {
-            process.stdout.write(" (No A -> Done)");
+            process.stdout.write("(Done)");
             //transfer best target to target
             _("target <= ", targetCurrent);
 
@@ -626,6 +646,7 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (initTargetIndexB() !== NULL_BLOB_INDEX) {
+            process.stdout.write("(" + nextTargetIndexA() + ")");
             //READ New A on 1
             _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
 
@@ -637,7 +658,7 @@ function updateTargetSelectorDualGroup(): void {
         
         //No Valid Bs for this A => Go get new A
         else {
-            process.stdout.write(" (No Bs -> Skip)");
+            process.stdout.write("(Skip)");
             _("targetInitStep <= 0");
         }
 

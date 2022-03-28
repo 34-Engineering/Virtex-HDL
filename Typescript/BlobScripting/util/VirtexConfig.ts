@@ -50,7 +50,7 @@ export let virtexConfig: VirtexConfig = {
     //blob params
     blobAspectRatioMin: 0,
     blobAspectRatioMax: 0xFFFF,
-    blobBoundAreaMin: 0,
+    blobBoundAreaMin: 50,
     blobBoundAreaMax: 0xFFFF,
     blobFullnessMin: 0,
     blobFullnessMax: 0xFFFF,
