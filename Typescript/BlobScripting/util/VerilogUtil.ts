@@ -7,6 +7,7 @@ import { deepCopy } from "./DrawUtil";
 //Types
 export type reg1 = 0|1;
 export let boolToReg1 = (bool: boolean): reg1 => bool ? 1 : 0;
+export let invertReg1 = (reg: reg1): reg1 => boolToReg1(!Boolean(reg));
 export type reg2 = 0|1|2|3;
 export type reg3 = 0|1|2|3|4|5|6|7;
 export type reg4 = 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15;
@@ -21,7 +22,7 @@ export type reg24 = number; //[23:0] (area)
 export let runFIFOMem: Run[] = [];
 let lastRunFIFOShifted: Run = {length:0, line:0, black:0};
 export let runFIFOLength = () => runFIFOMem.length;
-export let forceAddRunFIFO = (run: Run) => runFIFOMem.push(run);
+export let addToRunFIFO = (run: Run) => runFIFOMem.push(run);
 export let clearRunFIFO = () => runFIFOMem = [];
 export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
     if (obj.read) {

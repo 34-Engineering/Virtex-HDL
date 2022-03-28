@@ -9,12 +9,12 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/DrawUtil';
 import { virtexConfig } from './util/VirtexConfig';
 import { BlobAngle, calcBlobAngle, isTargetNull } from './BlobUtil';
-import { NULL_BLOB_INDEX } from './BlobConstants';
+import { NULL_BLOB_INDEX, RUN_FIFO_LENGTH } from './BlobConstants';
 import { Faults } from './util/Fault';
 import { PNG } from 'pngjs';
 import { Vector2d10 } from './util/Math';
 import { deepCopy } from './util/DrawUtil';
-import { blobBRAMMem, boolToReg1, clearRunFIFO, forceAddRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
+import { blobBRAMMem, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -30,7 +30,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2019.png';
+let imageFile = '2019_Mult.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
@@ -67,7 +67,10 @@ function update() {
 
             //@ end line
             else if (px == (IMAGE_WIDTH-1)) {
-                forceAddRunFIFO({
+                if (runFIFOLength() >= RUN_FIFO_LENGTH) {
+                    //TODO fault
+                }
+                else addToRunFIFO({
                     length: px - runStart + 1,
                     line: ky,
                     black: boolToReg1(runBlack)
@@ -76,7 +79,10 @@ function update() {
 
             //@ color change
             else if (runBlack == threshold) {
-                forceAddRunFIFO({
+                if (runFIFOLength() >= RUN_FIFO_LENGTH) {
+                    //TODO fault
+                }
+                else addToRunFIFO({
                     length: px - runStart, //no +1 because px is after line
                     line: ky,
                     black: boolToReg1(runBlack)
@@ -90,7 +96,7 @@ function update() {
         if (kx === KERNEL_MAX_X) {
             if (ky !== IMAGE_HEIGHT - 1) {
                 ky = ky + 1;
-                if (ky % 80 == 0) console.log("LINE:", ky, runFIFOLength(), BlobProcessor.getBlobIndex());
+                if (ky % 80 == 0) console.log("LINE:", ky, "FIFO LEN:", runFIFOLength(), "BLOBS:", BlobProcessor.getBlobIndex());
                 kx = 0;
             }
             else pythonDone = true;

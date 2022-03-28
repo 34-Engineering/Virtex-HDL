@@ -6,6 +6,9 @@ export const MAX_BLOBS = 2000; //288,000-bits
 //max runs RLE can create per line (under normal cond: max needed ~40)
 export const MAX_RUNS_PER_LINE = 60;
 
+//size of run fifo (python -> blob processor)
+export const RUN_FIFO_LENGTH = 512;
+
 //null values
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 export const NULL_BLOB_INDEX = MAX_BLOBS;
