@@ -11,6 +11,7 @@ export let invertReg1 = (reg: reg1): reg1 => boolToReg1(!Boolean(reg));
 export type reg2 = 0|1|2|3; //[1:0]
 export type reg3 = 0|1|2|3|4|5|6|7; //[2:0]
 export type reg4 = number; //[3:0]
+export type reg6 = number; //[5:0]
 export type reg8 = number; //[7:0]
 export type reg10 = number; //[9:0]
 export type signed_reg10 = number; //[10:0]

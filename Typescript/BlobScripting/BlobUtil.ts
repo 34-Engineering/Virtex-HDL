@@ -1,27 +1,27 @@
 import { Math_inRangeInclusive, Math_max, Math_min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
 import { drawLine } from "./util/DrawUtil";
-import { BlobIndex, boolToReg1, reg1, reg10, reg16, reg24, reg4, signed_reg10 } from "./util/VerilogUtil";
+import { BlobIndex, boolToReg1, reg1, reg10, reg16, reg24, reg4, reg6, signed_reg10 } from "./util/VerilogUtil";
 
-//144-bit Blob Data
-export interface BlobData {
+//Blob Data
+export interface BlobData { //104-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
         bottom right (2, 2) means pixel #(1, 1)
     this makes area calculations easier*/
-    boundTopLeft: Vector2d10,
+    boundTopLeft: Vector2d10, //20-bit
     boundBottomRight: Vector2d10,
-    quad: Quad10,
+    quad: Quad10, //40-bit
     area: reg24
 }
 
-//?-bit Target
-export interface Target {
-    center: Vector2d10;
+//Target
+export interface Target { //48-bit (6-byte)
+    center: Vector2d10; //20-bit
     width: reg10;
     height: reg10;
-    blobCount: reg10;
-    angle: BlobAngle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
+    blobCount: reg6;
+    angle: BlobAngle; //[1:0] angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 };
 
 //Blob Angles

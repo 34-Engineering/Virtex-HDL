@@ -35,15 +35,15 @@ export let virtexConfig: VirtexConfig = {
     //target params
     targetMode: TargetMode.GROUP,
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 0xFFFF,//30,
+    targetBlobXGapMax: 30,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 0xFFFF,//30,
+    targetBlobYGapMax: 30,//30,
     targetAspectRatioMin: 0,//2,
     targetAspectRatioMax: 0xFFFF,//4,
     targetBoundAreaMin: 0,
     targetBoundAreaMax: 0xFFFF,//0xffff,
     targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 0xFFFF,//100,
+    targetBlobAreaDiffMax: 100,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

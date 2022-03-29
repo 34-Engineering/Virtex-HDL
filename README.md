@@ -17,19 +17,14 @@ The FPGA handles the following tasks:
 
 ## Nomenclature
 
-Blob: a group of touching pixels
+Blob: an isolated white region in the image
 
 - Bounding Box: the minimum non-rotated rectangle that covers all pixels in the blob
-- Quad: a quadrilateral made from the four most extreme points in the blob (used for rotation/slope calculations)
+- Quad: a quadrilateral made from the four most extreme points in the blob (used for angle calculations)
 
 Target: a blob or group of blobs that represent the entire physical target
 
-Kernel: a group of 8 horizontal pixels (native to Python 300)
-
-- White Pixel: a pixel that has a value >  threshold
-- Black Pixel: a pixel that has a value <= threshold
-
-Run: a 1-pixel-tall horizontal line of similarly colored pixels that is represented by only it's length (and blobID). Calculating its x-coordinate requires looking at the runs before it in the run buffer.
+Kernel: a line of 8 horizontal pixels (native to the Python 300)
 
 ## Source
 

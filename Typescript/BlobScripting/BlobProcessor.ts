@@ -5,6 +5,8 @@ per image frame: Runs => Blobs => Target
 
 Nomenclature:
  Blob: an isolated white region in the image
+  - Bounding Box: the minimum non-rotated rectangle that covers all pixels in the blob
+  - Quad: a quadrilateral made from the four most extreme points in the blob (used for angle calculations)
  Target: a blob or group of blobs
 
 Blob making is a process where blobs are "grown" to cover an entire isolated
@@ -481,48 +483,55 @@ function updateTargetSelectorDualGroup(): void {
             );
             const gapValid: reg1 = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
                 Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
-
+                
             //area diff between Blob A & B
             const areaBlobA = (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1);
             const areaBlobB = (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1);
             const areaDiffValid: reg1 = Math_inRangeInclusive(Math_diff(areaBlobA, areaBlobB),
                 virtexConfig.targetBlobAreaDiffMin, virtexConfig.targetBlobAreaDiffMax);
 
-            if (gapValid && areaDiffValid && targetChain.blobCount < MAX_TARGET_GROUP_SIZE) {
-                //aspect ratio of new currentTarget valid
-                const newAspectRatioValid: reg1 = isAspectRatioInRange(newWidth, newHeight,
-                    virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+            //aspect ratio of new currentTarget valid
+            const newAspectRatioValid: reg1 = isAspectRatioInRange(newWidth, newHeight,
+                virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
-                //bound area of new currentTarget valid
-                const newBoundAreaValid: reg1 = Math_inRangeInclusive((newWidth * newHeight) >> 1,
-                    virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+            //bound area of new currentTarget valid
+            const newBoundAreaValid: reg1 = Math_inRangeInclusive((newWidth * newHeight) >> 1,
+                virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
-                const newTargetChain: Target = {
-                    center: newCenter,
-                    width: newWidth,
-                    height: newHeight,
-                    blobCount: targetChain.blobCount + 1,
-                    angle: targetBlobAAngle
-                };
+            //what the new target will be if this blob joins
+            const newTargetChain: Target = {
+                center: newCenter,
+                width: newWidth,
+                height: newHeight,
+                blobCount: targetChain.blobCount + 1,
+                angle: targetBlobAAngle
+            };
 
-                //set current valid target
-                if (newAspectRatioValid && newBoundAreaValid) {
-                    _("targetChainValid <= ", newTargetChain);
-                }
-
-                //join current target
+            //Join Current Chain
+            const willJoinCurrentChain: reg1 = gapValid && areaDiffValid && boolToReg1(targetChain.blobCount < MAX_TARGET_GROUP_SIZE);
+            const willJoinCurrentChainValid: reg1 = willJoinCurrentChain && newAspectRatioValid && newBoundAreaValid;
+            if (willJoinCurrentChain) {
                 _("targetChain <= ", newTargetChain);
 
-                //transfer targetChainValid -> targetCurrent @ end (if valid targetChainValid & we don't have targetCurrent or targetChainValid is better than targetCurrent)
-                let realTargetChainValid: Target = (newAspectRatioValid && newBoundAreaValid) ? newTargetChain : targetChainValid;
-                if (targetWillGetNewA() && !isTargetNull(realTargetChainValid) &&
-                   (isTargetNull(targetCurrent) || distSqToTargetCenter(realTargetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
-                    _("targetCurrent <= ", realTargetChainValid);
-                }
+                
+            }
+            else if (targetChain.blobCount == MAX_TARGET_GROUP_SIZE) {
+                //Fault
+                faults.MAX_TARGET_GROUP_SIZE_FAULT = 1;
+            }
+            
+            //Set as Current Valid Chain
+            if (willJoinCurrentChainValid) {
+                _("targetChainValid <= ", newTargetChain);
+
+                
             }
 
-            else if (targetChain.blobCount == MAX_TARGET_GROUP_SIZE) {
-                faults.MAX_TARGET_GROUP_SIZE_FAULT = 1;
+
+            let realTargetChainValid: Target = willJoinCurrentChainValid ? newTargetChain : targetChainValid;
+            if (targetWillGetNewA() && !isTargetNull(realTargetChainValid) &&
+            (isTargetNull(targetCurrent) || distSqToTargetCenter(realTargetChainValid.center) < distSqToTargetCenter(targetCurrent.center))) {
+                _("targetCurrent <= ", realTargetChainValid);
             }
         }
 
@@ -772,6 +781,7 @@ function frameReset(): void {
     //Fault if Blob Processor Not Done with Last Frame
     if (!targetSelectorDone) {
         faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
+        _("target <= ", makeZeroTarget());
     }
 
     //Flag Reset
@@ -783,7 +793,6 @@ function frameReset(): void {
     _("blobMakerState <= BlobMakerState.NONE");
 
     //Target Selector Reset
-    _("target <= ", makeZeroTarget());
     _("targetCurrent <= ", makeZeroTarget());
     _("targetChain <= ", makeZeroTarget());
     _("targetChainValid <= ", makeZeroTarget());
