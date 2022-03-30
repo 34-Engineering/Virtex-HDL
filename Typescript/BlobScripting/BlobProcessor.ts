@@ -447,7 +447,7 @@ function updateTargetSelectorDualGroup(): void {
                 //make new group target
                 let newGroupTarget: GroupTarget = mergeGroupTargets(groupTargetA, groupTargetB);
 
-                //write back to A BRAM //TODO is the BRAM busy during a read? can we write blobA back like this while B1|0 is halfway through being read?
+                //write back to A BRAM
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].din <= `, asBlob(newGroupTarget));
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].we <= `, 1);
@@ -455,8 +455,6 @@ function updateTargetSelectorDualGroup(): void {
                 //garbage B
                 _(`blobGarbageList[${targetIndexBs[targetPartion]}] <= 1`);
             }
-
-            //TODO if no B's join this A => garbage A
         }
 
         //DUAL: make all combinations of two blobs
@@ -560,6 +558,7 @@ function updateTargetSelectorDualGroup(): void {
         }
 
         //TODO (nextTargetIndexA() === NULL_BLOB_INDEX) => overflow A & reset initTargetIndexB
+        //TODO if no B's join this A => garbage A
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (initTargetIndexB() !== NULL_BLOB_INDEX) {

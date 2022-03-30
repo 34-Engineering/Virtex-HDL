@@ -45,27 +45,27 @@ export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
 
 //Blob BRAM
 export let blobBRAMMem: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, makeZeroBlobData())));
-let lastAddra: BlobIndex = NULL_BLOB_INDEX;
-let lastAddrb: BlobIndex = NULL_BLOB_INDEX;
-let douta: BlobData, doutb: BlobData;
+let douta: BlobData = makeZeroBlobData(), doutb: BlobData = makeZeroBlobData();
+let lastDouta: BlobData = makeZeroBlobData(), lastDoutb: BlobData = makeZeroBlobData();
 export function processBlobBRAM(obj: {addra: BlobIndex, dina: BlobData, wea: reg1, addrb: BlobIndex, dinb: BlobData, web: reg1}): [BlobData, BlobData] {
     //Port A Read/Write
+    //TODO checkme (new last addr -> last dout)
+    douta = deepCopy(lastDouta);
     if (obj.wea) {
         blobBRAMMem[obj.addra] = deepCopy(obj.dina);
     }
     else {
-        douta = deepCopy(blobBRAMMem[lastAddra]);
+        lastDouta = deepCopy(blobBRAMMem[obj.addra]);
     }
-    lastAddra = obj.addra;
 
     //Port B Read/Write
+    doutb = deepCopy(lastDoutb);
     if (obj.web) {
         blobBRAMMem[obj.addrb] = deepCopy(obj.dinb);
     }
     else {
-        doutb = deepCopy(blobBRAMMem[lastAddrb]);
+        lastDoutb = deepCopy(blobBRAMMem[obj.addrb]);
     }
-    lastAddrb = obj.addrb;
 
     return [ douta, doutb ];
 }
