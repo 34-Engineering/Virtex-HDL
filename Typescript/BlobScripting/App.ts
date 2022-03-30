@@ -30,7 +30,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2022_Clean.png';
+let imageFile = '2022_1.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
@@ -203,6 +203,28 @@ function drawImage(clearDraw?: boolean): any {
                 drawCenterFillSquare(tempImage.data, { x: blob.quad.bottomLeft.x   , y: blob.quad.bottomLeft.y-1  }, 2, [255, 0, 255, 255]); //purple
             }
         }
+    }
+
+    //FIXME remove
+    for (const target of BlobProcessor.goodTargetList) {
+        //bound
+        drawRect(tempImage.data, {
+            x: target.center.x - (target.width >> 1),
+            y: target.center.y - (target.height >> 1)
+        }, {
+            x: target.center.x + (target.width >> 1),
+            y: target.center.y + (target.height >> 1)
+        }, [0, 125, 255, 255]);
+    }
+    for (const target of BlobProcessor.badTargetList) {
+        //bound
+        drawRect(tempImage.data, {
+            x: target.center.x - (target.width >> 1),
+            y: target.center.y - (target.height >> 1)
+        }, {
+            x: target.center.x + (target.width >> 1),
+            y: target.center.y + (target.height >> 1)
+        }, [255, 0, 125, 255]);
     }
 
     //Draw Target

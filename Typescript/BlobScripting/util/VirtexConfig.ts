@@ -16,6 +16,8 @@ export interface VirtexConfig {
     targetBoundAreaMax: number, //16-bit integer
     targetAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
     targetAspectRatioMax: number, //Q9.7 floating point
+    targetBlobCountMin: number, //(group mode only) # of blobs in target
+    targetBlobCountMax: number, //63 max
     targetCenterX: number, //final target selection parameter //TODO better name
     targetCenterY: number, //choose target thats closet to this point
 
@@ -35,17 +37,19 @@ export let virtexConfig: VirtexConfig = {
     //target params
     targetMode: TargetMode.GROUP,
     //in group mode: gap & area diff are using for making the group, while
-    //aspect ratio & bound area are ONLY used for validity of the group (as target) once finished
+    //aspect ratio, bound area, & blob count are ONLY used for validity of the group (as target) once finished
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 30,//30,
+    targetBlobXGapMax: 90,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 30,//30,
-    targetBoundAreaRatioMin: 0,
-    targetBoundAreaRatioMax: 100,//100,
-    targetBoundAreaMin: 0,
+    targetBlobYGapMax: 90,//30,
+    targetBoundAreaRatioMin: 0.25,
+    targetBoundAreaRatioMax: 1.75,//100,
+    targetBoundAreaMin: 12,
     targetBoundAreaMax: 0xFFFF,//0xFFFF,
     targetAspectRatioMin: 0,//2,
     targetAspectRatioMax: 0xFFFF,//4,
+    targetBlobCountMin: 3,
+    targetBlobCountMax: 5,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

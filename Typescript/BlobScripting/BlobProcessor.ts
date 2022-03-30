@@ -42,9 +42,14 @@ DUAL:
  - make a target from every A & B
  - choose the best target based off center distance
 GROUP:
- - loop through every valid blob (A)
- - for each A, loop through every valid blob, except index == A (B)
- - group all 
+ - continously loop through every valid blob (A) until there is 0|1 left
+ - for each A, loop through every other valid blob (B)
+ - group all B's within gap & area ratio range to A, join them to A
+    (using Blob BRAM to represent a "Group Target" instead of a blob),
+    & flag B as garbage
+ - when no B's join an A, convert A from a "Group Target" to a Target,
+    & become the targetCurrent if it is better than the existing one
+
 
 Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
@@ -69,10 +74,10 @@ import { IMAGE_HEIGHT } from "./util/Constants";
 import { Faults } from "./util/Fault";
 import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
-import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob } from "./BlobUtil";
+import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./BlobUtil";
 import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
-import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20 } from "./util/VerilogUtil";
+import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./util/VerilogUtil";
 import { pythonDone } from "./App";
 import { deepCopy } from "./util/DrawUtil";
 
@@ -122,27 +127,32 @@ let currentRunHasJoinedBlob = (): reg1 => boolToReg1(currentLineBuffer.runs[curr
 //Target Selector
 let target: Target = makeZeroTarget(); //"best" target for the last frame
 let targetCurrent: Target = makeZeroTarget(); //"best" target for the current frame
-let targetBlobA: BlobData;
+let targetBlobA: BlobData = makeZeroBlobData();
 let targetBlobAAngle: BlobAngle;
 let targetInitStep: reg2 = 0; //stops counting @ 3
 let targetPartion: reg1 = 0;
 let targetIndexA: BlobIndex = NULL_BLOB_INDEX;
 let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX];
 let targetWantsNewA: reg1 = 1;
-let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) &&targetIndexBs[invertReg1(targetPartion)] == NULL_BLOB_INDEX);
+let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX);
 let firstTargetIndex = (): BlobIndex => getNextValidTargetIndex(0);
-let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX) ? firstTargetIndex() : getNextValidTargetIndex(targetIndexA+1); //if @ start frame init with first target index, else use next target index
+let nextTargetIndexAUnaccounted = (): BlobIndex => getNextValidTargetIndex(targetIndexA+1);
+let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX ||
+    (virtexConfig.targetMode === TargetMode.GROUP && nextTargetIndexAUnaccounted() == NULL_BLOB_INDEX)) ?
+    firstTargetIndex() : nextTargetIndexAUnaccounted(); //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
 let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : nextTargetIndexA();
+let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== nextTargetIndexA() && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : getNextValidTargetIndex(nextTargetIndexA()+1);
 let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with targetIndexA
     (): BlobIndex => getNextValidTargetIndex(targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
     (): BlobIndex => getNextValidTargetIndex(targetIndexBs[0]+1)
 ];
 let nextTargetIndexBs = [
-    (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? getNextValidTargetIndex(targetIndexBs[1]+2) : nextTargetIndexBsUnaccounted[0](),
-    (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() :
-                     (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(targetIndexBs[0]+2) : nextTargetIndexBsUnaccounted[1]()
+    (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[0]()+1) : nextTargetIndexBsUnaccounted[0](), //prevent A index overlap
+    (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() : //init B index @ value
+                     (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[1]()+1) : nextTargetIndexBsUnaccounted[1]()
 ];
-let targetGroupDone = (): reg1 => boolToReg1(!hasMoreThanOneValidBlob());
+let targetGroupBJoined: reg1 = 0;
+let noTargetIndexAsLeft = (): reg1 => boolToReg1(nextTargetIndexA() === NULL_BLOB_INDEX);
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
 let targetSelectorDone: reg1 = 1;
 
@@ -380,7 +390,10 @@ function updateTargetSelector(): void {
         updateTargetSelectorDualGroup();
     }
 }
+export let goodTargetList: Target[] = [];
+export let badTargetList: Target[] = [];
 function updateTargetSelectorDualGroup(): void {
+    console.log("----");
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
         targetInitStep, targetPartion, commands
@@ -418,43 +431,52 @@ function updateTargetSelectorDualGroup(): void {
     }
 
     //PROCESS
-    if (targetInitStep == 3 && !blobGarbageList[targetIndexA]) {
+    if (targetInitStep == 3 && !blobGarbageList[targetIndexA] && targetIndexBs[targetPartion] !== NULL_BLOB_INDEX) {
         //Get Blob
-        let targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
-        let targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
+        const targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
+        const targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
         //Skip & Flag Garbage
         if (!doesBlobMatchCriteria(targetBlobB)) {
+            console.log("B" + targetPartion, targetIndexBs[targetPartion], "IS GARBAGE");
             _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
         }
 
         //GROUP: chain other blobs together starting a Blob A
         else if (virtexConfig.targetMode == TargetMode.GROUP) {
-            //gap between 
+            //gap between
             const gapX: reg10 = Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
             const gapY: reg10 = Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
             const gapValid: reg1 = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
                 Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
             
             //ratio between the bound area of the two blobs (if either is a group target, then it will used the cashed bound area)
-            let groupTargetA: GroupTarget = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
-            let groupTargetB: GroupTarget = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
+            const groupTargetA: GroupTarget = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
+            const groupTargetB: GroupTarget = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
             const blobsBoundAreaRatioValid: reg1 = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
 
             //join A & B
             if (gapValid && blobsBoundAreaRatioValid) {
                 //make new group target
-                let newGroupTarget: GroupTarget = mergeGroupTargets(groupTargetA, groupTargetB);
+                const newGroupTarget: GroupTarget = mergeGroupTargets(groupTargetA, groupTargetB);
 
-                //write back to A BRAM
-                _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].din <= `, asBlob(newGroupTarget));
+                //write back to A BRAM & cache
+                const newTargetBlobA: BlobData = asBlob(newGroupTarget);
+                _("targetBlobA <= ", newTargetBlobA);
+                _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].din <= `, newTargetBlobA);
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].we <= `, 1);
 
+                console.log("JOIN A:", targetIndexA, "AND B:", targetIndexBs[targetPartion]);
+
                 //garbage B
                 _(`blobGarbageList[${targetIndexBs[targetPartion]}] <= 1`);
+
+                //Flag B Joined
+                _("targetGroupBJoined <= 1");
             }
+            else console.log("CANT JOIN A:", targetIndexA, "TO B:", targetIndexBs[targetPartion]);
         }
 
         //DUAL: make all combinations of two blobs
@@ -525,6 +547,7 @@ function updateTargetSelectorDualGroup(): void {
     if (targetInitStep != 0 && !targetWantsNewA) {
         //Request New A
         if (nextTargetIndexBs[targetPartion]() == NULL_BLOB_INDEX) {
+            console.log("CANT READ NEW B" + targetPartion, " -> WANTS NEW A");
             //Request New A (we must request because we have to wait for last B to finish processing)
             _("targetWantsNewA <= 1");
 
@@ -534,10 +557,16 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New B0|1
         else {
+            console.log("READ NEW B" + targetPartion, nextTargetIndexBs[targetPartion]());
+            
+            if (nextTargetIndexBs[targetPartion]() == targetIndexA) {
+                console.log("ERROR READ OVERLAP!!!", {targetInitStep, targetPartion});
+            }
+            
             //READ New B0|1
             _(`blobBRAMPorts[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
 
-            //Save New B0|1 Index
+            //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
         }
     }
@@ -547,21 +576,64 @@ function updateTargetSelectorDualGroup(): void {
         //Reset Target Partion
         _("targetPartion <= 0");
 
+        //No B's Joined this A => Make Group Target into Target
+        const groupTargetA: GroupTarget = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
+        const targetA: Target = groupTargetToTarget(groupTargetA);
+        const boundWidth: reg10 = (groupTargetA.boundBottomRight.x - groupTargetA.boundTopLeft.x + 1);
+        const boundHeight: reg10 = (groupTargetA.boundBottomRight.y - groupTargetA.boundTopLeft.y + 1);
+        const boundArea: BlobArea = boundWidth * boundHeight; //bound area of entire target
+        const boundAreaValid: reg1 = inBoundAreaRange(boundArea, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+        const aspectRatioValid: reg1 = inAspectRatioRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+        const blobCountValid: reg1 = Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
+        let justSetTargetCurrent: reg1 = 0;
+        if (virtexConfig.targetMode == TargetMode.GROUP && !targetGroupBJoined && targetIndexA !== NULL_BLOB_INDEX) {
+            if (boundAreaValid && aspectRatioValid && blobCountValid &&
+                (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
+                //Make Best Target
+                _("targetCurrent <= ", targetA);
+    
+                console.log("NEW BEST TARGET", targetA, { targetIndexA });
+
+                goodTargetList.push(deepCopy(targetA));
+    
+                //Flag Just Set
+                justSetTargetCurrent = 1;
+            }
+            else {
+                if (boundAreaValid && aspectRatioValid && blobCountValid) {
+                    goodTargetList.push(deepCopy(targetA));
+                    console.log("GOOD TARGET (NOT BEST)", targetA, { targetIndexA });
+                }
+                else {
+                    badTargetList.push(deepCopy(targetA));
+                    console.log("BAD TARGET", targetA, { targetIndexA }, { boundAreaValid, aspectRatioValid, blobCountValid });
+                }
+            }
+
+            //Flag A as Garbage (so it doesn't come back)
+            _(`blobGarbageList[${targetIndexA}] <= 1`);
+        }
+
         //Finish
-        //TODO group mode only finish when there is 1|0 blobs left
-        if (virtexConfig.targetMode == TargetMode.GROUP ? targetGroupDone() : (nextTargetIndexA() === NULL_BLOB_INDEX)) {
+        if (noTargetIndexAsLeft()) {
+            for (let i = 0; i < MAX_BLOBS; i++) {
+                if (!blobGarbageList[i] && i < blobIndex) {
+                    console.log("vi", i);
+                }
+            }
+
+            console.log("FINSIH & BEST TARGET", (justSetTargetCurrent ? targetA : targetCurrent), {targetIndexA});
+
             //transfer best target to target
-            _("target <= ", targetCurrent);
+            _("target <= ", justSetTargetCurrent ? targetA : targetCurrent);
 
             //flag
             _("targetSelectorDone <= 1");
         }
 
-        //TODO (nextTargetIndexA() === NULL_BLOB_INDEX) => overflow A & reset initTargetIndexB
-        //TODO if no B's join this A => garbage A
-
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
-        else if (initTargetIndexB() !== NULL_BLOB_INDEX) {
+        else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
+            console.log("READ NEW A", nextTargetIndexA(), "initB:",nextInitTargetIndexB());
             //READ New A on 1
             _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
 
@@ -573,12 +645,22 @@ function updateTargetSelectorDualGroup(): void {
         
         //No Valid Bs for this A => Go get new A
         else {
+            console.log("SKIP A", nextTargetIndexA());
             _("targetInitStep <= 0");
         }
 
         //Set New A
         _("targetIndexA <= ", nextTargetIndexA());
+
+        //Clear B Joined Flag
+        _("targetGroupBJoined <= 0");
     }
+
+    //Nullify B0|1 (to reset for next loop)
+    else if (targetWantsNewA) {
+        _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
+    }
+    console.log("----\n");
 }
 function updateTargetSelectorSingle(): void {
     /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
