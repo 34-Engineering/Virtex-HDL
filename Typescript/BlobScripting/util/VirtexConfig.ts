@@ -35,19 +35,19 @@ export let virtexConfig: VirtexConfig = {
     threshold: 128,
 
     //target params
-    targetMode: TargetMode.GROUP,
+    targetMode: TargetMode.DUAL_UP,
     //in group mode: gap & area diff are using for making the group, while
     //aspect ratio, bound area, & blob count are ONLY used for validity of the group (as target) once finished
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 90,//30,
+    targetBlobXGapMax: 0xFFFF,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 90,//30,
+    targetBlobYGapMax: 0xFFFF,//30,
     targetBoundAreaRatioMin: 0.25,
     targetBoundAreaRatioMax: 1.75,//100,
     targetBoundAreaMin: 12,
     targetBoundAreaMax: 0xFFFF,//0xFFFF,
     targetAspectRatioMin: 0,//2,
-    targetAspectRatioMax: 0xFFFF,//4,
+    targetAspectRatioMax: 4,//4,
     targetBlobCountMin: 3,
     targetBlobCountMax: 5,
     targetCenterX: IMAGE_WIDTH / 2,

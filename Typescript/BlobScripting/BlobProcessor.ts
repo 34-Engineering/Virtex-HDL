@@ -390,10 +390,7 @@ function updateTargetSelector(): void {
         updateTargetSelectorDualGroup();
     }
 }
-export let goodTargetList: Target[] = [];
-export let badTargetList: Target[] = [];
 function updateTargetSelectorDualGroup(): void {
-    console.log("----");
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
         targetInitStep, targetPartion, commands
@@ -438,7 +435,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //Skip & Flag Garbage
         if (!doesBlobMatchCriteria(targetBlobB)) {
-            console.log("B" + targetPartion, targetIndexBs[targetPartion], "IS GARBAGE");
             _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
         }
 
@@ -468,15 +464,12 @@ function updateTargetSelectorDualGroup(): void {
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
                 _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].we <= `, 1);
 
-                console.log("JOIN A:", targetIndexA, "AND B:", targetIndexBs[targetPartion]);
-
                 //garbage B
                 _(`blobGarbageList[${targetIndexBs[targetPartion]}] <= 1`);
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
             }
-            else console.log("CANT JOIN A:", targetIndexA, "TO B:", targetIndexBs[targetPartion]);
         }
 
         //DUAL: make all combinations of two blobs
@@ -547,7 +540,6 @@ function updateTargetSelectorDualGroup(): void {
     if (targetInitStep != 0 && !targetWantsNewA) {
         //Request New A
         if (nextTargetIndexBs[targetPartion]() == NULL_BLOB_INDEX) {
-            console.log("CANT READ NEW B" + targetPartion, " -> WANTS NEW A");
             //Request New A (we must request because we have to wait for last B to finish processing)
             _("targetWantsNewA <= 1");
 
@@ -557,12 +549,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New B0|1
         else {
-            console.log("READ NEW B" + targetPartion, nextTargetIndexBs[targetPartion]());
-            
-            if (nextTargetIndexBs[targetPartion]() == targetIndexA) {
-                console.log("ERROR READ OVERLAP!!!", {targetInitStep, targetPartion});
-            }
-            
             //READ New B0|1
             _(`blobBRAMPorts[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
 
@@ -573,8 +559,10 @@ function updateTargetSelectorDualGroup(): void {
 
     //Reset for New A OR Finish
     if (targetWillGetNewA()) {
-        //Reset Target Partion
+        //Reset
         _("targetPartion <= 0");
+        _("targetInitStep <= 0");
+        _("targetGroupBJoined <= 0");
 
         //No B's Joined this A => Make Group Target into Target
         const groupTargetA: GroupTarget = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
@@ -592,22 +580,8 @@ function updateTargetSelectorDualGroup(): void {
                 //Make Best Target
                 _("targetCurrent <= ", targetA);
     
-                console.log("NEW BEST TARGET", targetA, { targetIndexA });
-
-                goodTargetList.push(deepCopy(targetA));
-    
                 //Flag Just Set
                 justSetTargetCurrent = 1;
-            }
-            else {
-                if (boundAreaValid && aspectRatioValid && blobCountValid) {
-                    goodTargetList.push(deepCopy(targetA));
-                    console.log("GOOD TARGET (NOT BEST)", targetA, { targetIndexA });
-                }
-                else {
-                    badTargetList.push(deepCopy(targetA));
-                    console.log("BAD TARGET", targetA, { targetIndexA }, { boundAreaValid, aspectRatioValid, blobCountValid });
-                }
             }
 
             //Flag A as Garbage (so it doesn't come back)
@@ -616,16 +590,9 @@ function updateTargetSelectorDualGroup(): void {
 
         //Finish
         if (noTargetIndexAsLeft()) {
-            for (let i = 0; i < MAX_BLOBS; i++) {
-                if (!blobGarbageList[i] && i < blobIndex) {
-                    console.log("vi", i);
-                }
-            }
-
-            console.log("FINSIH & BEST TARGET", (justSetTargetCurrent ? targetA : targetCurrent), {targetIndexA});
-
             //transfer best target to target
-            _("target <= ", justSetTargetCurrent ? targetA : targetCurrent);
+            // _("target <= ", justSetTargetCurrent ? targetA : targetCurrent);
+            _("target <= ", targetCurrent);
 
             //flag
             _("targetSelectorDone <= 1");
@@ -633,7 +600,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
-            console.log("READ NEW A", nextTargetIndexA(), "initB:",nextInitTargetIndexB());
             //READ New A on 1
             _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
 
@@ -643,24 +609,14 @@ function updateTargetSelectorDualGroup(): void {
             _("targetInitStep <= 1");
         }
         
-        //No Valid Bs for this A => Go get new A
-        else {
-            console.log("SKIP A", nextTargetIndexA());
-            _("targetInitStep <= 0");
-        }
-
         //Set New A
         _("targetIndexA <= ", nextTargetIndexA());
-
-        //Clear B Joined Flag
-        _("targetGroupBJoined <= 0");
     }
 
     //Nullify B0|1 (to reset for next loop)
     else if (targetWantsNewA) {
         _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
     }
-    console.log("----\n");
 }
 function updateTargetSelectorSingle(): void {
     /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
@@ -687,8 +643,6 @@ function updateTargetSelectorSingle(): void {
     //PROCESS
     if (targetInitStep > 1) {
         const blob: BlobData = blobBRAMPorts[targetPartion].dout;
-
-        // console.log("\n\n", blobBRAMPorts[targetPartion].addr, doesBlobMatchCriteria(blob), blob, "\n\n");
 
         //PROCESS
         if (doesBlobMatchCriteria(blob)) {
@@ -796,7 +750,7 @@ function always_comb(): void {
 
 //Global Reset for New Frame
 function frameReset(): void {
-    console.log(" --- FRAME RESET --- ")
+    console.log(" --- FRAME RESET --- ");
 
     //Fault if Blob Processor Not Done with Last Frame
     if (!targetSelectorDone) {
