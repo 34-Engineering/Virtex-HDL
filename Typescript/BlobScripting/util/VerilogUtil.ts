@@ -16,9 +16,10 @@ export type reg8 = number; //[7:0]
 export type reg10 = number; //[9:0]
 export type signed_reg10 = number; //[10:0]
 export type reg16 = number; //[15:0]
-export type reg24 = number; //[23:0] (area)
+export type reg20 = number; //[19:0]
 export type BlobIndex = number; //[MAX_BLOB_INDEX_SIZE-1:0]
 export type RunBufferIndex = number; //[MAX_RUN_BUFFER_INDEX-1:0]
+export type BlobArea = reg20; //[19:0]
 
 //Run FIFO
 export let runFIFOMem: Run[] = [];

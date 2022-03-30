@@ -1,6 +1,7 @@
 import { Math_inRangeInclusive, Math_max, Math_min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
 import { drawLine } from "./util/DrawUtil";
-import { BlobIndex, boolToReg1, reg1, reg10, reg16, reg24, reg4, reg6, signed_reg10 } from "./util/VerilogUtil";
+import { BlobArea, BlobIndex, boolToReg1, reg1, reg10, reg16, reg6, signed_reg10 } from "./util/VerilogUtil";
+import { GROUP_TARGET_AREA_CONST } from "./BlobConstants";
 
 //Blob Data
 export interface BlobData { //104-bit
@@ -12,7 +13,7 @@ export interface BlobData { //104-bit
     boundTopLeft: Vector2d10, //20-bit
     boundBottomRight: Vector2d10,
     quad: Quad10, //40-bit
-    area: reg24
+    area: BlobArea
 }
 
 //Target
@@ -21,7 +22,7 @@ export interface Target { //48-bit (6-byte)
     width: reg10;
     height: reg10;
     blobCount: reg6;
-    angle: BlobAngle; //[1:0] angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
+    angle: BlobAngle; //[1:0] angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: HORIZONTAL)
 };
 
 //Blob Angles
@@ -185,10 +186,82 @@ export function runToBlob(start: reg10, length: reg10, line: reg10): BlobData {
 //Target Null
 export let isTargetNull = (target: Target) => target.blobCount == 0;
 
-//In Range/Valid (NOTE: this is only Typescript impl & will be very different in HDL)
-export function isAspectRatioInRange(width: reg10, height: reg10, min: reg16, max: reg16): reg1 {
+//In Range/Valid Fixed Point (NOTE: this is only Typescript impl & will be very different in HDL)
+export function inAspectRatioRange(width: reg10, height: reg10, min: reg16, max: reg16): reg1 {
     return Math_inRangeInclusive(width, min*height, max*height); //in replacement of inRangeInclusive(width/height, min, max)
 }
-export function isFullnessInRange(area: reg24, boundArea: reg24, min: reg16, max: reg16): reg1 {
+export function inFullnessRange(area: BlobArea, boundArea: BlobArea, min: reg16, max: reg16): reg1 {
     return Math_inRangeInclusive(area, min*boundArea, max*boundArea);
+}
+export function inBoundAreaRatioRange(area1: BlobArea, area2: BlobArea, min: reg16, max: reg16): reg1 {
+    return Math_inRangeInclusive(area1, min*area2, max*area2);
+}
+export function inBoundAreaRange(area: BlobArea, min: reg16, max: reg16): reg1 {
+    return Math_inRangeInclusive(area >> 3, min, max);
+}
+
+//Group Target (target stored in blob)
+export interface GroupTarget { //104-bit
+    boundTopLeft: Vector2d10, //20-bit
+    boundBottomRight: Vector2d10,
+    blobCount: reg6,
+    blobBoundArea: BlobArea
+}
+export function asGroupTarget(blob: BlobData): GroupTarget {
+    return {
+        boundTopLeft: blob.boundTopLeft,
+        boundBottomRight: blob.boundBottomRight,
+        blobCount: blob.quad.topLeft.x,
+        blobBoundArea: blob.area - GROUP_TARGET_AREA_CONST
+    }
+}
+export function asBlob(groupTarget: GroupTarget): BlobData {
+    return {
+        boundTopLeft: groupTarget.boundTopLeft,
+        boundBottomRight: groupTarget.boundBottomRight,
+        quad: {
+            topLeft: {x:groupTarget.blobCount, y:0},
+            topRight: {x:0, y:0},
+            bottomRight: {x:0, y:0},
+            bottomLeft: {x:0, y:0}
+        },
+        area: groupTarget.blobBoundArea + GROUP_TARGET_AREA_CONST
+    }
+}
+export function isGroupTarget(blob: BlobData): reg1 {
+    return boolToReg1(blob.area > GROUP_TARGET_AREA_CONST);
+}
+export function mergeGroupTargets(groupTargetA: GroupTarget, groupTargetB: GroupTarget): GroupTarget {
+    return {
+        boundTopLeft: {
+            x: Math_min(groupTargetA.boundTopLeft.x, groupTargetB.boundTopLeft.x),
+            y: Math_min(groupTargetA.boundTopLeft.y, groupTargetB.boundTopLeft.y)
+        },
+        boundBottomRight: {
+            x: Math_max(groupTargetA.boundBottomRight.x, groupTargetB.boundBottomRight.x),
+            y: Math_max(groupTargetA.boundBottomRight.y, groupTargetB.boundBottomRight.y)
+        },
+        blobCount: groupTargetA.blobCount + groupTargetB.blobCount,
+        blobBoundArea: groupTargetA.blobBoundArea
+    }
+}
+export function groupTargetToTarget(groupTarget: GroupTarget): Target {
+    return {
+        center: {
+            x: (groupTarget.boundBottomRight.x + groupTarget.boundTopLeft.x) >> 1,
+            y: (groupTarget.boundBottomRight.y + groupTarget.boundTopLeft.y) >> 1
+        },
+        width:  groupTarget.boundBottomRight.x - groupTarget.boundTopLeft.x + 1,
+        height: groupTarget.boundBottomRight.y - groupTarget.boundTopLeft.y + 1,
+        blobCount: groupTarget.blobCount,
+        angle: BlobAngle.HORIZONTAL
+    }
+}
+export function makeGroupTarget(blob: BlobData): GroupTarget {
+    return {
+        boundTopLeft: blob.boundTopLeft,
+        boundBottomRight: blob.boundBottomRight,
+        blobCount: 1,
+        blobBoundArea: (blob.boundBottomRight.x - blob.boundTopLeft.x + 1) * (blob.boundBottomRight.y - blob.boundTopLeft.y + 1) //boundArea = boundWidth * boundHeight
+    }
 }

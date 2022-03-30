@@ -12,6 +12,9 @@ export const RUN_FIFO_LENGTH = 512;
 //max amount of blobs in target group (tied to Target.blobCount register size)
 export const MAX_TARGET_GROUP_SIZE = (2 << (10-1)) - 1;
 
+//group target area const : added to the area to designate a blob as a group target
+export const GROUP_TARGET_AREA_CONST = 340000; // >(640*480)
+
 //null values
 export const NULL_LINE_NUMBER = IMAGE_HEIGHT;
 export const NULL_BLOB_INDEX = MAX_BLOBS;

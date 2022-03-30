@@ -10,19 +10,19 @@ export interface VirtexConfig {
     targetBlobXGapMax: number, //16-bit integer
     targetBlobYGapMin: number, //distance between blobs in target
     targetBlobYGapMax: number, //16-bit integer
+    targetBoundAreaRatioMin: number, //ratio between bound area of original blob & new blob
+    targetBoundAreaRatioMax: number, //16-bit integer
+    targetBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 3
+    targetBoundAreaMax: number, //16-bit integer
     targetAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
     targetAspectRatioMax: number, //Q9.7 floating point
-    targetBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 1
-    targetBoundAreaMax: number, //16-bit integer
-    targetBlobAreaDiffMin: number, //difference between areas of blobs in target
-    targetBlobAreaDiffMax: number, //16-bit integer
     targetCenterX: number, //final target selection parameter //TODO better name
     targetCenterY: number, //choose target thats closet to this point
 
     //blob params
     blobAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
     blobAspectRatioMax: number, //Q9.7 floating point
-    blobBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 1
+    blobBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 3
     blobBoundAreaMax: number, //16-bit integer
     blobFullnessMin: number, //fullness = blob.area (true area) / boundArea
     blobFullnessMax: number, //Q1.15 floating point
@@ -34,23 +34,25 @@ export let virtexConfig: VirtexConfig = {
 
     //target params
     targetMode: TargetMode.GROUP,
+    //in group mode: gap & area diff are using for making the group, while
+    //aspect ratio & bound area are ONLY used for validity of the group (as target) once finished
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 30,//30,
     targetBlobYGapMin: 0,
     targetBlobYGapMax: 30,//30,
+    targetBoundAreaRatioMin: 0,
+    targetBoundAreaRatioMax: 100,//100,
+    targetBoundAreaMin: 0,
+    targetBoundAreaMax: 0xFFFF,//0xFFFF,
     targetAspectRatioMin: 0,//2,
     targetAspectRatioMax: 0xFFFF,//4,
-    targetBoundAreaMin: 0,
-    targetBoundAreaMax: 0xFFFF,//0xffff,
-    targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 100,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 
     //blob params
     blobAspectRatioMin: 0,
     blobAspectRatioMax: 0xFFFF,
-    blobBoundAreaMin: 50,
+    blobBoundAreaMin: 12,
     blobBoundAreaMax: 0xFFFF,
     blobFullnessMin: 0,
     blobFullnessMax: 0xFFFF,
