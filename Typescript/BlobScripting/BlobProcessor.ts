@@ -55,19 +55,6 @@ Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
 
 Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
-
-FIXME what is
-{
-    boundTopLeft: { x: 0, y: 0 },
-    boundBottomRight: { x: 0, y: 1 },
-    quad: {
-        topLeft: { x: 0, y: 0 },
-        topRight: { x: 0, y: 0 },
-        bottomRight: { x: 0, y: 1 },
-        bottomLeft: { x: 0, y: 1 }
-    },
-    area: 0
-}
 */
 
 import { IMAGE_HEIGHT } from "./util/Constants";
@@ -99,8 +86,10 @@ interface BlobBRAMPort {
 let blobBRAMPorts: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
 
 //Module State
-let lastLine: reg10 = 479;
+let lastLine: reg10 = 340; //init >0 so we know to reset on first frame
 let justResetFrame: reg1 = 0;
+let isFirstReset: reg1 = 1;
+let isFirstFrame: reg1 = 1;
 
 //Blob Maker
 enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE };
@@ -129,19 +118,20 @@ let target: Target = makeZeroTarget(); //"best" target for the last frame
 let targetCurrent: Target = makeZeroTarget(); //"best" target for the current frame
 let targetBlobA: BlobData = makeZeroBlobData();
 let targetBlobAAngle: BlobAngle;
-let targetInitStep: reg2 = 0; //stops counting @ 3
-let targetPartion: reg1 = 0;
+let targetInitStep: reg2 = 0; //0-2: init, 3: done
+let targetPartion: reg1 = 0; //alterates every cycle
 let targetIndexA: BlobIndex = NULL_BLOB_INDEX;
-let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX];
-let targetWantsNewA: reg1 = 1;
-let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX);
+let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX]; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
+let targetWantsNewA: reg1 = 1; //wants to get a new A (takes 2 cycles)
+let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX); //we have wanted a new A, but now we are ready
 let firstTargetIndex = (): BlobIndex => getNextValidTargetIndex(0);
 let nextTargetIndexAUnaccounted = (): BlobIndex => getNextValidTargetIndex(targetIndexA+1);
 let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX ||
     (virtexConfig.targetMode === TargetMode.GROUP && nextTargetIndexAUnaccounted() == NULL_BLOB_INDEX)) ?
     firstTargetIndex() : nextTargetIndexAUnaccounted(); //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
-let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : nextTargetIndexA();
-let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== nextTargetIndexA() && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : getNextValidTargetIndex(nextTargetIndexA()+1);
+let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : nextTargetIndexA(); //first B index (with overlap protection)
+let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== nextTargetIndexA() && firstTargetIndex() !== targetIndexA) ?
+    firstTargetIndex() : getNextValidTargetIndex(nextTargetIndexA()+1); //calculate next init index B so we know if the next A should be skipped
 let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with targetIndexA
     (): BlobIndex => getNextValidTargetIndex(targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
     (): BlobIndex => getNextValidTargetIndex(targetIndexBs[0]+1)
@@ -217,7 +207,9 @@ function updateBlobMaker(): void {
         //New Run*
         if (blobMakerState == BlobMakerState.NONE) {
             //Process FIFO Read
-            if (blobJustResetLine || justResetFrame || runFIFORead) {
+            if (blobJustResetLine || (justResetFrame && !isFirstFrame) || runFIFORead) {
+                if (runFIFOOut.line == 0) console.log("NEW RUN", runFIFOOut);
+
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -760,6 +752,10 @@ function frameReset(): void {
 
     //Flag Reset
     _("justResetFrame <= 1");
+    if (!isFirstReset) {
+        _("isFirstFrame <= 0");
+    }
+    _("isFirstReset <= 0");
 
     //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
     _("blobIndex <= 0");
