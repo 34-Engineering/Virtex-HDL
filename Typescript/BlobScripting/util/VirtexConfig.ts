@@ -1,5 +1,6 @@
 import { BlobAnglesEnabled, TargetMode } from "../BlobUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
+import { reg16 } from "./VerilogUtil";
 
 export interface VirtexConfig {
     threshold: number,
@@ -8,28 +9,28 @@ export interface VirtexConfig {
     //Note:in group mode: gap & area diff are using for making the group, while
     //aspect ratio, bound area, & blob count are ONLY used for validity of the group (as target) once finished
     targetMode: TargetMode,
-    targetBlobXGapMin: number, //distance between blobs in target
-    targetBlobXGapMax: number, //16-bit integer
-    targetBlobYGapMin: number, //distance between blobs in target
-    targetBlobYGapMax: number, //16-bit integer
-    targetBoundAreaRatioMin: number, //ratio between bound area of original blob & new blob
-    targetBoundAreaRatioMax: number, //16-bit integer
-    targetBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 3
-    targetBoundAreaMax: number, //16-bit integer
-    targetAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
-    targetAspectRatioMax: number, //Q9.7 floating point
-    targetBlobCountMin: number, //(group mode only) # of blobs in target
-    targetBlobCountMax: number, //63 max
-    targetCenterX: number, //final target selection parameter //TODO better name
-    targetCenterY: number, //choose target thats closet to this point
+    targetBlobXGapMin: reg16, //distance between blobs in target
+    targetBlobXGapMax: reg16, //16-bit integer
+    targetBlobYGapMin: reg16, //distance between blobs in target
+    targetBlobYGapMax: reg16, //16-bit integer
+    targetBoundAreaRatioMin: reg16, //ratio between bound area of original blob & new blob
+    targetBoundAreaRatioMax: reg16, //Q8.8 fixed point
+    targetBoundAreaMin: reg16, //boundArea = boundWidth * boundHeight >> 3
+    targetBoundAreaMax: reg16, //16-bit integer
+    targetAspectRatioMin: reg16, //aspectRatio = boundWidth / boundHeight
+    targetAspectRatioMax: reg16, //Q9.7 fixed point
+    targetBlobCountMin: reg16, //(group mode only) # of blobs in target
+    targetBlobCountMax: reg16, //63 max
+    targetCenterX: reg16, //final target selection parameter //TODO better name
+    targetCenterY: reg16, //choose target thats closet to this point
 
     //blob params
-    blobAspectRatioMin: number, //aspectRatio = boundWidth / boundHeight
-    blobAspectRatioMax: number, //Q9.7 floating point
-    blobBoundAreaMin: number, //boundArea = boundWidth * boundHeight >> 3
-    blobBoundAreaMax: number, //16-bit integer
-    blobFullnessMin: number, //fullness = blob.area (true area) / boundArea
-    blobFullnessMax: number, //Q1.15 floating point
+    blobAspectRatioMin: reg16, //aspectRatio = boundWidth / boundHeight
+    blobAspectRatioMax: reg16, //Q9.7 fixed point
+    blobBoundAreaMin: reg16, //boundArea = boundWidth * boundHeight >> 3
+    blobBoundAreaMax: reg16, //16-bit integer
+    blobFullnessMin: reg16, //fullness = blob.area (true area) / boundArea
+    blobFullnessMax: reg16, //Q1.15 fixed point
     blobAnglesEnabled: BlobAnglesEnabled
 };
 

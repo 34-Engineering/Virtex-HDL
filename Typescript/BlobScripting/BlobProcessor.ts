@@ -65,6 +65,7 @@ import { virtexConfig } from "./util/VirtexConfig";
 import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./util/VerilogUtil";
 import { pythonDone } from "./App";
 import { deepCopy } from "./util/DrawUtil";
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./util/Constants";
 
 //(scripting only)
 let blobColorBuffer: RunBuffer[] = [];
@@ -73,6 +74,7 @@ let faults: Faults;
 //Run FIFO
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
 let runFIFOOut: Run = {length:0, line:0, black:0};
+let lastLine: reg10 = 340;
 
 //Blob BRAM
 interface BlobBRAMPort {
@@ -83,28 +85,21 @@ interface BlobBRAMPort {
 };
 let blobBRAMPorts: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
 
-//Module State
-let lastLine: reg10 = 340; //init >0 so we know to reset on first frame
-let justResetFrame: reg1 = 0;
-let isFirstReset: reg1 = 1;
-let isFirstFrame: reg1 = 1;
-
 //Blob Maker
-enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE };
+enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE, DONE };
 let blobMakerState: BlobMakerState = BlobMakerState.NONE;
-let blobMakerDone = () => (pythonDone && runFIFOEmpty && blobMakerState == BlobMakerState.NONE);
 let blobSkipCycle: reg1 = 0;
 let blobJustResetLine: reg1 = 0;
 let blobIndex: BlobIndex = 0;
-let blobGarbageList: reg1[] = [...Array(MAX_RUNS_PER_LINE)].map(_=>0);
+let blobGarbageList: reg1[] = [...Array(MAX_BLOBS)].map(_=>0);
 let currentLineBuffer: RunBuffer = {
-    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, end:0, blobIndex:NULL_BLOB_INDEX })),
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, stop:0, blobIndex:0 })),
     count:0,
     line:0
-};
+}; //we are loading read in runs into this (never read from), then it is transfered to lastLineBuffer
 let currentLineBufferX: reg10 = 0;
 let lastLineBuffer: RunBuffer = {
-    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, end:0, blobIndex:NULL_BLOB_INDEX })),
+    runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, stop:0, blobIndex:0 })),
     count:0,
     line:0
 };
@@ -142,32 +137,38 @@ let nextTargetIndexBs = [
 let targetGroupBJoined: reg1 = 0;
 let noTargetIndexAsLeft = (): reg1 => boolToReg1(nextTargetIndexA() === NULL_BLOB_INDEX);
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
-let targetSelectorDone: reg1 = 1;
+let targetSelectorDone: reg1 = 0;
 
 //200MHz Clocked Loop
 function always_ff(): void {
     //defaults & counters
     _("blobBRAMPorts[0].we <= 0");
     _("blobBRAMPorts[1].we <= 0");
-    _("justResetFrame <= 0");
     _("lastLine <= ", runFIFOOut.line);
     _("runFIFORead <= 0");
     _("blobSkipCycle <= 0");
     _("blobJustResetLine <= 0");
 
-    //Reset @ New Frame
-    if (runFIFOOut.line == 0 && lastLine != 0) {
-        frameReset();
-    }
-
     //Update Blob Maker
-    else if (!blobMakerDone()) {
+    if (blobMakerState !== BlobMakerState.DONE) {
         updateBlobMaker();
     }
     
-    //Update Target Selector
-    else if (!targetSelectorDone) {
-        updateTargetSelector();
+    else {
+        //Read from FIFO @ Reset for New Frame
+        if (!runFIFOEmpty) {
+            _("runFIFORead <= 1");
+            frameReset();
+
+            if (!targetSelectorDone) {
+                faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
+            }
+        }
+
+        //Update Target Selector
+        else if (!targetSelectorDone) {
+            updateTargetSelector();
+        }
     }
 
     //(scripting only)
@@ -205,7 +206,7 @@ function updateBlobMaker(): void {
         //New Run*
         if (blobMakerState == BlobMakerState.NONE) {
             //Process FIFO Read
-            if (blobJustResetLine || (justResetFrame && !isFirstFrame) || runFIFORead) {
+            if (blobJustResetLine || runFIFORead) {
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -213,11 +214,8 @@ function updateBlobMaker(): void {
                         end: currentLineBufferX + runFIFOOut.length - 1,
                         blobIndex: NULL_BLOB_INDEX
                     });
-                    _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
-                    _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
-                    _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
-
-                    if (!runFIFOEmpty) _("runFIFORead <= 1");
+                    
+                    blobFinishRun();
                 }
                 
                 //Run is White => Search & Join OR Make new Blob
@@ -256,7 +254,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
             if (i < lastLineBuffer.count && lastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX && //if valid index in lastLineBuffer
                 runsOverlap(currentLineBufferX, currentLineBufferX + runFIFOOut.length - 1, //if this run is touching it
-                    lastLineBuffer.runs[i].start, lastLineBuffer.runs[i].end))
+                    lastLineBuffer.runs[i].start, lastLineBuffer.runs[i].stop))
             {
                 const iBlobIndex: BlobIndex = lastLineBuffer.runs[i].blobIndex;
 
@@ -323,12 +321,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
 
     //Join End (had joined a blob & is done now)
     else if (ustate == BlobMakerState.JOIN_END) {
-        //prepare for new run
-        _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
-        _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
-        _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
-        _("blobMakerState <= BlobMakerState.NONE");
-        if (!runFIFOEmpty) _("runFIFORead <= 1");
+        blobFinishRun();
     }
 
     //Make new Blob
@@ -352,11 +345,27 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         _("blobIndex <= ", (blobIndex + 1));
 
         //prepare for new run
-        _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
-        _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
-        _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
-        _("blobMakerState <= BlobMakerState.NONE");
-        if (!runFIFOEmpty) _("runFIFORead <= 1");
+        blobFinishRun();
+    }
+}
+function blobFinishRun(): void {
+    //prepare for new run
+    _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
+    _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
+    _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
+
+    //reset state
+    _("blobMakerState <= BlobMakerState.NONE");
+
+    //finish
+    if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) && runFIFOOut.line == IMAGE_HEIGHT-1) {
+        console.log(" > Blob Processor Done < ");
+        _("blobMakerState <= BlobMakerState.DONE");
+    }
+    
+    //read new run
+    else if (!runFIFOEmpty) {
+        _("runFIFORead <= 1");
     }
 }
 
@@ -578,8 +587,9 @@ function updateTargetSelectorDualGroup(): void {
 
         //Finish
         if (noTargetIndexAsLeft()) {
+            console.log(" > Target Selector Done < ");
+
             //transfer best target to target
-            // _("target <= ", justSetTargetCurrent ? targetA : targetCurrent);
             _("target <= ", targetCurrent);
 
             //flag
@@ -621,6 +631,8 @@ function updateTargetSelectorSingle(): void {
 
     //Finish
     if (targetSingleAlmostDone) {
+        console.log(" > Target Selector Done < ");
+
         //transfer best target to target
         _("target <= ", targetCurrent);
 
@@ -728,23 +740,11 @@ function always_comb(): void {
 function frameReset(): void {
     console.log(" --- FRAME RESET --- ");
 
-    //Fault if Blob Processor Not Done with Last Frame
-    if (!targetSelectorDone) {
-        faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
-        _("target <= ", makeZeroTarget());
-    }
-
-    //Flag Reset
-    _("justResetFrame <= 1");
-    if (!isFirstReset) {
-        _("isFirstFrame <= 0");
-    }
-    _("isFirstReset <= 0");
-
     //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
     _("blobIndex <= 0");
     _("blobSkipCycle <= 0");
     _("blobMakerState <= BlobMakerState.NONE");
+    _("blobMakerDone <= 0");
 
     //Target Selector Reset
     _("targetCurrent <= ", makeZeroTarget());

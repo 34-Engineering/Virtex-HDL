@@ -155,7 +155,7 @@ function drawImage(clearDraw?: boolean): any {
                 if (run.blobIndex !== NULL_BLOB_INDEX) {                    
                     //if run has valid blobIndex (or valid pointer blobIndex) => draw it
                     if (!BlobProcessor.getBlobGarbageList()[i]) {
-                        for (let x = run.start; x <= run.end; x++) {
+                        for (let x = run.start; x <= run.stop; x++) {
                             drawPixel(tempImage.data, { x, y }, [
                                 //generate unique color based on blob index
                                 Math.sin(run.blobIndex * 50) * 200 + 55,

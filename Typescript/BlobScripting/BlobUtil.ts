@@ -58,14 +58,26 @@ export interface Run { //for Python => Blob Processor
 }
 
 //Run Buffer
+export interface RunBufferRun {
+    start: reg10,
+    stop: reg10,
+    blobIndex: BlobIndex
+}
 export interface RunBuffer {
-    runs: {
-        start: reg10,
-        end: reg10,
-        blobIndex: BlobIndex
-    }[],
-    count: number, //number of runs
+    runs: RunBufferRun[],
+    count: number, //number of runs filled (valid = [count-1:0])
     line: reg10
+}
+
+//Merge Quads
+function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
+    //this algorithm is not perfect but close enough for choosing rough angle of blob
+    return {
+        topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
+        topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
+        bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
+        bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
+    }
 }
 
 //Merging Blobs
@@ -84,18 +96,15 @@ export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
     };
 }
 
-//Merge Quad10s
-function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
-    //this algorithm is not perfect but close enough for choosing rough angle of blob
-    return {
-        topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
-        topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
-        bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
-        bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
-    }
-}
-
 //Calculate Blob Angle
+function calcAngle(dx: signed_reg10, dy: signed_reg10): BlobAngle {
+    const t = 896; //best fit for 10° tolerance
+    const h = quickDivide(dx, dy); //how horizontal the line is
+    const v = quickDivide(dy, dx); //how vertical the line is
+    return (h > t && v < t) ? BlobAngle.HORIZONTAL :
+           (h < t && v > t) ? BlobAngle.VERTICAL   :
+           boolToReg1(dx>0) ^ boolToReg1(dy>0) ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
+}
 export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
     //make two center lines from quad centers
     const start1: Vector2d10 = {
@@ -147,14 +156,6 @@ export function calcBlobAngle(blob: BlobData, data: any = false): BlobAngle {
 
     //return best angle
     return lengthSq1 > lengthSq2 ? angle1 : angle2;
-}
-function calcAngle(dx: signed_reg10, dy: signed_reg10): BlobAngle {
-    const t = 896; //best fit for 10° tolerance
-    const h = quickDivide(dx, dy); //how horizontal the line is
-    const v = quickDivide(dy, dx); //how vertical the line is
-    return (h > t && v < t) ? BlobAngle.HORIZONTAL :
-           (h < t && v > t) ? BlobAngle.VERTICAL   :
-           boolToReg1(dx>0) ^ boolToReg1(dy>0) ? BlobAngle.FORWARD : BlobAngle.BACKWARD;
 }
 
 //Runs Overlap
