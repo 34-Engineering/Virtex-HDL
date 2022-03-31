@@ -133,7 +133,7 @@ let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with tar
 let nextTargetIndexBs = [
     (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[0]()+1) : nextTargetIndexBsUnaccounted[0](), //prevent A index overlap
     (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() : //init B index @ value
-                     (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[1]()+1) : nextTargetIndexBsUnaccounted[1]()
+    (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[1]()+1) : nextTargetIndexBsUnaccounted[1]()
 ];
 let targetGroupBJoined: reg1 = 0;
 let noTargetIndexAsLeft = (): reg1 => boolToReg1(nextTargetIndexA() === NULL_BLOB_INDEX);

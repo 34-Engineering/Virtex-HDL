@@ -207,10 +207,10 @@ endfunction
 function automatic logic inFullnessRange(BlobArea area, boundArea, logic [15:0] min, max);
     return 1;
 endfunction
-function automatic logic inBoundAreaRatioRange(BlobArea area, boundArea, logic [15:0] min, max);
+function automatic logic inBoundAreaRatioRange(BlobArea area1, area2, logic [15:0] min, max);
     return 1;
 endfunction
-function automatic logic inBoundAreaRange(BlobArea area, boundArea, logic [15:0] min, max);
+function automatic logic inBoundAreaRange(BlobArea area, logic [15:0] min, max);
     return `Math_inRangeInclusive(area >> 3, min, max);
 endfunction
 
