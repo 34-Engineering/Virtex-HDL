@@ -75,6 +75,7 @@ let faults: Faults;
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
 let runFIFOOut: Run = {length:0, line:0, black:0};
 let lastLine: reg10 = 340;
+let justResetFrame: reg1 = 0;
 
 //Blob BRAM
 interface BlobBRAMPort {
@@ -145,6 +146,7 @@ function always_ff(): void {
     _("blobBRAMPorts[0].we <= 0");
     _("blobBRAMPorts[1].we <= 0");
     _("lastLine <= ", runFIFOOut.line);
+    _("justResetFrame <= 0");
     _("runFIFORead <= 0");
     _("blobSkipCycle <= 0");
     _("blobJustResetLine <= 0");
@@ -158,8 +160,6 @@ function always_ff(): void {
         //Read from FIFO @ Reset for New Frame
         if (!runFIFOEmpty) {
             _("runFIFORead <= 1");
-            frameReset();
-
             if (!targetSelectorDone) {
                 faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
             }
@@ -206,7 +206,7 @@ function updateBlobMaker(): void {
         //New Run*
         if (blobMakerState == BlobMakerState.NONE) {
             //Process FIFO Read
-            if (blobJustResetLine || runFIFORead) {
+            if (runFIFORead || blobJustResetLine || justResetFrame) {
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -739,6 +739,9 @@ function always_comb(): void {
 //Global Reset for New Frame
 function frameReset(): void {
     console.log(" --- FRAME RESET --- ");
+
+    //Flag Reset
+    _("justResetFrame <= 1");
 
     //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
     _("blobIndex <= 0");
