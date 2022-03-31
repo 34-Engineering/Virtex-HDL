@@ -10,18 +10,20 @@
 //Index Types
 typedef logic [$clog2(MAX_BLOBS+3)-1:0] BlobIndex; //+3 is to account for NULL_BLOB_INDEX & NULL_BLACK_RUN_BLOB_INDEX)
 typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is the +2 for? there is no null, dont we just need +1?
+typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST):0] BlobArea; //[19:0]
 
 //Blob Data
-typedef struct packed { //144-bit
+typedef struct packed { //104-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
         bottom right (2, 2) means pixel #(1, 1)
     this makes area calculations easier*/
-    Math::Vector2d10 boundTopLeft;
-    Math::Vector2d10 boundBottomRight;
-    Math::Quad10 quad;
-    logic [23:0] area;
+    Math::Vector2d10 boundTopLeft; //20-bit
+    Math::Vector2d10 boundBottomRight; //20-bit
+    Math::Quad10 quad; //40-bit
+    BlobArea area; //20-bit
+    logic [3:0] reserved; //4-bit
 } BlobData;
 
 //Blob Metadata
@@ -48,14 +50,13 @@ typedef struct packed {
     logic [11:0] reserved;
 } BlobAnglesEnabled;
 
-//?Target
-typedef struct packed { //46-bit
-    Math::Vector2d10 center;
+//Target
+typedef struct packed { //48-bit
+    Math::Vector2d10 center; //20-bit
     logic [9:0] width;
     logic [9:0] height;
-    // logic [15:0] timestamp; //timestamp is replaced with latency (age) at delivery
-    logic [3:0] blobCount;
-    BlobAngle angle; //angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
+    logic [5:0] blobCount;
+    BlobAngle angle; //2-bit - angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
 } Target;
 
 //Target Mode
@@ -68,20 +69,24 @@ typedef enum logic [15:0] {
 } TargetMode;
 
 //Run
-typedef struct packed {
-    logic [9:0] length;
-    BlobIndex blobIndex;
+typedef struct packed { //21-bit
+    logic [9:0] length, line;
+    logic black;
 } Run;
 
 //Run Buffer
 typedef struct packed {
-    Run [MAX_RUNS_PER_LINE-1:0] runs;
-    RunBufferIndex count; //number of runs filled
+    logic [9:0] start, stop; //used start & stop for run buffer so it can be
+    BlobIndex blobIndex;     //processed in one clock cylce w/ for-statement
+} RunBufferRun;
+typedef struct packed {
+    RunBufferRun [MAX_RUNS_PER_LINE-1:0] runs;
+    RunBufferIndex count; //number of runs filled (valid = [count-1:0])
     logic [9:0] line;
 } RunBuffer;
-localparam RunBuffer NULL_RUN_BUFFER = '{ runs:0, count:0, line:NULL_LINE_NUMBER };
+localparam RunBuffer NULL_RUN_BUFFER = '{ runs:'0, count:'0, line:NULL_LINE_NUMBER };
 
-//Merge Math::Quad10s
+//Merge Quads
 function automatic Math::Quad10 mergeQuad10s (Math::Quad10 quad1, Math::Quad10 quad2);
     //this algorithm is not perfect but close enough for choosing rough angle of blob
     return '{
@@ -104,7 +109,8 @@ function automatic BlobData mergeBlobs(BlobData blob1, BlobData blob2);
             y: `Math_max(blob1.boundBottomRight.y, blob2.boundBottomRight.y)
         },
         quad: mergeQuad10s(blob1.quad, blob2.quad),
-        area: blob1.area + blob2.area
+        area: blob1.area + blob2.area,
+        reserved: '0
     };
 endfunction
 
@@ -176,18 +182,19 @@ function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] li
             bottomRight: '{x:stop+1, y:line+1},
             bottomLeft:  '{x:start , y:line+1}
         },
-        area: run.length
+        area: run.length,
+        reserved: '0
     };
 endfunction
 
 //Target Null
-localparam Target NULL_TARGET = '{ center:0, width:0, height:0, blobCount:0, angle:HORIZONTAL };
+localparam Target NULL_TARGET = '{ center:'0, width:'0, height:'0, blobCount:'0, angle:HORIZONTAL };
 function automatic logic isTargetNull(Target target);
     return target.blobCount == 0;
 endfunction
 
 //In Range/Valid //TODO
-function automatic logic isAspectRatioInRange(logic [9:0] width, height, logic [15:0] min, max);
+function automatic logic inAspectRatioRange(logic [9:0] width, height, logic [15:0] min, max);
     /*
     fixed point notes:
     multiply the two numbers as integers and shfit back by the Q num decimal places (which means output int will be very big at first)
@@ -197,8 +204,80 @@ function automatic logic isAspectRatioInRange(logic [9:0] width, height, logic [
     //virtexConfig.targetAspectRatioMin*height, virtexConfig.targetAspectRatioMax*height
     return 1;
 endfunction
-function automatic logic isFullnessInRange(logic [23:0] area, boundArea, logic [15:0] min, max);
+function automatic logic inFullnessRange(BlobArea area, boundArea, logic [15:0] min, max);
     return 1;
+endfunction
+function automatic logic inBoundAreaRatioRange(BlobArea area, boundArea, logic [15:0] min, max);
+    return 1;
+endfunction
+function automatic logic inBoundAreaRange(BlobArea area, boundArea, logic [15:0] min, max);
+    return `Math_inRangeInclusive(area >> 3, min, max);
+endfunction
+
+//Group Target (target stored in Blob BRAM)
+typedef struct packed {
+    Vector2d10 boundTopLeft, boundBottomRight; //20-bit
+    logic [5:0] blobCount;
+    BlobArea blobBoundArea; //20-bit
+} GroupTarget;
+function automatic GroupTarget asGroupTarget(BlobData blob);
+    return '{
+        boundTopLeft: blob.boundTopLeft,
+        boundBottomRight: blob.boundBottomRight,
+        blobCount: blob.quad.topLeft.x,
+        blobBoundArea: blob.area - GROUP_TARGET_AREA_CONST
+    };
+endfunction
+function automatic BlobData asBlob(GroupTarget groupTarget);
+    return '{
+        boundTopLeft: groupTarget.boundTopLeft,
+        boundBottomRight: groupTarget.boundBottomRight,
+        quad: '{
+            topLeft: '{x:groupTarget.blobCount, y:'0},
+            topRight: '0,
+            bottomRight: '0,
+            bottomLeft: '0
+        },
+        area: groupTarget.blobBoundArea + GROUP_TARGET_AREA_CONST,
+        reserved: '0
+    };
+endfunction
+function automatic logic isGroupTarget(BlobData blob);
+    return boolToReg1(blob.area > GROUP_TARGET_AREA_CONST);
+endfunction
+function automatic GroupTarget mergeGroupTargets(GroupTarget groupTargetA, groupTargetB);
+    return '{
+        boundTopLeft: '{
+            x: Math_min(groupTargetA.boundTopLeft.x, groupTargetB.boundTopLeft.x),
+            y: Math_min(groupTargetA.boundTopLeft.y, groupTargetB.boundTopLeft.y)
+        },
+        boundBottomRight: '{
+            x: Math_max(groupTargetA.boundBottomRight.x, groupTargetB.boundBottomRight.x),
+            y: Math_max(groupTargetA.boundBottomRight.y, groupTargetB.boundBottomRight.y)
+        },
+        blobCount: groupTargetA.blobCount + groupTargetB.blobCount,
+        blobBoundArea: groupTargetA.blobBoundArea
+    };
+endfunction
+function automatic Target groupTargetToTarget(GroupTarget groupTarget);
+    return '{
+        center: '{
+            x: (groupTarget.boundBottomRight.x + groupTarget.boundTopLeft.x) >> 1,
+            y: (groupTarget.boundBottomRight.y + groupTarget.boundTopLeft.y) >> 1
+        },
+        width:  groupTarget.boundBottomRight.x - groupTarget.boundTopLeft.x + 1,
+        height: groupTarget.boundBottomRight.y - groupTarget.boundTopLeft.y + 1,
+        blobCount: groupTarget.blobCount,
+        angle: HORIZONTAL
+    };
+endfunction
+function automatic GroupTarget makeGroupTarget(BlobData blob);
+    return '{
+        boundTopLeft: blob.boundTopLeft,
+        boundBottomRight: blob.boundBottomRight,
+        blobCount: 1,
+        blobBoundArea: (blob.boundBottomRight.x - blob.boundTopLeft.x + 1) * (blob.boundBottomRight.y - blob.boundTopLeft.y + 1) //boundArea = boundWidth * boundHeight
+    };
 endfunction
 
 `endif

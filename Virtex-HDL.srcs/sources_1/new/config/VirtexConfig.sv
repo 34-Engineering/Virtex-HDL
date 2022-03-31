@@ -48,22 +48,22 @@ typedef struct packed { //64 x 16
     logic [15:0] targetBlobXGapMax; //16-bit integer
     logic [15:0] targetBlobYGapMin; //distance between blobs in target
     logic [15:0] targetBlobYGapMax; //16-bit integer
+    logic [15:0] targetBoundAreaRatioMin; //ratio between bound area of original blob & new blob
+    logic [15:0] targetBoundAreaRatioMax; //Q8.8 fixed point
     logic [15:0] targetAspectRatioMin; //aspectRatio = boundWidth / boundHeight
-    logic [15:0] targetAspectRatioMax; //Q9.7 floating point
+    logic [15:0] targetAspectRatioMax; //Q9.7 fixed point
     logic [15:0] targetBoundAreaMin; //boundArea = boundWidth * boundHeight >> 1
     logic [15:0] targetBoundAreaMax; //16-bit integer
-    logic [15:0] targetBlobAreaDiffMin; //difference between areas of blobs in target
-    logic [15:0] targetBlobAreaDiffMax; //16-bit integer
     logic [15:0] targetCenterX; //final target selection parameter //TODO better name
     logic [15:0] targetCenterY; //choose target thats closet to this point
 
     //blob params
     logic [15:0] blobAspectRatioMin; //aspectRatio = boundWidth / boundHeight
-    logic [15:0] blobAspectRatioMax; //Q9.7 floating point
+    logic [15:0] blobAspectRatioMax; //Q9.7 fixed point
     logic [15:0] blobBoundAreaMin; //boundArea = boundWidth * boundHeight >> 1
     logic [15:0] blobBoundAreaMax; //16-bit integer
     logic [15:0] blobFullnessMin; //fullness = blob.area (true area) / boundArea
-    logic [15:0] blobFullnessMax; //Q1.15 floating point
+    logic [15:0] blobFullnessMax; //Q1.15 fixed point
     BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
@@ -122,12 +122,12 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     targetBlobXGapMax: 16'hFFFF,//30,
     targetBlobYGapMin: 0,
     targetBlobYGapMax: 16'hFFFF,//30,
+    targetBoundAreaRatioMin: 0.25,
+    targetBoundAreaRatioMax: 1.75,//100,
     targetAspectRatioMin: 0,//2,
     targetAspectRatioMax: 16'hFFFF,//4,
     targetBoundAreaMin: 0,
     targetBoundAreaMax: 16'hFFFF,//0xffff,
-    targetBlobAreaDiffMin: 0,
-    targetBlobAreaDiffMax: 16'hFFFF,//100,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 

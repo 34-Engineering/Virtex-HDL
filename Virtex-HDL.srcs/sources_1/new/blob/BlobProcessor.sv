@@ -8,12 +8,11 @@
    */
 module BlobProcessor(
     input wire CLK200, CLK72,
-    input Kernel kernelInput,
-    input wire kernelInputWrite,
+    input Run runInput,
+    input wire runInputWrite,
     output Target target,
     input VirtexConfig virtexConfig,
     output reg OUT_OF_BLOB_MEM_FAULT,
-    output reg OUT_OF_RLE_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
     output reg KERNEL_FIFO_FULL_FAULT,
@@ -21,36 +20,28 @@ module BlobProcessor(
     );
 
     //Main (registers + wires)
-    struct packed { BlobIndex addr; BlobData din, dout; logic we; } blobBRAMPorts [0:1] = '{0, 0};
-    wire kernelFIFOFull, kernelFIFOEmpty;
-    wire hasNewKernel = ~kernelFIFOEmpty;
-    Kernel kernel;
-    reg readNewKernel = 0;
-    reg justReset = 0;
-    reg lastKernelZero = 0, isFirstFrame = 1;
-    wire isLastKernel = kernel.pos.y == IMAGE_HEIGHT-1 & kernel.pos.x == KERNEL_MAX_X;
+    struct packed { BlobIndex addr; BlobData din, dout; logic we; } blobBRAMPorts [0:1] = '{'0, '0};
+    wire runFIFOEmpty;
+    reg runFIFORead;
+    BlobData runFIFOOut;
+    reg [9:0] lastLine = 10'd340; //init >0 so we know to reset on first frame
+    reg justResetFrame = '0;
+    reg isFirstReset = '1;
+    reg isFirstFrame = '1;
 
-    //Run Length Encoder (registers + wires)
-    RunBuffer rleRunBuffer;
-    
     //Blob Processor (registers + wires)
-    enum logic [0:2] { IDLE=0, LAST_LINE=1, MERGE_READ=2, MERGE_WRITE_1=3, MERGE_WRITE_2=4, JOIN_1=5, JOIN_2=6, WRITE=7 } blobRunState = IDLE;
-    BlobMetadata blobMetadatas [MAX_BLOBS];
-    initial for (int i = 0; i < MAX_BLOBS; i++) blobMetadatas[i] = '{ status: UNSCANED, pointer: NULL_BLOB_INDEX };
-    BlobIndex blobIndex;
-    RunBuffer blobRunBufferNext, blobRunBufferCurrent, blobRunBufferLast;
-    RunBufferIndex blobRunBufferIndexCurrent, blobRunBufferIndexLast; //index in run buffer
-    reg [9:0] blobRunBufferXCurrent, blobRunBufferXLast; // counter for RLE x position
-    BlobIndex blobMasterIndex; //master blob for run to join into (following joining runs are slaves)
-    reg blobUsingPort1; //whether blobProcessor is using port1 (so garbage collector won't)
-    wire blobProcessorDoneWithLine = blobRunBufferCurrent.line == NULL_LINE_NUMBER | blobRunBufferIndexCurrent >= blobRunBufferCurrent.count;
-    wire blobNextLineAvailable = blobRunBufferNext.line != NULL_LINE_NUMBER;
-    wire blobProcessorTooSlow = blobRunBufferNext.line > (blobRunBufferCurrent.line+1);
-    wire Run blobLastLineRun = blobRunBufferLast.runs[blobRunBufferIndexLast];
-    wire BlobIndex blobLastLineRunBlobPointerIndex = getBlobPointerIndex(blobLastLineRun.blobIndex);
-    wire blobProcessorOnLastLine = blobRunBufferCurrent.line == IMAGE_HEIGHT-1;
-    wire isWorkingOnFrame = ~isLastKernel | ~blobProcessorDoneWithLine | ~blobProcessorOnLastLine;
-    reg lastIsWorkingOnFrame;
+    typedef enum logic [0:2] { NONE=0, SEARCH=1, MERGE=2, JOIN=3, JOIN_END=4, MAKE=5 } BlobMakerState;
+    BlobMakerState blobMakerState = NONE;
+    wire blobMakerDone = pythonDone & runFIFOEmpty & blobMakerState == NONE;
+    reg blobSkipCycle = '0;
+    reg blobJustResetLine = '0;
+    BlobIndex blobIndex = '0;
+    reg [MAX_BLOBS-1:0] blobGarbageList = '0;
+    RunBuffer currentLineBuffer = '0;
+    reg [9:0] currentLineBufferX = '0;
+    RunBuffer lastLineBuffer = '0;
+    wire BlobData currentRunAsBlob = runToBlob(currentLineBufferX, runFIFOOut.length, runFIFOOut.line);
+    wire currentRunHasJoinedBlob = currentLineBuffer.runs[currentLineBuffer.count].blobIndex != NULL_BLOB_INDEX;
 
     //Target Selector (registers + wires)
     reg targetSelectorDone;
