@@ -198,7 +198,7 @@ function updateBlobMaker(): void {
         //reset current line buffer
         _("currentLineBufferX <= 0");
         _("currentLineBuffer.count <= 0");
-        _(`currentLineBuffer.runs[0] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
+        _(`currentLineBuffer.runs[0] <= `, {start:0, stop:0, blobIndex:NULL_BLOB_INDEX});
         _("currentLineBuffer.line <= ", (runFIFOOut.line));
     }
 
@@ -211,7 +211,7 @@ function updateBlobMaker(): void {
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
                         start: currentLineBufferX,
-                        end: currentLineBufferX + runFIFOOut.length - 1,
+                        stop: currentLineBufferX + runFIFOOut.length - 1,
                         blobIndex: NULL_BLOB_INDEX
                     });
                     
@@ -291,7 +291,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
-            end: currentLineBufferX + runFIFOOut.length - 1,
+            stop: currentLineBufferX + runFIFOOut.length - 1,
             blobIndex: blobBRAMPorts[0].addr
         });
 
@@ -337,7 +337,7 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
-            end: currentLineBufferX + runFIFOOut.length - 1,
+            stop: currentLineBufferX + runFIFOOut.length - 1,
             blobIndex: blobIndex
         });
 
@@ -352,7 +352,7 @@ function blobFinishRun(): void {
     //prepare for new run
     _("currentLineBufferX <= ", (currentLineBufferX + runFIFOOut.length));
     _("currentLineBuffer.count <= ", (currentLineBuffer.count + 1));
-    _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, end:0, blobIndex:NULL_BLOB_INDEX});
+    _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, stop:0, blobIndex:NULL_BLOB_INDEX});
 
     //reset state
     _("blobMakerState <= BlobMakerState.NONE");
