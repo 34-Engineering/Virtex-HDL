@@ -1,5 +1,3 @@
-//Math.ts
-
 import { boolToReg1, reg1, reg10, signed_reg10 } from "./VerilogUtil";
 
 //Range Functions
@@ -26,13 +24,13 @@ export function Math_abs(num: number): number {
     return Math.abs(num); //will be diff in HDL
 }
 
-//Vector2d10s
+//Vectors
 export interface Vector2d10 { //20-bit
     x: reg10,
     y: reg10
 }
 
-//Polygons
+//Quad
 export interface Quad10 { //80-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
@@ -43,26 +41,6 @@ export interface Quad10 { //80-bit
     topRight: Vector2d10,
     bottomRight: Vector2d10,
     bottomLeft: Vector2d10
-}
-export function calcQuad10Area(quad: Quad10): number {
-    const points: Vector2d10[] = [ quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft ];
-    let total = 0;
-    for (let i = 0; i < points.length; i++) {
-        const addX = points[i].x;
-        const addY = points[i === points.length- 1 ? 0 : i+1].y;
-        const subX = points[i === points.length- 1 ? 0 : i+1].x;
-        const subY = points[i].y;
-        total += ((addX * addY) >> 1) - ((subX * subY) >> 1);
-    }
-    return Math.abs(total);
-}
-export function isValidQuad10(quad: Quad10): boolean {
-    return (
-        quad.topLeft.x < quad.topRight.x && //left < right
-        quad.bottomLeft.x < quad.bottomRight.x &&
-        quad.topLeft.y < quad.bottomLeft.y && //bottom > top
-        quad.topRight.y < quad.bottomRight.y
-    );
 }
 
 //Quick Division //FIXME better naming? 

@@ -57,9 +57,7 @@ Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
 */
 
-import { IMAGE_HEIGHT } from "./util/Constants";
 import { Faults } from "./util/Fault";
-import { Kernel, KERNEL_MAX_X } from "./util/PythonUtil";
 import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
 import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./BlobUtil";
 import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
@@ -208,8 +206,6 @@ function updateBlobMaker(): void {
         if (blobMakerState == BlobMakerState.NONE) {
             //Process FIFO Read
             if (blobJustResetLine || (justResetFrame && !isFirstFrame) || runFIFORead) {
-                if (runFIFOOut.line == 0) console.log("NEW RUN", runFIFOOut);
-
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -716,18 +712,6 @@ function getNextValidTargetIndex(startIndex: BlobIndex): BlobIndex {
         }
     }
     return NULL_BLOB_INDEX;
-}
-function hasMoreThanOneValidBlob(): reg1 {
-    let hasOne: reg1 = 0;
-    for (let i = 0; i < MAX_BLOBS; i++) {
-        if (i < blobIndex && !blobGarbageList[i]) {
-            if (hasOne) {
-                return 1;
-            }
-            else hasOne = 1;
-        }
-    }
-    return 0;
 }
 
 //Combinational Logic

@@ -1,5 +1,3 @@
-// VerilogUtil - Types and Functions to simulate Verilog/FPGA behaivor
-
 import { MAX_BLOBS, NULL_BLOB_INDEX } from "../BlobConstants";
 import { BlobAngle, BlobData, Run, Target } from "../BlobUtil";
 import { deepCopy } from "./DrawUtil";

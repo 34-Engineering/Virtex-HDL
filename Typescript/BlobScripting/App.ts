@@ -4,15 +4,13 @@ import { Server } from 'socket.io';
 import * as http from 'http';
 import * as fs from 'fs';
 import * as BlobProcessor from "./BlobProcessor";
-import { Kernel, KERNEL_MAX_X } from './util/PythonUtil';
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
 import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/DrawUtil';
 import { virtexConfig } from './util/VirtexConfig';
-import { BlobAngle, calcBlobAngle, isTargetNull } from './BlobUtil';
+import { calcBlobAngle, isTargetNull } from './BlobUtil';
 import { NULL_BLOB_INDEX, RUN_FIFO_LENGTH } from './BlobConstants';
 import { Faults } from './util/Fault';
 import { PNG } from 'pngjs';
-import { Vector2d10 } from './util/Math';
 import { deepCopy } from './util/DrawUtil';
 import { blobBRAMMem, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
 const app: express.Application = express();
@@ -44,6 +42,7 @@ app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/s
 const server = http.createServer(app);
 
 //Blob Processor + Python Sim
+const KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 let kx: number, ky: number; //(0,0) to (79,479)
 export let pythonDone: boolean;
 let loopCount: number;

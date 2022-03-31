@@ -5,6 +5,8 @@ export interface VirtexConfig {
     threshold: number,
 
     //target params
+    //Note:in group mode: gap & area diff are using for making the group, while
+    //aspect ratio, bound area, & blob count are ONLY used for validity of the group (as target) once finished
     targetMode: TargetMode,
     targetBlobXGapMin: number, //distance between blobs in target
     targetBlobXGapMax: number, //16-bit integer
@@ -36,8 +38,6 @@ export let virtexConfig: VirtexConfig = {
 
     //target params
     targetMode: TargetMode.DUAL_UP,
-    //in group mode: gap & area diff are using for making the group, while
-    //aspect ratio, bound area, & blob count are ONLY used for validity of the group (as target) once finished
     targetBlobXGapMin: 0,
     targetBlobXGapMax: 0xFFFF,//30,
     targetBlobYGapMin: 0,

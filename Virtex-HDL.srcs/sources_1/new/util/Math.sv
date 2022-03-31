@@ -45,24 +45,6 @@ package Math;
         Math::Vector2d10 bottomRight;
         Math::Vector2d10 bottomLeft;
     } Quad10;
-    // function automatic logic [23:0] calcQuad10Area(Quad10 quad);
-    //     Math::Vector2d10 [3:0] points = { quad.topLeft, quad.topRight, quad.bottomRight, quad.bottomLeft };
-    //     logic [23:0] total = 0;
-    //     for (int i = 0; i < 4; i = i + 1) begin
-    //         total = total +
-    //         ((points[i].x * points[i == 3 ? 0 : i+1].y) >> 1) - 
-    //         ((points[i == 3 ? 0 : i+1].x * points[i].y) >> 1);
-    //     end
-    //     return total > 0 ? total : -total;
-    // endfunction
-    // function automatic logic isValidQuad10(Quad10 quad);
-    //     return (
-    //         quad.topLeft.x < quad.topRight.x & //left < right
-    //         quad.bottomLeft.x < quad.bottomRight.x &
-    //         quad.topLeft.y < quad.bottomLeft.y & //bottom > top
-    //         quad.topRight.y < quad.bottomRight.y
-    //     );
-    // endfunction
 
     //Quick Division //FIXME better naming?
     function automatic logic [9:0] quickDivide10(logic signed [10:0] dividend, divisor);
