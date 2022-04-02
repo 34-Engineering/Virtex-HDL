@@ -42,7 +42,7 @@
     Flow:
      - Buffers: LVDS -> Serial
      - SERDES: Serial -> Parallel
-     - Process Loop: Parallel -> Frame Buffer & Blob Processor
+     - Process Loop: Parallel -> Frame Buffer (raw kernels) & Blob Processor (runs)
 
     */
 module PythonManager(
@@ -69,35 +69,30 @@ module PythonManager(
     output reg [7:0] debug
     );
 
-    wire LVDS_CLK, CLK72;
+    wire CLK288, CLK72;
     wire isSequencerEnabled; //whether the sequencer is actually enabled (~2.6us delay from sequencerEnabled if training is done)
     wire isBooted; //whether the python is booted (required registgers are booted)
-    wire LVDS_SYNC; //serial SYNC
-    wire [3:0] LVDS_DOUT; //serial DOUTs
+    wire SYNC_SERIAL;
+    wire [3:0] DOUT_SERIAL;
     wire [7:0] SYNC; //parallel SYNC
     wire [7:0] DOUT [3:0]; //parallel DOUTs
     wire [4:0] trainingDone; //whether SERDES lines are trained (active high, 5'b11111)
-    reg kernelOdd; //whether the kernel x coordinate is odd (kernel is read out backwards)
-    reg kernelPartion;
-    Kernel kernel = 0; //the current kernel we are working on
-    logic [7:0] [3:0] kernelMonoValue = 0;
-    reg isInFrame; //whether the processor is in frame
 
     //Blob Processor
-    Kernel blobKernel;
-    reg writeBlobKernel = 0;
+    Run runFIFOIn;
+    reg runFIFOWrite;
     BlobProcessor BlobProcessor(
+        .CLK288(CLK288),
         .CLK200(CLK200),
-        .CLK72(CLK72),
-        .kernelInput(blobKernel),
-        .kernelInputWrite(writeBlobKernel),
+        .runFIFOIn(/*TODO*/),
+        .runFIFOWrite(/*TODO*/),
         .target(target),
         .virtexConfig(virtexConfig),
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
         .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
         .BLOB_POINTER_DEPTH_FAULT(BLOB_POINTER_DEPTH_FAULT),
         .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
-        .KERNEL_FIFO_FULL_FAULT(KERNEL_FIFO_FULL_FAULT)
+        .RUN_FIFO_FULL_FAULT(KERNEL_FIFO_FULL_FAULT)
     );
 
     //Python SPI Manager
@@ -122,196 +117,200 @@ module PythonManager(
 
     //LVDS Input Buffers
     IBUFGDS #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_CLK_IBUF   (.O(LVDS_CLK    ),.I(LVDS_CLK_P    ),.IB(LVDS_CLK_N     ));
+    LVDS_CLK_IBUF   (.O(CLK288    ),.I(LVDS_CLK_P    ),.IB(LVDS_CLK_N     ));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_SYNC_IBUF  (.O(LVDS_SYNC   ),.I(LVDS_SYNC_P   ),.IB(LVDS_SYNC_N    ));
+    LVDS_SYNC_IBUF  (.O(SYNC_SERIAL   ),.I(LVDS_SYNC_P   ),.IB(LVDS_SYNC_N    ));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_DOUT0_IBUF (.O(LVDS_DOUT[0]),.I(LVDS_DOUT_P[0]),.IB(LVDS_DOUT_N[0]));
+    LVDS_DOUT0_IBUF (.O(DOUT_SERIAL[0]),.I(LVDS_DOUT_P[0]),.IB(LVDS_DOUT_N[0]));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_DOUT1_IBUF (.O(LVDS_DOUT[1]),.I(LVDS_DOUT_P[1]),.IB(LVDS_DOUT_N[1]));
+    LVDS_DOUT1_IBUF (.O(DOUT_SERIAL[1]),.I(LVDS_DOUT_P[1]),.IB(LVDS_DOUT_N[1]));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_DOUT2_IBUF (.O(LVDS_DOUT[2]),.I(LVDS_DOUT_P[2]),.IB(LVDS_DOUT_N[2]));
+    LVDS_DOUT2_IBUF (.O(DOUT_SERIAL[2]),.I(LVDS_DOUT_P[2]),.IB(LVDS_DOUT_N[2]));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_DOUT3_IBUF (.O(LVDS_DOUT[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
+    LVDS_DOUT3_IBUF (.O(DOUT_SERIAL[3]),.I(LVDS_DOUT_P[3]),.IB(LVDS_DOUT_N[3]));
 
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
-    wire SERDES_RESET = ~isBooted; //active high, dont start training until required registers are uploaded
+    wire SERDES_RESET = ~isBooted; //active high
     PythonISERDES SYNC_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_SYNC),
+        .SERIAL_CLK(CLK288),
+        .SERIAL_DATA(SYNC_SERIAL),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(SYNC),
         .RESET(SERDES_RESET), 
         .trainingDone(trainingDone[0])
     );
     PythonISERDES DOUT_0_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[0]),
+        .SERIAL_CLK(CLK288),
+        .SERIAL_DATA(DOUT_SERIAL[0]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[0]),
         .RESET(SERDES_RESET),
         .trainingDone(trainingDone[1])
     );
     PythonISERDES DOUT_1_ISERDES (
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[1]),
+        .SERIAL_CLK(CLK288),
+        .SERIAL_DATA(DOUT_SERIAL[1]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[1]),
         .RESET(SERDES_RESET),
         .trainingDone(trainingDone[2])
     );
     PythonISERDES DOUT_2_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[2]),
+        .SERIAL_CLK(CLK288),
+        .SERIAL_DATA(DOUT_SERIAL[2]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[2]),
         .RESET(SERDES_RESET),
         .trainingDone(trainingDone[3])
     );
     PythonISERDES DOUT_3_ISERDES(
-        .SERIAL_CLK(LVDS_CLK),
-        .SERIAL_DATA(LVDS_DOUT[3]),
+        .SERIAL_CLK(CLK288),
+        .SERIAL_DATA(DOUT_SERIAL[3]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[3]),
         .RESET(SERDES_RESET),
         .trainingDone(trainingDone[4])
     );
 
-    //Process Loop
-    KernelMono frameBufferFIFOIn = 0;
-    reg frameBufferFIFOWrite = 0;
-    wire frameBufferFIFOFull;
-
+    //Python State (SYNC -> State)
+    Math::Vector2d10 kernelPos = '0;
+    reg inFrame = 0;
+    reg kernelDone = 0;
+    reg kernelOdd = 0;
+    reg [7:0] lastSYNC = 0;
     always_ff @(posedge CLK72) begin
-        frameBufferFIFOWrite <= 0;
-        writeBlobKernel <= 0;
+        if (trainingDone == 5'b11111 | isSequencerEnabled) begin
+            if (lastSYNC == PYTHON_SYNC_FRAME_END) begin
+                inFrame <= 0;
+                kernelDone <= 0;
+            end
 
-        if (trainingDone == 5'b11111 & isSequencerEnabled) begin
             if (SYNC == PYTHON_SYNC_FRAME_START) begin
-                //Note: FS replaces LS
-                //FIXME remove blocking
-                isInFrame = 1;
-                kernel.pos = '{x:0, y:0};
-                kernelPartion = 0;
-                kernelOdd = 0;
-                processImageData();
+                inFrame <= 1;
+                kernelPos <= 0;
+                kernelOdd <= 0;
+                kernelDone <= 0;
             end
 
-            else if (SYNC == PYTHON_SYNC_FRAME_END) begin
-                isInFrame = 0;
-                processImageData();
-                //TODO resetting logic?
+            if (inFrame & SYNC == PYTHON_SYNC_LINE_START) begin
+                kernelPos <= '{ x: 0, y: kernelPos.y + 1 };
+                kernelOdd <= 0;
+                kernelDone <= 0;
             end
 
-            else if (SYNC == PYTHON_SYNC_LINE_START & isInFrame) begin
-                //check if in frame to make sure its not a black pixel
-                kernel.pos.x = 0;
-                kernelPartion = 0;
-                kernelOdd = 0;
-                processImageData();
+            if (inFrame & (SYNC == PYTHON_SYNC_IMAGE | SYNC == PYTHON_SYNC_MAIN_WINDOW_ID | SYNC == PYTHON_SYNC_FRAME_END | SYNC == PYTHON_SYNC_LINE_END)) begin
+                kernelOdd <= kernelOdd ^ kernelDone;
+                kernelDone <= ~kernelDone;
+                kernelPos.x <= kernelPos.x + 1;
             end
 
-            else if (SYNC == PYTHON_SYNC_LINE_END & isInFrame) begin
-                kernel.pos.y = kernel.pos.y + 1;
-                processImageData();
-            end
-
-            else if (SYNC == PYTHON_SYNC_MAIN_WINDOW_ID & isInFrame) begin
-                processImageData();
-            end
-
-            else if (SYNC == PYTHON_SYNC_IMAGE & isInFrame) begin
-                processImageData();
-            end
+            lastSYNC <= SYNC;
         end
     end
 
+    //Kernel Loading (DOUT -> Kernels (unflipped))
+    reg [7:0] kernelUnflipped [7:0];
+    always_ff @(posedge CLK72) kernelUnflipped[3:0] = {kernelUnflipped[3:0], DOUT};
+
+    //Kernel Unflipping
+    localparam [3:0] PYTHON_KERNEL_MASK [7:0] = '{7,3,6,2,5,1,4,0};
+    reg [7:0] kernel [7:0];
+    always_comb for (int i = 0; i < 8; i++) kernel[i] = kernelUnflipped[PYTHON_KERNEL_MASK[kernelOdd ? (7-i) : i]];
+
+    //Run Length Encoding (Kernels -> Runs)
     localparam THRESHOLD_TEMP = 8'd20;
-    localparam DOUT_SEL_H = 7;
-    task processImageData();
-    //FIXME BARREL SHIFTER + RLE -> BLOB FIFO
-        //load partion 2 of kernel (see page 40)
-        if (kernelPartion) begin
-            if (kernelOdd) begin
-                //load backwards
-                kernel.value   [0] = DOUT[3] > THRESHOLD_TEMP;
-                kernel.value   [2] = DOUT[2] > THRESHOLD_TEMP;
-                kernel.value   [4] = DOUT[1] > THRESHOLD_TEMP;
-                kernel.value   [6] = DOUT[0] > THRESHOLD_TEMP;
-                kernelMonoValue[0] = DOUT[3][DOUT_SEL_H -: 4];
-                kernelMonoValue[2] = DOUT[2][DOUT_SEL_H -: 4];
-                kernelMonoValue[4] = DOUT[1][DOUT_SEL_H -: 4];
-                kernelMonoValue[6] = DOUT[0][DOUT_SEL_H -: 4];
+    Run rleCurrentRun = '0;
+    reg [7:0] rleKernel;
+    reg [7:0] kernelThreshold;
+    always_comb for (int i = 0; i < 8; i++) kernelThreshold[i] = kernel[i] > THRESHOLD_TEMP;
+    Math::Vector2d10 rleKernelPos = '0;
+    reg [2:0] rleKernelX;
+    reg rleInKernel = '0;
+    reg lastKernelDone;
+    always_ff @(negedge CLK288) begin //kernels are output @ 36MHz so we can process each pixel @ (36*8)MHz
+        runFIFOWrite <= 0;
+        
+        //Process each Pixel in Kernel
+        if (rleInKernel) begin
+            //New Run @ Color Change
+            if (rleKernel[rleKernelX] != rleCurrentRun.black) begin
+                //end old run
+                if (rleCurrentRun.length != 0) begin
+                    runFIFOIn <= rleCurrentRun;
+                    runFIFOWrite <= 1;
+                end
+
+                //start new run
+                rleCurrentRun <= '{
+                    length: 1,
+                    line: rleKernelPos.y,
+                    black: rleKernel[rleKernelX]
+                };
             end
+
+            //Extend Run
             else begin
-                //load normally
-                kernel.value   [1] = DOUT[0] > THRESHOLD_TEMP;
-                kernel.value   [3] = DOUT[1] > THRESHOLD_TEMP;
-                kernel.value   [5] = DOUT[2] > THRESHOLD_TEMP;
-                kernel.value   [7] = DOUT[3] > THRESHOLD_TEMP;
-                kernelMonoValue[1] = DOUT[0][DOUT_SEL_H -: 4];
-                kernelMonoValue[3] = DOUT[1][DOUT_SEL_H -: 4];
-                kernelMonoValue[5] = DOUT[2][DOUT_SEL_H -: 4];
-                kernelMonoValue[7] = DOUT[3][DOUT_SEL_H -: 4];
+                rleCurrentRun.length <= rleCurrentRun.length + 1;
             end
-            
-            //send kernel to blob processor
-            blobKernel <= kernel;
-            writeBlobKernel <= 1;
 
-            //send kernel to frame buffer
-            frameBufferFIFOIn <= '{ value: kernelMonoValue, pos: kernel.pos };
-            frameBufferFIFOWrite <= 1;
-            
-            //prepare for next kernel
-            kernel.pos.x <= kernel.pos.x + 1;
-            kernelOdd <= ~kernelOdd;
+            //End Kernel
+            if (rleKernelX == 6) rleInKernel <= 0;
+
+            //Move to Next Pixel
+            rleKernelX <= rleKernelX + 1;
         end
 
-        //load partion 1 of kernel (see page 40)
-        else if (kernelOdd) begin
-            //load backwards
-            kernel.value   [1] <= DOUT[3] > THRESHOLD_TEMP;
-            kernel.value   [3] <= DOUT[2] > THRESHOLD_TEMP;
-            kernel.value   [5] <= DOUT[1] > THRESHOLD_TEMP;
-            kernel.value   [7] <= DOUT[0] > THRESHOLD_TEMP;
-            kernelMonoValue[1] <= DOUT[3][DOUT_SEL_H -: 4];
-            kernelMonoValue[3] <= DOUT[2][DOUT_SEL_H -: 4];
-            kernelMonoValue[5] <= DOUT[1][DOUT_SEL_H -: 4];
-            kernelMonoValue[7] <= DOUT[0][DOUT_SEL_H -: 4];
-        end
-        else begin
-            //load normally
-            kernel.value   [0] <= DOUT[0] > THRESHOLD_TEMP;
-            kernel.value   [2] <= DOUT[1] > THRESHOLD_TEMP;
-            kernel.value   [4] <= DOUT[2] > THRESHOLD_TEMP;
-            kernel.value   [6] <= DOUT[3] > THRESHOLD_TEMP;
-            kernelMonoValue[0] <= DOUT[0][DOUT_SEL_H -: 4];
-            kernelMonoValue[2] <= DOUT[1][DOUT_SEL_H -: 4];
-            kernelMonoValue[4] <= DOUT[2][DOUT_SEL_H -: 4];
-            kernelMonoValue[6] <= DOUT[3][DOUT_SEL_H -: 4];
-        end
+        //New Kernel
+        if (kernelDone & ~lastKernelDone) begin
+            rleKernel <= kernelThreshold;
+            rleKernelPos <= kernelPos;
+            rleKernelX <= 0;
+            rleInKernel <= 1;
 
-        //swap kernel partion
-        kernelPartion = ~kernelPartion;
-    endtask
+            //New Line
+            if (kernelPos.y != rleKernelPos.y) begin
+                //end old run
+                if (rleCurrentRun.length != 0) begin
+                    runFIFOIn <= rleCurrentRun;
+                    runFIFOWrite <= 1;
+                end
 
-    //Frame Buffer Writing & Clock Crossing with FIFO
-    KernelMono frameBufferFIFOOut;
-    reg frameBufferFIFORead = 0;
-    wire frameBufferFIFOEmpty;
-    wire CLK72Inv = ~CLK72;
-    initial frameBufferWriteEnable = 0;
+                //start run
+                rleCurrentRun <= '{
+                    length: 0,
+                    line: kernelPos.y,
+                    black: ~kernel[7]
+                };
+            end
+        end
+        lastKernelDone <= 1;
+    end
+
+    //Kernel Clock Crossing (72MHz (not MRCC) -> 100MHZ (MRCC))
+    Kernel8x1x4 frameBufferFIFOIn = 0, frameBufferFIFOOut;
+    reg frameBufferFIFOWrite = 0, frameBufferFIFORead = 0;
+    wire frameBufferFIFOFull, frameBufferFIFOEmpty;
+    assign frameBufferFIFOOut = '{
+        value: '{
+            kernel[7][7:4], kernel[6][7:4], kernel[5][7:4], kernel[4][7:4],
+            kernel[3][7:4], kernel[2][7:4], kernel[1][7:4], kernel[0][7:4]
+        },
+        pos: kernelPos
+    };
+    always_ff @(negedge CLK72) frameBufferFIFOWrite <= kernelDone;
     fifo_python_stream frameBufferWriteFIFO (
         .full(frameBufferFull),
         .din(frameBufferFIFOIn),
         .wr_en(frameBufferFIFOWrite),
-        .wr_clk(CLK72Inv),
+        .wr_clk(CLK72),
         .empty(frameBufferFIFOEmpty),
         .dout(frameBufferFIFOOut),
         .rd_en(frameBufferFIFORead),
         .rd_clk(CLK100)
     );
+    
+    //Frame Buffer Writing (PythonManager -> AppManager)
+    initial frameBufferWriteEnable = 0;
     always_ff @(negedge CLK100) begin
         //Write Kernel to Frame Buffer
         if (frameBufferFIFORead) begin
@@ -327,7 +326,7 @@ module PythonManager(
 
     //72MHz Clock Generator (from 288MHz signal)
     BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("4")) CLK72_BUFR (
-        .I(LVDS_CLK),
+        .I(CLK288),
         .O(CLK72),
         .CE(1'b1),
         .CLR(1'b0)

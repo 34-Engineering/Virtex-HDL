@@ -62,7 +62,7 @@ Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
 */
 module BlobProcessor(
-    input wire CLK200, CLK72,
+    input wire CLK288, CLK200,
     input Run runFIFOIn,
     input wire runFIFOWrite,
     output Target target,
@@ -70,8 +70,7 @@ module BlobProcessor(
     output reg OUT_OF_BLOB_MEM_FAULT,
     output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
-    output reg RUN_FIFO_FULL_FAULT,
-    output reg TARGET_SELECTOR_TOO_SLOW_FAULT //TODO pull down?
+    output reg RUN_FIFO_FULL_FAULT
     );
 
     //Main (registers + wires)
@@ -754,7 +753,7 @@ module BlobProcessor(
         .full(runFIFOFull),
         .din(runFIFOIn),
         .wr_en(runFIFOWrite),
-        .wr_clk(CLK72),
+        .wr_clk(CLK288),
         .empty(runFIFOEmpty),
         .dout(runFIFOOut),
         .rd_en(runFIFORead),

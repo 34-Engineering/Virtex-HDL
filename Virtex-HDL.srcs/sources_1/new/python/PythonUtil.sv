@@ -8,14 +8,10 @@
 `include "../util/Math.sv"
 
 //Kernel
-typedef struct packed { //28-bit
-    logic [7:0] value; //threshold
-    Math::Vector2d10 pos; //(0, 0) to (79, 479)
-} Kernel;
 typedef struct packed { //52-bit
     logic [7:0] [3:0] value;
     Math::Vector2d10 pos; //(0, 0) to (79, 479)
-} KernelMono;
+} Kernel8x1x4;
 localparam KERNEL_MAX_X = IMAGE_WIDTH / 8 - 1;
 
 //Default SYNC Channel Codes (Frame Sync + Data Classification)

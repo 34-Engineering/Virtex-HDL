@@ -37,12 +37,12 @@ module AppManager(
     wire USB_ENABLED = USB_ON & ~USB_PWREN & USB_SUS;
 
     //Frame buffer
-    wire CLKInv = ~CLK100;
+    wire CLK100Inv = ~CLK100;
     reg [15:0] frameBufferAddrRead;
     wire [31:0] frameBufferReadOut;
     blk_mem_frame_buffer frameBuffer ( //a is for reading, b is writing
         .addra(frameBufferAddrRead),
-        .clka(CLKInv),
+        .clka(CLK100Inv),
         .dina(),
         .douta(frameBufferReadOut),
         .wea(1'b0),

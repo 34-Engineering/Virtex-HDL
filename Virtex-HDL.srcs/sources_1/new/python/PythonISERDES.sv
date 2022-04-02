@@ -7,6 +7,14 @@
      - https://www.xilinx.com/support/documentation/user_guides/ug471_7Series_SelectIO.pdf
      - https://www.xilinx.com/support/documentation/application_notes/xapp524-serial-lvds-adc-interface.pdf
      - https://www.xilinx.com/support/documentation/sw_manuals/xilinx2012_2/ug953-vivado-7series-libraries.pdf
+
+    TL;DR
+    Takes in a single line serial stream and converts it to 8 parallel lines
+    
+    Initially we don't know where the start of one serial word starts and where they end.
+    So the Python will output "training data" on its line when its idle (just a repeating pattern).
+    We can "bitslip" the SERDES until parallel data lines up with the training data.
+
     */
 module PythonISERDES (
     input wire SERIAL_CLK, SERIAL_DATA,
@@ -23,7 +31,6 @@ module PythonISERDES (
     //Bitslip (see below)
     reg bitslip = 1;
     initial trainingDone <= 0;
-    reg [1:0] waitCounter = 0;
 
     //ISERDESE2 Primitive (see docs)
     ISERDESE2 #(
@@ -71,7 +78,8 @@ module PythonISERDES (
     /*Bitslip Operation (DDR):
      - every CLKDIV cycle bitslip is high data with either be shifted right 1 or left 3 (alternating)
      - bitslip cannot be asserted for multiple consecutive CLKDIV cycles
-     - read delay of three clock cycles between bitslip operation and output on Q1-8 */
+     - read delay of 3 clock cycles between bitslip operation and output on Q1-8 */
+    reg [1:0] waitCounter = 0; //waits for the 3 clock cycles when the bitslip operation succeeded
     always_ff @(negedge PARALLEL_CLK) begin
         if (~trainingDone) begin
             //PARALLEL_DATA bad => bitslip again
