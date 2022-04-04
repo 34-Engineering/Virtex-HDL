@@ -1,12 +1,11 @@
 `timescale 1ns / 1ps
 `include "../blob/BlobUtil.sv"
 `include "../util/Fault.sv"
+`include "../config/VirtexConfig.sv"
 
 /* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs
 
     Signal LEDs: 3-bit registers where 0 = red, 1 = blue, 2 = green (RGB)
-
-    //TODO LOWER FREQUENCY
 */
 module LEDManager(
     input wire CLK100,
@@ -14,6 +13,7 @@ module LEDManager(
     output wire [2:0] LED_PWR, LED_EN, LED_TAR, LED_COM,
     input wire LED_FAULT, //active low, from MAX16834
     input wire USB_ON, PWR_12V_EN,
+    input VirtexConfig virtexConfig,
     input wire enabled, hasCommunication,
     input wire Target target,
     input wire [7:0] debug
@@ -43,35 +43,14 @@ module LEDManager(
     endfunction
 
     //IR Led Ring (on when enabled, no fault, and 12V power)
-    reg fault = 0;
-    reg clearedFault = 0;
-    reg [26:0] faultTimer = 0;
-    reg [7:0] tb = 0;
-    assign LED_IR = enabled & tb == 0; //~fault//~PWR_12V_EN;
-    always_ff @(posedge CLK100) begin
-        tb <= tb + 1;
+    reg [13:0] counter10K = 0;
+    wire CLK10K = counter10K > 14'd5000; //10kHz (from 100MHz)
+    always_ff @(posedge CLK100) counter10K <= counter10K < 14'd10000 ? (counter10K + 1) : 0;
 
-        faultTimer <= faultTimer + 1;
+    reg [2:0] pwmPos = 0; //10kHz PWM with 8-bit precision
+    always_ff @(posedge CLK10K) pwmPos <= pwmPos + 1;
 
-        //flag fault (delay 10ms if we just cleared it)
-        if (~fault & ~LED_FAULT & (~clearedFault | faultTimer > 24'd10000000)) begin
-            fault <= 1;
-            clearedFault <= 0;
-            faultTimer <= 0;
-        end
-
-        //clear fault after 100ms //TODO is this bad?? //TODO only if no fault rn/reset timer on fault?
-        else if (fault & faultTimer == 27'd100000000) begin
-            fault <= 0;
-            clearedFault <= 1;
-            faultTimer <= 0;
-        end
-
-        //clear clear fault after 100ms
-        if (clearedFault & faultTimer == 27'd100000000) begin
-            clearedFault <= 0;
-        end
-    end
+    assign LED_IR = enabled & virtexConfig.ledBrightness[pwmPos]; //~fault//~PWR_12V_EN;
 
     //Status LEDs
     assign LED_PWR = ~makeRGBA(debug[7]?255:0, debug[6]?255:0, 0, brightness);

@@ -16,6 +16,7 @@ typedef struct packed {
     
     //Blob
     logic OUT_OF_BLOB_MEM;     //tried to create more blobs than available in mem (probably too noisy)
+    logic OUT_OF_RLE_MEM;     
     logic BLOB_PROCESSOR_SLOW; //blob processor took too long on line(s) (probably too noisy)
     logic RUN_FIFO_FULL;      //blob run length encoder wasn't reading kernels fast enough3
     logic MAX_TARGET_GROUP_SIZE;

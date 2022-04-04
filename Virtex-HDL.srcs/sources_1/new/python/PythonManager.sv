@@ -63,9 +63,8 @@ module PythonManager(
     output wire PYTHON_300_PLL_FAULT,
     output reg OUT_OF_BLOB_MEM_FAULT,
     output reg OUT_OF_RLE_MEM_FAULT,
-    output reg BLOB_POINTER_DEPTH_FAULT,
     output reg BLOB_PROCESSOR_SLOW_FAULT,
-    output reg KERNEL_FIFO_FULL_FAULT,
+    output reg RUN_FIFO_FULL_FAULT,
     output reg [7:0] debug
     );
 
@@ -81,19 +80,18 @@ module PythonManager(
     //Blob Processor
     Run runFIFOIn;
     reg runFIFOWrite;
-    BlobProcessor BlobProcessor(
-        .CLK288(CLK288),
-        .CLK200(CLK200),
-        .runFIFOIn(/*TODO*/),
-        .runFIFOWrite(/*TODO*/),
-        .target(target),
-        .virtexConfig(virtexConfig),
-        .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
-        .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
-        .BLOB_POINTER_DEPTH_FAULT(BLOB_POINTER_DEPTH_FAULT),
-        .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
-        .RUN_FIFO_FULL_FAULT(KERNEL_FIFO_FULL_FAULT)
-    );
+    // BlobProcessor BlobProcessor(
+    //     .CLK288(CLK288),
+    //     .CLK200(CLK200),
+    //     .runFIFOIn(runFIFOIn),
+    //     .runFIFOWrite(runFIFOWrite),
+    //     .target(target),
+    //     .virtexConfig(virtexConfig),
+    //     .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
+    //     .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
+    //     .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
+    //     .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT)
+    // );
 
     //Python SPI Manager
     wire shouldEnableSequencer = sequencerEnabled & trainingDone == 5'b11111; //only enable once SERDES is ready
@@ -199,9 +197,12 @@ module PythonManager(
             end
 
             if (inFrame & (SYNC == PYTHON_SYNC_IMAGE | SYNC == PYTHON_SYNC_MAIN_WINDOW_ID | SYNC == PYTHON_SYNC_FRAME_END | SYNC == PYTHON_SYNC_LINE_END)) begin
+                if (kernelDone) begin
+                    kernelPos.x <= kernelPos.x + 1;
+                end
+                
                 kernelOdd <= kernelOdd ^ kernelDone;
                 kernelDone <= ~kernelDone;
-                kernelPos.x <= kernelPos.x + 1;
             end
 
             lastSYNC <= SYNC;
@@ -210,10 +211,10 @@ module PythonManager(
 
     //Kernel Loading (DOUT -> Kernels (unflipped))
     reg [7:0] kernelUnflipped [7:0];
-    always_ff @(posedge CLK72) kernelUnflipped[3:0] = {kernelUnflipped[3:0], DOUT};
+    always_ff @(posedge CLK72) kernelUnflipped = {kernelUnflipped[3:0], DOUT};
 
     //Kernel Unflipping
-    localparam [3:0] PYTHON_KERNEL_MASK [7:0] = '{7,3,6,2,5,1,4,0};
+    localparam [3:0] PYTHON_KERNEL_MASK [7:0] = '{3,7,2,6,1,5,0,4};
     reg [7:0] kernel [7:0];
     always_comb for (int i = 0; i < 8; i++) kernel[i] = kernelUnflipped[PYTHON_KERNEL_MASK[kernelOdd ? (7-i) : i]];
 
@@ -286,15 +287,14 @@ module PythonManager(
         lastKernelDone <= 1;
     end
 
-    //Kernel Clock Crossing (72MHz (not MRCC) -> 100MHZ (MRCC))
-    Kernel8x1x4 frameBufferFIFOIn = 0, frameBufferFIFOOut;
+    //Kernel Clock Crossing w/ FIFO (72MHz (not MRCC) -> 100MHZ (MRCC))
+    Kernel8x1x4 frameBufferFIFOIn, frameBufferFIFOOut;
     reg frameBufferFIFOWrite = 0, frameBufferFIFORead = 0;
     wire frameBufferFIFOFull, frameBufferFIFOEmpty;
-    assign frameBufferFIFOOut = '{
-        value: '{
-            kernel[7][7:4], kernel[6][7:4], kernel[5][7:4], kernel[4][7:4],
-            kernel[3][7:4], kernel[2][7:4], kernel[1][7:4], kernel[0][7:4]
-        },
+    reg [7:0] [3:0] kernel4; //convert 8-bit -> 4-bit
+    always_comb for (int i = 0; i < 8; i++) kernel4[i] = kernel[i][7:4];
+    assign frameBufferFIFOIn = '{
+        value: kernel4,
         pos: kernelPos
     };
     always_ff @(negedge CLK72) frameBufferFIFOWrite <= kernelDone;

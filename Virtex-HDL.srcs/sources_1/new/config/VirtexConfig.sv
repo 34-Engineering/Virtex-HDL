@@ -34,13 +34,14 @@ typedef struct packed { //64 x 16
     //camera params & python config
     /*00*/CameraOrientation cameraOrientation;
     /*01*/LEDSafety ledSafety;
-    /*02*/logic [15:0] threshold;
-    /*03*/PythonBlackOffsetConfig blackOffset;
-    /*04*/PythonAnalogGainConfig analogGain;
-    /*05*/logic [15:0] digitalGain;
-    /*06*/logic [15:0] exposure;
-    /*07*/logic [15:0] multTimer;
-    /*08*/logic [15:0] frameLength;
+    logic [15:0] ledBrightness;
+    logic [15:0] threshold;
+    PythonBlackOffsetConfig blackOffset;
+    PythonAnalogGainConfig analogGain;
+    logic [15:0] digitalGain;
+    logic [15:0] exposure;
+    logic [15:0] multTimer;
+    logic [15:0] frameLength;
 
     //target params
     TargetMode targetMode;
@@ -54,6 +55,8 @@ typedef struct packed { //64 x 16
     logic [15:0] targetAspectRatioMax; //Q9.7 fixed point
     logic [15:0] targetBoundAreaMin; //boundArea = boundWidth * boundHeight >> 1
     logic [15:0] targetBoundAreaMax; //16-bit integer
+    logic [15:0] targetBlobCountMin; //(group mode only) # of blobs in target
+    logic [15:0] targetBlobCountMax; //63 max
     logic [15:0] targetCenterX; //final target selection parameter //TODO better name
     logic [15:0] targetCenterY; //choose target thats closet to this point
 
@@ -67,7 +70,6 @@ typedef struct packed { //64 x 16
     BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
-    logic [15:0] reserved29;
     logic [15:0] reserved30;
     logic [15:0] reserved31;
     logic [15:0] reserved32;
@@ -108,6 +110,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     //camera params & python config
     cameraOrientation: NORMAL,
     ledSafety: '{1, 1000},
+    ledBrightness: 16'b0000_0000_0000_0001,
     threshold: 128,
     blackOffset: '{0, 6, 6, 8},
     analogGain: '{0, 0, 15, 8},
@@ -128,6 +131,8 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     targetAspectRatioMax: 16'hFFFF,//4,
     targetBoundAreaMin: 0,
     targetBoundAreaMax: 16'hFFFF,//0xffff,
+    targetBlobCountMin: 1,
+    targetBlobCountMax: 63,
     targetCenterX: IMAGE_WIDTH / 2,
     targetCenterY: IMAGE_HEIGHT / 2,
 
@@ -141,7 +146,6 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
     
     //reserved for future use
-    reserved29: 16'h0,
     reserved30: 16'h0,
     reserved31: 16'h0,
     reserved32: 16'h0,

@@ -68,7 +68,7 @@ module BlobProcessor(
     output Target target,
     input VirtexConfig virtexConfig,
     output reg OUT_OF_BLOB_MEM_FAULT,
-    output reg BLOB_POINTER_DEPTH_FAULT,
+    output reg OUT_OF_RLE_MEM_FAULT, //TODO add to faults
     output reg BLOB_PROCESSOR_SLOW_FAULT,
     output reg RUN_FIFO_FULL_FAULT
     );
@@ -77,7 +77,7 @@ module BlobProcessor(
     struct packed { BlobIndex addr; BlobData din, dout; logic we; } blobBRAMPorts [0:1] = '{'0, '0};
     wire runFIFOEmpty;
     reg runFIFORead;
-    BlobData runFIFOOut;
+    Run runFIFOOut;
     reg [9:0] lastLine = 10'd340; //init >0 so we know to reset on first frame
     reg justResetFrame = '0;
 
@@ -154,7 +154,7 @@ module BlobProcessor(
             if (~runFIFOEmpty) begin
                 runFIFORead <= 1;
                 if (~targetSelectorDone) begin
-                    faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
+                    BLOB_PROCESSOR_SLOW_FAULT <= 1;
                 end
             end
 
@@ -419,10 +419,10 @@ module BlobProcessor(
             //GROUP: chain other blobs together starting a Blob A
             else if (virtexConfig.targetMode == GROUP) begin
                 //gap between
-                static reg [9:0] gapX = Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
-                static reg [9:0] gapY = Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
-                static reg gapValid = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                static reg [9:0] gapX = `Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
+                static reg [9:0] gapY = `Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
+                static reg gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
                 
                 //ratio between the bound area of the two blobs (if either is a group target, then it will used the cashed bound area)
                 static GroupTarget groupTargetB = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
@@ -461,12 +461,12 @@ module BlobProcessor(
 
                 //make enclosing bound
                 static Math::Vector2d10 topLeft = '{
-                    x: Math_min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-                    y: Math_min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
+                    x: `Math_min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
+                    y: `Math_min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
                 };
                 static Math::Vector2d10 bottomRight = '{
-                    x: Math_max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-                    y: Math_max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
+                    x: `Math_max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
+                    y: `Math_max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
                 };
                 static Math::Vector2d10 center = '{
                     x: (topLeft.x + bottomRight.x) >> 1,
@@ -482,10 +482,10 @@ module BlobProcessor(
                     leftBlobAngle == BACKWARD & rightBlobAngle == FORWARD : 1;
 
                 //gap between target & blobB
-                static reg [9:0] gapX = Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
-                static reg [9:0] gapY = Math_diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
-                static reg gapValid = Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
-                    Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
+                static reg [9:0] gapX = `Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
+                static reg [9:0] gapY = `Math_diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
+                static reg gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &
+                    `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
 
                 //aspect ratio of new target
                 static reg aspectRatioValid = inAspectRatioRange(width, height,
@@ -544,7 +544,7 @@ module BlobProcessor(
             static BlobArea boundArea = boundWidth * boundHeight; //bound area of entire target
             static reg boundAreaValid = inBoundAreaRange(boundArea, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
             static reg aspectRatioValid = inAspectRatioRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-            static reg blobCountValid = Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
+            static reg blobCountValid = `Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
             static reg justSetTargetCurrent = 0;
             if (virtexConfig.targetMode == GROUP & ~targetGroupBJoined & targetIndexA != NULL_BLOB_INDEX) begin
                 if (boundAreaValid & aspectRatioValid & blobCountValid &
@@ -707,10 +707,10 @@ module BlobProcessor(
     //Fault Logic
     always_comb begin
         if (blobIndex >= NULL_BLOB_INDEX) begin
-            faults.OUT_OF_BLOB_MEM_FAULT = 1;
+            OUT_OF_BLOB_MEM_FAULT = 1;
         end
         if (currentLineBuffer.count >= MAX_RUNS_PER_LINE) begin
-            faults.OUT_OF_RLE_MEM_FAULT = 1;
+            OUT_OF_RLE_MEM_FAULT = 1;
         end
     end
 

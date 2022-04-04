@@ -109,9 +109,8 @@ module Top(
         .PYTHON_300_PLL_FAULT(faults.PYTHON_300_PLL),
         .OUT_OF_BLOB_MEM_FAULT(faults.OUT_OF_BLOB_MEM),
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
-        .BLOB_POINTER_DEPTH_FAULT(faults.BLOB_POINTER_DEPTH),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
-        .KERNEL_FIFO_FULL_FAULT(faults.KERNEL_FIFO_FULL),
+        .RUN_FIFO_FULL_FAULT(faults.RUN_FIFO_FULL),
         .debug()
     );
 
@@ -173,6 +172,7 @@ module Top(
         .LED_FAULT(LED_FAULT),
         .USB_ON(USB_ON),
         .PWR_12V_EN(PWR_12V_EN),
+        .virtexConfig(virtexConfig),
         .enabled(enabled),
         .hasCommunication(hasCommunication),
         .target(0),

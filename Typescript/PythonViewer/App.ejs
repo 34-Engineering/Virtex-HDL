@@ -90,10 +90,11 @@
         });
 
         //Load Settings
-        socket.emit('setting', { addr: 4, value: 0b111100100 }); //analog gain
-        socket.emit('setting', { addr: 7, value: 2 }); //mult timer
-        socket.emit('setting', { addr: 8, value: 39639 }); //frame length
-        socket.emit('setting', { addr: 6, value: 1000 }); //exposure
+        socket.emit('setting', { addr: 2, value: 0b11111111 }); //LED brightness
+        socket.emit('setting', { addr: 5, value: 0b111100100 }); //analog gain
+        socket.emit('setting', { addr: 8, value: 2 }); //mult timer
+        socket.emit('setting', { addr: 9, value: 39639 }); //frame length
+        socket.emit('setting', { addr: 7, value: 1000 }); //exposure
 
         socket.emit('enable');
         // socket.emit('disable');

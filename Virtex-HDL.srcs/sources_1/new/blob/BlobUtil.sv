@@ -13,7 +13,7 @@ typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is 
 typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST):0] BlobArea; //[19:0]
 
 //Blob Data
-typedef struct packed { //104-bit
+typedef struct packed { //144-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
@@ -21,7 +21,7 @@ typedef struct packed { //104-bit
     this makes area calculations easier*/
     Math::Vector2d10 boundTopLeft; //20-bit
     Math::Vector2d10 boundBottomRight; //20-bit
-    Math::Quad10 quad; //40-bit
+    Math::Quad10 quad; //80-bit
     BlobArea area; //20-bit
     logic [3:0] reserved; //4-bit
 } BlobData;
@@ -216,7 +216,7 @@ endfunction
 
 //Group Target (target stored in Blob BRAM)
 typedef struct packed {
-    Vector2d10 boundTopLeft, boundBottomRight; //20-bit
+    Math::Vector2d10 boundTopLeft, boundBottomRight; //20-bit
     logic [5:0] blobCount;
     BlobArea blobBoundArea; //20-bit
 } GroupTarget;
@@ -243,17 +243,17 @@ function automatic BlobData asBlob(GroupTarget groupTarget);
     };
 endfunction
 function automatic logic isGroupTarget(BlobData blob);
-    return boolToReg1(blob.area > GROUP_TARGET_AREA_CONST);
+    return blob.area > GROUP_TARGET_AREA_CONST;
 endfunction
 function automatic GroupTarget mergeGroupTargets(GroupTarget groupTargetA, groupTargetB);
     return '{
         boundTopLeft: '{
-            x: Math_min(groupTargetA.boundTopLeft.x, groupTargetB.boundTopLeft.x),
-            y: Math_min(groupTargetA.boundTopLeft.y, groupTargetB.boundTopLeft.y)
+            x: `Math_min(groupTargetA.boundTopLeft.x, groupTargetB.boundTopLeft.x),
+            y: `Math_min(groupTargetA.boundTopLeft.y, groupTargetB.boundTopLeft.y)
         },
         boundBottomRight: '{
-            x: Math_max(groupTargetA.boundBottomRight.x, groupTargetB.boundBottomRight.x),
-            y: Math_max(groupTargetA.boundBottomRight.y, groupTargetB.boundBottomRight.y)
+            x: `Math_max(groupTargetA.boundBottomRight.x, groupTargetB.boundBottomRight.x),
+            y: `Math_max(groupTargetA.boundBottomRight.y, groupTargetB.boundBottomRight.y)
         },
         blobCount: groupTargetA.blobCount + groupTargetB.blobCount,
         blobBoundArea: groupTargetA.blobBoundArea
