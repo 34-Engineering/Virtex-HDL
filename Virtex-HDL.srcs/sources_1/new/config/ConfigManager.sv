@@ -66,10 +66,10 @@ module ConfigManager(
     output reg [7:0] debug
     );
 
-    `ifdef SIM
-    VirtexConfig virtexConfig = DefaultVirtexConfig;
-    `else
+    `ifndef SIM
     initial virtexConfig = DefaultVirtexConfig;
+    `else
+    VirtexConfig virtexConfig = DefaultVirtexConfig;
     `endif
 
     //No-EEPROM Version

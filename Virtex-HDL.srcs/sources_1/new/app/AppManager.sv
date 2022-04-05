@@ -79,11 +79,10 @@ module AppManager(
     reg [15:0] commandIndex = 0;
     reg [1:0] getFramePartion = 0;
     reg [5:0] configAddress = 0;
-    reg [15:0] configDataPartion0 = 0;
+    reg [7:0] configDataPartion0 = 0;
     reg lastReadDataValid = 0;
     wire newReadData = readDataValid & ~lastReadDataValid; //TODO checkme
     initial virtexConfigWriteRequest = 0;
-
     initial enabled = 0;
 
     always_ff @(posedge CLK50) begin
@@ -103,7 +102,7 @@ module AppManager(
                         //Config
                         else if (readData[7] == CONFIG_BIT) begin
                             configAddress <= readData[5:0];
-                            commandIndex <= 0;
+                            commandIndex <= '0;
                             state <= (readData[6] == CONFIG_GET_BIT) ? GET_CONFIG : SET_CONFIG;
                         end
 
@@ -175,10 +174,8 @@ module AppManager(
                 SET_CONFIG: begin
                     //read second partion
                     if (commandIndex & newReadData) begin
-                        //TODO check if the new `{readData, configDataPartion0}` works
-                        virtexConfigWriteRequest <= '{ addr: configAddress, data: {readData, configDataPartion0}, valid: 1 };
-
-                        commandIndex <= 0;
+                        virtexConfigWriteRequest <= '{ addr: configAddress, data: {configDataPartion0, readData}, valid: 1 };
+                        commandIndex <= '0;
                         state <= IDLE;
                     end
 
@@ -191,7 +188,7 @@ module AppManager(
 
                 GET_TARGET: begin
                     if (writeDataValid) begin
-                        writeDataValid <= 0;
+                        writeDataValid <= '0;
                     end
 
                     else if (~writeBusy) begin

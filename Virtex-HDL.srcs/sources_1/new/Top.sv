@@ -79,7 +79,7 @@ module Top(
         .virtexConfig(virtexConfig),
         .virtexConfigWriteRequests(virtexConfigWriteRequests),
         .isBooted(configBootDone),
-        .debug(debug)
+        .debug()
     );
 
     //PythonManager
@@ -132,7 +132,7 @@ module Top(
         .frameBufferWriteAddr(frameBufferWriteAddr),
         .frameBufferWriteIn(frameBufferWriteIn),
         .frameBufferWriteEnable(frameBufferWriteEnable),
-        .debug()
+        .debug(debug)
     );
 
     // //RoboRIOManager

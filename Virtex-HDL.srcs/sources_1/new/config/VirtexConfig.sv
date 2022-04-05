@@ -7,14 +7,11 @@
 `include "../util/Constants.sv"
 `include "../blob/BlobUtil.sv"
 
-typedef enum logic [15:0] {
-    NORMAL=0, COUNTER_CLOCKWISE_90=1, UPSIDE_DOWN=2, CLOCKWISE_90=3
-} CameraOrientation;
-
 typedef struct packed {
-    logic enabled;
-    logic [14:0] timeoutMs;
-} LEDSafety;
+    logic safetyEnabled;
+    logic flipVertical; //TODO implement (python: 194[8] reverse_y)
+    logic [13:0] reserved;
+} MainConfig; //FIXME naming
 
 typedef struct packed {
     logic crcSeed;
@@ -32,16 +29,15 @@ typedef struct packed {
 
 typedef struct packed { //64 x 16
     //camera params & python config
-    /*00*/CameraOrientation cameraOrientation;
-    /*01*/LEDSafety ledSafety;
-    logic [15:0] ledBrightness;
-    logic [15:0] threshold;
-    PythonBlackOffsetConfig blackOffset;
-    PythonAnalogGainConfig analogGain;
-    logic [15:0] digitalGain;
-    logic [15:0] exposure;
-    logic [15:0] multTimer;
-    logic [15:0] frameLength;
+    /*00*/MainConfig mainConfig;
+    /*01*/logic [15:0] ledBrightness;
+    /*02*/logic [15:0] threshold;
+    /*03*/PythonBlackOffsetConfig blackOffset;
+    /*04*/PythonAnalogGainConfig analogGain;
+    /*05*/logic [15:0] digitalGain;
+    /*06*/logic [15:0] exposure;
+    /*07*/logic [15:0] multTimer;
+    /*08*/logic [15:0] frameLength;
 
     //target params
     TargetMode targetMode;
@@ -70,7 +66,6 @@ typedef struct packed { //64 x 16
     BlobAnglesEnabled blobAnglesEnabled;
     
     //reserved for future use
-    logic [15:0] reserved30;
     logic [15:0] reserved31;
     logic [15:0] reserved32;
     logic [15:0] reserved33;
@@ -108,9 +103,8 @@ typedef struct packed { //64 x 16
 
 localparam VirtexConfig DefaultVirtexConfig = '{
     //camera params & python config
-    cameraOrientation: NORMAL,
-    ledSafety: '{1, 1000},
-    ledBrightness: 16'b0000_0000_0000_0001,
+    mainConfig: '{ safetyEnabled:'1, flipVertical:'0, reserved:'0 },
+    ledBrightness: 16'hFFFF,
     threshold: 128,
     blackOffset: '{0, 6, 6, 8},
     analogGain: '{0, 0, 15, 8},
@@ -146,7 +140,6 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     blobAnglesEnabled: '{ horizontal: 1, vertical: 1, forward: 1, backward: 1, reserved: 0 },
     
     //reserved for future use
-    reserved30: 16'h0,
     reserved31: 16'h0,
     reserved32: 16'h0,
     reserved33: 16'h0,
@@ -183,7 +176,7 @@ localparam VirtexConfig DefaultVirtexConfig = '{
 };
 
 function logic [9:0] getConfigAddrIndex(logic [5:0] addr);
-    return 1023 - (addr << 4);
+    return ((64 - addr) << 4) - 1;
 endfunction
 
 typedef struct packed { //23-bit

@@ -44,10 +44,10 @@ module LEDManager(
 
     //IR Led Ring (on when enabled, no fault, and 12V power)
     reg [13:0] counter10K = 0;
-    wire CLK10K = counter10K > 14'd5000; //10kHz (from 100MHz)
-    always_ff @(posedge CLK100) counter10K <= counter10K < 14'd10000 ? (counter10K + 1) : 0;
+    wire CLK10K = counter10K > 14'd500; //10kHz (from 100MHz)
+    always_ff @(posedge CLK100) counter10K <= counter10K < 14'd1000 ? (counter10K + 1) : 0;
 
-    reg [2:0] pwmPos = 0; //10kHz PWM with 8-bit precision
+    reg [3:0] pwmPos = 0; //10kHz PWM with 16-bit precision
     always_ff @(posedge CLK10K) pwmPos <= pwmPos + 1;
 
     assign LED_IR = enabled & virtexConfig.ledBrightness[pwmPos]; //~fault//~PWR_12V_EN;

@@ -225,11 +225,13 @@ module PythonSPIManager(
     end
 
     //Settings Changes
+    initial debug = 8'b01010101;
     always_comb begin
         wantsToUploadSetting = 0;
         for (int i = 0; i < $size(loadedSettings); i++) begin
             if (wantedSettings[i] != loadedSettings[i]) begin
                 wantsToUploadSetting = 1;
+                debug = 8'b10101010;
                 wantsToUploadSettingIndex = i;
             end
         end
