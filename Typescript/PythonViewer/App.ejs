@@ -68,8 +68,8 @@
             const img = ctx.createImageData(640, 480);
             for (let i = 0; i < frame.length; i++) {
                 const idx = i << 3;
-                const pix1 = (frame[i] & 0xF) * 17;// > 128 ? 255 : 0;
-                const pix2 = (frame[i] >> 4) * 17 ;// > 128 ? 255 : 0;
+                const pix1 = (frame[i] & 0xF) * 17 > 128 ? 255 : 0;
+                const pix2 = (frame[i] >> 4) * 17  > 128 ? 255 : 0;
 
                 img.data[idx + 0] = pix1;
                 img.data[idx + 1] = pix1;
@@ -96,8 +96,8 @@
         socket.emit('setting', { addr: 7, value: 2 }); //mult timer
         socket.emit('setting', { addr: 8, value: 39639 }); //frame length
 
-        // socket.emit('enable');
-        socket.emit('disable');
+        socket.emit('enable');
+        // socket.emit('disable');
     </script>
 </body>
 

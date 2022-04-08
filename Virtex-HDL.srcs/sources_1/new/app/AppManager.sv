@@ -81,7 +81,7 @@ module AppManager(
     reg [5:0] configAddress = 0;
     reg [7:0] configDataPartion0 = 0;
     reg lastReadDataValid = 0;
-    wire newReadData = readDataValid & ~lastReadDataValid; //TODO checkme
+    wire newReadData = readDataValid & ~lastReadDataValid;
     initial virtexConfigWriteRequest = 0;
     initial enabled = 0;
 

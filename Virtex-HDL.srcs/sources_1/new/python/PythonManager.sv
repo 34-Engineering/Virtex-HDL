@@ -80,18 +80,18 @@ module PythonManager(
     //Blob Processor
     Run runFIFOIn;
     reg runFIFOWrite;
-    // BlobProcessor BlobProcessor(
-    //     .CLK288(CLK288),
-    //     .CLK200(CLK200),
-    //     .runFIFOIn(runFIFOIn),
-    //     .runFIFOWrite(runFIFOWrite),
-    //     .target(target),
-    //     .virtexConfig(virtexConfig),
-    //     .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
-    //     .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
-    //     .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
-    //     .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT)
-    // );
+    (* keep_hierarchy = "yes" *) BlobProcessor BlobProcessor(
+        .CLK288(CLK288),
+        .CLK200(CLK200),
+        .runFIFOIn(runFIFOIn),
+        .runFIFOWrite(runFIFOWrite),
+        .target(target),
+        .virtexConfig(virtexConfig),
+        .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
+        .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
+        .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
+        .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT)
+    );
 
     //Python SPI Manager
     wire shouldEnableSequencer = sequencerEnabled & trainingDone == 5'b11111; //only enable once SERDES is ready

@@ -19,11 +19,7 @@ module LEDManager(
     input wire [7:0] debug
     );
 
-    //TODO LOWER FREQUENCY
-    //TODO LOWER FREQUENCY
-    //TODO LOWER FREQUENCY
-
-    localparam brightness = 400;
+    localparam brightness = 12'd400;
 
     //Make RGB
     reg [7:0] counter255 = 0;
@@ -32,7 +28,7 @@ module LEDManager(
         counter255 <= counter255 + 1;
         counter255B <= counter255B + 1; //90° shift
     end
-    function automatic logic [2:0] makeRGBA(logic [7:0] r, g, b, a);
+    function automatic logic [2:0] makeRGBA(logic [7:0] r, g, b, logic [11:0] a);
         //generated RGB PWM signal from rgba code
         // 255 -> 1111..., 0 -> 0000..., 127 -> 1010...
         return '{
@@ -43,12 +39,12 @@ module LEDManager(
     endfunction
 
     //IR Led Ring (on when enabled, no fault, and 12V power)
-    reg [13:0] counter10K = 0;
-    wire CLK10K = counter10K > 14'd500; //10kHz (from 100MHz)
-    always_ff @(posedge CLK100) counter10K <= counter10K < 14'd1000 ? (counter10K + 1) : 0;
+    reg [13:0] clkdiv1 = 0;
+    wire CLK1 = clkdiv1 > 14'd50; //1MHz (from 100MHz)
+    always_ff @(posedge CLK100) clkdiv1 <= clkdiv1 < 14'd100 ? (clkdiv1 + 1) : 0;
 
     reg [3:0] pwmPos = 0; //10kHz PWM with 16-bit precision
-    always_ff @(posedge CLK10K) pwmPos <= pwmPos + 1;
+    always_ff @(posedge CLK1) pwmPos <= pwmPos + 1;
 
     assign LED_IR = enabled & virtexConfig.ledBrightness[pwmPos]; //~fault//~PWR_12V_EN;
 

@@ -95,6 +95,7 @@ module BlobProcessor(
     wire currentRunHasJoinedBlob = currentLineBuffer.runs[currentLineBuffer.count].blobIndex != NULL_BLOB_INDEX;
 
     //Target Selector (registers + wires)
+    TargetMode targetMode; //synced to targetMode (on CLK200)
     Target targetCurrent = '0;
     BlobData targetBlobA = '0;
     BlobAngle targetBlobAAngle = HORIZONTAL;
@@ -106,31 +107,49 @@ module BlobProcessor(
     BlobIndex [0:1] targetIndexBs = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX}; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
     reg targetWantsNewA = 1; //wants to get a new A (takes 2 cycles)
     wire targetWillGetNewA = targetWantsNewA & targetIndexBs[0] == NULL_BLOB_INDEX & targetIndexBs[1] == NULL_BLOB_INDEX; //we have wanted a new A, but now we are ready
-    wire BlobIndex firstTargetIndex = getNextValidTargetIndex(0);
-    wire BlobIndex nextTargetIndexAUnaccounted = getNextValidTargetIndex(targetIndexA+1);
-    wire BlobIndex nextTargetIndexA = (targetIndexA == NULL_BLOB_INDEX |
-        (virtexConfig.targetMode == GROUP & nextTargetIndexAUnaccounted == NULL_BLOB_INDEX)) ?
-        firstTargetIndex : nextTargetIndexAUnaccounted; //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
-    wire BlobIndex initTargetIndexB = (virtexConfig.targetMode == GROUP & firstTargetIndex != targetIndexA) ? firstTargetIndex : nextTargetIndexA; //first B index (with overlap protection)
-    wire BlobIndex nextInitTargetIndexB = (virtexConfig.targetMode == GROUP & firstTargetIndex != nextTargetIndexA & firstTargetIndex != targetIndexA) ?
-        firstTargetIndex : getNextValidTargetIndex(nextTargetIndexA+1); //calculate next init index B so we know if the next A should be skipped
-    wire BlobIndex [0:1] nextTargetIndexBsUnaccounted = '{ //unaccounted for possible overlap with targetIndexA
-        getNextValidTargetIndex(targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
-        getNextValidTargetIndex(targetIndexBs[0]+1)
-    };
-    wire BlobIndex [0:1] nextTargetIndexBs = '{
-        (nextTargetIndexBsUnaccounted[0] == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[0]+1) : nextTargetIndexBsUnaccounted[0], //prevent A index overlap
-        (targetInitStep == 1) ? initTargetIndexB : //init B index @ value
-        (nextTargetIndexBsUnaccounted[1] == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[1]+1) : nextTargetIndexBsUnaccounted[1]
-    };
+    //FIXME
+    (* keep = "true" *) wire BlobIndex firstTargetIndex = NULL_BLOB_INDEX;
+    (* keep = "true" *) wire BlobIndex nextTargetIndexAUnaccounted = NULL_BLOB_INDEX;
+    (* keep = "true" *) wire BlobIndex nextTargetIndexA = NULL_BLOB_INDEX;
+    (* keep = "true" *) wire BlobIndex initTargetIndexB = NULL_BLOB_INDEX;
+    (* keep = "true" *) wire BlobIndex nextInitTargetIndexB = NULL_BLOB_INDEX;
+    (* keep = "true" *) wire BlobIndex nextTargetIndexBsUnaccounted [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
+    (* keep = "true" *) wire BlobIndex nextTargetIndexBs [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
+    // wire BlobIndex firstTargetIndex = getNextValidTargetIndex(0);
+    // wire BlobIndex nextTargetIndexAUnaccounted = getNextValidTargetIndex(targetIndexA+1);
+    // wire BlobIndex nextTargetIndexA = (targetIndexA == NULL_BLOB_INDEX |
+    //     (targetMode == GROUP & nextTargetIndexAUnaccounted == NULL_BLOB_INDEX)) ?
+    //     firstTargetIndex : nextTargetIndexAUnaccounted; //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
+    // wire BlobIndex initTargetIndexB = (targetMode == GROUP & firstTargetIndex != targetIndexA) ? firstTargetIndex : nextTargetIndexA; //first B index (with overlap protection)
+    // wire BlobIndex nextInitTargetIndexB = (targetMode == GROUP & firstTargetIndex != nextTargetIndexA & firstTargetIndex != targetIndexA) ?
+    //     firstTargetIndex : getNextValidTargetIndex(nextTargetIndexA+1); //calculate next init index B so we know if the next A should be skipped
+    // wire BlobIndex [0:1] nextTargetIndexBsUnaccounted = '{ //unaccounted for possible overlap with targetIndexA
+    //     getNextValidTargetIndex(
+    //         targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
+    //     getNextValidTargetIndex(
+    //         targetIndexBs[0]+1)
+    // };
+    // wire BlobIndex [0:1] nextTargetIndexBs = '{
+    //     (nextTargetIndexBsUnaccounted[0] == 
+    //     targetIndexA) ? 
+    //     getNextValidTargetIndex(
+    //         nextTargetIndexBsUnaccounted[0]+1) : 
+    //     nextTargetIndexBsUnaccounted[0], //prevent A index overlap
+    //     (targetInitStep == 1) ? 
+    //     initTargetIndexB : //init B index @ value
+    //     (nextTargetIndexBsUnaccounted[1] == 
+    //     targetIndexA) ? 
+    //     getNextValidTargetIndex(
+    //         nextTargetIndexBsUnaccounted[1]+1) : 
+    //     nextTargetIndexBsUnaccounted[1]
+    // };
     reg targetGroupBJoined = '0;
     wire noTargetIndexAsLeft = nextTargetIndexA == NULL_BLOB_INDEX;
     reg targetSingleAlmostDone = '0; //will be done next loop (single mode only)
     reg targetSelectorDone = '0;
 
     //200MHz Clocked Loop
-    always_ff @(negedge CLK200) begin
-        //defaults & counters
+    (* keep = "true" *) always_ff @(negedge CLK200) begin
         blobBRAMPorts[0].we <= 0;
         blobBRAMPorts[1].we <= 0;
         lastLine <= runFIFOOut.line;
@@ -138,6 +157,7 @@ module BlobProcessor(
         runFIFORead <= 0;
         blobSkipCycle <= 0;
         blobJustResetLine <= 0;
+        targetMode <= virtexConfig.targetMode;
 
         //Reset @ New Frame
         if (runFIFOOut.line == 0 && lastLine != 0) begin
@@ -166,7 +186,7 @@ module BlobProcessor(
     end
 
     //Blob Maker (runs => blobs)
-    task updateBlobMaker();
+    (* keep = "true" *) task updateBlobMaker();
         //New Line*
         if (runFIFOOut.line != lastLine) begin
             //flag reset
@@ -351,7 +371,7 @@ module BlobProcessor(
     endtask
 
     //Target Selector (blobs => target)
-    task updateTargetSelector();
+    (* keep = "true" *) task updateTargetSelector();
         //Increment Init Step
         if (targetInitStep != 3) begin
             targetInitStep <= targetInitStep+1;
@@ -361,7 +381,7 @@ module BlobProcessor(
         targetPartion <= ~targetPartion;
 
         //Update Respective Modes
-        if (virtexConfig.targetMode == SINGLE) begin
+        if (targetMode == SINGLE) begin
             updateTargetSelectorSingle();
         end
         else begin
@@ -417,7 +437,7 @@ module BlobProcessor(
             end
 
             //GROUP: chain other blobs together starting a Blob A
-            else if (virtexConfig.targetMode == GROUP) begin
+            else if (targetMode == GROUP) begin
                 //gap between
                 static reg [9:0] gapX = `Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
                 static reg [9:0] gapY = `Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
@@ -476,9 +496,9 @@ module BlobProcessor(
                 static reg [9:0] height = bottomRight.y - topLeft.y + 1;
 
                 //if left/right blob angles are valid
-                static reg angleValid = virtexConfig.targetMode == DUAL_UP ?
+                static reg angleValid = targetMode == DUAL_UP ?
                     leftBlobAngle == FORWARD & rightBlobAngle == BACKWARD :
-                    virtexConfig.targetMode == DUAL_DOWN ?
+                    targetMode == DUAL_DOWN ?
                     leftBlobAngle == BACKWARD & rightBlobAngle == FORWARD : 1;
 
                 //gap between target & blobB
@@ -546,7 +566,7 @@ module BlobProcessor(
             static reg aspectRatioValid = inAspectRatioRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
             static reg blobCountValid = `Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
             static reg justSetTargetCurrent = 0;
-            if (virtexConfig.targetMode == GROUP & ~targetGroupBJoined & targetIndexA != NULL_BLOB_INDEX) begin
+            if (targetMode == GROUP & ~targetGroupBJoined & targetIndexA != NULL_BLOB_INDEX) begin
                 if (boundAreaValid & aspectRatioValid & blobCountValid &
                     (isTargetNull(targetCurrent) | distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) begin
                     //Make Best Target
@@ -594,7 +614,7 @@ module BlobProcessor(
             targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
         end
     endtask
-    task updateTargetSelectorSingle();
+    (* keep = "true" *) task updateTargetSelectorSingle();
         /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (technically unnessary)
         ------------------------------------------------------
@@ -618,24 +638,24 @@ module BlobProcessor(
 
         //PROCESS
         if (targetInitStep > 1) begin
-            static BlobData blob = blobBRAMPorts[targetPartion].dout;
+            automatic BlobData blob = blobBRAMPorts[targetPartion].dout;
 
             //PROCESS
             if (doesBlobMatchCriteria(blob)) begin
                 //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
-                static Math::Vector2d10 center = '{
+                automatic Math::Vector2d10 center = '{
                     x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
                     y: (blob.boundBottomRight.y + blob.boundTopLeft.y) >> 1
                 };
-                static reg [9:0] width  = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
-                static reg [9:0] height = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
+                automatic reg [9:0] width  = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
+                automatic reg [9:0] height = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
 
                 //aspect ratio valid
-                static reg aspectRatioValid = inAspectRatioRange(width, height,
+                automatic reg aspectRatioValid = inAspectRatioRange(width, height,
                     virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
                 //bound area valid
-                static reg boundAreaValid = inBoundAreaRange(width * height,
+                automatic reg boundAreaValid = inBoundAreaRange(width * height,
                     virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
                 //if this target is valid AND this target is better OR we dont have a target yet

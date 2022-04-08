@@ -1,7 +1,7 @@
 // Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2021.1 (win64) Build 3247384 Thu Jun 10 19:36:33 MDT 2021
-// Date        : Mon Apr  4 17:34:26 2022
+// Date        : Mon Apr  4 22:08:34 2022
 // Host        : RISC-IV running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               c:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.gen/sources_1/ip/blk_mem_blobs/blk_mem_blobs_stub.v
@@ -14,16 +14,15 @@
 // The synthesis directives are for Synopsys Synplify support to prevent IO buffer insertion.
 // Please paste the declaration into a Verilog source file or add the file as an additional source.
 (* x_core_info = "blk_mem_gen_v8_4_4,Vivado 2021.1" *)
-module blk_mem_blobs(clka, wea, addra, dina, douta, clkb, enb, web, addrb, dinb, 
+module blk_mem_blobs(clka, wea, addra, dina, douta, clkb, web, addrb, dinb, 
   doutb)
-/* synthesis syn_black_box black_box_pad_pin="clka,wea[0:0],addra[10:0],dina[143:0],douta[143:0],clkb,enb,web[0:0],addrb[10:0],dinb[143:0],doutb[143:0]" */;
+/* synthesis syn_black_box black_box_pad_pin="clka,wea[0:0],addra[10:0],dina[143:0],douta[143:0],clkb,web[0:0],addrb[10:0],dinb[143:0],doutb[143:0]" */;
   input clka;
   input [0:0]wea;
   input [10:0]addra;
   input [143:0]dina;
   output [143:0]douta;
   input clkb;
-  input enb;
   input [0:0]web;
   input [10:0]addrb;
   input [143:0]dinb;

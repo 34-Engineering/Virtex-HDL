@@ -13,7 +13,7 @@ typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is 
 typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST):0] BlobArea; //[19:0]
 
 //Blob Data
-typedef struct packed { //144-bit
+typedef struct packed { //144-bit //FIXME WARNING: [Synth 8-689] width (145) of port connection 'dina' does not match port width (144) of module 'blk_mem_blobs'
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
