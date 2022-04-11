@@ -87,7 +87,8 @@ module BlobProcessor(
     reg blobSkipCycle = '0;
     reg blobJustResetLine = '0;
     BlobIndex blobIndex = '0;
-    reg [MAX_BLOBS-1:0] blobGarbageList = '0;
+    (* keep = "true" *) reg blobGarbageList [MAX_BLOBS-1:0];
+    initial for (int i = 0; i < MAX_BLOBS; i++) blobGarbageList[i] = '0;
     RunBuffer currentLineBuffer = '0;
     reg [9:0] currentLineBufferX = '0;
     RunBuffer lastLineBuffer = '0;
@@ -108,41 +109,41 @@ module BlobProcessor(
     reg targetWantsNewA = 1; //wants to get a new A (takes 2 cycles)
     wire targetWillGetNewA = targetWantsNewA & targetIndexBs[0] == NULL_BLOB_INDEX & targetIndexBs[1] == NULL_BLOB_INDEX; //we have wanted a new A, but now we are ready
     //FIXME
-    (* keep = "true" *) wire BlobIndex firstTargetIndex = NULL_BLOB_INDEX;
-    (* keep = "true" *) wire BlobIndex nextTargetIndexAUnaccounted = NULL_BLOB_INDEX;
-    (* keep = "true" *) wire BlobIndex nextTargetIndexA = NULL_BLOB_INDEX;
-    (* keep = "true" *) wire BlobIndex initTargetIndexB = NULL_BLOB_INDEX;
-    (* keep = "true" *) wire BlobIndex nextInitTargetIndexB = NULL_BLOB_INDEX;
-    (* keep = "true" *) wire BlobIndex nextTargetIndexBsUnaccounted [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
-    (* keep = "true" *) wire BlobIndex nextTargetIndexBs [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
-    // wire BlobIndex firstTargetIndex = getNextValidTargetIndex(0);
-    // wire BlobIndex nextTargetIndexAUnaccounted = getNextValidTargetIndex(targetIndexA+1);
-    // wire BlobIndex nextTargetIndexA = (targetIndexA == NULL_BLOB_INDEX |
-    //     (targetMode == GROUP & nextTargetIndexAUnaccounted == NULL_BLOB_INDEX)) ?
-    //     firstTargetIndex : nextTargetIndexAUnaccounted; //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
-    // wire BlobIndex initTargetIndexB = (targetMode == GROUP & firstTargetIndex != targetIndexA) ? firstTargetIndex : nextTargetIndexA; //first B index (with overlap protection)
-    // wire BlobIndex nextInitTargetIndexB = (targetMode == GROUP & firstTargetIndex != nextTargetIndexA & firstTargetIndex != targetIndexA) ?
-    //     firstTargetIndex : getNextValidTargetIndex(nextTargetIndexA+1); //calculate next init index B so we know if the next A should be skipped
-    // wire BlobIndex [0:1] nextTargetIndexBsUnaccounted = '{ //unaccounted for possible overlap with targetIndexA
-    //     getNextValidTargetIndex(
-    //         targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
-    //     getNextValidTargetIndex(
-    //         targetIndexBs[0]+1)
-    // };
-    // wire BlobIndex [0:1] nextTargetIndexBs = '{
-    //     (nextTargetIndexBsUnaccounted[0] == 
-    //     targetIndexA) ? 
-    //     getNextValidTargetIndex(
-    //         nextTargetIndexBsUnaccounted[0]+1) : 
-    //     nextTargetIndexBsUnaccounted[0], //prevent A index overlap
-    //     (targetInitStep == 1) ? 
-    //     initTargetIndexB : //init B index @ value
-    //     (nextTargetIndexBsUnaccounted[1] == 
-    //     targetIndexA) ? 
-    //     getNextValidTargetIndex(
-    //         nextTargetIndexBsUnaccounted[1]+1) : 
-    //     nextTargetIndexBsUnaccounted[1]
-    // };
+    // (* keep = "true" *) wire BlobIndex firstTargetIndex = NULL_BLOB_INDEX;
+    // (* keep = "true" *) wire BlobIndex nextTargetIndexAUnaccounted = NULL_BLOB_INDEX;
+    // (* keep = "true" *) wire BlobIndex nextTargetIndexA = NULL_BLOB_INDEX;
+    // (* keep = "true" *) wire BlobIndex initTargetIndexB = NULL_BLOB_INDEX;
+    // (* keep = "true" *) wire BlobIndex nextInitTargetIndexB = NULL_BLOB_INDEX;
+    // (* keep = "true" *) wire BlobIndex nextTargetIndexBsUnaccounted [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
+    // (* keep = "true" *) wire BlobIndex nextTargetIndexBs [0:1] = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
+    (* keep = "true" *) wire BlobIndex firstTargetIndex = getNextValidTargetIndex(0);
+    wire BlobIndex nextTargetIndexAUnaccounted = getNextValidTargetIndex(targetIndexA+1);
+    wire BlobIndex nextTargetIndexA = (targetIndexA == NULL_BLOB_INDEX |
+        (targetMode == GROUP & nextTargetIndexAUnaccounted == NULL_BLOB_INDEX)) ?
+        firstTargetIndex : nextTargetIndexAUnaccounted; //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
+    wire BlobIndex initTargetIndexB = (targetMode == GROUP & firstTargetIndex != targetIndexA) ? firstTargetIndex : nextTargetIndexA; //first B index (with overlap protection)
+    wire BlobIndex nextInitTargetIndexB = (targetMode == GROUP & firstTargetIndex != nextTargetIndexA & firstTargetIndex != targetIndexA) ?
+        firstTargetIndex : getNextValidTargetIndex(nextTargetIndexA+1); //calculate next init index B so we know if the next A should be skipped
+    wire BlobIndex [0:1] nextTargetIndexBsUnaccounted = '{ //unaccounted for possible overlap with targetIndexA
+        getNextValidTargetIndex(
+            targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
+        getNextValidTargetIndex(
+            targetIndexBs[0]+1)
+    };
+    wire BlobIndex [0:1] nextTargetIndexBs = '{
+        (nextTargetIndexBsUnaccounted[0] == 
+        targetIndexA) ? 
+        getNextValidTargetIndex(
+            nextTargetIndexBsUnaccounted[0]+1) : 
+        nextTargetIndexBsUnaccounted[0], //prevent A index overlap
+        (targetInitStep == 1) ? 
+        initTargetIndexB : //init B index @ value
+        (nextTargetIndexBsUnaccounted[1] == 
+        targetIndexA) ? 
+        getNextValidTargetIndex(
+            nextTargetIndexBsUnaccounted[1]+1) : 
+        nextTargetIndexBsUnaccounted[1]
+    };
     reg targetGroupBJoined = '0;
     wire noTargetIndexAsLeft = nextTargetIndexA == NULL_BLOB_INDEX;
     reg targetSingleAlmostDone = '0; //will be done next loop (single mode only)
@@ -170,18 +171,19 @@ module BlobProcessor(
         end
         
         else begin
-            //Read from FIFO
-            if (~runFIFOEmpty) begin
-                runFIFORead <= 1;
-                if (~targetSelectorDone) begin
-                    BLOB_PROCESSOR_SLOW_FAULT <= 1;
-                end
-            end
+            //FIXME
+            // //Read from FIFO
+            // if (~runFIFOEmpty) begin
+            //     runFIFORead <= 1;
+            //     if (~targetSelectorDone) begin
+            //         BLOB_PROCESSOR_SLOW_FAULT <= 1;
+            //     end
+            // end
 
-            //Update Target Selector
-            else if (~targetSelectorDone) begin
-                updateTargetSelector();
-            end
+            // //Update Target Selector
+            // else if (~targetSelectorDone) begin
+            //     updateTargetSelector();
+            // end
         end
     end
 
@@ -333,6 +335,8 @@ module BlobProcessor(
             blobBRAMPorts[0].addr <= blobIndex;
             blobBRAMPorts[0].we <= 1;
 
+            target <= currentRunAsBlob; //FIXME
+
             //flag not garbage
             blobGarbageList[blobIndex] <= 0;
 
@@ -371,7 +375,7 @@ module BlobProcessor(
     endtask
 
     //Target Selector (blobs => target)
-    (* keep = "true" *) task updateTargetSelector();
+    task updateTargetSelector();
         //Increment Init Step
         if (targetInitStep != 3) begin
             targetInitStep <= targetInitStep+1;
@@ -614,7 +618,7 @@ module BlobProcessor(
             targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
         end
     endtask
-    (* keep = "true" *) task updateTargetSelectorSingle();
+    task updateTargetSelectorSingle();
         /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (technically unnessary)
         ------------------------------------------------------

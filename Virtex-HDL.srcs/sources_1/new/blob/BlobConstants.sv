@@ -5,7 +5,7 @@
 `define BLOB_CONSTANTS_DONE
 
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
-localparam MAX_BLOBS = 2000; //288,000-bits
+localparam MAX_BLOBS = 400;
 
 //max runs RLE can create per line (under normal cond: max needed ~40)
 localparam MAX_RUNS_PER_LINE = 60;
