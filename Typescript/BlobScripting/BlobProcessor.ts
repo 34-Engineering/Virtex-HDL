@@ -151,8 +151,13 @@ function always_ff(): void {
     _("blobSkipCycle <= 0");
     _("blobJustResetLine <= 0");
 
+    //Reset @ New Frame
+    if (runFIFOOut.line == 0 && lastLine != 0) {
+        frameReset();
+    }
+
     //Update Blob Maker
-    if (blobMakerState !== BlobMakerState.DONE) {
+    else if (blobMakerState !== BlobMakerState.DONE) {
         updateBlobMaker();
     }
     
@@ -747,7 +752,6 @@ function frameReset(): void {
     _("blobIndex <= 0");
     _("blobSkipCycle <= 0");
     _("blobMakerState <= BlobMakerState.NONE");
-    _("blobMakerDone <= 0");
 
     //Target Selector Reset
     _("targetCurrent <= ", makeZeroTarget());

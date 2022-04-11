@@ -28,7 +28,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelPos: false,
     kernelLine: true
 };
-let imageFile = '2019_Mult.png';
+let imageFile = '2019_Noise.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
