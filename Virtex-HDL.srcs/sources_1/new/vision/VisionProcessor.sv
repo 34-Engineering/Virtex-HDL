@@ -3,7 +3,7 @@
 `include "VisionUtil.sv"
 `include "../config/VirtexConfig.sv"
 
-/* VisionProcessor V3.5
+/* VisionProcessor V4
 //FIXME
 */
 module VisionProcessor(

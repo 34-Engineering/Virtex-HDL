@@ -3,7 +3,7 @@
 `include "../util/Fault.sv"
 `include "../config/VirtexConfig.sv"
 
-/* LEDManager - Manages the 8 LED_IR LEDs & 4 RGB Signal LEDs
+/* LEDManager - Manages the 3 IR LEDs & RGB LED Bar
 
     Signal LEDs: 3-bit registers where 0 = red, 1 = blue, 2 = green (RGB)
 */
