@@ -6,14 +6,15 @@ This repository contains the Xilinx Vivado project for the Artix-7 (XC7A35T-1FTG
 
 The FPGA handles the following tasks:
 
- 1) 576Mb/s LVDS & SPI Interface with the [Python 300 Image Sensor](https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf)
- 2) Real-time Run Length Encoding & Blob Processing
- 3) Target Selection
- 4) SPI Communication with the RoboRIO
- 5) Fast Serial Communication over USB 2.0 with [34-Engineering/Virtex-App](https://github.com/34-Engineering/Virtex-App)
- 6) Controlling IR and Signal LEDs
- 7) EEPROM SPI Interface for Saving Virtex Configurations
- 8) JTAG Boundry Scan to Flash Memory Interface
+ 1) Automatic Configuration, Reconfiguration, & Tempturature Shutoff over an SPI Interface with the [Python 300 Image Sensor](https://www.onsemi.com/pdf/datasheet/noip1sn1300a-d.pdf)
+ 2) 576Mb/s LVDS Interface through SerDes with the Python 300
+ 3) Run Length Encoding & Frame Buffering of Python 300 Image Data
+ 4) Real-time Vision Processing (Blob Making & Target Selection) from Python 300 Image Data
+ 5) Configuration, Enabling, & Target Reading over external Virtex SPI Interface
+ 6) Async FT245 FIFO Interface with FT2232H USB 2.0 IC to the [34-Engineering/Virtex-App](https://github.com/34-Engineering/Virtex-App)
+ 7) IR LED and RGB LED Bar Control with Fault Tolerance
+ 8) EEPROM SPI Interface for Saving Virtex Configurations
+ 9) JTAG Boundry Scan to Flash Memory Interface
 
 ## Nomenclature
 
@@ -70,7 +71,7 @@ All simulating, synthesis, implementation, and bitstream generation is done thro
 
 ## Questions
 
-If you have any questions feel free to contact [info@34engineering.com](mailto:info@34engineering.com)
+If you have any questions feel free to contact [info@34engineering.com](mailto:info@34engineering.com) or [liamsnow03@gmail.com](mailto:liamsnow03@gmail.com)
 
 ## Flashing with Open OCD
 
