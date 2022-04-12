@@ -45,14 +45,14 @@ Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
 */
 
-import { Faults } from "./util/Fault";
-import { MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
-import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./BlobUtil";
-import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
-import { virtexConfig } from "./util/VirtexConfig";
-import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, growingBlobsBRAM, finishedBlobsBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./util/VerilogUtil";
-import { deepCopy } from "./util/DrawUtil";
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./util/Constants";
+import { Faults } from "./Fault";
+import { MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./VisionConstants";
+import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./VisionUtil";
+import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./Math";
+import { virtexConfig } from "./VirtexConfig";
+import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, growingBlobsBRAM, finishedBlobsBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./VerilogUtil";
+import { deepCopy } from "./DrawUtil";
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 
 //(scripting only)
 let blobColorBuffer: RunBuffer[] = [];

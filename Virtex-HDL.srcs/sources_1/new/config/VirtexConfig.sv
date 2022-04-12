@@ -5,7 +5,7 @@
 `define VIRTEX_CONFIG_DONE
 
 `include "../util/Constants.sv"
-`include "../blob/BlobUtil.sv"
+`include "../vision/VisionUtil.sv"
 
 typedef struct packed {
     logic safetyEnabled;

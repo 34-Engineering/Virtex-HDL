@@ -1,4 +1,4 @@
-import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./util/Constants";
+import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./Constants";
 
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
 export const MAX_BLOBS = 400;

@@ -1,6 +1,6 @@
-# Blob Processor Scripting
+# Vision Scripting
 
-This Typescript project is for modeling and testing the functionality of Blob Processor HDL and is not directly used for the HDL.
+This Typescript project is for modeling and testing the functionality of Vision HDL and is not directly used for the HDL.
 
 It is focused on best modeling System Verilog behavior and being simple to translate with no emphasis on Typescript performance.
 

@@ -1,4 +1,4 @@
-import { BlobAnglesEnabled, TargetMode } from "../BlobUtil";
+import { BlobAnglesEnabled, TargetMode } from "../VisionUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 import { reg16 } from "./VerilogUtil";
 

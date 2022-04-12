@@ -1,5 +1,5 @@
-import { MAX_BLOBS, NULL_BLOB_INDEX } from "../BlobConstants";
-import { BlobAngle, BlobData, Run, Target } from "../BlobUtil";
+import { MAX_BLOBS, NULL_BLOB_INDEX } from "./VisionConstants";
+import { BlobAngle, BlobData, Run, Target } from "./VisionUtil";
 import { deepCopy } from "./DrawUtil";
 
 //Types

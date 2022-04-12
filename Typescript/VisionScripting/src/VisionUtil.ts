@@ -1,7 +1,7 @@
-import { Math_inRangeInclusive, Math_max, Math_min, Quad10, quickDivide, Vector2d10 } from "./util/Math";
-import { drawLine } from "./util/DrawUtil";
-import { BlobArea, BlobIndex, boolToReg1, reg1, reg10, reg16, reg6, signed_reg10 } from "./util/VerilogUtil";
-import { GROUP_TARGET_AREA_CONST } from "./BlobConstants";
+import { Math_inRangeInclusive, Math_max, Math_min, Quad10, quickDivide, Vector2d10 } from "./Math";
+import { drawLine } from "./DrawUtil";
+import { BlobArea, BlobIndex, boolToReg1, reg1, reg10, reg16, reg6, signed_reg10 } from "./VerilogUtil";
+import { GROUP_TARGET_AREA_CONST } from "./VisionConstants";
 
 //Blob Data
 export interface BlobData { //104-bit

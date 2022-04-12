@@ -5,7 +5,7 @@
 `define BLOB_UTIL_DONE
 
 `include "../util/Math.sv"
-`include "BlobConstants.sv"
+`include "VisionConstants.sv"
 
 //Index Types
 typedef logic [$clog2(MAX_BLOBS+3)-1:0] BlobIndex; //+3 is to account for NULL_BLOB_INDEX & NULL_BLACK_RUN_BLOB_INDEX)

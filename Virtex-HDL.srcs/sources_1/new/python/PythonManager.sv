@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "../blob/BlobUtil.sv"
+`include "../vision/VisionUtil.sv"
 `include "../config/VirtexConfig.sv"
 `include "PythonUtil.sv"
 `include "../util/Fault.sv"
@@ -80,7 +80,7 @@ module PythonManager(
     //Blob Processor
     Run runFIFOIn;
     reg runFIFOWrite;
-    (* keep_hierarchy = "yes" *) BlobProcessor BlobProcessor(
+    (* keep_hierarchy = "yes" *) VisionProcessor VisionProcessor(
         .CLK288(CLK288),
         .CLK200(CLK200),
         .runFIFOIn(runFIFOIn),

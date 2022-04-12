@@ -1,67 +1,12 @@
 `timescale 1ns / 1ps
 `include "../python/PythonUtil.sv"
-`include "BlobUtil.sv"
+`include "VisionUtil.sv"
 `include "../config/VirtexConfig.sv"
 
-/* BlobProcessor V3
-The Blob Processor is a multi-functional module that takes in an pipelined
-run length encoded images (through a run FIFO) and outputs a single target
-per image frame: Runs => Blobs => Target
-
-Nomenclature:
- Blob: an isolated white region in the image
-  - Bounding Box: the minimum non-rotated rectangle that covers all pixels in the blob
-  - Quad: a quadrilateral made from the four most extreme points in the blob (used for angle calculations)
- Target: a blob or group of blobs
-
-Blob making is a process where blobs are "grown" to cover an entire isolated
-white region of the image. Isolated regions are first spotted by runs that
-are not touching any another run in the line above them, then following
-runs that are touching it are joined onto its blob and the blob
-is expanded to cover the entire region.
-The Blob making process is also required to merge blobs in certain region
-shapes like U, V, W, etc. This is because the regions are initially
-seen as two separate blobs but later found to be part of the same region.
-Simple metadata about blobs is stored in LUTRAM for quick access but full
-blob data is saved in BRAM for FPGA area limitations.
-
-Once the frame is done being read out and the blob making has concluded,
-the Target Selector takes over. The Target Selector will search through
-all blobs and either mark them as the "best" Target, do nothing, or
-mark them as garbage (if they don't meet blob criteria from Virtex Config).
-
-The Target Selector has 3 modes: SINGLE, DUAL, & GROUP. SINGLE will make a
-target from a single blob, DUAL will make a target from two blobs (by looping
-over every combination of two blobs), and GROUP will make a target by
-"chaining" together every valid blob within a gap (Virtex Config) to every
-valid blob.
-
-Target Selection Process Breakdown:
-SINGLE:
- - loop through every valid blob (A)
- - make a target from A directly
- - choose the best target based off center distance
-DUAL:
- - loop through every valid blob (A)
- - for each A, loop through every valid blob with indexes > A (B)
- - make a target from every A & B
- - choose the best target based off center distance
-GROUP:
- - continously loop through every valid blob (A) until there is 0|1 left
- - for each A, loop through every other valid blob (B)
- - group all B's within gap & area ratio range to A, join them to A
-    (using Blob BRAM to represent a "Group Target" instead of a blob),
-    & flag B as garbage
- - when no B's join an A, convert A from a "Group Target" to a Target,
-    & become the targetCurrent if it is better than the existing one
-
-
-Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
-(cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
-
-Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
+/* VisionProcessor V3.5
+//FIXME
 */
-module BlobProcessor(
+module VisionProcessor(
     input wire CLK288, CLK200,
     input Run runFIFOIn,
     input wire runFIFOWrite,
