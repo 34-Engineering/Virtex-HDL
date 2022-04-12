@@ -42,30 +42,36 @@ export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
 }
 
 //Blob BRAM
-export let blobBRAMMem: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, makeZeroBlobData())));
-let douta: BlobData = makeZeroBlobData(), doutb: BlobData = makeZeroBlobData();
-let lastDouta: BlobData = makeZeroBlobData(), lastDoutb: BlobData = makeZeroBlobData();
-export function processBlobBRAM(obj: {addra: BlobIndex, dina: BlobData, wea: reg1, addrb: BlobIndex, dinb: BlobData, web: reg1}): [BlobData, BlobData] {
-    //Port A Read/Write
-    douta = deepCopy(lastDouta);
-    if (obj.wea) {
-        blobBRAMMem[obj.addra] = deepCopy(obj.dina);
-    }
-    else {
-        lastDouta = deepCopy(blobBRAMMem[obj.addra]);
-    }
+class BlobBRAM {
+    mem: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, makeZeroBlobData())));
+    lastDouta: BlobData = makeZeroBlobData();
+    lastDoutb: BlobData = makeZeroBlobData();
 
-    //Port B Read/Write
-    doutb = deepCopy(lastDoutb);
-    if (obj.web) {
-        blobBRAMMem[obj.addrb] = deepCopy(obj.dinb);
+    update(obj: {addra: BlobIndex, dina: BlobData, wea: reg1, addrb: BlobIndex, dinb: BlobData, web: reg1}): [BlobData, BlobData] {
+        //Port A Read/Write
+        const douta: BlobData = deepCopy(this.lastDouta);
+        if (obj.wea) {
+            this.mem[obj.addra] = deepCopy(obj.dina);
+        }
+        else {
+            this.lastDouta = deepCopy(this.mem[obj.addra]);
+        }
+    
+        //Port B Read/Write
+        const doutb: BlobData = deepCopy(this.lastDoutb);
+        if (obj.web) {
+            this.mem[obj.addrb] = deepCopy(obj.dinb);
+        }
+        else {
+            this.lastDoutb = deepCopy(this.mem[obj.addrb]);
+        }
+    
+        return [ douta, doutb ];
     }
-    else {
-        lastDoutb = deepCopy(blobBRAMMem[obj.addrb]);
-    }
-
-    return [ douta, doutb ];
 }
+
+export let growingBlobsBRAM = new BlobBRAM();
+export let finishedBlobsBRAM = new BlobBRAM();
 
 export function makeZeroBlobData(): BlobData {
     return {

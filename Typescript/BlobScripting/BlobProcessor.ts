@@ -1,4 +1,4 @@
-/* BlobProcessor V3
+/* BlobProcessor V3.5
 The Blob Processor is a multi-functional module that takes in an pipelined
 run length encoded images (through a run FIFO) and outputs a single target
 per image frame: Runs => Blobs => Target
@@ -17,39 +17,27 @@ is expanded to cover the entire region.
 The Blob making process is also required to merge blobs in certain region
 shapes like U, V, W, etc. This is because the regions are initially
 seen as two separate blobs but later found to be part of the same region.
-Simple metadata about blobs is stored in LUTRAM for quick access but full
-blob data is saved in BRAM for FPGA area limitations.
 
-Once the frame is done being read out and the blob making has concluded,
-the Target Selector takes over. The Target Selector will search through
-all blobs and either mark them as the "best" Target, do nothing, or
-mark them as garbage (if they don't meet blob criteria from Virtex Config).
-
-The Target Selector has 3 modes: SINGLE, DUAL, & GROUP. SINGLE will make a
-target from a single blob, DUAL will make a target from two blobs (by looping
-over every combination of two blobs), and GROUP will make a target by
-"chaining" together every valid blob within a gap (Virtex Config) to every
-valid blob.
-
-Target Selection Process Breakdown:
-SINGLE:
- - loop through every valid blob (A)
- - make a target from A directly
- - choose the best target based off center distance
-DUAL:
- - loop through every valid blob (A)
- - for each A, loop through every valid blob with indexes > A (B)
- - make a target from every A & B
- - choose the best target based off center distance
-GROUP:
- - continously loop through every valid blob (A) until there is 0|1 left
- - for each A, loop through every other valid blob (B)
- - group all B's within gap & area ratio range to A, join them to A
-    (using Blob BRAM to represent a "Group Target" instead of a blob),
-    & flag B as garbage
- - when no B's join an A, convert A from a "Group Target" to a Target,
-    & become the targetCurrent if it is better than the existing one
-
+Stages:
+ 1) Blob Maker: process runs from FIFO into blobs in "growing" BRAM
+ 2) Blob Train: tranfers unorganized blobs from "growing" BRAM to organized "finished" BRAM
+     -> TargetMode.SINGLE:
+         - chooses the best target based off center distance
+ 3) Target Selector: make a target from "finished" BRAM
+     -> TargetMode.DUAL:
+        //FIXME
+         - loop through every valid blob (A)
+         - for each A, loop through every valid blob with indexes > A (B)
+         - make a target from every A & B
+         - choose the best target based off center distance
+     -> TargetMode.GROUP:
+         - continously loop through every valid blob (A) until there is 0|1 left
+         - for each A, loop through every other valid blob (B)
+         - group all B's within gap & area ratio range to A, join them to A
+            (using Blob BRAM to represent a "Group Target" instead of a blob),
+            & flag B as garbage
+         - when no B's join an A, convert A from a "Group Target" to a Target,
+            & become the targetCurrent if it is better than the existing one
 
 Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
 (cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
@@ -58,12 +46,11 @@ Future Note: if target selector is too slow we can double the speed by doing dou
 */
 
 import { Faults } from "./util/Fault";
-import { MAX_BLOBS, MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
+import { MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./BlobConstants";
 import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./BlobUtil";
 import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./util/Math";
 import { virtexConfig } from "./util/VirtexConfig";
-import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, processBlobBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, blobBRAMMem, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./util/VerilogUtil";
-import { pythonDone } from "./App";
+import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, growingBlobsBRAM, finishedBlobsBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./util/VerilogUtil";
 import { deepCopy } from "./util/DrawUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./util/Constants";
 
@@ -78,21 +65,17 @@ let lastLine: reg10 = 340;
 let justResetFrame: reg1 = 0;
 
 //Blob BRAM
-interface BlobBRAMPort {
-    addr: BlobIndex,
-    din: BlobData,
-    dout: BlobData,
-    we: reg1,
-};
-let blobBRAMPorts: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
+interface BlobBRAMPort { addr: BlobIndex, din: BlobData, dout: BlobData, we: reg1 };
+let growingBlobs: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
+let finishedBlobs: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
 
 //Blob Maker
-enum BlobMakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE, DONE };
-let blobMakerState: BlobMakerState = BlobMakerState.NONE;
-let blobSkipCycle: reg1 = 0;
-let blobJustResetLine: reg1 = 0;
-let blobIndex: BlobIndex = 0;
-let blobGarbageList: reg1[] = [...Array(MAX_BLOBS)].map(_=>0);
+enum MakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE, DONE };
+let makerState: MakerState = MakerState.NONE;
+let makerSkipCycle: reg1 = 0;
+let makerJustResetLine: reg1 = 0;
+let makerGrowingIndex: BlobIndex = 0;
+
 let currentLineBuffer: RunBuffer = {
     runs: [...Array(MAX_RUNS_PER_LINE)].map(_=>({ start:0, stop:0, blobIndex:0 })),
     count:0,
@@ -107,6 +90,14 @@ let lastLineBuffer: RunBuffer = {
 let currentRunAsBlob = (): BlobData => runToBlob(currentLineBufferX, runFIFOOut.length, runFIFOOut.line);
 let currentRunHasJoinedBlob = (): reg1 => boolToReg1(currentLineBuffer.runs[currentLineBuffer.count]?.blobIndex != NULL_BLOB_INDEX);
 
+//Blob Train
+let trainFinishedIndex: BlobIndex = 0;
+let trainGrowingIndex: BlobIndex = 0;
+let trainAlmostDone = (): reg1 => boolToReg1(trainGrowingIndex == makerGrowingIndex);
+let trainDone = (): reg1 => boolToReg1(trainGrowingIndex == (makerGrowingIndex+1)); //+1 because the train needs to finish the last index
+let trainPartion: reg1 = 0;
+let trainInitDone: reg1 = 0;
+
 //Target Selector
 let target: Target = makeZeroTarget(); //"best" target for the last frame
 let targetCurrent: Target = makeZeroTarget(); //"best" target for the current frame
@@ -118,61 +109,71 @@ let targetIndexA: BlobIndex = NULL_BLOB_INDEX;
 let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX]; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
 let targetWantsNewA: reg1 = 1; //wants to get a new A (takes 2 cycles)
 let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX); //we have wanted a new A, but now we are ready
-let firstTargetIndex = (): BlobIndex => getNextValidTargetIndex(0);
-let nextTargetIndexAUnaccounted = (): BlobIndex => getNextValidTargetIndex(targetIndexA+1);
-let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX ||
-    (virtexConfig.targetMode === TargetMode.GROUP && nextTargetIndexAUnaccounted() == NULL_BLOB_INDEX)) ?
-    firstTargetIndex() : nextTargetIndexAUnaccounted(); //@ start frame => first, @ group end => overflow (if > 1 valid blobs left), else => next index
-let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== targetIndexA) ? firstTargetIndex() : nextTargetIndexA(); //first B index (with overlap protection)
-let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode === TargetMode.GROUP && firstTargetIndex() !== nextTargetIndexA() && firstTargetIndex() !== targetIndexA) ?
-    firstTargetIndex() : getNextValidTargetIndex(nextTargetIndexA()+1); //calculate next init index B so we know if the next A should be skipped
-let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with targetIndexA
-    (): BlobIndex => getNextValidTargetIndex(targetIndexBs[1]+1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
-    (): BlobIndex => getNextValidTargetIndex(targetIndexBs[0]+1)
-];
-let nextTargetIndexBs = [
-    (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[0]()+1) : nextTargetIndexBsUnaccounted[0](), //prevent A index overlap
-    (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() : //init B index @ value
-    (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? getNextValidTargetIndex(nextTargetIndexBsUnaccounted[1]()+1) : nextTargetIndexBsUnaccounted[1]()
-];
 let targetGroupBJoined: reg1 = 0;
-let noTargetIndexAsLeft = (): reg1 => boolToReg1(nextTargetIndexA() === NULL_BLOB_INDEX);
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
 let targetSelectorDone: reg1 = 0;
+
+let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX) ? 0 : targetIndexA + 1;
+let fixTargetIndex = (index: BlobIndex): BlobIndex => (index < trainFinishedIndex) ? index : NULL_BLOB_INDEX; //return null for blob index that is above bound
+let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode == TargetMode.GROUP) ? //first B index (with overlap protection)
+    fixTargetIndex(targetIndexA == 0 ? 1 : 0) :
+    fixTargetIndex(targetIndexA + 1);
+let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode == TargetMode.GROUP) ? //calculate next init index B so we know if the next A should be skipped
+    fixTargetIndex(nextTargetIndexA() == 0 ? 1 : 0) :
+    fixTargetIndex(nextTargetIndexA() + 1);
+let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with targetIndexA
+    (): BlobIndex => fixTargetIndex(targetIndexBs[1] + 1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
+    (): BlobIndex => fixTargetIndex(targetIndexBs[0] + 1)
+];
+let nextTargetIndexBs = [
+    (): BlobIndex => (nextTargetIndexBsUnaccounted[0]() == targetIndexA) ? (nextTargetIndexBsUnaccounted[0]()+1) : nextTargetIndexBsUnaccounted[0](), //prevent A index overlap
+    (): BlobIndex => (targetInitStep == 1) ? initTargetIndexB() : //init B index @ value
+    (nextTargetIndexBsUnaccounted[1]() == targetIndexA) ? (nextTargetIndexBsUnaccounted[1]()+1) : nextTargetIndexBsUnaccounted[1]()
+];
 
 //200MHz Clocked Loop
 function always_ff(): void {
     //defaults & counters
-    _("blobBRAMPorts[0].we <= 0");
-    _("blobBRAMPorts[1].we <= 0");
+    _("growingBlobs[0].we <= 0");
+    _("growingBlobs[1].we <= 0");
+    _("finishedBlobs[0].we <= 0");
+    _("finishedBlobs[1].we <= 0");
     _("lastLine <= ", runFIFOOut.line);
     _("justResetFrame <= 0");
     _("runFIFORead <= 0");
-    _("blobSkipCycle <= 0");
-    _("blobJustResetLine <= 0");
+    _("makerSkipCycle <= 0");
+    _("makerJustResetLine <= 0");
 
     //Reset @ New Frame
     if (runFIFOOut.line == 0 && lastLine != 0) {
         frameReset();
     }
 
-    //Update Blob Maker
-    else if (blobMakerState !== BlobMakerState.DONE) {
-        updateBlobMaker();
-    }
-    
     else {
+        //Update Blob Maker (Stage 1)
+        if (makerState !== MakerState.DONE) {
+            updateBlobMaker();
+        }
+        
         //Read from FIFO @ Reset for New Frame
-        if (!runFIFOEmpty) {
+        else if (!runFIFOEmpty) {
             _("runFIFORead <= 1");
             if (!targetSelectorDone) {
                 faults.BLOB_PROCESSOR_TOO_SLOW_FAULT = 1;
             }
         }
 
-        //Update Target Selector
+        //Update Blob Train (Stage 2)
+        else if (!trainDone()) {
+            updateBlobTrain();
+        }
+
+        //Update Target Selector (Stage 3)
         else if (!targetSelectorDone) {
-            updateTargetSelector();
+            if (virtexConfig.targetMode == TargetMode.SINGLE) {
+                _("targetSelectorDone <= 1");
+            }
+            else updateTargetSelectorDualGroup();
         }
     }
 
@@ -180,18 +181,22 @@ function always_ff(): void {
     processNonblocking();
     always_comb();
     [ runFIFOEmpty, runFIFOOut ] = processRunFIFO({ read: runFIFORead });
-    [ blobBRAMPorts[0].dout, blobBRAMPorts[1].dout ] = processBlobBRAM({
-        addra: blobBRAMPorts[0].addr, dina: blobBRAMPorts[0].din, wea: blobBRAMPorts[0].we, 
-        addrb: blobBRAMPorts[1].addr, dinb: blobBRAMPorts[1].din, web: blobBRAMPorts[1].we
+    [ growingBlobs[0].dout, growingBlobs[1].dout ] = growingBlobsBRAM.update({
+        addra: growingBlobs[0].addr, dina: growingBlobs[0].din, wea: growingBlobs[0].we, 
+        addrb: growingBlobs[1].addr, dinb: growingBlobs[1].din, web: growingBlobs[1].we
+    });
+    [ finishedBlobs[0].dout, finishedBlobs[1].dout ] = finishedBlobsBRAM.update({
+        addra: finishedBlobs[0].addr, dina: finishedBlobs[0].din, wea: finishedBlobs[0].we, 
+        addrb: finishedBlobs[1].addr, dinb: finishedBlobs[1].din, web: finishedBlobs[1].we
     });
 }
 
 //Blob Maker (runs => blobs)
-function updateBlobMaker(): void {
+function updateBlobMaker(): reg1 {
     //New Line*
     if (runFIFOOut.line != lastLine) {
         //flag reset
-        _("blobJustResetLine <= 1");
+        _("makerJustResetLine <= 1");
 
         //transfer current line buffer => last line buffer
         if (runFIFOOut.line != 0) {
@@ -207,11 +212,11 @@ function updateBlobMaker(): void {
         _("currentLineBuffer.line <= ", (runFIFOOut.line));
     }
 
-    else if (!blobSkipCycle) {
+    else if (!makerSkipCycle) {
         //New Run*
-        if (blobMakerState == BlobMakerState.NONE) {
+        if (makerState == MakerState.NONE) {
             //Process FIFO Read
-            if (runFIFORead || blobJustResetLine || justResetFrame) {
+            if (runFIFORead || makerJustResetLine || justResetFrame) {
                 //Run is Black => Continue
                 if (runFIFOOut.black) {
                     _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -225,14 +230,14 @@ function updateBlobMaker(): void {
                 
                 //Run is White => Search & Join OR Make new Blob
                 else if (runFIFOOut.line > 0) {
-                    _("blobMakerState <= BlobMakerState.SEARCH");
-                    updateOnBlobMakerState(BlobMakerState.SEARCH);
+                    _("makerState <= MakerState.SEARCH");
+                    return updateOnMakerState(MakerState.SEARCH);
                 }
 
                 //Run is White (and no line above) => Make new Blob
                 else {
-                    _("blobMakerState <= BlobMakerState.MAKE");
-                    updateOnBlobMakerState(BlobMakerState.MAKE);
+                    _("makerState <= MakerState.MAKE");
+                    return updateOnMakerState(MakerState.MAKE);
                 }
             }
 
@@ -243,17 +248,19 @@ function updateBlobMaker(): void {
         }
 
         //Working on Run
-        else updateOnBlobMakerState(blobMakerState);
+        else return updateOnMakerState(makerState);
     }
+
+    return 0;
 }
-function updateOnBlobMakerState(ustate: BlobMakerState): void {
+function updateOnMakerState(ustate: MakerState): reg1 {
     //Search through runs from last line & Check if this run is touching them
-    if (ustate == BlobMakerState.SEARCH) {
+    if (ustate == MakerState.SEARCH) {
         //defaults
         if (currentRunHasJoinedBlob()) {
-            _("blobMakerState <= BlobMakerState.JOIN_END");
+            _("makerState <= MakerState.JOIN_END");
         }
-        else _("blobMakerState <= BlobMakerState.MAKE");
+        else _("makerState <= MakerState.MAKE");
 
         //Search
         for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
@@ -266,92 +273,93 @@ function updateOnBlobMakerState(ustate: BlobMakerState): void {
                 //First touching run => Join it's blob
                 if (!currentRunHasJoinedBlob()) {
                     //set new state
-                    _("blobMakerState <= BlobMakerState.JOIN");
+                    _("makerState <= MakerState.JOIN");
 
                     //read Blob from BRAM
-                    _("blobBRAMPorts[0].addr <= ", iBlobIndex);
-                    _("blobSkipCycle <= 1");
+                    _("growingBlobs[0].addr <= ", iBlobIndex);
+                    _("makerSkipCycle <= 1");
                 }
 
                 //2nd+ touching run => Merge this blob with master blob
                 else if (iBlobIndex != currentLineBuffer.runs[currentLineBuffer.count].blobIndex) {
                     // set new state
-                    _("blobMakerState <= BlobMakerState.MERGE");
+                    _("makerState <= MakerState.MERGE");
 
                     // read Blobs from BRAM
-                    _("blobBRAMPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
-                    _("blobBRAMPorts[1].addr <= ", iBlobIndex);
-                    _("blobSkipCycle <= 1");
+                    _("growingBlobs[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
+                    _("growingBlobs[1].addr <= ", iBlobIndex);
+                    _("makerSkipCycle <= 1");
+                    return 1;
                 }
             }
         }
     }
     
     //Join Blob
-    else if (ustate == BlobMakerState.JOIN) {
+    else if (ustate == MakerState.JOIN) {
         //write back to BRAM
-        _("blobBRAMPorts[0].din <= ", mergeBlobs(currentRunAsBlob(), blobBRAMPorts[0].dout));
-        _("blobBRAMPorts[0].we <= 1");
+        _("growingBlobs[0].din <= ", mergeBlobs(currentRunAsBlob(), growingBlobs[0].dout));
+        _("growingBlobs[0].we <= 1");
 
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
             stop: currentLineBufferX + runFIFOOut.length - 1,
-            blobIndex: blobBRAMPorts[0].addr
+            blobIndex: growingBlobs[0].addr
         });
 
         //go back to searching
-        _("blobMakerState <= BlobMakerState.SEARCH");
+        _("makerState <= MakerState.SEARCH");
     }
 
     //Merge two intersecting Blobs (U/V/W Case)
-    else if (ustate == BlobMakerState.MERGE) {
-        //flag slave as garbage
-        _(`blobGarbageList[${blobBRAMPorts[1].addr}] <= 1`);
-
+    else if (ustate == MakerState.MERGE) {
         //update all pointers to slave
         for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
-            if (lastLineBuffer.runs[i].blobIndex == blobBRAMPorts[1].addr) {
-                _(`lastLineBuffer.runs[${i}].blobIndex <= `, blobBRAMPorts[0].addr);
+            if (lastLineBuffer.runs[i].blobIndex == growingBlobs[1].addr) {
+                _(`lastLineBuffer.runs[${i}].blobIndex <= `, growingBlobs[0].addr);
             }
         }
 
-        //write back master to BRAM
-        _("blobBRAMPorts[0].din <= ", mergeBlobs(blobBRAMPorts[1].dout, blobBRAMPorts[0].dout));
-        _("blobBRAMPorts[0].we <= 1");
+        //write back merged blob to master in BRAM
+        _("growingBlobs[0].din <= ", mergeBlobs(growingBlobs[1].dout, growingBlobs[0].dout));
+        _("growingBlobs[0].we <= 1");
+
+        //write back null blob to slave in BRAM
+        _("growingBlobs[1].din <= ", makeZeroBlobData());
+        _("growingBlobs[1].we <= 1");
 
         //go back to searching
-        _("blobMakerState <= BlobMakerState.SEARCH");
+        _("makerState <= MakerState.SEARCH");
     }
 
     //Join End (had joined a blob & is done now)
-    else if (ustate == BlobMakerState.JOIN_END) {
+    else if (ustate == MakerState.JOIN_END) {
         blobFinishRun();
     }
 
     //Make new Blob
-    else if (ustate == BlobMakerState.MAKE) {
+    else if (ustate == MakerState.MAKE) {
         //write to BRAM
-        _("blobBRAMPorts[0].din <= ", currentRunAsBlob());
-        _("blobBRAMPorts[0].addr <= ", blobIndex);
-        _("blobBRAMPorts[0].we <= 1");
-
-        //flag not garbage
-        _(`blobGarbageList[${blobIndex}] <= 0`);
+        _("growingBlobs[0].din <= ", currentRunAsBlob());
+        _("growingBlobs[0].addr <= ", makerGrowingIndex);
+        _("growingBlobs[0].we <= 1");
 
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
             stop: currentLineBufferX + runFIFOOut.length - 1,
-            blobIndex: blobIndex
+            blobIndex: makerGrowingIndex
         });
 
         //increment blob counter
-        _("blobIndex <= ", (blobIndex + 1));
+        _("makerGrowingIndex <= ", (makerGrowingIndex + 1));
 
         //prepare for new run
         blobFinishRun();
     }
+
+    return 0;
 }
 function blobFinishRun(): void {
     //prepare for new run
@@ -360,12 +368,12 @@ function blobFinishRun(): void {
     _(`currentLineBuffer.runs[${currentLineBuffer.count+1}] <= `, {start:0, stop:0, blobIndex:NULL_BLOB_INDEX});
 
     //reset state
-    _("blobMakerState <= BlobMakerState.NONE");
+    _("makerState <= MakerState.NONE");
 
     //finish
     if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) && runFIFOOut.line == IMAGE_HEIGHT-1) {
         console.log(" > Blob Processor Done < ");
-        _("blobMakerState <= BlobMakerState.DONE");
+        _("makerState <= MakerState.DONE");
     }
     
     //read new run
@@ -374,8 +382,77 @@ function blobFinishRun(): void {
     }
 }
 
+//Blob Train ("Growing" BRAM -> "Finished" BRAM) (Note: automatically does target selection for single target mode)
+function updateBlobTrain(): void {
+    _("trainPartion <= ", boolToReg1(!trainPartion));
+
+    const blobGood: reg1 = doesBlobMatchCriteria(growingBlobs[trainPartion].dout);
+    if (trainInitDone) {
+        //Transfer Good Blobs to "Finished" BRAM
+        if (blobGood) {
+            _("finishedBlobs[0].addr <= ", trainFinishedIndex);
+            _("finishedBlobs[0].din <= ", growingBlobs[trainPartion].dout);
+            _("finishedBlobs[0].we <= 1");
+            _("trainFinishedIndex <= ", trainFinishedIndex + 1);
+        }
+        
+        //Update Single Mode Target Selector
+        if (virtexConfig.targetMode == TargetMode.SINGLE) {
+            updateTargetSelectorSingle(blobGood, growingBlobs[trainPartion].dout);
+        }
+    }
+
+    //Finish Init
+    else if (trainPartion) {
+        _("trainInitDone <= 1");
+    }
+
+    //Read Blob from "Growing" BRAM
+    _(`growingBlobs[${trainPartion}].addr <= `, trainGrowingIndex + 1);
+    _("trainGrowingIndex <= ", trainGrowingIndex + 1);
+
+    //(scripting only)
+    if (trainAlmostDone()) {
+        console.log(" > Blob Train Done < ", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
+    }
+}
+
 //Target Selector (blobs => target)
-function updateTargetSelector(): void {
+function updateTargetSelectorSingle(blobValid: reg1, blob: BlobData): void {
+    //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
+    const center: Vector2d10 = {
+        x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
+        y: (blob.boundBottomRight.y + blob.boundTopLeft.y) >> 1
+    };
+    const width:  reg10 = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
+    const height: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
+
+    //aspect ratio valid
+    const aspectRatioValid: reg1 = inAspectRatioRange(width, height,
+        virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+
+    //bound area valid
+    const boundAreaValid: reg1 = inBoundAreaRange(width * height,
+        virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
+
+    //if this target is valid AND this target is better OR we dont have a target yet
+    if (blobValid && aspectRatioValid && boundAreaValid &&
+        (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) {
+        const newTarget: Target = {
+            center, width, height,
+            blobCount: 1,
+            angle: calcBlobAngle(blob)
+        };
+
+        _("targetCurrent <= ", newTarget);
+
+        if (trainAlmostDone()) _("target <= ", newTarget);
+    }
+    else if (trainAlmostDone()) _("target <= ", targetCurrent);
+}
+function updateTargetSelectorDualGroup(): void {
+    console.log(targetInitStep, targetIndexA, targetIndexBs[targetPartion], nextTargetIndexA(), nextTargetIndexBs[0](), nextTargetIndexBs[1]());
+
     //Increment Init Step
     if (targetInitStep != 3) {
         _("targetInitStep <= ", targetInitStep+1);
@@ -384,15 +461,6 @@ function updateTargetSelector(): void {
     //Swap Partion
     _("targetPartion <= ", boolToReg1(!targetPartion));
 
-    //Update Respective Modes
-    if (virtexConfig.targetMode == TargetMode.SINGLE) {
-        updateTargetSelectorSingle();
-    }
-    else {
-        updateTargetSelectorDualGroup();
-    }
-}
-function updateTargetSelectorDualGroup(): void {
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
         targetInitStep, targetPartion, commands
@@ -409,39 +477,18 @@ function updateTargetSelectorDualGroup(): void {
 
     //SAVE A from 1
     if (targetInitStep == 2) {
-        let newTargetBlobA: BlobData = blobBRAMPorts[1].dout;
-        let newTargetBlobAAngle: BlobAngle = calcBlobAngle(newTargetBlobA);
-
-        //Garbage A => Skip & Flag Garbage
-        if (!doesBlobMatchCriteria(newTargetBlobA)) {
-            //Flag Garbage
-            _(`blobGarbageList[${targetIndexA}] <= 1`);
-    
-            //Request New A
-            _("targetWantsNewA <= 1");
-    
-            //Nullify B0&1
-            _("targetIndexBs[0] <= ", NULL_BLOB_INDEX);
-            _("targetIndexBs[1] <= ", NULL_BLOB_INDEX);
-        }
-
-        _("targetBlobAAngle <= ", newTargetBlobAAngle);
-        _("targetBlobA <= ", newTargetBlobA);
+        _("targetBlobAAngle <= ", calcBlobAngle(finishedBlobs[1].dout));
+        _("targetBlobA <= ", finishedBlobs[1].dout);
     }
 
     //PROCESS
-    if (targetInitStep == 3 && !blobGarbageList[targetIndexA] && targetIndexBs[targetPartion] !== NULL_BLOB_INDEX) {
+    if (targetInitStep == 3 && targetIndexBs[targetPartion] !== NULL_BLOB_INDEX) {
         //Get Blob
-        const targetBlobB: BlobData = blobBRAMPorts[targetPartion].dout;
+        const targetBlobB: BlobData = finishedBlobs[targetPartion].dout;
         const targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
-        //Skip & Flag Garbage
-        if (!doesBlobMatchCriteria(targetBlobB)) {
-            _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
-        }
-
         //GROUP: chain other blobs together starting a Blob A
-        else if (virtexConfig.targetMode == TargetMode.GROUP) {
+        if (virtexConfig.targetMode == TargetMode.GROUP) {
             //gap between
             const gapX: reg10 = Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
             const gapY: reg10 = Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
@@ -462,12 +509,9 @@ function updateTargetSelectorDualGroup(): void {
                 //write back to A BRAM & cache
                 const newTargetBlobA: BlobData = asBlob(newGroupTarget);
                 _("targetBlobA <= ", newTargetBlobA);
-                _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].din <= `, newTargetBlobA);
-                _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
-                _(`blobBRAMPorts[${boolToReg1(!targetPartion)}].we <= `, 1);
-
-                //garbage B
-                _(`blobGarbageList[${targetIndexBs[targetPartion]}] <= 1`);
+                _(`finishedBlobs[${boolToReg1(!targetPartion)}].din <= `, newTargetBlobA);
+                _(`finishedBlobs[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
+                _(`finishedBlobs[${boolToReg1(!targetPartion)}].we <= `, 1);
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
@@ -552,7 +596,7 @@ function updateTargetSelectorDualGroup(): void {
         //READ New B0|1
         else {
             //READ New B0|1
-            _(`blobBRAMPorts[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
+            _(`finishedBlobs[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
 
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
@@ -585,13 +629,10 @@ function updateTargetSelectorDualGroup(): void {
                 //Flag Just Set
                 justSetTargetCurrent = 1;
             }
-
-            //Flag A as Garbage (so it doesn't come back)
-            _(`blobGarbageList[${targetIndexA}] <= 1`);
         }
 
         //Finish
-        if (noTargetIndexAsLeft()) {
+        if (nextTargetIndexA() >= trainFinishedIndex) {
             console.log(" > Target Selector Done < ");
 
             //transfer best target to target
@@ -604,7 +645,7 @@ function updateTargetSelectorDualGroup(): void {
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
             //READ New A on 1
-            _("blobBRAMPorts[1].addr <= ", nextTargetIndexA());
+            _("finishedBlobs[1].addr <= ", nextTargetIndexA());
 
             //Update State
             _("targetWantsNewA <= 0");
@@ -621,89 +662,13 @@ function updateTargetSelectorDualGroup(): void {
         _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
     }
 }
-function updateTargetSelectorSingle(): void {
-    /* SINGLE Breakdown (A = index, B = unused, 0|1 = BRAM ports)
-    Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (technically unnessary)
-    ------------------------------------------------------
-    0 -           READ New 0 (0 is invalid @ start)
-    1 +           READ New 1 (1 is invalid @ start)
-    2 - PROCESS 0 READ New 0 (0 is valid @ start)
-    3 + PROCESS 1 READ New 1 (1 is valid @ start)
-    4 - PROCESS 0 READ New 0 ...
-    5 + PROCESS 1 READ New 1
-    6 - PROCESS 0 READ New 0
-    ---- till nextIndex == NULL_BLOB_INDEX */
-
-    //Finish
-    if (targetSingleAlmostDone) {
-        console.log(" > Target Selector Done < ");
-
-        //transfer best target to target
-        _("target <= ", targetCurrent);
-
-        //flag
-        _("targetSelectorDone <= 1");
-    }
-
-    //PROCESS
-    if (targetInitStep > 1) {
-        const blob: BlobData = blobBRAMPorts[targetPartion].dout;
-
-        //PROCESS
-        if (doesBlobMatchCriteria(blob)) {
-            //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
-            const center: Vector2d10 = {
-                x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
-                y: (blob.boundBottomRight.y + blob.boundTopLeft.y) >> 1
-            };
-            const width:  reg10 = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
-            const height: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
-
-            //aspect ratio valid
-            const aspectRatioValid: reg1 = inAspectRatioRange(width, height,
-                virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-
-            //bound area valid
-            const boundAreaValid: reg1 = inBoundAreaRange(width * height,
-                virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
-
-            //if this target is valid AND this target is better OR we dont have a target yet
-            if (aspectRatioValid && boundAreaValid &&
-                (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) {
-                _("targetCurrent <= ", {
-                    center, width, height,
-                    blobCount: 1,
-                    angle: calcBlobAngle(blob)
-                });
-            }
-        }
-
-        //Skip & Flag Garbage
-        else {
-            _(`blobGarbageList[${blobBRAMPorts[targetPartion].addr}] <= 1`);
-        }
-    }
-
-    //READ
-    if (!targetSingleAlmostDone) {
-        //Finish
-        if (nextTargetIndexA() == NULL_BLOB_INDEX) {
-            //flag almost done so we can come back last loop and process ~targetPartion
-            _("targetSingleAlmostDone <= 1");
-        }
-
-        //READ
-        else {
-            _(`blobBRAMPorts[${targetPartion}].addr <= `, nextTargetIndexA());
-            _("targetIndexA <= ", nextTargetIndexA());
-        }
-    }
-}
 function distSqToTargetCenter(v: Vector2d10): reg20 {
     //Distance^2 Between Vector and Target Center
     return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
 }
 function doesBlobMatchCriteria(blob: BlobData): reg1 {
+    const nonZero: reg1 = boolToReg1(blob.area !== 0);
+
     const boundWidth: reg10 = blob.boundBottomRight.x - blob.boundTopLeft.x;
     const boundHeight: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
@@ -719,23 +684,11 @@ function doesBlobMatchCriteria(blob: BlobData): reg1 {
 
     const angleValid: reg1 = boolToReg1(virtexConfig.blobAnglesEnabled[(Object.keys(virtexConfig.blobAnglesEnabled) as Array<keyof BlobAnglesEnabled>)[calcBlobAngle(blob)]]);
 
-    return aspectRatioValid && boundAreaValid && fullnessValid && angleValid;
-}
-function getNextValidTargetIndex(startIndex: BlobIndex): BlobIndex {
-    //find next valid blob >= startIndex (and < blobIndex because anything above that is invalid)
-    for (let i = 0; i < MAX_BLOBS; i++) {
-        if (i >= startIndex && i < blobIndex && !blobGarbageList[i]) {
-            return i;
-        }
-    }
-    return NULL_BLOB_INDEX;
+    return nonZero && aspectRatioValid && boundAreaValid && fullnessValid && angleValid;
 }
 
 //Combinational Logic
 function always_comb(): void {
-    if (blobIndex >= NULL_BLOB_INDEX) {
-        faults.OUT_OF_BLOB_MEM_FAULT = 1;
-    }
     if (currentLineBuffer.count >= MAX_RUNS_PER_LINE) {
         faults.OUT_OF_RLE_MEM_FAULT = 1;
     }
@@ -749,9 +702,16 @@ function frameReset(): void {
     _("justResetFrame <= 1");
 
     //Blob Maker Reset (everything else is reset in on New Line* updateBlobMaker())
-    _("blobIndex <= 0");
-    _("blobSkipCycle <= 0");
-    _("blobMakerState <= BlobMakerState.NONE");
+    _("makerState <= MakerState.NONE");
+    _("makerSkipCycle <= 0");
+    _("makerJustResetLine <= 0");
+    _("makerGrowingIndex <= 0");
+
+    //Blob Train Reset
+    _("trainFinishedIndex <= 0");
+    _("trainGrowingIndex <= 0");
+    _("trainPartion <= 0");
+    _("trainInitDone <= 0");
 
     //Target Selector Reset
     _("targetCurrent <= ", makeZeroTarget());
@@ -783,11 +743,11 @@ function processNonblocking() {
     nonblockingQueue = [];
 }
 let isDone = () => Boolean(targetSelectorDone);
-let getBlobIndex = () => blobIndex;
+let getMakerGrowingIndex = () => makerGrowingIndex;
+let getTrainFinishedIndex = () => trainFinishedIndex;
 let getTarget = () => target;
 let getBlobColorBuffer = () => blobColorBuffer;
 let getFaults = () => faults;
-let getBlobGarbageList = () => blobGarbageList;
 let clearFaults = () => faults = {
     PYTHON_300_PLL_FAULT: 0,
     IR_LED_FAULT: 0,
@@ -798,4 +758,4 @@ let clearFaults = () => faults = {
     MAX_TARGET_GROUP_SIZE_FAULT: 0
 };
 clearFaults();
-export { always_ff, isDone, getBlobIndex, getBlobGarbageList, getTarget, getBlobColorBuffer, getFaults, clearFaults };
+export { always_ff, isDone, getMakerGrowingIndex, getTrainFinishedIndex, getTarget, getBlobColorBuffer, getFaults, clearFaults };

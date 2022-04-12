@@ -12,7 +12,7 @@ import { NULL_BLOB_INDEX, RUN_FIFO_LENGTH } from './BlobConstants';
 import { Faults } from './util/Fault';
 import { PNG } from 'pngjs';
 import { deepCopy } from './util/DrawUtil';
-import { blobBRAMMem, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
+import { growingBlobsBRAM, finishedBlobsBRAM, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -26,9 +26,10 @@ let drawOptions: {[index: string]: boolean} = {
     target: true,
     crosshair: true,
     kernelPos: false,
-    kernelLine: true
+    kernelLine: true,
+    growingMem: true
 };
-let imageFile = '2019_Noise.png';
+let imageFile = '2019.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 
@@ -52,7 +53,7 @@ let image: any;
 function update() {
     //"36MHz" Kernel Reading (PythonManager)
     if (loopCount % 5 == 0 && !pythonDone) {
-        if (kx == KERNEL_MAX_X && (ky+1) % 80 == 0) console.log("LINE:", ky, "FIFO LEN:", runFIFOLength(), "BLOBS:", BlobProcessor.getBlobIndex());
+        if (kx == KERNEL_MAX_X && (ky+1) % 80 == 0) console.log("LINE:", ky, "FIFO LEN:", runFIFOLength(), "BLOBS:", BlobProcessor.getMakerGrowingIndex());
 
         for (let ix = 0; ix < 8; ix++) {
             const px = kx * 8 + ix; //kernelPos * kernelSize + intraKernelPos/pixelOffset
@@ -152,18 +153,16 @@ function drawImage(clearDraw?: boolean): any {
                 const run = BlobProcessor.getBlobColorBuffer()[y].runs[i];
 
                 //if run is black ignore it
-                if (run.blobIndex !== NULL_BLOB_INDEX) {                    
+                if (run.blobIndex !== NULL_BLOB_INDEX && growingBlobsBRAM.mem[run.blobIndex].area !== 0) {                  
                     //if run has valid blobIndex (or valid pointer blobIndex) => draw it
-                    if (!BlobProcessor.getBlobGarbageList()[i]) {
-                        for (let x = run.start; x <= run.stop; x++) {
-                            drawPixel(tempImage.data, { x, y }, [
-                                //generate unique color based on blob index
-                                Math.sin(run.blobIndex * 50) * 200 + 55,
-                                Math.sin(run.blobIndex * 100) * 200 + 55,
-                                Math.sin(run.blobIndex * 200) * 200 + 55,
-                                255
-                            ]);
-                        }
+                    for (let x = run.start; x <= run.stop; x++) {
+                        drawPixel(tempImage.data, { x, y }, [
+                            //generate unique color based on blob index
+                            Math.sin(run.blobIndex * 50) * 200 + 55,
+                            Math.sin(run.blobIndex * 100) * 200 + 55,
+                            Math.sin(run.blobIndex * 200) * 200 + 55,
+                            255
+                        ]);
                     }
                 }
             }      
@@ -171,10 +170,12 @@ function drawImage(clearDraw?: boolean): any {
     }
 
     //Draw Blob Bounding Box + Polygon + Ellipse
-    for (let i = 0; i < BlobProcessor.getBlobIndex(); i++) {
-        const blob = blobBRAMMem[i];
+    const bramMem = drawOptions.growingMem ? growingBlobsBRAM.mem : finishedBlobsBRAM.mem;
+    const bramMax = drawOptions.growingMem ? BlobProcessor.getMakerGrowingIndex() : BlobProcessor.getTrainFinishedIndex();
+    for (let i = 0; i < bramMax; i++) {
+        const blob = bramMem[i];
         // console.log(blob);
-        if (!BlobProcessor.getBlobGarbageList()[i]) {
+        if (blob.area != 0) {
             if (drawOptions.blobAngle) {
                 calcBlobAngle(blob, tempImage.data);
             }
