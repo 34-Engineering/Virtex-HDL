@@ -1,48 +1,54 @@
-/* BlobProcessor V3.5
-The Blob Processor is a multi-functional module that takes in an pipelined
-run length encoded images (through a run FIFO) and outputs a single target
-per image frame: Runs => Blobs => Target
+/* Vision Processor V4
+The Vision Processor is a multi-functional module that takes in a run length
+encoded image frame (through a FIFO), locates regional blobs, and selects
+a target included one of multiple of the blobs.
 
 Nomenclature:
  Blob: an isolated white region in the image
   - Bounding Box: the minimum non-rotated rectangle that covers all pixels in the blob
-  - Quad: a quadrilateral made from the four most extreme points in the blob (used for angle calculations)
+  - Quad: a quadrilateral made from the four most extreme points in the blob (used for rough angle calculations)
  Target: a blob or group of blobs
-
-Blob making is a process where blobs are "grown" to cover an entire isolated
-white region of the image. Isolated regions are first spotted by runs that
-are not touching any another run in the line above them, then following
-runs that are touching it are joined onto its blob and the blob
-is expanded to cover the entire region.
-The Blob making process is also required to merge blobs in certain region
-shapes like U, V, W, etc. This is because the regions are initially
-seen as two separate blobs but later found to be part of the same region.
 
 Stages:
  1) Blob Maker: process runs from FIFO into blobs in "growing" BRAM
+     -> Blob making is a process where blobs are "grown" to cover an entire isolated
+        white region of the image. Isolated regions are first spotted by runs that
+        are not touching any another run in the line above them, then following
+        runs that are touching it are joined onto its blob and the blob
+        is expanded to cover the entire region.
+        The Blob making process also has to merge blobs in certain region
+        shapes like U, V, W, etc. This is because the regions are initially
+        seen as two separate blobs but later found to be part of the same region.
+
  2) Blob Train: tranfers unorganized blobs from "growing" BRAM to organized "finished" BRAM
-     -> TargetMode.SINGLE:
-         - chooses the best target based off center distance
+
  3) Target Selector: make a target from "finished" BRAM
+     -> TargetMode.SINGLE (occurs in parallel w/ training process):
+         - loop through every blob
+            - set as targetCurrent if closer to center than targetCurrent
+         - save targetCurrent->target
      -> TargetMode.DUAL:
-        //FIXME
-         - loop through every valid blob (A)
-         - for each A, loop through every valid blob with indexes > A (B)
-         - make a target from every A & B
-         - choose the best target based off center distance
+         - loop through every blob (A)
+            - loop through every blob with indexes >A (B)
+            - make a target from A & B
+               - set as targetCurrent if closer to center than targetCurrent
+         - set target=targetCurrent
      -> TargetMode.GROUP:
-         - continously loop through every valid blob (A) until there is 0|1 left
-         - for each A, loop through every other valid blob (B)
-         - group all B's within gap & area ratio range to A, join them to A
-            (using Blob BRAM to represent a "Group Target" instead of a blob),
-            & flag B as garbage
-         - when no B's join an A, convert A from a "Group Target" to a Target,
-            & become the targetCurrent if it is better than the existing one
+         - swap between BRAMs until there are 0|1 blobs left in the current BRAM
+            - read blob 0 (A)
+               - convert blob -> "group target" (which can represent multiple blobs but still be saved in blob BRAM)
+            - loop through every blob with indexes >0 (B)
+               - attempt to join A
+                  - if can't -> save to next slot in other BRAM
+            - if no B's joined this A
+               - set as targetCurrent if closer to center than targetCurrent
+            - else save new "group target" to next slot in other BRAM
 
-Note: The Artix-7/Vivado BRAM IP has a 2 clock cycle read delay
-(cycle 1 (request): old data, cycle 2: old data, cycle 3: new data)
+Note: The BRAM IP optional registers added which causes a 2 clock cycle read delay
+ -> cycle 1 (request): old data
+ -> cycle 2: old data
+ -> cycle 3: new data
 
-Future Note: if target selector is too slow we can double the speed by doing double processing (but also doubles area)
 */
 
 import { Faults } from "./Fault";
@@ -58,7 +64,7 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 let blobColorBuffer: RunBuffer[] = [];
 let faults: Faults;
 
-//Run FIFO
+//Runs FIFO
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
 let runFIFOOut: Run = {length:0, line:0, black:0};
 let lastLine: reg10 = 340;
@@ -66,8 +72,10 @@ let justResetFrame: reg1 = 0;
 
 //Blob BRAM
 interface BlobBRAMPort { addr: BlobIndex, din: BlobData, dout: BlobData, we: reg1 };
-let growingBlobs: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
-let finishedBlobs: BlobBRAMPort[] = [{addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}];
+let bramPorts: BlobBRAMPort[] = [
+    {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, //0:1 - "growing"
+    {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}  //2:3 - "finished"
+]; //wire
 
 //Blob Maker
 enum MakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE, DONE };
@@ -134,10 +142,10 @@ let nextTargetIndexBs = [
 //200MHz Clocked Loop
 function always_ff(): void {
     //defaults & counters
-    _("growingBlobs[0].we <= 0");
-    _("growingBlobs[1].we <= 0");
-    _("finishedBlobs[0].we <= 0");
-    _("finishedBlobs[1].we <= 0");
+    _("bramPorts[0].we <= 0");
+    _("bramPorts[1].we <= 0");
+    _("bramPorts[2].we <= 0");
+    _("bramPorts[3].we <= 0");
     _("lastLine <= ", runFIFOOut.line);
     _("justResetFrame <= 0");
     _("runFIFORead <= 0");
@@ -181,13 +189,13 @@ function always_ff(): void {
     processNonblocking();
     always_comb();
     [ runFIFOEmpty, runFIFOOut ] = processRunFIFO({ read: runFIFORead });
-    [ growingBlobs[0].dout, growingBlobs[1].dout ] = growingBlobsBRAM.update({
-        addra: growingBlobs[0].addr, dina: growingBlobs[0].din, wea: growingBlobs[0].we, 
-        addrb: growingBlobs[1].addr, dinb: growingBlobs[1].din, web: growingBlobs[1].we
+    [ bramPorts[0].dout, bramPorts[1].dout ] = growingBlobsBRAM.update({
+        addra: bramPorts[0].addr, dina: bramPorts[0].din, wea: bramPorts[0].we, 
+        addrb: bramPorts[1].addr, dinb: bramPorts[1].din, web: bramPorts[1].we
     });
-    [ finishedBlobs[0].dout, finishedBlobs[1].dout ] = finishedBlobsBRAM.update({
-        addra: finishedBlobs[0].addr, dina: finishedBlobs[0].din, wea: finishedBlobs[0].we, 
-        addrb: finishedBlobs[1].addr, dinb: finishedBlobs[1].din, web: finishedBlobs[1].we
+    [ bramPorts[2].dout, bramPorts[3].dout ] = finishedBlobsBRAM.update({
+        addra: bramPorts[2].addr, dina: bramPorts[2].din, wea: bramPorts[2].we, 
+        addrb: bramPorts[3].addr, dinb: bramPorts[3].din, web: bramPorts[3].we
     });
 }
 
@@ -276,7 +284,7 @@ function updateOnMakerState(ustate: MakerState): reg1 {
                     _("makerState <= MakerState.JOIN");
 
                     //read Blob from BRAM
-                    _("growingBlobs[0].addr <= ", iBlobIndex);
+                    _("bramPorts[0].addr <= ", iBlobIndex);
                     _("makerSkipCycle <= 1");
                 }
 
@@ -286,8 +294,8 @@ function updateOnMakerState(ustate: MakerState): reg1 {
                     _("makerState <= MakerState.MERGE");
 
                     // read Blobs from BRAM
-                    _("growingBlobs[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
-                    _("growingBlobs[1].addr <= ", iBlobIndex);
+                    _("bramPorts[0].addr <= ", currentLineBuffer.runs[currentLineBuffer.count].blobIndex);
+                    _("bramPorts[1].addr <= ", iBlobIndex);
                     _("makerSkipCycle <= 1");
                     return 1;
                 }
@@ -298,14 +306,14 @@ function updateOnMakerState(ustate: MakerState): reg1 {
     //Join Blob
     else if (ustate == MakerState.JOIN) {
         //write back to BRAM
-        _("growingBlobs[0].din <= ", mergeBlobs(currentRunAsBlob(), growingBlobs[0].dout));
-        _("growingBlobs[0].we <= 1");
+        _("bramPorts[0].din <= ", mergeBlobs(currentRunAsBlob(), bramPorts[0].dout));
+        _("bramPorts[0].we <= 1");
 
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
             start: currentLineBufferX,
             stop: currentLineBufferX + runFIFOOut.length - 1,
-            blobIndex: growingBlobs[0].addr
+            blobIndex: bramPorts[0].addr
         });
 
         //go back to searching
@@ -316,18 +324,18 @@ function updateOnMakerState(ustate: MakerState): reg1 {
     else if (ustate == MakerState.MERGE) {
         //update all pointers to slave
         for (let i = 0; i < MAX_RUNS_PER_LINE; i++) {
-            if (lastLineBuffer.runs[i].blobIndex == growingBlobs[1].addr) {
-                _(`lastLineBuffer.runs[${i}].blobIndex <= `, growingBlobs[0].addr);
+            if (lastLineBuffer.runs[i].blobIndex == bramPorts[1].addr) {
+                _(`lastLineBuffer.runs[${i}].blobIndex <= `, bramPorts[0].addr);
             }
         }
 
         //write back merged blob to master in BRAM
-        _("growingBlobs[0].din <= ", mergeBlobs(growingBlobs[1].dout, growingBlobs[0].dout));
-        _("growingBlobs[0].we <= 1");
+        _("bramPorts[0].din <= ", mergeBlobs(bramPorts[1].dout, bramPorts[0].dout));
+        _("bramPorts[0].we <= 1");
 
         //write back null blob to slave in BRAM
-        _("growingBlobs[1].din <= ", makeZeroBlobData());
-        _("growingBlobs[1].we <= 1");
+        _("bramPorts[1].din <= ", makeZeroBlobData());
+        _("bramPorts[1].we <= 1");
 
         //go back to searching
         _("makerState <= MakerState.SEARCH");
@@ -341,9 +349,9 @@ function updateOnMakerState(ustate: MakerState): reg1 {
     //Make new Blob
     else if (ustate == MakerState.MAKE) {
         //write to BRAM
-        _("growingBlobs[0].din <= ", currentRunAsBlob());
-        _("growingBlobs[0].addr <= ", makerGrowingIndex);
-        _("growingBlobs[0].we <= 1");
+        _("bramPorts[0].din <= ", currentRunAsBlob());
+        _("bramPorts[0].addr <= ", makerGrowingIndex);
+        _("bramPorts[0].we <= 1");
 
         //save to current line run buffer
         _(`currentLineBuffer.runs[${currentLineBuffer.count}] <= `, {
@@ -386,19 +394,20 @@ function blobFinishRun(): void {
 function updateBlobTrain(): void {
     _("trainPartion <= ", boolToReg1(!trainPartion));
 
-    const blobGood: reg1 = doesBlobMatchCriteria(growingBlobs[trainPartion].dout);
+    const blobGood: reg1 = doesBlobMatchCriteria(bramPorts[trainPartion].dout);
     if (trainInitDone) {
         //Transfer Good Blobs to "Finished" BRAM
         if (blobGood) {
-            _("finishedBlobs[0].addr <= ", trainFinishedIndex);
-            _("finishedBlobs[0].din <= ", growingBlobs[trainPartion].dout);
-            _("finishedBlobs[0].we <= 1");
+            _("bramPorts[2].addr <= ", trainFinishedIndex);
+            _("bramPorts[2].din <= ", bramPorts[trainPartion].dout);
+            _("bramPorts[2].we <= 1");
             _("trainFinishedIndex <= ", trainFinishedIndex + 1);
+            _("targetBRAMEnds[1] <= ", trainFinishedIndex + 1);
         }
         
         //Update Single Mode Target Selector
         if (virtexConfig.targetMode == TargetMode.SINGLE) {
-            updateTargetSelectorSingle(blobGood, growingBlobs[trainPartion].dout);
+            updateTargetSelectorSingle(blobGood, bramPorts[trainPartion].dout);
         }
     }
 
@@ -408,7 +417,7 @@ function updateBlobTrain(): void {
     }
 
     //Read Blob from "Growing" BRAM
-    _(`growingBlobs[${trainPartion}].addr <= `, trainGrowingIndex + 1);
+    _(`bramPorts[${trainPartion}].addr <= `, trainGrowingIndex + 1);
     _("trainGrowingIndex <= ", trainGrowingIndex + 1);
 
     //(scripting only)
@@ -450,6 +459,12 @@ function updateTargetSelectorSingle(blobValid: reg1, blob: BlobData): void {
     }
     else if (trainAlmostDone()) _("target <= ", targetCurrent);
 }
+
+let targetBRAMNumber: reg1 = 1; //which BRAM to use, 0 = growing, 1 = finished (+2)
+let targetBRAMIndex: BlobIndex = 0; //where we are in current BRAM
+let targetBRAMEnds: BlobIndex[] = [0, 0]; //max index we can go to +1 (ex 5 -> [0:4])
+let targetBRAMOffset = (): reg2 => (virtexConfig.targetMode != TargetMode.GROUP || targetBRAMNumber) ? 2 : 0;
+
 function updateTargetSelectorDualGroup(): void {
     console.log(targetInitStep, targetIndexA, targetIndexBs[targetPartion], nextTargetIndexA(), nextTargetIndexBs[0](), nextTargetIndexBs[1]());
 
@@ -462,7 +477,6 @@ function updateTargetSelectorDualGroup(): void {
     _("targetPartion <= ", boolToReg1(!targetPartion));
 
     /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
-        Note: @ PROCESS 0|1 & !doesBlobMatchCriteria() -> Skip & Flag GARBAGE (for future loops)
         targetInitStep, targetPartion, commands
         ------------------------------------------------------
         0 - READ New A on 1
@@ -477,14 +491,14 @@ function updateTargetSelectorDualGroup(): void {
 
     //SAVE A from 1
     if (targetInitStep == 2) {
-        _("targetBlobAAngle <= ", calcBlobAngle(finishedBlobs[1].dout));
-        _("targetBlobA <= ", finishedBlobs[1].dout);
+        _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()+1].dout));
+        _("targetBlobA <= ", bramPorts[targetBRAMOffset()+1].dout);
     }
 
     //PROCESS
     if (targetInitStep == 3 && targetIndexBs[targetPartion] !== NULL_BLOB_INDEX) {
         //Get Blob
-        const targetBlobB: BlobData = finishedBlobs[targetPartion].dout;
+        const targetBlobB: BlobData = bramPorts[targetPartion+2].dout;
         const targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
         //GROUP: chain other blobs together starting a Blob A
@@ -509,9 +523,9 @@ function updateTargetSelectorDualGroup(): void {
                 //write back to A BRAM & cache
                 const newTargetBlobA: BlobData = asBlob(newGroupTarget);
                 _("targetBlobA <= ", newTargetBlobA);
-                _(`finishedBlobs[${boolToReg1(!targetPartion)}].din <= `, newTargetBlobA);
-                _(`finishedBlobs[${boolToReg1(!targetPartion)}].addr <= `, targetIndexA);
-                _(`finishedBlobs[${boolToReg1(!targetPartion)}].we <= `, 1);
+                _(`bramPorts[${boolToReg1(!targetPartion)}+2].din <= `, newTargetBlobA);
+                _(`bramPorts[${boolToReg1(!targetPartion)}+2].addr <= `, targetIndexA);
+                _(`bramPorts[${boolToReg1(!targetPartion)}+2].we <= `, 1);
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
@@ -596,7 +610,7 @@ function updateTargetSelectorDualGroup(): void {
         //READ New B0|1
         else {
             //READ New B0|1
-            _(`finishedBlobs[${targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
+            _(`bramPorts[${targetPartion}+2].addr <= `, nextTargetIndexBs[targetPartion]());
 
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
@@ -645,7 +659,7 @@ function updateTargetSelectorDualGroup(): void {
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
             //READ New A on 1
-            _("finishedBlobs[1].addr <= ", nextTargetIndexA());
+            _("bramPorts[3].addr <= ", nextTargetIndexA());
 
             //Update State
             _("targetWantsNewA <= 0");
