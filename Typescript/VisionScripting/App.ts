@@ -3,16 +3,16 @@ import path from 'path';
 import { Server } from 'socket.io';
 import * as http from 'http';
 import * as fs from 'fs';
-import * as BlobProcessor from "./VisionProcessor";
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from './util/Constants';
-import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './util/DrawUtil';
-import { virtexConfig } from './util/VirtexConfig';
-import { calcBlobAngle, isTargetNull } from './VisionUtil';
-import { NULL_BLOB_INDEX, RUN_FIFO_LENGTH } from './VisionConstants';
-import { Faults } from './util/Fault';
+import * as BlobProcessor from "./src/VisionProcessor";
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from './src/Constants';
+import { calculateIDX, drawCenterFillSquare, drawEllipse, drawFillRect, drawLine, drawPixel, drawQuad10, drawRect } from './src/DrawUtil';
+import { virtexConfig } from './src/VirtexConfig';
+import { calcBlobAngle, isTargetNull } from './src/VisionUtil';
+import { NULL_BLOB_INDEX, RUN_FIFO_LENGTH } from './src/VisionConstants';
+import { Faults } from './src/Fault';
 import { PNG } from 'pngjs';
-import { deepCopy } from './util/DrawUtil';
-import { growingBlobsBRAM, finishedBlobsBRAM, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './util/VerilogUtil';
+import { deepCopy } from './src/DrawUtil';
+import { growingBlobsBRAM, finishedBlobsBRAM, boolToReg1, clearRunFIFO, addToRunFIFO, runFIFOLength, runFIFOMem } from './src/VerilogUtil';
 const app: express.Application = express();
 
 //Options (+ defaults)
@@ -29,7 +29,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelLine: true,
     growingMem: true
 };
-let imageFile = '2019.png';
+let imageFile = '2022_Clean.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 

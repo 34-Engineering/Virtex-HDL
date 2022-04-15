@@ -34,7 +34,7 @@ Stages:
                - set as targetCurrent if closer to center than targetCurrent
          - set target=targetCurrent
      -> TargetMode.GROUP:
-         - swap between BRAMs until there are 0|1 blobs left in the current BRAM
+         - swap between BRAMs until there are 0 blobs left in the current BRAM
             - read blob 0 (A)
                - convert blob -> "group target" (which can represent multiple blobs but still be saved in blob BRAM)
             - loop through every blob with indexes >0 (B)
@@ -121,13 +121,18 @@ let targetGroupBJoined: reg1 = 0;
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
 let targetSelectorDone: reg1 = 0;
 
-let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX) ? 0 : targetIndexA + 1;
-let fixTargetIndex = (index: BlobIndex): BlobIndex => (index < trainFinishedIndex) ? index : NULL_BLOB_INDEX; //return null for blob index that is above bound
+let targetBRAMNumber: reg1 = 1; //which BRAM to use, 0 = growing, 1 = finished (+2)
+let targetBRAMEnds: BlobIndex[] = [0, 0]; //max index we can go to +1 (ex 5 -> [0:4])
+let targetBRAMOffset = (): reg2 => targetBRAMNumber ? 2 : 0;
+let targetBRAMOffsetOther = (): reg2 => targetBRAMNumber ? 0 : 2;
+
+let nextTargetIndexA = (): BlobIndex => (targetIndexA == NULL_BLOB_INDEX || virtexConfig.targetMode == TargetMode.GROUP) ? 0 : targetIndexA + 1;
+let fixTargetIndex = (index: BlobIndex): BlobIndex => (index < targetBRAMEnds[targetBRAMNumber]) ? index : NULL_BLOB_INDEX; //return null for blob index that is above bound
 let initTargetIndexB = (): BlobIndex => (virtexConfig.targetMode == TargetMode.GROUP) ? //first B index (with overlap protection)
-    fixTargetIndex(targetIndexA == 0 ? 1 : 0) :
+    fixTargetIndex(1) :
     fixTargetIndex(targetIndexA + 1);
 let nextInitTargetIndexB = (): BlobIndex => (virtexConfig.targetMode == TargetMode.GROUP) ? //calculate next init index B so we know if the next A should be skipped
-    fixTargetIndex(nextTargetIndexA() == 0 ? 1 : 0) :
+    fixTargetIndex(1) :
     fixTargetIndex(nextTargetIndexA() + 1);
 let nextTargetIndexBsUnaccounted = [ //unaccounted for possible overlap with targetIndexA
     (): BlobIndex => fixTargetIndex(targetIndexBs[1] + 1), //opposite so they will skip ahead of eachother (AKA: (0,1), (2,3) ...)
@@ -460,23 +465,8 @@ function updateTargetSelectorSingle(blobValid: reg1, blob: BlobData): void {
     else if (trainAlmostDone()) _("target <= ", targetCurrent);
 }
 
-let targetBRAMNumber: reg1 = 1; //which BRAM to use, 0 = growing, 1 = finished (+2)
-let targetBRAMIndex: BlobIndex = 0; //where we are in current BRAM
-let targetBRAMEnds: BlobIndex[] = [0, 0]; //max index we can go to +1 (ex 5 -> [0:4])
-let targetBRAMOffset = (): reg2 => (virtexConfig.targetMode != TargetMode.GROUP || targetBRAMNumber) ? 2 : 0;
-
 function updateTargetSelectorDualGroup(): void {
-    console.log(targetInitStep, targetIndexA, targetIndexBs[targetPartion], nextTargetIndexA(), nextTargetIndexBs[0](), nextTargetIndexBs[1]());
-
-    //Increment Init Step
-    if (targetInitStep != 3) {
-        _("targetInitStep <= ", targetInitStep+1);
-    }
-
-    //Swap Partion
-    _("targetPartion <= ", boolToReg1(!targetPartion));
-
-    /*  DUAL/GROUP Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
+    /*  TS D/G Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         targetInitStep, targetPartion, commands
         ------------------------------------------------------
         0 - READ New A on 1
@@ -486,11 +476,27 @@ function updateTargetSelectorDualGroup(): void {
         3 -                 PROCESS B0 on 0 READ New B0 on 0
         3 +                 PROCESS B1 on 1 READ New B1 on 1
         3 -                 PROCESS B0 on 0 READ New B0 on 0
-          ... till B0|1 == NULL_BLOB_INDEX
-        ---- till A == NULL_BLOB_INDEX */
+          ... for all Bs
+        ---- for all As */
+
+    let pad = (str: string, n: number): string => " ".repeat(Math.max(0, n - str.length)) + str;
+
+    process.stdout.write(targetInitStep + (targetPartion ? "+" : "-") + " A:"+pad(targetIndexA+"",3) + " B:"+pad(targetIndexBs[targetPartion]+"",3) + 
+        " e:[" + targetBRAMEnds + "] n:" + targetBRAMNumber);
+
+    //Increment Init Step
+    if (targetInitStep != 3) {
+        _("targetInitStep <= ", targetInitStep+1);
+    }
+
+    //Swap Partion
+    _("targetPartion <= ", boolToReg1(!targetPartion));
 
     //SAVE A from 1
     if (targetInitStep == 2) {
+        process.stdout.write(" save a\n");
+        console.log(JSON.stringify(bramPorts[targetBRAMOffset()+1].dout));
+        console.log(JSON.stringify(targetBRAMNumber ? growingBlobsBRAM.mem[targetIndexA] : finishedBlobsBRAM.mem[targetIndexA]));
         _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()+1].dout));
         _("targetBlobA <= ", bramPorts[targetBRAMOffset()+1].dout);
     }
@@ -498,7 +504,7 @@ function updateTargetSelectorDualGroup(): void {
     //PROCESS
     if (targetInitStep == 3 && targetIndexBs[targetPartion] !== NULL_BLOB_INDEX) {
         //Get Blob
-        const targetBlobB: BlobData = bramPorts[targetPartion+2].dout;
+        const targetBlobB: BlobData = bramPorts[targetBRAMOffset()+targetPartion].dout;
         const targetBlobBAngle: BlobAngle = calcBlobAngle(targetBlobB);
 
         //GROUP: chain other blobs together starting a Blob A
@@ -515,20 +521,30 @@ function updateTargetSelectorDualGroup(): void {
             const blobsBoundAreaRatioValid: reg1 = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
 
-            //join A & B
-            if (gapValid && blobsBoundAreaRatioValid) {
-                //make new group target
-                const newGroupTarget: GroupTarget = mergeGroupTargets(groupTargetA, groupTargetB);
+            process.stdout.write(` process (gx:${gapX},gy:${gapY},ba:${groupTargetA.blobBoundArea},bb:${groupTargetB.blobBoundArea})=>`);
 
-                //write back to A BRAM & cache
-                const newTargetBlobA: BlobData = asBlob(newGroupTarget);
+            //join B to A
+            if (gapValid && blobsBoundAreaRatioValid) {
+                process.stdout.write("join");
+
+                //make new group target & save
+                const newTargetBlobA: BlobData = asBlob(mergeGroupTargets(groupTargetA, groupTargetB));
                 _("targetBlobA <= ", newTargetBlobA);
-                _(`bramPorts[${boolToReg1(!targetPartion)}+2].din <= `, newTargetBlobA);
-                _(`bramPorts[${boolToReg1(!targetPartion)}+2].addr <= `, targetIndexA);
-                _(`bramPorts[${boolToReg1(!targetPartion)}+2].we <= `, 1);
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
+            }
+
+            //copy B over to other BRAM
+            else {
+                process.stdout.write("copy{"+targetBRAMEnds[boolToReg1(!targetBRAMNumber)]+"}");
+                //write to newest slot
+                _(`bramPorts[${targetBRAMOffsetOther()}].din <= `, targetBlobB);
+                _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)]);
+                _(`bramPorts[${targetBRAMOffsetOther()}].we <= 1`);
+
+                //increment slot counter
+                _(`targetBRAMEnds[${boolToReg1(!targetBRAMNumber)}] <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + 1);
             }
         }
 
@@ -610,10 +626,12 @@ function updateTargetSelectorDualGroup(): void {
         //READ New B0|1
         else {
             //READ New B0|1
-            _(`bramPorts[${targetPartion}+2].addr <= `, nextTargetIndexBs[targetPartion]());
+            _(`bramPorts[${targetBRAMOffset()+targetPartion}].addr <= `, nextTargetIndexBs[targetPartion]());
 
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
+
+            process.stdout.write(" read new b");
         }
     }
 
@@ -624,33 +642,58 @@ function updateTargetSelectorDualGroup(): void {
         _("targetInitStep <= 0");
         _("targetGroupBJoined <= 0");
 
-        //No B's Joined this A => Make Group Target into Target
+        //Wrap up Group Mode
         const groupTargetA: GroupTarget = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
         const targetA: Target = groupTargetToTarget(groupTargetA);
-        const boundWidth: reg10 = (groupTargetA.boundBottomRight.x - groupTargetA.boundTopLeft.x + 1);
+        const boundWidth: reg10 = (groupTargetA.boundBottomRight.x - groupTargetA.boundTopLeft.x + 1); 
         const boundHeight: reg10 = (groupTargetA.boundBottomRight.y - groupTargetA.boundTopLeft.y + 1);
         const boundArea: BlobArea = boundWidth * boundHeight; //bound area of entire target
         const boundAreaValid: reg1 = inBoundAreaRange(boundArea, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
         const aspectRatioValid: reg1 = inAspectRatioRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
         const blobCountValid: reg1 = Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
         let justSetTargetCurrent: reg1 = 0;
-        if (virtexConfig.targetMode == TargetMode.GROUP && !targetGroupBJoined && targetIndexA !== NULL_BLOB_INDEX) {
-            if (boundAreaValid && aspectRatioValid && blobCountValid &&
+        if (virtexConfig.targetMode == TargetMode.GROUP && targetIndexA !== NULL_BLOB_INDEX) {
+            //Reset Slot Counter for Next Opposite BRAM Number
+            _(`targetBRAMEnds[${targetBRAMNumber}] <= `, 0);
+
+            //Swap BRAM Number
+            _("targetBRAMNumber <= ", boolToReg1(!targetBRAMNumber));
+
+            //B's joined -> Copy group target over to other BRAM
+            if (targetGroupBJoined) {
+                //write to newest slot
+                _(`bramPorts[${targetBRAMOffsetOther()+1}].din <= `, targetBlobA);
+                _(`bramPorts[${targetBRAMOffsetOther()+1}].addr <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)]);
+                _(`bramPorts[${targetBRAMOffsetOther()+1}].we <= 1`);
+
+                //increment slot counter
+                _(`targetBRAMEnds[${boolToReg1(!targetBRAMNumber)}] <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + 1);
+
+                process.stdout.write(" copy{" + targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + "}");
+            }
+
+            //No B's joined -> finish target
+            else if (boundAreaValid && aspectRatioValid && blobCountValid &&
                 (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
-                //Make Best Target
+                
+                //make Best Target
                 _("targetCurrent <= ", targetA);
     
-                //Flag Just Set
+                //flag Just Set
                 justSetTargetCurrent = 1;
+
+                process.stdout.write(" best");
             }
         }
 
         //Finish
-        if (nextTargetIndexA() >= trainFinishedIndex) {
+        if (nextTargetIndexA() >= targetBRAMEnds[
+            (virtexConfig.targetMode !== TargetMode.GROUP || targetIndexA === NULL_BLOB_INDEX) ? targetBRAMNumber : boolToReg1(!targetBRAMNumber)
+        ]) {
             console.log(" > Target Selector Done < ");
 
             //transfer best target to target
-            _("target <= ", targetCurrent);
+            _("target <= ", justSetTargetCurrent ? targetCurrent : targetA);
 
             //flag
             _("targetSelectorDone <= 1");
@@ -659,12 +702,14 @@ function updateTargetSelectorDualGroup(): void {
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
             //READ New A on 1
-            _("bramPorts[3].addr <= ", nextTargetIndexA());
+            _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, nextTargetIndexA()); //FIXME conflict with line 665
 
             //Update State
             _("targetWantsNewA <= 0");
             _("targetPartion <= 1");
             _("targetInitStep <= 1");
+
+            process.stdout.write(" read new a");
         }
         
         //Set New A
@@ -675,6 +720,8 @@ function updateTargetSelectorDualGroup(): void {
     else if (targetWantsNewA) {
         _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
     }
+
+    process.stdout.write("\n");
 }
 function distSqToTargetCenter(v: Vector2d10): reg20 {
     //Distance^2 Between Vector and Target Center
@@ -687,7 +734,7 @@ function doesBlobMatchCriteria(blob: BlobData): reg1 {
     const boundHeight: reg10 = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
     const aspectRatioValid: reg1 = inAspectRatioRange(boundWidth, boundHeight,
-        virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+        virtexConfig.blobAspectRatioMin, virtexConfig.blobAspectRatioMax);
 
     const boundArea: BlobArea = boundWidth * boundHeight;
     const boundAreaValid: reg1 = inBoundAreaRange(boundArea,
@@ -736,6 +783,7 @@ function frameReset(): void {
     _("targetPartion <= 0");
     _("targetSingleAlmostDone <= 0");
     _("targetSelectorDone <= 0");
+    _("targetBRAMNumber <= 1");
 }
 
 //(scripting only)

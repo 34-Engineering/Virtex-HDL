@@ -43,9 +43,15 @@ export function processRunFIFO(obj: {read: reg1}): [reg1, Run] {
 
 //Blob BRAM
 class BlobBRAM {
-    mem: BlobData[] = [...Array(MAX_BLOBS)].map(_=>(Object.assign({}, makeZeroBlobData())));
-    lastDouta: BlobData = makeZeroBlobData();
-    lastDoutb: BlobData = makeZeroBlobData();
+    mem: BlobData[];
+    lastDouta: BlobData;
+    lastDoutb: BlobData;
+
+    constructor() {
+        this.mem = [...Array(MAX_BLOBS)].map(_=>makeZeroBlobData());
+        this.lastDouta = makeZeroBlobData();
+        this.lastDoutb = makeZeroBlobData();
+    }
 
     update(obj: {addra: BlobIndex, dina: BlobData, wea: reg1, addrb: BlobIndex, dinb: BlobData, web: reg1}): [BlobData, BlobData] {
         //Port A Read/Write
