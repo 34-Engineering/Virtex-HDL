@@ -52,11 +52,11 @@ Note: The BRAM IP optional registers added which causes a 2 clock cycle read del
 */
 
 import { Faults } from "./Fault";
-import { MAX_RUNS_PER_LINE, NULL_LINE_NUMBER, NULL_BLOB_INDEX, NULL_RUN_BUFFER_PARTION, NULL_TIMESTAMP, MAX_TARGET_GROUP_SIZE } from "./VisionConstants";
+import { MAX_RUNS_PER_LINE, NULL_BLOB_INDEX } from "./VisionConstants";
 import { BlobData, mergeBlobs, RunBuffer, runsOverlap, runToBlob, calcBlobAngle, BlobAngle, Target, TargetMode, BlobAnglesEnabled, Run, isTargetNull, inAspectRatioRange, inFullnessRange, inBoundAreaRatioRange, inBoundAreaRange, isGroupTarget, asGroupTarget, makeGroupTarget, GroupTarget, mergeGroupTargets, asBlob, groupTargetToTarget } from "./VisionUtil";
-import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Math_overflow, Vector2d10 } from "./Math";
+import { Math_diff, Math_inRangeInclusive, Math_max, Math_min, Vector2d10 } from "./Math";
 import { virtexConfig } from "./VirtexConfig";
-import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, growingBlobsBRAM, finishedBlobsBRAM, addToRunFIFO, RunBufferIndex, makeZeroBlobData, boolToReg1, makeZeroTarget, reg2, invertReg1, reg20, reg6 } from "./VerilogUtil";
+import { reg1, reg10, BlobIndex, BlobArea, processRunFIFO, growingBlobsBRAM, finishedBlobsBRAM, makeZeroBlobData, boolToReg1, makeZeroTarget, reg2, reg20 } from "./VerilogUtil";
 import { deepCopy } from "./DrawUtil";
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 
@@ -75,7 +75,7 @@ interface BlobBRAMPort { addr: BlobIndex, din: BlobData, dout: BlobData, we: reg
 let bramPorts: BlobBRAMPort[] = [
     {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, //0:1 - "growing"
     {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}, {addr:0, din:makeZeroBlobData(), dout:makeZeroBlobData(), we:0}  //2:3 - "finished"
-]; //wire
+];
 
 //Blob Maker
 enum MakerState { NONE, SEARCH, MERGE, JOIN, JOIN_END, MAKE, DONE };
@@ -482,9 +482,6 @@ function updateTargetSelectorDualGroup(): void {
 
     let pad = (str: string, n: number): string => " ".repeat(Math.max(0, n - str.length)) + str;
 
-    process.stdout.write(targetInitStep + (targetPartion ? "+" : "-") + " A:"+pad(targetIndexA+"",3) + " B:"+pad(targetIndexBs[targetPartion]+"",3) + 
-        " e:[" + targetBRAMEnds + "] n:" + targetBRAMNumber);
-
     //Increment Init Step
     if (targetInitStep != 3) {
         _("targetInitStep <= ", targetInitStep+1);
@@ -495,8 +492,6 @@ function updateTargetSelectorDualGroup(): void {
 
     //SAVE A from 0
     if (targetInitStep == 2) {
-        process.stdout.write(" save a<" + bramPorts[targetBRAMOffset()].dout.area + ">");
-        process.stdout.write("{" + (targetBRAMOffset()) + "}");
         _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()].dout));
         _("targetBlobA <= ", bramPorts[targetBRAMOffset()].dout);
     }
@@ -521,20 +516,8 @@ function updateTargetSelectorDualGroup(): void {
             const blobsBoundAreaRatioValid: reg1 = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
 
-            process.stdout.write(` process{${targetBRAMOffset()+targetPartion}}`);//=>(gx:${gapX},gy:${gapY},ba:${groupTargetA.blobBoundArea},bb:${groupTargetB.blobBoundArea})=>`);
-
             //join B to A
             if (gapValid && blobsBoundAreaRatioValid) {
-                process.stdout.write("join");
-
-                console.log();
-                console.log();
-                console.log(groupTargetA);
-                console.log("+>");
-                console.log(mergeGroupTargets(groupTargetA, groupTargetB));
-                console.log();
-                console.log();
-
                 //make new group target & save
                 _("targetBlobA <= ", asBlob(mergeGroupTargets(groupTargetA, groupTargetB)));
 
@@ -544,7 +527,6 @@ function updateTargetSelectorDualGroup(): void {
 
             //copy B over to other BRAM
             else {
-                process.stdout.write("copy{"+targetBRAMOffsetOther() + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)]+"}");
                 //write to newest slot
                 _(`bramPorts[${targetBRAMOffsetOther()}].din <= `, targetBlobB);
                 _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)]);
@@ -637,8 +619,6 @@ function updateTargetSelectorDualGroup(): void {
 
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
-
-            process.stdout.write(" read new b{" + (targetBRAMOffset()+targetPartion) + "," + nextTargetIndexBs[targetPartion]() + "}");
         }
     }
 
@@ -675,27 +655,17 @@ function updateTargetSelectorDualGroup(): void {
 
                 //increment slot counter
                 _(`targetBRAMEnds[${boolToReg1(!targetBRAMNumber)}] <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + 1);
-
-                process.stdout.write(" copy{" + (targetBRAMOffsetOther()+1) + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + "}");
             }
 
             //No B's joined -> finish target
-            else {
-                console.log();
-                console.log(targetA, {boundAreaValid, aspectRatioValid, blobCountValid}, isTargetNull(targetCurrent), 
-                    distSqToTargetCenter(targetA.center), distSqToTargetCenter(targetCurrent.center), 
-                    distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center));
-                if (boundAreaValid && aspectRatioValid && blobCountValid &&
-                    (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
-                    
-                    //make Best Target
-                    _("targetCurrent <= ", targetA);
-        
-                    //flag Just Set
-                    justSetTargetCurrent = 1;
-
-                    process.stdout.write(" best");
-                }
+            else if (boundAreaValid && aspectRatioValid && blobCountValid &&
+                (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
+                
+                //make Best Target
+                _("targetCurrent <= ", targetA);
+    
+                //flag Just Set
+                justSetTargetCurrent = 1;
             }
         }
 
@@ -723,10 +693,6 @@ function updateTargetSelectorDualGroup(): void {
             _("targetWantsNewA <= 0");
             _("targetPartion <= 1");
             _("targetInitStep <= 1");
-
-            process.stdout.write(" read new a");
-            process.stdout.write("<" + (targetBRAMNumber ? finishedBlobsBRAM.mem[nextTargetIndexA()].area : growingBlobsBRAM.mem[nextTargetIndexA()].area) + ">");
-            process.stdout.write("{" + addr + "," + nextTargetIndexA() + "}");
         }
         
         //Set New A
@@ -737,8 +703,6 @@ function updateTargetSelectorDualGroup(): void {
     else if (targetWantsNewA) {
         _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
     }
-
-    process.stdout.write("\n");
 }
 function distSqToTargetCenter(v: Vector2d10): reg20 {
     //Distance^2 Between Vector and Target Center
