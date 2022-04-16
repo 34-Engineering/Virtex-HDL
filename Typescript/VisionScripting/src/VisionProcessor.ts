@@ -471,11 +471,6 @@ function updateTargetSelectorDualGroup(): void {
           ... for all Bs
         ---- for all As */
 
-    let pad = (str: string, n: number): string => " ".repeat(Math.max(0, n - str.length)) + str;
-
-    process.stdout.write(targetInitStep + (targetPartion ? "+" : "-") + " A:0" + " B:"+pad(targetIndexBs[targetPartion]+"",3) + 
-        " e:[" + targetBRAMEnds + "] n:" + targetBRAMNumber);
-
     //Increment Init Step
     if (targetInitStep != 3) {
         _("targetInitStep <= ", targetInitStep+1);
@@ -486,8 +481,6 @@ function updateTargetSelectorDualGroup(): void {
 
     //SAVE A from 0
     if (targetInitStep == 2) {
-        process.stdout.write(" save a<" + bramPorts[targetBRAMOffset()].dout.area + ">");
-        process.stdout.write("{" + (targetBRAMOffset()) + "}");
         _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()].dout));
         _("targetBlobA <= ", bramPorts[targetBRAMOffset()].dout);
     }
@@ -512,19 +505,10 @@ function updateTargetSelectorDualGroup(): void {
             const blobsBoundAreaRatioValid: reg1 = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
 
-            process.stdout.write(` process{${targetBRAMOffset()+targetPartion},${targetIndexBs[targetPartion]}}=>`);//=>(gx:${gapX},gy:${gapY},ba:${groupTargetA.blobBoundArea},bb:${groupTargetB.blobBoundArea})=>`);
-
             //join B to A
             if (gapValid && blobsBoundAreaRatioValid) {
-                process.stdout.write("join");
                 //make new group target & save
                 _("targetBlobA <= ", asBlob(mergeGroupTargets(groupTargetA, groupTargetB)));
-
-                console.log();
-                console.log(groupTargetA);
-                console.log(" +> ");
-                console.log(mergeGroupTargets(groupTargetA, groupTargetB));
-                console.log();
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
@@ -532,7 +516,6 @@ function updateTargetSelectorDualGroup(): void {
 
             //copy B over to other BRAM
             else {
-                process.stdout.write("copy{"+targetBRAMOffsetOther() + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)]+"}(" + gapValid +","+ blobsBoundAreaRatioValid + ")");
                 //write to newest slot
                 _(`bramPorts[${targetBRAMOffsetOther()}].din <= `, targetBlobB);
                 _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, targetBRAMEnds[invertReg1(targetBRAMNumber)]);
@@ -620,7 +603,6 @@ function updateTargetSelectorDualGroup(): void {
     if (targetInitStep != 0 && !targetWantsNewA) {
         //Request New A
         if (nextTargetIndexBs[targetPartion]() == NULL_BLOB_INDEX) {
-            process.stdout.write(" request new a");
             //Request New A (we must request because we have to wait for last B to finish processing)
             _("targetWantsNewA <= 1");
 
@@ -635,8 +617,6 @@ function updateTargetSelectorDualGroup(): void {
 
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
-
-            process.stdout.write(" read new b{" + (targetBRAMOffset()+targetPartion) + "," + nextTargetIndexBs[targetPartion]() + "}");
         }
     }
 
@@ -662,9 +642,6 @@ function updateTargetSelectorDualGroup(): void {
 
             //More processing needed on this target -> copy over
             if (targetGroupBJoined && newInvertTargetBRAMEnd != 0) {
-
-                process.stdout.write(" acopy{" + (targetBRAMOffsetOther()+1) + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + "}");
-
                 //write to newest slot
                 _(`bramPorts[${targetBRAMOffsetOther()+1}].din <= `, targetBlobA);
                 _(`bramPorts[${targetBRAMOffsetOther()+1}].addr <= `, newInvertTargetBRAMEnd);
@@ -678,26 +655,12 @@ function updateTargetSelectorDualGroup(): void {
             //Done with this target -> attempt to become targetCurrent
             else if (boundAreaValid && aspectRatioValid && blobCountValid &&
                 (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
-                
-                process.stdout.write(" abest");
-                console.log();
-                console.log(targetA);
-                console.log();
-
                 //make Best Target
                 _("targetCurrent <= ", targetA);
     
                 //flag
                 justSetTargetCurrent = 1;
             }
-
-            else {
-                process.stdout.write(" aNOTbest");
-                console.log();
-                console.log(targetA, {boundAreaValid, aspectRatioValid, blobCountValid, nil: isTargetNull(targetCurrent), d1:distSqToTargetCenter(targetA.center), d2: distSqToTargetCenter(targetCurrent.center)});
-                console.log();
-            }
-            // else process.stdout.write(" anot best(" + JSON.stringify({boundAreaValid, aspectRatioValid, blobCountValid, nil: isTargetNull(targetCurrent), cls:distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center)}) + ")")
         }
 
         //Reset Slot Counter for Next Opposite BRAM Number
@@ -719,9 +682,6 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A on 0
         else {
-            process.stdout.write(" read new a");
-            process.stdout.write("<" + (targetBRAMNumber ? growingBlobsBRAM.mem[0].area : finishedBlobsBRAM.mem[0].area) + ">");
-            process.stdout.write("{" + targetBRAMOffsetOther() + ",0}");
             //READ New A on 0
             _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, 0);
 
@@ -736,8 +696,6 @@ function updateTargetSelectorDualGroup(): void {
     else if (targetWantsNewA) {
         _(`targetIndexBs[${targetPartion}] <= `, NULL_BLOB_INDEX);
     }
-
-    process.stdout.write("\n");
 }
 function distSqToTargetCenter(v: Vector2d10): reg20 {
     //Distance^2 Between Vector and Target Center
