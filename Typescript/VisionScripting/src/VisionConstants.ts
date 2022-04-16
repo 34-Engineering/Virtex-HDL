@@ -1,5 +1,3 @@
-import { IMAGE_WIDTH, IMAGE_HEIGHT } from "./Constants";
-
 //max amount of blobs that can be stored in BRAM (duplicated in blk_mem_blobs)
 export const MAX_BLOBS = 400;
 
@@ -10,8 +8,7 @@ export const MAX_RUNS_PER_LINE = 60;
 export const RUN_FIFO_LENGTH = 512;
 
 //group target area const : added to the area to designate a blob as a group target
-export const GROUP_TARGET_AREA_CONST = 340000; // >(640*480)
+export const GROUP_TARGET_AREA_CONST = (640*480)+1; // >(640*480)
 
 //null values
 export const NULL_BLOB_INDEX = MAX_BLOBS;
-export const NULL_RUN_BUFFER_PARTION = 3;

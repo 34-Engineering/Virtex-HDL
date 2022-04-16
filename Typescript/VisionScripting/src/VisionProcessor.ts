@@ -115,20 +115,19 @@ let trainInitDone: reg1 = 0;
 //Target Selector
 let target: Target = makeZeroTarget(); //"best" target for the last frame
 let targetCurrent: Target = makeZeroTarget(); //"best" target for the current frame
-let targetBlobA: BlobData = makeZeroBlobData();
+let targetBlobA: BlobData = makeZeroBlobData(); //cached blob A
 let targetBlobAAngle: BlobAngle;
 let targetInitStep: reg2 = 0; //0-2: init, 3: done
 let targetPartion: reg1 = 0; //alterates every cycle
 let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX]; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
 let targetWantsNewA: reg1 = 1; //wants to get a new A (takes 2 cycles)
 let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX && targetInitStep != 2); //we have wanted a new A, but now we are ready
-let targetGroupBJoined: reg1 = 0;
+let targetGroupBJoined: reg1 = 0; //whether any Bs joined cur targetA
 let targetSelectorDone: reg1 = 0;
 let targetBRAMNumber: reg1 = 0; //which BRAM to use (0=growing, 1=finished)
-let targetBRAMEnds: BlobIndex[] = [0, 0]; //max index we can go to +1 (ex 5 -> [0:4])
+let targetBRAMEnds: BlobIndex[] = [0, 0]; //max index we can go to +1 (5 -> [0:4])
 let targetBRAMOffset = (): reg2 => targetBRAMNumber ? 2 : 0;
 let targetBRAMOffsetOther = (): reg2 => targetBRAMNumber ? 0 : 2;
-
 let fixTargetIndex = (index: BlobIndex, bramNum: reg1): BlobIndex => (index < targetBRAMEnds[bramNum]) ? index : NULL_BLOB_INDEX; //return null for blob index that is above bound
 let initTargetIndexB     = (): BlobIndex => fixTargetIndex(1, targetBRAMNumber);
 let nextTargetIndexBs = [
