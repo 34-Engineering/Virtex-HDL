@@ -70,7 +70,7 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./Constants";
 let blobColorBuffer: RunBuffer[] = [];
 let faults: Faults;
 
-//Runs FIFO
+//Main
 let runFIFOEmpty: reg1 = 1, runFIFORead: reg1;
 let runFIFOOut: Run = {length:0, line:0, black:0};
 let lastLine: reg10 = 340;
@@ -196,7 +196,7 @@ function always_ff(): void {
 }
 
 //Blob Maker (runs => blobs)
-function updateBlobMaker(): reg1 {
+function updateBlobMaker(): void {
     //New Line*
     if (runFIFOOut.line != lastLine) {
         //flag reset
@@ -235,13 +235,13 @@ function updateBlobMaker(): reg1 {
                 //Run is White => Search & Join OR Make new Blob
                 else if (runFIFOOut.line > 0) {
                     _("makerState <= MakerState.SEARCH");
-                    return updateOnMakerState(MakerState.SEARCH);
+                    updateOnMakerState(MakerState.SEARCH);
                 }
 
                 //Run is White (and no line above) => Make new Blob
                 else {
                     _("makerState <= MakerState.MAKE");
-                    return updateOnMakerState(MakerState.MAKE);
+                    updateOnMakerState(MakerState.MAKE);
                 }
             }
 
@@ -252,10 +252,8 @@ function updateBlobMaker(): reg1 {
         }
 
         //Working on Run
-        else return updateOnMakerState(makerState);
+        else updateOnMakerState(makerState);
     }
-
-    return 0;
 }
 function updateOnMakerState(ustate: MakerState): reg1 {
     //Search through runs from last line & Check if this run is touching them
