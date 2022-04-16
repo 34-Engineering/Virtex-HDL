@@ -354,7 +354,7 @@ function updateOnMakerState(ustate: MakerState): reg1 {
             blobIndex: makerGrowingIndex
         });
 
-        //increment blob counter
+        //increment index
         _("makerGrowingIndex <= ", (makerGrowingIndex + 1));
 
         //prepare for new run
@@ -570,8 +570,8 @@ function updateTargetSelectorDualGroup(): void {
                 virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
             //area ratio between two blobs
-            const boundAreaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
-            const boundAreaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
+            const boundAreaLeft: BlobArea = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
+            const boundAreaRight: BlobArea = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
             const boundAreaRatioValid: reg1 = inBoundAreaRatioRange(boundAreaRight, boundAreaLeft,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
             
@@ -721,6 +721,9 @@ function doesBlobMatchCriteria(blob: BlobData): reg1 {
 
 //Combinational Logic
 function always_comb(): void {
+    if (makerGrowingIndex >= NULL_BLOB_INDEX) {
+        faults.OUT_OF_BLOB_MEM_FAULT = 1;
+    }
     if (currentLineBuffer.count >= MAX_RUNS_PER_LINE) {
         faults.OUT_OF_RLE_MEM_FAULT = 1;
     }

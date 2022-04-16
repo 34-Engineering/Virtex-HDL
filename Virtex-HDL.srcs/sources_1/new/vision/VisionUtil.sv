@@ -84,7 +84,6 @@ typedef struct packed {
     RunBufferIndex count; //number of runs filled (valid = [count-1:0])
     logic [9:0] line;
 } RunBuffer;
-localparam RunBuffer NULL_RUN_BUFFER = '{ runs:'0, count:'0, line:NULL_LINE_NUMBER };
 
 //Merge Quads
 function automatic Math::Quad10 mergeQuad10s (Math::Quad10 quad1, Math::Quad10 quad2);
