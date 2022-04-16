@@ -29,7 +29,7 @@ let drawOptions: {[index: string]: boolean} = {
     kernelLine: true,
     growingMem: true
 };
-let imageFile = '2022_Clean.png';
+let imageFile = '2022_1.png';
 const IMAGES_INPUT_PATH = '../images';
 const autoStepFrame = true;
 

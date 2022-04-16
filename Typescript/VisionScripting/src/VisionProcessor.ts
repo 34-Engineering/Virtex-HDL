@@ -116,7 +116,7 @@ let targetPartion: reg1 = 0; //alterates every cycle
 let targetIndexA: BlobIndex = NULL_BLOB_INDEX;
 let targetIndexBs: BlobIndex[] = [NULL_BLOB_INDEX, NULL_BLOB_INDEX]; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
 let targetWantsNewA: reg1 = 1; //wants to get a new A (takes 2 cycles)
-let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX); //we have wanted a new A, but now we are ready
+let targetWillGetNewA = (): reg1 => boolToReg1(Boolean(targetWantsNewA) && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX && targetInitStep != 2); //we have wanted a new A, but now we are ready
 let targetGroupBJoined: reg1 = 0;
 let targetSingleAlmostDone: reg1 = 0; //will be done next loop (single mode only)
 let targetSelectorDone: reg1 = 0;
@@ -145,6 +145,7 @@ let nextTargetIndexBs = [
 ];
 
 //200MHz Clocked Loop
+let c = 0;
 function always_ff(): void {
     //defaults & counters
     _("bramPorts[0].we <= 0");
@@ -157,7 +158,7 @@ function always_ff(): void {
     _("makerSkipCycle <= 0");
     _("makerJustResetLine <= 0");
 
-    //Reset @ New Frame
+    // Reset @ New Frame
     if (runFIFOOut.line == 0 && lastLine != 0) {
         frameReset();
     }
@@ -469,9 +470,9 @@ function updateTargetSelectorDualGroup(): void {
     /*  TS D/G Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
         targetInitStep, targetPartion, commands
         ------------------------------------------------------
-        0 - READ New A on 1
+        0 - READ New A on 0
         1 +                                 READ New B1 on 1
-        2 - SAVE A from 1                   READ New B0 on 0
+        2 - SAVE A from 0                   READ New B0 on 0
         3 +                 PROCESS B1 on 1 READ New B1 on 1
         3 -                 PROCESS B0 on 0 READ New B0 on 0
         3 +                 PROCESS B1 on 1 READ New B1 on 1
@@ -492,13 +493,12 @@ function updateTargetSelectorDualGroup(): void {
     //Swap Partion
     _("targetPartion <= ", boolToReg1(!targetPartion));
 
-    //SAVE A from 1
+    //SAVE A from 0
     if (targetInitStep == 2) {
-        process.stdout.write(" save a\n");
-        console.log(JSON.stringify(bramPorts[targetBRAMOffset()+1].dout));
-        console.log(JSON.stringify(targetBRAMNumber ? growingBlobsBRAM.mem[targetIndexA] : finishedBlobsBRAM.mem[targetIndexA]));
-        _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()+1].dout));
-        _("targetBlobA <= ", bramPorts[targetBRAMOffset()+1].dout);
+        process.stdout.write(" save a<" + bramPorts[targetBRAMOffset()].dout.area + ">");
+        process.stdout.write("{" + (targetBRAMOffset()) + "}");
+        _("targetBlobAAngle <= ", calcBlobAngle(bramPorts[targetBRAMOffset()].dout));
+        _("targetBlobA <= ", bramPorts[targetBRAMOffset()].dout);
     }
 
     //PROCESS
@@ -521,15 +521,22 @@ function updateTargetSelectorDualGroup(): void {
             const blobsBoundAreaRatioValid: reg1 = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
 
-            process.stdout.write(` process (gx:${gapX},gy:${gapY},ba:${groupTargetA.blobBoundArea},bb:${groupTargetB.blobBoundArea})=>`);
+            process.stdout.write(` process{${targetBRAMOffset()+targetPartion}}`);//=>(gx:${gapX},gy:${gapY},ba:${groupTargetA.blobBoundArea},bb:${groupTargetB.blobBoundArea})=>`);
 
             //join B to A
             if (gapValid && blobsBoundAreaRatioValid) {
                 process.stdout.write("join");
 
+                console.log();
+                console.log();
+                console.log(groupTargetA);
+                console.log("+>");
+                console.log(mergeGroupTargets(groupTargetA, groupTargetB));
+                console.log();
+                console.log();
+
                 //make new group target & save
-                const newTargetBlobA: BlobData = asBlob(mergeGroupTargets(groupTargetA, groupTargetB));
-                _("targetBlobA <= ", newTargetBlobA);
+                _("targetBlobA <= ", asBlob(mergeGroupTargets(groupTargetA, groupTargetB)));
 
                 //Flag B Joined
                 _("targetGroupBJoined <= 1");
@@ -537,7 +544,7 @@ function updateTargetSelectorDualGroup(): void {
 
             //copy B over to other BRAM
             else {
-                process.stdout.write("copy{"+targetBRAMEnds[boolToReg1(!targetBRAMNumber)]+"}");
+                process.stdout.write("copy{"+targetBRAMOffsetOther() + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)]+"}");
                 //write to newest slot
                 _(`bramPorts[${targetBRAMOffsetOther()}].din <= `, targetBlobB);
                 _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)]);
@@ -631,7 +638,7 @@ function updateTargetSelectorDualGroup(): void {
             //Save New B0|1 Index1
             _(`targetIndexBs[${targetPartion}] <= `, nextTargetIndexBs[targetPartion]());
 
-            process.stdout.write(" read new b");
+            process.stdout.write(" read new b{" + (targetBRAMOffset()+targetPartion) + "," + nextTargetIndexBs[targetPartion]() + "}");
         }
     }
 
@@ -669,20 +676,26 @@ function updateTargetSelectorDualGroup(): void {
                 //increment slot counter
                 _(`targetBRAMEnds[${boolToReg1(!targetBRAMNumber)}] <= `, targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + 1);
 
-                process.stdout.write(" copy{" + targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + "}");
+                process.stdout.write(" copy{" + (targetBRAMOffsetOther()+1) + "," + targetBRAMEnds[boolToReg1(!targetBRAMNumber)] + "}");
             }
 
             //No B's joined -> finish target
-            else if (boundAreaValid && aspectRatioValid && blobCountValid &&
-                (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
-                
-                //make Best Target
-                _("targetCurrent <= ", targetA);
-    
-                //flag Just Set
-                justSetTargetCurrent = 1;
+            else {
+                console.log();
+                console.log(targetA, {boundAreaValid, aspectRatioValid, blobCountValid}, isTargetNull(targetCurrent), 
+                    distSqToTargetCenter(targetA.center), distSqToTargetCenter(targetCurrent.center), 
+                    distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center));
+                if (boundAreaValid && aspectRatioValid && blobCountValid &&
+                    (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) {
+                    
+                    //make Best Target
+                    _("targetCurrent <= ", targetA);
+        
+                    //flag Just Set
+                    justSetTargetCurrent = 1;
 
-                process.stdout.write(" best");
+                    process.stdout.write(" best");
+                }
             }
         }
 
@@ -693,7 +706,7 @@ function updateTargetSelectorDualGroup(): void {
             console.log(" > Target Selector Done < ");
 
             //transfer best target to target
-            _("target <= ", justSetTargetCurrent ? targetCurrent : targetA);
+            _("target <= ", justSetTargetCurrent ? targetA : targetCurrent);
 
             //flag
             _("targetSelectorDone <= 1");
@@ -701,8 +714,10 @@ function updateTargetSelectorDualGroup(): void {
 
         //READ New A & B0|1 (if not end frame AND valid New B for DUAL mode)
         else if (nextInitTargetIndexB() !== NULL_BLOB_INDEX) {
-            //READ New A on 1
-            _(`bramPorts[${targetBRAMOffsetOther()}].addr <= `, nextTargetIndexA()); //FIXME conflict with line 665
+            const addr = (virtexConfig.targetMode != TargetMode.GROUP || targetIndexA == NULL_BLOB_INDEX) ? targetBRAMOffset() : targetBRAMOffsetOther();
+
+            //READ New A on 0
+            _(`bramPorts[${addr}].addr <= `, nextTargetIndexA());
 
             //Update State
             _("targetWantsNewA <= 0");
@@ -710,6 +725,8 @@ function updateTargetSelectorDualGroup(): void {
             _("targetInitStep <= 1");
 
             process.stdout.write(" read new a");
+            process.stdout.write("<" + (targetBRAMNumber ? finishedBlobsBRAM.mem[nextTargetIndexA()].area : growingBlobsBRAM.mem[nextTargetIndexA()].area) + ">");
+            process.stdout.write("{" + addr + "," + nextTargetIndexA() + "}");
         }
         
         //Set New A

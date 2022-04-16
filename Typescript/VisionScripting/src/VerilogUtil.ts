@@ -54,6 +54,8 @@ class BlobBRAM {
     }
 
     update(obj: {addra: BlobIndex, dina: BlobData, wea: reg1, addrb: BlobIndex, dinb: BlobData, web: reg1}): [BlobData, BlobData] {
+        //FIXME memory conflict
+
         //Port A Read/Write
         const douta: BlobData = deepCopy(this.lastDouta);
         if (obj.wea) {
