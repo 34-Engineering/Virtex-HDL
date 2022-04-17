@@ -219,22 +219,24 @@ module PythonManager(
     always_comb for (int i = 0; i < 8; i++) kernel[i] = kernelUnflipped[PYTHON_KERNEL_MASK[kernelOdd ? (7-i) : i]];
 
     //Run Length Encoding (Kernels -> Runs)
-    localparam THRESHOLD_TEMP = 8'd20;
     Run rleCurrentRun = '0;
     reg [7:0] rleKernel;
-    reg [7:0] kernelThreshold;
-    always_comb for (int i = 0; i < 8; i++) kernelThreshold[i] = kernel[i] > THRESHOLD_TEMP;
     Math::Vector2d10 rleKernelPos = '0;
     reg [2:0] rleKernelX;
     reg rleInKernel = '0;
     reg lastKernelDone;
+    
+    localparam THRESHOLD_TEMP = 8'd20;
+    reg [7:0] kernelThreshold;
+    always_comb for (int i = 0; i < 8; i++) kernelThreshold[i] = kernel[i] > THRESHOLD_TEMP;
+
     always_ff @(negedge CLK288) begin //kernels are output @ 36MHz so we can process each pixel @ (36*8)MHz
         runFIFOWrite <= 0;
         
         //Process each Pixel in Kernel
         if (rleInKernel) begin
             //New Run @ Color Change
-            if (rleKernel[rleKernelX] != rleCurrentRun.black) begin
+            if (rleKernel[7-rleKernelX] != rleCurrentRun.black) begin
                 //end old run
                 if (rleCurrentRun.length != 0) begin
                     runFIFOIn <= rleCurrentRun;
@@ -245,7 +247,7 @@ module PythonManager(
                 rleCurrentRun <= '{
                     length: 1,
                     line: rleKernelPos.y,
-                    black: rleKernel[rleKernelX]
+                    black: rleKernel[7-rleKernelX]
                 };
             end
 
@@ -255,7 +257,7 @@ module PythonManager(
             end
 
             //End Kernel
-            if (rleKernelX == 6) rleInKernel <= 0;
+            if (rleKernelX == 7) rleInKernel <= 0;
 
             //Move to Next Pixel
             rleKernelX <= rleKernelX + 1;

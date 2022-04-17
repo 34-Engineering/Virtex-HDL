@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
 import * as v8 from 'v8';
-import { drawRect } from '../BlobScripting/util/DrawUtil';
+import { drawRect } from '../VisionScripting/src/DrawUtil';
 
 //Express (PC->Web)
 const app: express.Application = express();

@@ -370,6 +370,16 @@ module VisionProcessor(
                 bramPorts[2].we <= 1;
                 trainFinishedIndex <= trainFinishedIndex + 1;
                 targetBRAMEnds[1] <= trainFinishedIndex + 1;
+
+                begin
+                    automatic BlobData blob = bramPorts[trainPartion].dout;
+                    automatic int fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
+                    if (!fd) $display(" <===> ERROR OPENING FILE <===>");
+                    else $display(" <---> WROTE FILE <--->");
+                    $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                    $fclose(fd);
+                    $display("{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                end
             end
             
             //Update Single Mode Target Selector
@@ -701,6 +711,8 @@ module VisionProcessor(
 
     //Global Reset for New Frame
     task frameReset();
+        $display(" --- FRAME RESET --- ");
+
         //Flag Reset
         justResetFrame <= 1;
 

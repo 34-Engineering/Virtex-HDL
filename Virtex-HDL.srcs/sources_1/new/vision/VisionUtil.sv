@@ -10,7 +10,7 @@
 //Index Types
 typedef logic [$clog2(MAX_BLOBS+3)-1:0] BlobIndex; //+3 is to account for NULL_BLOB_INDEX & NULL_BLACK_RUN_BLOB_INDEX)
 typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is the +2 for? there is no null, dont we just need +1?
-typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST):0] BlobArea; //[19:0]
+typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST + 1):0] BlobArea; //[20:0]
 
 //Blob Data
 typedef struct packed { //144-bit //FIXME WARNING: [Synth 8-689] width (145) of port connection 'dina' does not match port width (144) of module 'blk_mem_blobs'
@@ -23,7 +23,7 @@ typedef struct packed { //144-bit //FIXME WARNING: [Synth 8-689] width (145) of 
     Math::Vector2d10 boundBottomRight; //20-bit
     Math::Quad10 quad; //80-bit
     BlobArea area; //20-bit
-    logic [3:0] reserved; //4-bit
+    logic [2:0] reserved; //4-bit
 } BlobData;
 
 //Blob Metadata
