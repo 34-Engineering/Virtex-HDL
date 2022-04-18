@@ -153,7 +153,7 @@ module VisionProcessor(
         
         //Read from FIFO
         else if (~runFIFOEmpty) begin
-                runFIFORead <= 1;
+            runFIFORead <= 1;
             if (~targetSelectorDone) begin
                 BLOB_PROCESSOR_SLOW_FAULT <= 1;
             end
@@ -197,6 +197,8 @@ module VisionProcessor(
             if (makerState == NONE) begin
                 //Process FIFO Read
                 if (runFIFORead | makerJustResetLine | justResetFrame) begin
+                    $display("PROCESS NEW FIFO READ(runFIFORead:%b,makerJustResetLine:%b,justResetFrame:%b",
+                        runFIFORead, makerJustResetLine, justResetFrame);
                     //Run is Black => Continue
                     if (runFIFOOut.black) begin
                         currentLineBuffer.runs[currentLineBuffer.count] <= '{
@@ -345,8 +347,11 @@ module VisionProcessor(
         //reset state
         makerState <= NONE;
 
+        $display("FINISH RUN(start:%d,end:%d,line:%d,eE:%d,eL:%d)", currentLineBufferX, (currentLineBufferX + runFIFOOut.length - 1),
+            runFIFOOut.line, (IMAGE_WIDTH-1), (IMAGE_HEIGHT-1));
+
         //finish
-        if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) & runFIFOOut.line == IMAGE_HEIGHT-1) begin
+        if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) & runFIFOOut.line == (IMAGE_HEIGHT-1)) begin
             makerState <= DONE;
         end
         
@@ -371,15 +376,15 @@ module VisionProcessor(
                 trainFinishedIndex <= trainFinishedIndex + 1;
                 targetBRAMEnds[1] <= trainFinishedIndex + 1;
 
-                begin
-                    automatic BlobData blob = bramPorts[trainPartion].dout;
-                    automatic int fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
-                    if (!fd) $display(" <===> ERROR OPENING FILE <===>");
-                    else $display(" <---> WROTE FILE <--->");
-                    $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
-                    $fclose(fd);
-                    $display("{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
-                end
+                // begin
+                    // automatic BlobData blob = bramPorts[trainPartion].dout;
+                    // automatic int fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
+                    // if (!fd) $display(" <===> ERROR OPENING FILE <===>");
+                    // else $display(" <---> WROTE FILE <--->");
+                    // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                    // $fclose(fd);
+                    // $display("{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                // end
             end
             
             //Update Single Mode Target Selector
@@ -396,6 +401,11 @@ module VisionProcessor(
         //Read Blob from "Growing" BRAM
         bramPorts[trainPartion].addr <= trainGrowingIndex + 1;
         trainGrowingIndex <= trainGrowingIndex + 1;
+
+        //(sim only)
+        if (trainAlmostDone) begin
+            $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
+        end
     endtask
 
     //Target Selector (blobs => target)
@@ -699,18 +709,9 @@ module VisionProcessor(
         return nonZero && aspectRatioValid & boundAreaValid & fullnessValid & angleValid;
     endfunction
 
-    //Fault Logic
-    always_comb begin
-        if (makerGrowingIndex >= NULL_BLOB_INDEX) begin
-            OUT_OF_BLOB_MEM_FAULT = 1;
-        end
-        if (currentLineBuffer.count >= MAX_RUNS_PER_LINE) begin
-            OUT_OF_RLE_MEM_FAULT = 1;
-        end
-    end
-
     //Global Reset for New Frame
     task frameReset();
+        //(sim only)
         $display(" --- FRAME RESET --- ");
 
         //Flag Reset
@@ -776,5 +777,11 @@ module VisionProcessor(
         .rd_clk(CLK200),
         .rst(1'b0)
     );
-    always_comb if (runFIFOFull) RUN_FIFO_FULL_FAULT = 1;
+
+    //Fault Logic
+    always_comb begin
+        if (makerGrowingIndex >= NULL_BLOB_INDEX) OUT_OF_BLOB_MEM_FAULT = 1;
+        if (currentLineBuffer.count >= MAX_RUNS_PER_LINE)  OUT_OF_RLE_MEM_FAULT = 1;
+        if (runFIFOFull) RUN_FIFO_FULL_FAULT = 1;
+    end
 endmodule

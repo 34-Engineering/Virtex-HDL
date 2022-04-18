@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="VisionTest_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="Math" />
+            <top_module name="VisionTest" />
+            <top_module name="\$unit_VisionProcessor_sv " />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="4,218.000001 us"></ZoomEndTime>
+      <Cursor1Time time="0.111101 us"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="252"></NameColumnWidth>
+      <ValueColumnWidth column_width="78"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="21" />
+   <wvobject fp_name="/VisionTest/CLK288" type="logic">
+      <obj_property name="ElementShortName">CLK288</obj_property>
+      <obj_property name="ObjectShortName">CLK288</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/CLK200" type="logic">
+      <obj_property name="ElementShortName">CLK200</obj_property>
+      <obj_property name="ObjectShortName">CLK200</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/runFIFOIn" type="array">
+      <obj_property name="ElementShortName">runFIFOIn</obj_property>
+      <obj_property name="ObjectShortName">runFIFOIn</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/runFIFOWrite" type="logic">
+      <obj_property name="ElementShortName">runFIFOWrite</obj_property>
+      <obj_property name="ObjectShortName">runFIFOWrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFOEmpty" type="logic">
+      <obj_property name="ElementShortName">runFIFOEmpty</obj_property>
+      <obj_property name="ObjectShortName">runFIFOEmpty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFORead" type="logic">
+      <obj_property name="ElementShortName">runFIFORead</obj_property>
+      <obj_property name="ObjectShortName">runFIFORead</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/target" type="array">
+      <obj_property name="ElementShortName">target</obj_property>
+      <obj_property name="ObjectShortName">target</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/makerState" type="array">
+      <obj_property name="ElementShortName">makerState[31:0]</obj_property>
+      <obj_property name="ObjectShortName">makerState[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/makerGrowingIndex" type="array">
+      <obj_property name="ElementShortName">makerGrowingIndex[8:0]</obj_property>
+      <obj_property name="ObjectShortName">makerGrowingIndex[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetSelectorDone" type="logic">
+      <obj_property name="ElementShortName">targetSelectorDone</obj_property>
+      <obj_property name="ObjectShortName">targetSelectorDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainFinishedIndex" type="array">
+      <obj_property name="ElementShortName">trainFinishedIndex[8:0]</obj_property>
+      <obj_property name="ObjectShortName">trainFinishedIndex[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainGrowingIndex" type="array">
+      <obj_property name="ElementShortName">trainGrowingIndex[8:0]</obj_property>
+      <obj_property name="ObjectShortName">trainGrowingIndex[8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainAlmostDone" type="logic">
+      <obj_property name="ElementShortName">trainAlmostDone</obj_property>
+      <obj_property name="ObjectShortName">trainAlmostDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainDone" type="logic">
+      <obj_property name="ElementShortName">trainDone</obj_property>
+      <obj_property name="ObjectShortName">trainDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainPartion" type="logic">
+      <obj_property name="ElementShortName">trainPartion</obj_property>
+      <obj_property name="ObjectShortName">trainPartion</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/trainInitDone" type="logic">
+      <obj_property name="ElementShortName">trainInitDone</obj_property>
+      <obj_property name="ObjectShortName">trainInitDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetCurrent" type="array">
+      <obj_property name="ElementShortName">targetCurrent</obj_property>
+      <obj_property name="ObjectShortName">targetCurrent</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetInitStep" type="array">
+      <obj_property name="ElementShortName">targetInitStep[1:0]</obj_property>
+      <obj_property name="ObjectShortName">targetInitStep[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetPartion" type="logic">
+      <obj_property name="ElementShortName">targetPartion</obj_property>
+      <obj_property name="ObjectShortName">targetPartion</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetIndexBs" type="array">
+      <obj_property name="ElementShortName">targetIndexBs[0:1][8:0]</obj_property>
+      <obj_property name="ObjectShortName">targetIndexBs[0:1][8:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/VisionTest/VisionProcessor/targetSelectorDone" type="logic">
+      <obj_property name="ElementShortName">targetSelectorDone</obj_property>
+      <obj_property name="ObjectShortName">targetSelectorDone</obj_property>
+   </wvobject>
+</wave_config>

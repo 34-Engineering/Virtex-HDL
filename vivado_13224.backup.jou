@@ -1,0 +1,15 @@
+#-----------------------------------------------------------
+# Vivado v2021.1 (64-bit)
+# SW Build 3247384 on Thu Jun 10 19:36:33 MDT 2021
+# IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+# Start of session at: Mon Apr 18 14:00:02 2022
+# Process ID: 13224
+# Current directory: C:/Users/liams/Documents/GitHub/Virtex-HDL
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent19772 C:\Users\liams\Documents\GitHub\Virtex-HDL\Virtex-HDL.xpr
+# Log file: C:/Users/liams/Documents/GitHub/Virtex-HDL/vivado.log
+# Journal file: C:/Users/liams/Documents/GitHub/Virtex-HDL\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project C:/Users/liams/Documents/GitHub/Virtex-HDL/Virtex-HDL.xpr
+launch_simulation
+launch_runs synth_1 -jobs 20
