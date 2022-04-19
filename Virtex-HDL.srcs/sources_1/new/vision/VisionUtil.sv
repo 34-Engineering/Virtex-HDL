@@ -160,34 +160,33 @@ function automatic BlobAngle calcBlobAngle(BlobData blob);
 endfunction
 
 //Runs Overlap
-function automatic logic runsOverlap(Run run1, logic [9:0] start1, Run run2, logic [9:0] start2);
+function automatic logic runsOverlap(reg [9:0] start1, stop1, start2, stop2);
     //widen run1 to join diagonals, then check overlap
-    logic [9:0] stop1 = run1.length + start1 - 1;
-    logic [9:0] stop2 = run2.length + start2 - 1;
-    return (start2 >= start1-(start1==0?0:1) & start2 <= stop1+1) | //start2 inside run1
-           (stop2  >= start1-(start1==0?0:1) & stop2  <= stop1+1) | //stop2 inside run1
-           (start2 <  start1-(start1==0?0:1) & stop2  >  stop1+1);   //run2 covers all of run1
+    return (
+        (start2 >= start1-(start1==0?0:1) && start2 <= stop1+1) || //start2 inside run1
+        (stop2  >= start1-(start1==0?0:1) && stop2  <= stop1+1) || //stop2 inside run1
+        (start2 <  start1-(start1==0?0:1) && stop2  >  stop1+1)    //run2 covers all of run1
+    );
 endfunction
 
 //Run to Blob
-function automatic BlobData runToBlob(Run run, logic [9:0] start, logic [9:0] line);
-    logic [9:0] stop = run.length + start - 1;
+function automatic BlobData runToBlob(reg [9:0] start, length, line);
+    reg [9:0] stop = length + start - 1;
     return '{
         boundTopLeft:     '{x:start , y:line  },
         boundBottomRight: '{x:stop+1, y:line+1},
         quad: '{
-            topLeft:     '{x:start , y:line  },
-            topRight:    '{x:stop+1, y:line  },
-            bottomRight: '{x:stop+1, y:line+1},
-            bottomLeft:  '{x:start , y:line+1}
+            topLeft:      '{x:start , y:line  },
+            topRight:     '{x:stop+1, y:line  },
+            bottomRight:  '{x:stop+1, y:line+1},
+            bottomLeft:   '{x:start , y:line+1}
         },
-        area: run.length,
+        area: length,
         reserved: '0
     };
 endfunction
 
 //Target Null
-localparam Target NULL_TARGET = '{ center:'0, width:'0, height:'0, blobCount:'0, angle:HORIZONTAL };
 function automatic logic isTargetNull(Target target);
     return target.blobCount == 0;
 endfunction

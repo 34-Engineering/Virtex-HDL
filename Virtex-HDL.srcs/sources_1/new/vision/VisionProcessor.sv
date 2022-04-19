@@ -101,8 +101,8 @@ module VisionProcessor(
     //Blob Train
     BlobIndex trainFinishedIndex = '0;
     BlobIndex trainGrowingIndex = '0;
-    wire trainAlmostDone = trainGrowingIndex == makerGrowingIndex;
-    wire trainDone = trainGrowingIndex == (makerGrowingIndex+1); //+1 because the train needs to finish the last index
+    wire trainAlmostDone = trainGrowingIndex == (makerGrowingIndex+1);
+    wire trainDone = trainGrowingIndex == (makerGrowingIndex+2); //+2 because the train needs to finish the last index
     reg trainPartion = '0;
     reg trainInitDone = '0;
 
@@ -343,9 +343,10 @@ module VisionProcessor(
             blobFinishRun();
 
             //FIXME
-            $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", 
-                currentRunAsBlob.boundTopLeft.x, currentRunAsBlob.boundTopLeft.y, 
-                currentRunAsBlob.boundBottomRight.x, currentRunAsBlob.boundBottomRight.y);
+            $display("MAKE NEW BLOB @ %d", makerGrowingIndex);
+            // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", 
+            //     currentRunAsBlob.boundTopLeft.x, currentRunAsBlob.boundTopLeft.y, 
+            //     currentRunAsBlob.boundBottomRight.x, currentRunAsBlob.boundBottomRight.y);
         end
     endtask
     task blobFinishRun();
@@ -374,12 +375,22 @@ module VisionProcessor(
 
         trainPartion <= ~trainPartion;
 
+        $display("TRAINING finI:%d,grwI:%d(mkrG:%d),almD:%d,actD:%d,par:%d,iniD:%d",
+            trainFinishedIndex, trainGrowingIndex, makerGrowingIndex,
+            trainAlmostDone, trainDone, trainPartion, trainInitDone
+        );
+
         if (trainInitDone) begin
             //FIXME
             begin
                 automatic BlobData blob = bramPorts[trainPartion].dout;
-                // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
-                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n",
+                    blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y
+                );
+                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d",
+                    blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y,
+                    bramPorts[trainPartion].addr
+                );
             end
 
             //Transfer Good Blobs to "Finished" BRAM
@@ -403,7 +414,7 @@ module VisionProcessor(
         end
 
         //Read Blob from "Growing" BRAM
-        bramPorts[trainPartion].addr <= trainGrowingIndex + 1;
+        bramPorts[trainPartion].addr <= trainGrowingIndex;
         trainGrowingIndex <= trainGrowingIndex + 1;
 
         //FIXME (sim only)

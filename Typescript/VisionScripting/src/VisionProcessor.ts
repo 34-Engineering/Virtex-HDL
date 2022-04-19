@@ -107,8 +107,8 @@ let currentRunHasJoinedBlob = (): reg1 => boolToReg1(currentLineBuffer.runs[curr
 //Blob Train
 let trainFinishedIndex: BlobIndex = 0;
 let trainGrowingIndex: BlobIndex = 0;
-let trainAlmostDone = (): reg1 => boolToReg1(trainGrowingIndex == makerGrowingIndex);
-let trainDone = (): reg1 => boolToReg1(trainGrowingIndex == (makerGrowingIndex+1)); //+1 because the train needs to finish the last index
+let trainAlmostDone = (): reg1 => boolToReg1(trainGrowingIndex == (makerGrowingIndex+1));
+let trainDone = (): reg1 => boolToReg1(trainGrowingIndex == (makerGrowingIndex+2)); //+2 because the train needs to finish the last index
 let trainPartion: reg1 = 0;
 let trainInitDone: reg1 = 0;
 
@@ -411,7 +411,7 @@ function updateBlobTrain(): void {
     }
 
     //Read Blob from "Growing" BRAM
-    _(`bramPorts[${trainPartion}].addr <= `, trainGrowingIndex + 1);
+    _(`bramPorts[${trainPartion}].addr <= `, trainGrowingIndex);
     _("trainGrowingIndex <= ", trainGrowingIndex + 1);
 
     //(scripting only)

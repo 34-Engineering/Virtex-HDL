@@ -4,7 +4,7 @@ import { BlobArea, BlobIndex, boolToReg1, reg1, reg10, reg16, reg6, signed_reg10
 import { GROUP_TARGET_AREA_CONST } from "./VisionConstants";
 
 //Blob Data
-export interface BlobData { //104-bit
+export interface BlobData { //144-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)

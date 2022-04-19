@@ -136,3 +136,26 @@ run all
 relaunch_sim
 run all
 run all
+save_wave_config {C:/Users/liams/Documents/GitHub/Virtex-HDL/VisionTest_behav.wcfg}
+relaunch_sim
+run all
+relaunch_sim
+run all
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+restart
+run all
+relaunch_sim
+run all
+relaunch_sim
+relaunch_sim
+relaunch_sim
+run all

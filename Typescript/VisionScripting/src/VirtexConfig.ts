@@ -38,11 +38,11 @@ export let virtexConfig: VirtexConfig = {
     threshold: 128,
  
     //target params
-    targetMode: TargetMode.GROUP,
+    targetMode: TargetMode.DUAL_UP,
     targetBlobXGapMin: 0,
-    targetBlobXGapMax: 30,//30,
+    targetBlobXGapMax: 0xFFFF,//30,
     targetBlobYGapMin: 0,
-    targetBlobYGapMax: 30,//30,
+    targetBlobYGapMax: 0xFFFF,//30,
     targetBoundAreaRatioMin: 0.25,
     targetBoundAreaRatioMax: 1.75,
     targetBoundAreaMin: 12,
