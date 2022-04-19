@@ -129,6 +129,13 @@ module VisionProcessor(
         (targetInitStep == 1) ? initTargetIndexB : `fixTargetIndex(targetIndexBs[0] + 1, targetBRAMNumber)
     };
 
+    //FIXME
+    int fd;
+    initial begin
+        fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
+        if (!fd) $display(" <===> ERROR OPENING FILE <===>");
+    end
+
     //200MHz Clocked Loop
     always_ff @(negedge CLK200) begin
         bramPorts[0].we <= 0;
@@ -197,8 +204,6 @@ module VisionProcessor(
             if (makerState == NONE) begin
                 //Process FIFO Read
                 if (runFIFORead | makerJustResetLine | justResetFrame) begin
-                    $display("PROCESS NEW FIFO READ(runFIFORead:%b,makerJustResetLine:%b,justResetFrame:%b",
-                        runFIFORead, makerJustResetLine, justResetFrame);
                     //Run is Black => Continue
                     if (runFIFOOut.black) begin
                         currentLineBuffer.runs[currentLineBuffer.count] <= '{
@@ -336,6 +341,11 @@ module VisionProcessor(
 
             //prepare for new run
             blobFinishRun();
+
+            //FIXME
+            $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", 
+                currentRunAsBlob.boundTopLeft.x, currentRunAsBlob.boundTopLeft.y, 
+                currentRunAsBlob.boundBottomRight.x, currentRunAsBlob.boundBottomRight.y);
         end
     endtask
     task blobFinishRun();
@@ -347,14 +357,11 @@ module VisionProcessor(
         //reset state
         makerState <= NONE;
 
-        $display("FINISH RUN(start:%d,end:%d,line:%d,eE:%d,eL:%d)", currentLineBufferX, (currentLineBufferX + runFIFOOut.length - 1),
-            runFIFOOut.line, (IMAGE_WIDTH-1), (IMAGE_HEIGHT-1));
-
         //finish
         if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) & runFIFOOut.line == (IMAGE_HEIGHT-1)) begin
             makerState <= DONE;
         end
-        
+
         //read new run
         else if (~runFIFOEmpty) begin
             runFIFORead <= 1;
@@ -368,6 +375,13 @@ module VisionProcessor(
         trainPartion <= ~trainPartion;
 
         if (trainInitDone) begin
+            //FIXME
+            begin
+                automatic BlobData blob = bramPorts[trainPartion].dout;
+                // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
+            end
+
             //Transfer Good Blobs to "Finished" BRAM
             if (blobGood) begin
                 bramPorts[2].addr <= trainFinishedIndex;
@@ -375,16 +389,6 @@ module VisionProcessor(
                 bramPorts[2].we <= 1;
                 trainFinishedIndex <= trainFinishedIndex + 1;
                 targetBRAMEnds[1] <= trainFinishedIndex + 1;
-
-                // begin
-                    // automatic BlobData blob = bramPorts[trainPartion].dout;
-                    // automatic int fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
-                    // if (!fd) $display(" <===> ERROR OPENING FILE <===>");
-                    // else $display(" <---> WROTE FILE <--->");
-                    // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
-                    // $fclose(fd);
-                    // $display("{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}", blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y);
-                // end
             end
             
             //Update Single Mode Target Selector
@@ -402,8 +406,9 @@ module VisionProcessor(
         bramPorts[trainPartion].addr <= trainGrowingIndex + 1;
         trainGrowingIndex <= trainGrowingIndex + 1;
 
-        //(sim only)
+        //FIXME (sim only)
         if (trainAlmostDone) begin
+            $fclose(fd);
             $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
         end
     endtask

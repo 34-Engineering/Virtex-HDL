@@ -115,8 +115,6 @@ module VisionTest;
                 if (rleCurrentRun.length != 0) begin
                     runFIFOIn = rleCurrentRun;
                     runFIFOWrite = 1;
-                    // $display("1SENDING'{length:%d,line:%d,black:%d} because %d!=%d", runFIFOIn.length, runFIFOIn.line, runFIFOIn.black,
-                    //     ~rleKernel[rleKernelX], rleCurrentRun.black);
                 end
 
                 //start new run
@@ -140,7 +138,6 @@ module VisionTest;
                     if (rleCurrentRun.length != 0) begin
                         runFIFOIn = rleCurrentRun;
                         runFIFOWrite = 1;
-                        // $display("2SENDING'{length:%d,line:%d,black:%d}", runFIFOIn.length, runFIFOIn.line, runFIFOIn.black);
                     end
 
                     //start run
@@ -163,10 +160,6 @@ module VisionTest;
             //     rleKernelPos <= 0;
             // end
             // endCounter <= endCounter + 1;
-        end
-
-        if (runFIFOWrite) begin
-            $display("*>SENDING'{length:%d,line:%d,black:%d}", runFIFOIn.length, runFIFOIn.line, runFIFOIn.black);
         end
     end
 
