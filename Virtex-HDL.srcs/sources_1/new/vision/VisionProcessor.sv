@@ -129,7 +129,7 @@ module VisionProcessor(
         (targetInitStep == 1) ? initTargetIndexB : `fixTargetIndex(targetIndexBs[0] + 1, targetBRAMNumber)
     };
 
-    //FIXME
+    //(sim only)
     int fd;
     initial begin
         fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
@@ -341,12 +341,6 @@ module VisionProcessor(
 
             //prepare for new run
             blobFinishRun();
-
-            //FIXME
-            $display("MAKE NEW BLOB @ %d", makerGrowingIndex);
-            // $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n", 
-            //     currentRunAsBlob.boundTopLeft.x, currentRunAsBlob.boundTopLeft.y, 
-            //     currentRunAsBlob.boundBottomRight.x, currentRunAsBlob.boundBottomRight.y);
         end
     endtask
     task blobFinishRun();
@@ -375,21 +369,16 @@ module VisionProcessor(
 
         trainPartion <= ~trainPartion;
 
-        $display("TRAINING finI:%d,grwI:%d(mkrG:%d),almD:%d,actD:%d,par:%d,iniD:%d",
-            trainFinishedIndex, trainGrowingIndex, makerGrowingIndex,
-            trainAlmostDone, trainDone, trainPartion, trainInitDone
-        );
-
         if (trainInitDone) begin
-            //FIXME
+            //(sim only)
             begin
                 automatic BlobData blob = bramPorts[trainPartion].dout;
-                $fwrite(fd, "{topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n",
+                $fwrite(fd, "{blob:1, topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n",
                     blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y
                 );
-                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d",
+                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d - GOOD:%d",
                     blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y,
-                    bramPorts[trainPartion].addr
+                    bramPorts[trainPartion].addr, blobGood
                 );
             end
 
@@ -417,7 +406,7 @@ module VisionProcessor(
         bramPorts[trainPartion].addr <= trainGrowingIndex;
         trainGrowingIndex <= trainGrowingIndex + 1;
 
-        //FIXME (sim only)
+        //(sim only)
         if (trainAlmostDone) begin
             $fclose(fd);
             $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
@@ -455,9 +444,23 @@ module VisionProcessor(
 
             targetCurrent <= newTarget;
 
-            if (trainAlmostDone) target <= newTarget;
+            if (trainAlmostDone) begin
+                target <= newTarget;
+
+                //(sim only)
+                $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                    newTarget.center.x, newTarget.center.y, newTarget.width, newTarget.height, newTarget.blobCount, newTarget.angle
+                );
+            end
         end
-        else if (trainAlmostDone) target <= targetCurrent;
+        else if (trainAlmostDone) begin
+            target <= targetCurrent;
+
+            //(sim only)
+            $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                targetCurrent.center.x, targetCurrent.center.y, targetCurrent.width, targetCurrent.height, targetCurrent.blobCount, targetCurrent.angle
+            );
+        end
     endtask
     task updateTargetSelectorDualGroup();
         /*  TS Dual/Group Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
@@ -679,6 +682,14 @@ module VisionProcessor(
                 //transfer best target to target
                 target <= justSetTargetCurrent ? targetA : targetCurrent;
 
+                //(sim only)
+                begin
+                    automatic Target newTarget = justSetTargetCurrent ? targetA : targetCurrent;
+                    $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                        newTarget.center.x, newTarget.center.y, newTarget.width, newTarget.height, newTarget.blobCount, newTarget.angle
+                    );
+                end
+
                 //flag
                 targetSelectorDone <= 1;
             end
@@ -720,7 +731,7 @@ module VisionProcessor(
         reg fullnessValid = inFullnessRange(blob.area, boundArea,
             virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
 
-        reg angleValid = virtexConfig.blobAnglesEnabled[calcBlobAngle(blob)];
+        reg angleValid = virtexConfig.blobAnglesEnabled[15-calcBlobAngle(blob)];
 
         return nonZero && aspectRatioValid & boundAreaValid & fullnessValid & angleValid;
     endfunction

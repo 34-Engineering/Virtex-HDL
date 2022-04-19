@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
 import * as v8 from 'v8';
-import { drawLine, drawRect } from '../VisionScripting/src/DrawUtil';
+import { drawCenterFillSquare, drawLine, drawRect } from '../VisionScripting/src/DrawUtil';
 
 //Express (PC->Web)
 const app: express.Application = express();
@@ -47,16 +47,33 @@ setInterval(() => {
     //Copy Image
     let tempImage = v8.deserialize(v8.serialize(image));
 
-    //Read Blobs
+    //Read Objects
     const lines = fs.readFileSync("output.txt").toString().split("\n");
 
-    //Draw Blobs
+    //Draw Objects
     for (const line of lines) {
         if (line.length < 1) continue;
 
         try {
-            const blob = JSON.parse(line.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": '));
-            drawRect(tempImage.data, blob.topLeft, blob.bottomRight, [255, 0, 0, 100]);
+            const obj = JSON.parse(line.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": '));
+            
+            if (obj.target) {
+                //bound
+                drawRect(tempImage.data, {
+                    x: obj.center.x - (obj.width >> 1),
+                    y: obj.center.y - (obj.height >> 1)
+                }, {
+                    x: obj.center.x + (obj.width >> 1),
+                    y: obj.center.y + (obj.height >> 1)
+                }, [125, 255, 125, 255]);
+
+                //center
+                drawCenterFillSquare(tempImage.data, obj.center, 2, [125, 255, 125, 255]);
+            }
+
+            else if (obj.blob) {
+                drawRect(tempImage.data, obj.topLeft, obj.bottomRight, [255, 0, 0, 100]);
+            }
         }
         catch (e) { console.error("PARSE ERROR"); }
     }

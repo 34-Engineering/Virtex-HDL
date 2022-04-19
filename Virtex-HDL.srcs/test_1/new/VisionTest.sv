@@ -55,7 +55,7 @@ module VisionTest;
         targetBoundAreaMin: 0,
         targetBoundAreaMax: 16'hFFFF,//0xffff,
         targetBlobCountMin: 1,
-        targetBlobCountMax: 63,
+        targetBlobCountMax: 16'hFFFF,
         targetCenterX: IMAGE_WIDTH / 2,
         targetCenterY: IMAGE_HEIGHT / 2,
 
