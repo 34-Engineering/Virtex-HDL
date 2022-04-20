@@ -17,7 +17,7 @@ app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/s
 const server = http.createServer(app);
 
 //Read Image
-const IMAGE_URL = '../images/2019.png';
+const IMAGE_URL = '../images/2022_1.png';
 let image = PNG.sync.read(fs.readFileSync(IMAGE_URL));
 
 //Write Bitfile for System Verilog

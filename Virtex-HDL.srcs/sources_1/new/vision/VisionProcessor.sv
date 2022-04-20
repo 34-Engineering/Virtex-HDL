@@ -131,9 +131,10 @@ module VisionProcessor(
 
     //(sim only)
     int fd;
+    bit fd_closed = 0;
     initial begin
         fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
-        if (!fd) $display(" <===> ERROR OPENING FILE <===>");
+        if (!fd) begin $display(" <===> ERROR OPENING FILE <===>"); end
     end
 
     //200MHz Clocked Loop
@@ -180,7 +181,7 @@ module VisionProcessor(
         end
 
         //(sim only)
-        else if (fd) $fclose(fd);
+        else if (~fd_closed) begin $fclose(fd); fd_closed = 1; end
     end
 
     //Blob Maker (runs => blobs)
@@ -658,9 +659,6 @@ module VisionProcessor(
             automatic reg justSetTargetCurrent = 0;
             automatic BlobIndex newInvertTargetBRAMEnd = targetBRAMEnds[~targetBRAMNumber];
 
-            //(sim only)
-            $write(" READ NEW A0 FROM 0");
-
             //Reset
             targetPartion <= 0;
             targetInitStep <= 0;
@@ -682,6 +680,9 @@ module VisionProcessor(
                     bramPorts[targetBRAMOffsetOther+1].addr <= newInvertTargetBRAMEnd;
                     bramPorts[targetBRAMOffsetOther+1].we <= 1;
 
+                    //(sim only)
+                    $write(" CHAIN_NOT_DONE->COPY%b", newInvertTargetBRAMEnd);
+
                     //increment slot counter
                     newInvertTargetBRAMEnd = newInvertTargetBRAMEnd + 1;
                     targetBRAMEnds[~targetBRAMNumber] <= newInvertTargetBRAMEnd;
@@ -695,7 +696,13 @@ module VisionProcessor(
         
                     //flag
                     justSetTargetCurrent = 1;
+
+                    //(sim only)
+                    $write(" CHAIN_END->BEST_TARGET");
                 end
+
+                //(sim only)
+                else $write(" CHAIN_END->NOT_BEST_TARGET(boundAreaValid%b, aspectRatioValid%b, blobCountValid%b, nil%b)", boundAreaValid, aspectRatioValid, blobCountValid, isTargetNull(targetCurrent));
             end
 
             //Reset Slot Counter for Next Opposite BRAM Number
@@ -736,6 +743,9 @@ module VisionProcessor(
                 targetWantsNewA <= 0;
                 targetPartion <= 1;
                 targetInitStep <= 1;
+
+                //(sim only)
+                $write(" READ NEW A0 FROM 0");
             end
         end
 
