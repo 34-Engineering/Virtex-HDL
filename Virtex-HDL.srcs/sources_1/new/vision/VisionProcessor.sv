@@ -70,8 +70,11 @@ module VisionProcessor(
     output reg OUT_OF_BLOB_MEM_FAULT,
     output reg OUT_OF_RLE_MEM_FAULT, //TODO add to faults
     output reg BLOB_PROCESSOR_SLOW_FAULT,
-    output reg RUN_FIFO_FULL_FAULT
+    output reg RUN_FIFO_FULL_FAULT,
+    output reg [7:0] debug
     );
+
+    initial debug = '0;
 
     reg [9:0] lastLine = 10'd340; //init >0 so we know to reset on first frame
     reg justResetFrame = '0;
@@ -131,11 +134,13 @@ module VisionProcessor(
 
     //(sim only)
     int fd;
-    bit fd_closed = 0;
-    initial begin
+    bit fd_closed;
+    task openFile();
         fd = $fopen("../../../../Typescript/VisionDebugger/output.txt", "w");
-        if (!fd) begin $display(" <===> ERROR OPENING FILE <===>"); end
-    end
+        if (!fd) begin $display(" <===> ERROR OPENING FILE <===>"); fd_closed = 1; end
+        else fd_closed = 0;
+    endtask
+    initial openFile();
 
     //200MHz Clocked Loop
     always_ff @(negedge CLK200) begin
@@ -148,6 +153,8 @@ module VisionProcessor(
         runFIFORead <= 0;
         makerSkipCycle <= 0;
         makerJustResetLine <= 0;
+        
+        debug[0] <= 1;
 
         //Reset @ New Frame
         if (runFIFOOut.line == 0 && lastLine != 0) begin
@@ -188,6 +195,8 @@ module VisionProcessor(
     task updateBlobMaker();
         //New Line*
         if (runFIFOOut.line != lastLine) begin
+            debug[2] <= 1;
+
             //flag reset
             makerJustResetLine <= 1;
 
@@ -328,6 +337,8 @@ module VisionProcessor(
 
         //Make new Blob
         else if (ustate == MAKE) begin
+            debug[3] <= 1;
+
             //write to BRAM
             bramPorts[0].din <= currentRunAsBlob;
             bramPorts[0].addr <= makerGrowingIndex;
@@ -348,6 +359,7 @@ module VisionProcessor(
         end
     endtask
     task blobFinishRun();
+        debug[4] <= 1;
         //prepare for new run
         currentLineBufferX <= currentLineBufferX + runFIFOOut.length;
         currentLineBuffer.count <= currentLineBuffer.count + 1;
@@ -370,7 +382,9 @@ module VisionProcessor(
     //Blob Train ("Growing" BRAM -> "Finished" BRAM) (Note: automatically does target selection for single target mode)
     task updateBlobTrain();
         automatic reg blobGood = doesBlobMatchCriteria(bramPorts[trainPartion].dout);
-
+        
+        debug[5] <= 1;
+        
         trainPartion <= ~trainPartion;
 
         if (trainInitDone) begin
@@ -439,6 +453,8 @@ module VisionProcessor(
         automatic reg boundAreaValid = inBoundAreaRange(width * height,
             virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
 
+        debug[6] <= 1;
+
         //if this target is valid AND this target is better OR we dont have a target yet
         if (blobValid && aspectRatioValid && boundAreaValid &&
             (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
@@ -449,6 +465,8 @@ module VisionProcessor(
                 blobCount: 1,
                 angle: calcBlobAngle(blob)
             };
+
+            debug[7] <= 1;
 
             targetCurrent <= newTarget;
 
@@ -791,6 +809,8 @@ module VisionProcessor(
     task frameReset();
         //(sim only)
         $display(" --- FRAME RESET --- ");
+        openFile();
+        debug[1] <= 1;
 
         //Flag Reset
         justResetFrame <= 1;

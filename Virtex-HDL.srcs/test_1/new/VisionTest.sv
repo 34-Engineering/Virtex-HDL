@@ -18,17 +18,16 @@ module VisionTest;
     always #(500/288) CLK288 <= ~CLK288;
     always #(500/200) CLK200 <= ~CLK200;
 
-    Run rleCurrentRun = '{length:0, line:0, black:~image[0][7]};
-    Math::Vector2d10 rleKernelPos = '0;
+    Run rleCurrentRun;
+    Math::Vector2d10 rleKernelPos;
     wire [7:0] rleKernel = image[rleKernelPos.y * 80 + rleKernelPos.x];
-    reg [2:0] rleKernelX = '0;
+    reg [2:0] rleKernelX;
 
     Run runFIFOIn = '0;
     reg runFIFOWrite = '0;
     Target target;
 
-    reg [10:0] endCounter = '0;
-    reg [7:0] _wait = 255;
+    int _wait = 255;
 
     VirtexConfig cfg = '{
         //camera params & python config
@@ -107,7 +106,17 @@ module VisionTest;
     always_ff @(negedge CLK288) begin
         runFIFOWrite = 0;
 
-        if (_wait != 0) _wait = _wait - 1;
+        //Reset
+        if (_wait != 0) begin
+            _wait = _wait - 1;
+            rleCurrentRun = '{length:0, line:0, black:~image[0][7]};
+            rleKernelPos = '0;
+            rleKernelX = '0;
+            runFIFOIn = '0;
+            runFIFOWrite = '0;
+        end
+
+        //Readout
         else if (rleKernelPos.y < 480) begin
             //New Run @ Color Change
             if (~rleKernel[7-rleKernelX] != rleCurrentRun.black) begin
@@ -154,13 +163,9 @@ module VisionTest;
             
             rleKernelX = rleKernelX + 1;
         end
-        else begin
-            // //new frame
-            // if (endCounter == 2047) begin
-            //     rleKernelPos <= 0;
-            // end
-            // endCounter <= endCounter + 1;
-        end
+
+        //Frame End -> Reset after 200us
+        else _wait = 57600;
     end
 
     VisionProcessor VisionProcessor(

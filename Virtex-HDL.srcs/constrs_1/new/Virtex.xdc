@@ -141,6 +141,8 @@ set_property IOSTANDARD LVDS_25 [get_ports {PYTHON_DOUT_*}]
 # 280MHZ (8-bit Mode) Input Clock not on MRCC pin ❤️
 set PYTHON_CLK_PERIOD [expr 1000.0/280.0]
 create_clock -add -name PYTHON_CLK_P -period $PYTHON_CLK_PERIOD [get_ports PYTHON_CLK_P]
+#FIXME
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets PythonManager/LVDS_CLK_IBUF_n_0]
 
 # Python/Image Sensor IO
 set_property PACKAGE_PIN T10 [get_ports {PYTHON_SPI_CS}]

@@ -68,7 +68,7 @@ module PythonManager(
     output reg [7:0] debug
     );
 
-    wire CLK288, CLK72;
+    // wire CLK288, CLK72;
     wire isSequencerEnabled; //whether the sequencer is actually enabled (~2.6us delay from sequencerEnabled if training is done)
     wire isBooted; //whether the python is booted (required registgers are booted)
     wire SYNC_SERIAL;
@@ -80,7 +80,7 @@ module PythonManager(
     //Blob Processor
     Run runFIFOIn;
     reg runFIFOWrite;
-    (* keep_hierarchy = "yes" *) VisionProcessor VisionProcessor(
+    VisionProcessor VisionProcessor(
         .CLK288(CLK288),
         .CLK200(CLK200),
         .runFIFOIn(runFIFOIn),
@@ -90,7 +90,8 @@ module PythonManager(
         .OUT_OF_BLOB_MEM_FAULT(OUT_OF_BLOB_MEM_FAULT),
         .OUT_OF_RLE_MEM_FAULT(OUT_OF_RLE_MEM_FAULT),
         .BLOB_PROCESSOR_SLOW_FAULT(BLOB_PROCESSOR_SLOW_FAULT),
-        .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT)
+        .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT),
+        .debug()
     );
 
     //Python SPI Manager
@@ -110,14 +111,14 @@ module PythonManager(
         .isBooted(isBooted),
         .virtexConfig(virtexConfig),
         .PYTHON_300_PLL_FAULT(PYTHON_300_PLL_FAULT),
-        .debug(debug)
+        .debug()
     );
 
     //LVDS Input Buffers
-    IBUFGDS #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_CLK_IBUF   (.O(CLK288    ),.I(LVDS_CLK_P    ),.IB(LVDS_CLK_N     ));
-    IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
-    LVDS_SYNC_IBUF  (.O(SYNC_SERIAL   ),.I(LVDS_SYNC_P   ),.IB(LVDS_SYNC_N    ));
+    // IBUFGDS #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
+    // LVDS_CLK_IBUF   (.O(CLK288    ),.I(LVDS_CLK_P    ),.IB(LVDS_CLK_N     ));
+    // IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
+    // LVDS_SYNC_IBUF  (.O(SYNC_SERIAL   ),.I(LVDS_SYNC_P   ),.IB(LVDS_SYNC_N    ));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
     LVDS_DOUT0_IBUF (.O(DOUT_SERIAL[0]),.I(LVDS_DOUT_P[0]),.IB(LVDS_DOUT_N[0]));
     IBUFDS  #(.DIFF_TERM("TRUE"),.IBUF_LOW_PWR("FALSE"),.IOSTANDARD("LVDS_25"))
@@ -130,7 +131,7 @@ module PythonManager(
     //ISERDES (288 MHz DDR; 576 Mb/s per line)
     wire SERDES_RESET = ~isBooted; //active high
     PythonISERDES SYNC_ISERDES(
-        .SERIAL_CLK(CLK288),
+        // .SERIAL_CLK(CLK288),
         .SERIAL_DATA(SYNC_SERIAL),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(SYNC),
@@ -138,7 +139,7 @@ module PythonManager(
         .trainingDone(trainingDone[0])
     );
     PythonISERDES DOUT_0_ISERDES(
-        .SERIAL_CLK(CLK288),
+        // .SERIAL_CLK(CLK288),
         .SERIAL_DATA(DOUT_SERIAL[0]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[0]),
@@ -146,7 +147,7 @@ module PythonManager(
         .trainingDone(trainingDone[1])
     );
     PythonISERDES DOUT_1_ISERDES (
-        .SERIAL_CLK(CLK288),
+        // .SERIAL_CLK(CLK288),
         .SERIAL_DATA(DOUT_SERIAL[1]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[1]),
@@ -154,7 +155,7 @@ module PythonManager(
         .trainingDone(trainingDone[2])
     );
     PythonISERDES DOUT_2_ISERDES(
-        .SERIAL_CLK(CLK288),
+        // .SERIAL_CLK(CLK288),
         .SERIAL_DATA(DOUT_SERIAL[2]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[2]),
@@ -162,7 +163,7 @@ module PythonManager(
         .trainingDone(trainingDone[3])
     );
     PythonISERDES DOUT_3_ISERDES(
-        .SERIAL_CLK(CLK288),
+        // .SERIAL_CLK(CLK288),
         .SERIAL_DATA(DOUT_SERIAL[3]),
         .PARALLEL_CLK(CLK72),
         .PARALLEL_DATA(DOUT[3]),
@@ -218,6 +219,11 @@ module PythonManager(
     reg [7:0] kernel [7:0];
     always_comb for (int i = 0; i < 8; i++) kernel[i] = kernelUnflipped[PYTHON_KERNEL_MASK[kernelOdd ? (7-i) : i]];
 
+    //Kernel Thresholding
+    localparam THRESHOLD_TEMP = 8'd20;
+    reg [7:0] kernelThreshold;
+    always_comb for (int i = 0; i < 8; i++) kernelThreshold[i] = kernel[i] > THRESHOLD_TEMP;
+
     //Run Length Encoding (Kernels -> Runs)
     Run rleCurrentRun = '0;
     reg [7:0] rleKernel;
@@ -225,18 +231,13 @@ module PythonManager(
     reg [2:0] rleKernelX;
     reg rleInKernel = '0;
     reg lastKernelDone;
-    
-    localparam THRESHOLD_TEMP = 8'd20;
-    reg [7:0] kernelThreshold;
-    always_comb for (int i = 0; i < 8; i++) kernelThreshold[i] = kernel[i] > THRESHOLD_TEMP;
-
     always_ff @(negedge CLK288) begin //kernels are output @ 36MHz so we can process each pixel @ (36*8)MHz
         runFIFOWrite <= 0;
         
         //Process each Pixel in Kernel
         if (rleInKernel) begin
             //New Run @ Color Change
-            if (rleKernel[7-rleKernelX] != rleCurrentRun.black) begin
+            if (~rleKernel[7-rleKernelX] != rleCurrentRun.black) begin
                 //end old run
                 if (rleCurrentRun.length != 0) begin
                     runFIFOIn <= rleCurrentRun;
@@ -247,7 +248,7 @@ module PythonManager(
                 rleCurrentRun <= '{
                     length: 1,
                     line: rleKernelPos.y,
-                    black: rleKernel[7-rleKernelX]
+                    black: ~rleKernel[7-rleKernelX]
                 };
             end
 
@@ -284,9 +285,18 @@ module PythonManager(
                     line: kernelPos.y,
                     black: ~kernel[7]
                 };
+
+                //FIXME
+                begin
+                    reg [7:0] shf = rleKernelPos.y >> 2; //640 / 4 = 160 = 1010 0000
+                    //0111 1111
+                    if (shf > debug) begin
+                        debug <= shf;
+                    end
+                end
             end
         end
-        lastKernelDone <= 1;
+        lastKernelDone <= kernelDone;
     end
 
     //Kernel Clock Crossing w/ FIFO (72MHz (not MRCC) -> 100MHZ (MRCC))

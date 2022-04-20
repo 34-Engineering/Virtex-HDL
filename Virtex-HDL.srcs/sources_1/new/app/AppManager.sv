@@ -108,7 +108,8 @@ module AppManager(
 
                         //Get Target
                         if (readData == GET_TARGET_CODE) begin
-                            
+                            state <= GET_TARGET;
+                            commandIndex <= 0;
                         end
 
                         //Enable/Disable
@@ -193,7 +194,7 @@ module AppManager(
 
                     else if (~writeBusy) begin
                         //send target to PC (in 6 bytes)
-                        writeData <= target[(48 - (commandIndex << 3)) -: 8];
+                        writeData <= target[(47 - (commandIndex << 3)) -: 8];
                         writeDataValid <= 1;
 
                         if (commandIndex == 5) begin

@@ -111,7 +111,7 @@ module Top(
         .OUT_OF_RLE_MEM_FAULT(faults.OUT_OF_RLE_MEM),
         .BLOB_PROCESSOR_SLOW_FAULT(faults.BLOB_PROCESSOR_SLOW),
         .RUN_FIFO_FULL_FAULT(faults.RUN_FIFO_FULL),
-        .debug()
+        .debug(debug)
     );
 
     //AppManager
@@ -132,7 +132,7 @@ module Top(
         .frameBufferWriteAddr(frameBufferWriteAddr),
         .frameBufferWriteIn(frameBufferWriteIn),
         .frameBufferWriteEnable(frameBufferWriteEnable),
-        .debug(debug)
+        .debug()
     );
 
     // //RoboRIOManager

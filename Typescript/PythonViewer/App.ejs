@@ -63,6 +63,13 @@
 
         //Draw Frame
         let frame;
+        let target = {
+            center: {x:0, y:0},
+            width: 0,
+            height: 0,
+            blobCount: 0,
+            angle: 0
+        };
 
         function drawFrame() {
             const img = ctx.createImageData(640, 480);
@@ -88,9 +95,32 @@
             frame = new Uint8Array(newFrame);
             drawFrame();
         });
+        let lastTarget;
+        socket.on('target', (newTarget) => {
+            const bytes = new Uint8Array(newTarget);
+            let str = "";
+            let padByte = (str) => "0".repeat(8 - str.length) + str;
+            for (let i = 0; i < bytes.length; i++) str += padByte(bytes[i].toString(2));
+
+            if (str != lastTarget) {
+                lastTarget = str;
+
+                target = {
+                    center: {
+                        x: parseInt(str.slice(0, 10), 2),
+                        y: parseInt(str.slice(10, 20), 2)
+                    },
+                    width: parseInt(str.slice(20, 30), 2),
+                    height: parseInt(str.slice(30, 40), 2),
+                    blobCount: parseInt(str.slice(40, 46), 2),
+                    angle: parseInt(str.slice(46, 48), 2)
+                };
+                console.log(target);
+            }
+        });
 
         //Load Settings
-        socket.emit('setting', { addr: 1, value: 0xFF }); //LED brightness
+        socket.emit('setting', { addr: 1, value: 0x01 }); //LED brightness
         socket.emit('setting', { addr: 4, value: 0b111100100 }); //analog gain
         socket.emit('setting', { addr: 6, value: 1000 }); //exposure
         socket.emit('setting', { addr: 7, value: 2 }); //mult timer

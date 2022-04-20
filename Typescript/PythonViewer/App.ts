@@ -42,8 +42,10 @@ io.on('connection', (socket) => {
 //Serial (PC->FT2232H->FPGA)
 let serialPort: any | null = null;
 let frame: Buffer = Buffer.alloc(153600);
-let framePointer: number = 0;
+let target: Buffer = Buffer.alloc(6);
+let readPointer: number = 0;
 let queue: number[] = [];
+let isTargetRequest: boolean = false;
 async function initSerialPort() {
     serialPort = new SerialPort({
         path: '\\\\.\\COM6',
@@ -59,28 +61,31 @@ async function initSerialPort() {
     serialPort.write(Buffer.from([0b00000001]));
 }
 function onData(newData: Buffer) {
-    //Load Buffer Chunks into Frame Buffer
+    //Copy Buffer
     for (let i = 0; i < newData.length; i++) {
-        frame[framePointer] = newData[i];
-        framePointer++;
+        if (isTargetRequest) target[readPointer] = newData[i];
+        else frame[readPointer] = newData[i];
+        readPointer++;
     }
 
-    //Frame Done
-    if (framePointer >= 153600) {
-        //Send to Web
-        io.emit('frame', frame);
-        
+    //End Read
+    if (isTargetRequest ? readPointer >= 6 : readPointer >= 153600) {
         //Reset
-        framePointer = 0;
-        
+        readPointer = 0;
+                
         //Write Command Queue
         if (queue.length > 0) {
             serialPort.write(Buffer.from(queue));
             queue = [];
         }
 
-        //Request New Frame
-        serialPort.write(Buffer.from([0b00000001]));
+        //Send to Web
+        if (isTargetRequest) io.emit('target', target);
+        else io.emit('frame', frame);
+
+        //Request New
+        isTargetRequest = !isTargetRequest;
+        serialPort.write(Buffer.from([isTargetRequest ? 0b00000010 : 0b00000001]));
     }
 }
 function onError(err: any) {

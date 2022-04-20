@@ -88,15 +88,6 @@ function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
         bottomLeft:  quad1BottomLeftD  < quad2BottomLeftD  ? quad1.bottomLeft  : quad2.bottomLeft
     };
 }
-// function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
-//     //does not create a perfect quad, but is good enough for rough angle calculations
-//     return {
-//         topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
-//         topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
-//         bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
-//         bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
-//     }
-// }
 
 //Merging Blobs
 export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {
