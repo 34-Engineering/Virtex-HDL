@@ -43,7 +43,7 @@ module VisionTest;
         frameLength: 41500,
 
         //target params
-        targetMode: SINGLE,
+        targetMode: DUAL_UP,
         targetBlobXGapMin: 0,
         targetBlobXGapMax: 16'hFFFF,//30,
         targetBlobYGapMin: 0,
@@ -52,9 +52,9 @@ module VisionTest;
         targetBoundAreaRatioMax: 1.75,//100,
         targetAspectRatioMin: 0,//2,
         targetAspectRatioMax: 16'hFFFF,//4,
-        targetBoundAreaMin: 0,
+        targetBoundAreaMin: 12,
         targetBoundAreaMax: 16'hFFFF,//0xffff,
-        targetBlobCountMin: 1,
+        targetBlobCountMin: 2,
         targetBlobCountMax: 16'hFFFF,
         targetCenterX: IMAGE_WIDTH / 2,
         targetCenterY: IMAGE_HEIGHT / 2,
@@ -62,7 +62,7 @@ module VisionTest;
         //blob params
         blobAspectRatioMin: 0,
         blobAspectRatioMax: 16'hFFFF,
-        blobBoundAreaMin: 100 >> 1,
+        blobBoundAreaMin: 12,
         blobBoundAreaMax: 16'hFFFF,
         blobFullnessMin: 0,
         blobFullnessMax: 16'hFFFF,

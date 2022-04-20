@@ -178,6 +178,9 @@ module VisionProcessor(
             end
             else updateTargetSelectorDualGroup();
         end
+
+        //(sim only)
+        else if (fd) $fclose(fd);
     end
 
     //Blob Maker (runs => blobs)
@@ -408,7 +411,6 @@ module VisionProcessor(
 
         //(sim only)
         if (trainAlmostDone) begin
-            $fclose(fd);
             $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
         end
     endtask
@@ -476,6 +478,9 @@ module VisionProcessor(
             ... for all Bs
             ---- for all As */
 
+        //(sim only)
+        $write("%d %d", targetInitStep, targetPartion);
+
         //Increment Init Step
         if (targetInitStep != 3) begin
             targetInitStep <= targetInitStep+1;
@@ -488,6 +493,9 @@ module VisionProcessor(
         if (targetInitStep == 2) begin
             targetBlobAAngle <= calcBlobAngle(bramPorts[targetBRAMOffset].dout);
             targetBlobA <= bramPorts[targetBRAMOffset].dout;
+
+            //(sim only)
+            $write(" SAVE A0 FROM 0");
         end
 
         //PROCESS
@@ -495,6 +503,9 @@ module VisionProcessor(
             //Get Blob
             automatic BlobData targetBlobB = bramPorts[targetBRAMOffset+targetPartion].dout;
             automatic BlobAngle targetBlobBAngle = calcBlobAngle(targetBlobB);
+
+            //(sim only)
+            $write(" PROCESS B%d FROM %d", targetIndexBs[targetPartion], targetPartion);
 
             //GROUP: chain other blobs together starting a Blob A
             if (virtexConfig.targetMode == GROUP) begin
@@ -558,10 +569,11 @@ module VisionProcessor(
                 automatic reg [9:0] height = bottomRight.y - topLeft.y + 1;
 
                 //if left/right blob angles are valid
-                automatic reg angleValid = (virtexConfig.targetMode == DUAL_UP ?
-                    leftBlobAngle == FORWARD && rightBlobAngle == BACKWARD :
-                    virtexConfig.targetMode == DUAL_DOWN ?
-                    leftBlobAngle == BACKWARD && rightBlobAngle == FORWARD : 1);
+                automatic reg angleValid = 1; //FIXME
+                // automatic reg angleValid = (virtexConfig.targetMode == DUAL_UP ?
+                //     leftBlobAngle == FORWARD && rightBlobAngle == BACKWARD :
+                //     virtexConfig.targetMode == DUAL_DOWN ?
+                //     leftBlobAngle == BACKWARD && rightBlobAngle == FORWARD : 1);
 
                 //gap between target & blobB
                 automatic reg [9:0] gapX = `Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
@@ -583,9 +595,15 @@ module VisionProcessor(
                 automatic reg boundAreaRatioValid = inBoundAreaRatioRange(boundAreaRight, boundAreaLeft,
                     virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
                 
+                //(sim only)
+                $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrent));
+
                 //if this target is valid AND this target is better OR we dont have a target yet
                 if (angleValid && gapValid && aspectRatioValid && boundAreaValid && boundAreaRatioValid &&
                     (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
+                    //(sim only)
+                    $write("=>{TC{cx:%d,cy:%d,w:%d,h:%d,a:%d}}", center.x, center.y, width, height, leftBlobAngle);
+                    
                     targetCurrent <= '{
                         center: center,
                         width: width,
@@ -610,6 +628,9 @@ module VisionProcessor(
         if (targetInitStep != 0 && !targetWantsNewA) begin
             //Request New A
             if (nextTargetIndexBs[targetPartion] == NULL_BLOB_INDEX) begin
+                //(sim only)
+                $write(" WANTS NEW A");
+                
                 //Request New A (we must request because we have to wait for last B to finish processing)
                 targetWantsNewA <= 1;
 
@@ -619,6 +640,9 @@ module VisionProcessor(
 
             //READ New B0|1
             else begin
+                //(sim only)
+                $write(" READ B%d FROM %D", nextTargetIndexBs[targetPartion], targetPartion);
+                
                 //READ New B0|1
                 bramPorts[targetBRAMOffset+targetPartion].addr <= nextTargetIndexBs[targetPartion];
 
@@ -633,6 +657,9 @@ module VisionProcessor(
             automatic Target targetA = groupTargetToTarget(groupTargetA);
             automatic reg justSetTargetCurrent = 0;
             automatic BlobIndex newInvertTargetBRAMEnd = targetBRAMEnds[~targetBRAMNumber];
+
+            //(sim only)
+            $write(" READ NEW A0 FROM 0");
 
             //Reset
             targetPartion <= 0;
@@ -677,7 +704,7 @@ module VisionProcessor(
             //Swap BRAM Number
             targetBRAMNumber <= ~targetBRAMNumber;
 
-            //Finish
+            //Finish //FIXME finish dual @ 1?
             if (newInvertTargetBRAMEnd == 0) begin
                 //transfer best target to target
                 target <= justSetTargetCurrent ? targetA : targetCurrent;
@@ -686,8 +713,14 @@ module VisionProcessor(
                 begin
                     automatic Target newTarget = justSetTargetCurrent ? targetA : targetCurrent;
                     $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-                        newTarget.center.x, newTarget.center.y, newTarget.width, newTarget.height, newTarget.blobCount, newTarget.angle
+                        newTarget.center.x,
+                        newTarget.center.y,
+                        newTarget.width,
+                        newTarget.height,
+                        newTarget.blobCount,
+                        newTarget.angle
                     );
+                    $write(" > Target Selector Done < ");
                 end
 
                 //flag
@@ -710,6 +743,9 @@ module VisionProcessor(
         else if (targetWantsNewA) begin
             targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
         end
+
+        //(sim only)
+        $write("\n");
     endtask
     function automatic logic [19:0] distSqToTargetCenter(Math::Vector2d10 v);
         //Distance^2 Between Vector and Target Center
