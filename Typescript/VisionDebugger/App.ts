@@ -5,7 +5,7 @@ import * as http from 'http';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
 import * as v8 from 'v8';
-import { drawCenterFillSquare, drawLine, drawRect } from '../VisionScripting/src/DrawUtil';
+import { drawCenterFillSquare, drawLine, drawQuad10, drawRect } from '../VisionScripting/src/DrawUtil';
 
 //Express (PC->Web)
 const app: express.Application = express();
@@ -17,7 +17,7 @@ app.use("/socket.io.js.map", express.static(path.join(__dirname, 'node_modules/s
 const server = http.createServer(app);
 
 //Read Image
-const IMAGE_URL = '../images/2022_1.png';
+const IMAGE_URL = '../images/2019.png';
 let image = PNG.sync.read(fs.readFileSync(IMAGE_URL));
 
 //Write Bitfile for System Verilog
@@ -57,6 +57,7 @@ setInterval(() => {
         try {
             const obj = JSON.parse(line.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": '));
             
+            //Target
             if (obj.target) {
                 //bound
                 drawRect(tempImage.data, {
@@ -71,8 +72,13 @@ setInterval(() => {
                 drawCenterFillSquare(tempImage.data, obj.center, 2, [125, 255, 125, 255]);
             }
 
+            //BLob
             else if (obj.blob) {
+                //bound
                 drawRect(tempImage.data, obj.topLeft, obj.bottomRight, [255, 0, 0, 100]);
+
+                //quad
+                drawQuad10(tempImage.data, obj.quad, [0, 255, 0, 100]);
             }
         }
         catch (e) { console.error("PARSE ERROR"); }

@@ -71,14 +71,32 @@ export interface RunBuffer {
 
 //Merge Quads
 function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
-    //this algorithm is not perfect but close enough for choosing rough angle of blob
+    const quad1TopLeftD     = quad1.topLeft.x     + quad1.topLeft.y;
+    const quad2TopLeftD     = quad2.topLeft.x     + quad2.topLeft.y;
+    const quad1TopRightD    = quad1.topRight.x    - quad1.topRight.y;
+    const quad2TopRightD    = quad2.topRight.x    - quad2.topRight.y;
+    const quad1BottomRightD = quad1.bottomRight.x + quad1.bottomRight.y;
+    const quad2BottomRightD = quad2.bottomRight.x + quad2.bottomRight.y;
+    const quad1BottomLeftD  = quad1.bottomLeft.x  - quad1.bottomLeft.y;
+    const quad2BottomLeftD  = quad2.bottomLeft.x  - quad2.bottomLeft.y;
+
+    //does not create a perfect quad, but is good enough for rough angle calculations
     return {
-        topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
-        topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
-        bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
-        bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
-    }
+        topLeft:     quad1TopLeftD     < quad2TopLeftD     ? quad1.topLeft     : quad2.topLeft,
+        topRight:    quad1TopRightD    < quad2TopRightD    ? quad2.topRight    : quad1.topRight,
+        bottomRight: quad1BottomRightD < quad2BottomRightD ? quad2.bottomRight : quad1.bottomRight,
+        bottomLeft:  quad1BottomLeftD  < quad2BottomLeftD  ? quad1.bottomLeft  : quad2.bottomLeft
+    };
 }
+// function mergeQuad10s(quad1: Quad10, quad2: Quad10): Quad10 {
+//     //does not create a perfect quad, but is good enough for rough angle calculations
+//     return {
+//         topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
+//         topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
+//         bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
+//         bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
+//     }
+// }
 
 //Merging Blobs
 export function mergeBlobs(blob1: BlobData, blob2: BlobData): BlobData {

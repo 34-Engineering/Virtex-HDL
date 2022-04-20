@@ -373,7 +373,7 @@ function blobFinishRun(): void {
     _("makerState <= MakerState.NONE");
 
     //finish
-    if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) && runFIFOOut.line == IMAGE_HEIGHT-1) {
+    if ((currentLineBufferX + runFIFOOut.length - 1) == (IMAGE_WIDTH-1) && runFIFOOut.line == (IMAGE_HEIGHT-1)) {
         console.log(" > Blob Processor Done < ");
         _("makerState <= MakerState.DONE");
     }

@@ -377,8 +377,13 @@ module VisionProcessor(
             //(sim only)
             begin
                 automatic BlobData blob = bramPorts[trainPartion].dout;
-                $fwrite(fd, "{blob:1, topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}}\n",
-                    blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y
+                $fwrite(fd, "{blob:1, topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}, quad:{topLeft:{x:%d,y:%d},topRight:{x:%d,y:%d},bottomRight:{x:%d,y:%d},bottomLeft:{x:%d,y:%d}}}\n",
+                    blob.boundTopLeft.x, blob.boundTopLeft.y,
+                    blob.boundBottomRight.x, blob.boundBottomRight.y,
+                    blob.quad.topLeft.x, blob.quad.topLeft.y,
+                    blob.quad.topRight.x, blob.quad.topRight.y,
+                    blob.quad.bottomRight.x, blob.quad.bottomRight.y,
+                    blob.quad.bottomLeft.x, blob.quad.bottomLeft.y
                 );
                 $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d - GOOD:%d",
                     blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y,
@@ -570,11 +575,10 @@ module VisionProcessor(
                 automatic reg [9:0] height = bottomRight.y - topLeft.y + 1;
 
                 //if left/right blob angles are valid
-                automatic reg angleValid = 1; //FIXME
-                // automatic reg angleValid = (virtexConfig.targetMode == DUAL_UP ?
-                //     leftBlobAngle == FORWARD && rightBlobAngle == BACKWARD :
-                //     virtexConfig.targetMode == DUAL_DOWN ?
-                //     leftBlobAngle == BACKWARD && rightBlobAngle == FORWARD : 1);
+                automatic reg angleValid = (virtexConfig.targetMode == DUAL_UP ?
+                    leftBlobAngle == FORWARD && rightBlobAngle == BACKWARD :
+                    virtexConfig.targetMode == DUAL_DOWN ?
+                    leftBlobAngle == BACKWARD && rightBlobAngle == FORWARD : 1);
 
                 //gap between target & blobB
                 automatic reg [9:0] gapX = `Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
@@ -597,6 +601,7 @@ module VisionProcessor(
                     virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
                 
                 //(sim only)
+                $write(" -[leftBlobAngle:%d, rightBlobAngle:%d]-", leftBlobAngle, rightBlobAngle);
                 $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrent));
 
                 //if this target is valid AND this target is better OR we dont have a target yet

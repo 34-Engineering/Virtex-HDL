@@ -207,7 +207,6 @@ function drawImage(clearDraw?: boolean): any {
 
     //Draw Target
     if (drawOptions.target && !isTargetNull(BlobProcessor.getTarget())) {
-
         //bound
         drawRect(tempImage.data, {
             x: BlobProcessor.getTarget().center.x - (BlobProcessor.getTarget().width >> 1),

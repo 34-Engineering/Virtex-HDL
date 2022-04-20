@@ -43,11 +43,11 @@ module VisionTest;
         frameLength: 41500,
 
         //target params
-        targetMode: GROUP,
+        targetMode: DUAL_UP,
         targetBlobXGapMin: 0,
-        targetBlobXGapMax: 30,//30,
+        targetBlobXGapMax: 16'hFFFF,//30,
         targetBlobYGapMin: 0,
-        targetBlobYGapMax: 30,//30,
+        targetBlobYGapMax: 16'hFFFF,//30,
         targetBoundAreaRatioMin: 0.25,
         targetBoundAreaRatioMax: 1.75,//100,
         targetAspectRatioMin: 0,//2,

@@ -13,7 +13,7 @@ typedef logic [$clog2(MAX_RUNS_PER_LINE+2)-1:0] RunBufferIndex; //FIXME what is 
 typedef logic [$clog2((640*480) + GROUP_TARGET_AREA_CONST + 1):0] BlobArea; //[20:0]
 
 //Blob Data
-typedef struct packed { //144-bit //FIXME WARNING: [Synth 8-689] width (145) of port connection 'dina' does not match port width (144) of module 'blk_mem_blobs'
+typedef struct packed { //144-bit
     /*Note: relative side of pixel
     ex) top left (0, 0) means pixel #(0, 0) whereas
         top right (1, 1) means pixel #(1, 0)
@@ -22,8 +22,8 @@ typedef struct packed { //144-bit //FIXME WARNING: [Synth 8-689] width (145) of 
     Math::Vector2d10 boundTopLeft; //20-bit
     Math::Vector2d10 boundBottomRight; //20-bit
     Math::Quad10 quad; //80-bit
-    BlobArea area; //20-bit
-    logic [2:0] reserved; //4-bit
+    BlobArea area;
+    logic [2:0] reserved;
 } BlobData;
 
 //Blob Metadata
@@ -87,12 +87,21 @@ typedef struct packed {
 
 //Merge Quads
 function automatic Math::Quad10 mergeQuad10s (Math::Quad10 quad1, Math::Quad10 quad2);
-    //this algorithm is not perfect but close enough for choosing rough angle of blob
+    reg signed [12:0] quad1TopLeftD     = quad1.topLeft.x     + quad1.topLeft.y;
+    reg signed [12:0] quad2TopLeftD     = quad2.topLeft.x     + quad2.topLeft.y;
+    reg signed [12:0] quad1TopRightD    = quad1.topRight.x    - quad1.topRight.y;
+    reg signed [12:0] quad2TopRightD    = quad2.topRight.x    - quad2.topRight.y;
+    reg signed [12:0] quad1BottomRightD = quad1.bottomRight.x + quad1.bottomRight.y;
+    reg signed [12:0] quad2BottomRightD = quad2.bottomRight.x + quad2.bottomRight.y;
+    reg signed [12:0] quad1BottomLeftD  = quad1.bottomLeft.x  - quad1.bottomLeft.y;
+    reg signed [12:0] quad2BottomLeftD  = quad2.bottomLeft.x  - quad2.bottomLeft.y;
+
+    //does not create a perfect quad, but is good enough for rough angle calculations
     return '{
-        topLeft:     quad1.topLeft.x     + quad1.topLeft.y     < quad2.topLeft.x     + quad2.topLeft.y     ? quad1.topLeft     : quad2.topLeft,
-        topRight:    quad1.topRight.x    - quad1.topRight.y    < quad2.topRight.x    - quad2.topRight.y    ? quad2.topRight    : quad1.topRight,
-        bottomRight: quad1.bottomRight.x + quad1.bottomRight.y < quad2.bottomRight.x + quad2.bottomRight.y ? quad2.bottomRight : quad1.bottomRight,
-        bottomLeft:  quad1.bottomLeft.x  - quad1.bottomLeft.y  < quad2.bottomLeft.x  - quad2.bottomLeft.y  ? quad1.bottomLeft  : quad2.bottomLeft
+        topLeft:     quad1TopLeftD     < quad2TopLeftD     ? quad1.topLeft     : quad2.topLeft,
+        topRight:    quad1TopRightD    < quad2TopRightD    ? quad2.topRight    : quad1.topRight,
+        bottomRight: quad1BottomRightD < quad2BottomRightD ? quad2.bottomRight : quad1.bottomRight,
+        bottomLeft:  quad1BottomLeftD  < quad2BottomLeftD  ? quad1.bottomLeft  : quad2.bottomLeft
     };
 endfunction
 
@@ -125,7 +134,7 @@ endfunction
 function automatic BlobAngle calcBlobAngle(BlobData blob);
     //make two center lines from quad centers
     Math::Vector2d10 start1 = '{
-        x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1,
+        x: (blob.quad.topLeft.x + blob.quad.topRight.x-1) >> 1, //FIXME outputs before shift may be > 1023
         y: (blob.quad.topLeft.y + blob.quad.topRight.y) >> 1
     };
     Math::Vector2d10 end1 = '{
@@ -142,18 +151,18 @@ function automatic BlobAngle calcBlobAngle(BlobData blob);
     };
 
     //calculate delta values of center lines
-    logic signed [10:0] dx1 = end1.x - start1.x;
-    logic signed [10:0] dy1 = end1.y - start1.y;
-    logic signed [10:0] dx2 = end2.x - start2.x;
-    logic signed [10:0] dy2 = end2.y - start2.y;
+    logic signed [12:0] dx1 = end1.x - start1.x;
+    logic signed [12:0] dy1 = end1.y - start1.y;
+    logic signed [12:0] dx2 = end2.x - start2.x;
+    logic signed [12:0] dy2 = end2.y - start2.y;
 
     //find angle of center lines
     BlobAngle angle1 = calcAngle(dx1, dy1);
     BlobAngle angle2 = calcAngle(dx2, dy2);
 
     //find length of center lines
-    logic [18:0] lengthSq1 = dx1**2 + dy1**2;
-    logic [18:0] lengthSq2 = dx2**2 + dy2**2;
+    logic [20:0] lengthSq1 = dx1**2 + dy1**2;
+    logic [20:0] lengthSq2 = dx2**2 + dy2**2;
 
     //return best angle
     return lengthSq1 > lengthSq2 ? angle1 : angle2;
