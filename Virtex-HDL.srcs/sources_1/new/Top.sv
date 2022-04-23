@@ -84,7 +84,7 @@ module Top(
 
     //PythonManager
     PythonManager PythonManager(
-        .CLK200(CLK200),
+        // .CLK200(CLK200),
         .CLK100(CLK100),
         .CLK10(CLK10),
         .LVDS_CLK_P(PYTHON_CLK_P),
@@ -182,9 +182,34 @@ module Top(
     //Clock Generator
     clk_wiz_0 clk_wiz_0(
         .clk_in1(CLK100),
-        .clk_out1(CLK10),
-        .clk_out2(CLK50),
-        .clk_out3(CLK200)
+        .clk_out1(CLK10)
     );
+    clk_wiz_1 clk_wiz_1(
+        .clk_in1(CLK100),
+        .clk_out1(CLK50)
+    );
+    // clk_wiz_2 clk_wiz_2(
+    //     .clk_in1(CLK100),
+    //     .clk_out1(CLK200)
+    // );
+
+    //XADC Alarms
+    // xadc_wiz_0 xadc_wiz_0(
+    //     .vn_in(), //h7
+    //     .vp_in(), //j8
+    //     .dclk_in(CLK100),
+
+    //     .vccint_alarm_out(),
+    //     .vccaux_alarm_out(),
+    //     .vbram_alarm_out(),
+    //     .user_temp_alarm_out(), //80°C trigger, 70°C reset
+    //     .ot_out(), //90°C trigger, 70°C reset
+    //     .alarm_out(), //any alarm
+
+    //     .channel_out(), //[4:0] temperature
+    //     .eoc_out(),
+    //     .eos_out(),
+    //     .busy_out()
+    // );
     
 endmodule

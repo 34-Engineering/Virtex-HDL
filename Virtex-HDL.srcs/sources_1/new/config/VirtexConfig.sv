@@ -127,8 +127,8 @@ localparam VirtexConfig DefaultVirtexConfig = '{
     targetBoundAreaMax: 16'hFFFF,//0xffff,
     targetBlobCountMin: 1,
     targetBlobCountMax: 63,
-    targetCenterX: IMAGE_WIDTH / 2,
-    targetCenterY: IMAGE_HEIGHT / 2,
+    targetCenterX: IMAGE_WIDTH >> 1,
+    targetCenterY: IMAGE_HEIGHT >> 1,
 
     //blob params
     blobAspectRatioMin: 0,

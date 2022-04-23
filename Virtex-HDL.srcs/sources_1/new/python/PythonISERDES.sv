@@ -26,7 +26,30 @@ module PythonISERDES (
 
     wire SERIAL_CLK_INV = ~SERIAL_CLK;
 
-    //TODO IDELAYE2 to line up all 5 LVDS lines?
+    // wire SERIAL_DATA_DLY;
+    // IDELAYE2 #(
+    //     .CINVCTRL_SEL(),
+    //     .DELAY_SRC(),
+    //     .HIGH_PERFORMANCE_MODE("TRUE"),
+    //     .IDELAY_TYPE(),
+    //     .IDELAY_VALUE(),
+    //     .PIPE_SEL(),
+    //     .REFCLK_FREQUENCY(),
+    //     .SIGNAL_PATTERN()
+    // ) IDELAYE2_Inst (
+    //     // .DATAIN(),
+    //     .IDATAIN(SERIAL_DATA),
+    //     .CNTVALUEIN(),
+    //     .CE(),
+    //     .INC(),
+    //     .LD(),
+    //     .LDPIPEEN(),
+    //     .REGRS(),
+    //     .C(SERIAL_CLK),
+    //     .CINVCTRL(),
+    //     .DATAOUT(SERIAL_DATA_DLY),
+    //     .CNTVALUEOUT()
+    // );
 
     //Bitslip (see below)
     reg bitslip = 1;

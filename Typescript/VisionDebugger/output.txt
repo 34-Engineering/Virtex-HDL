@@ -1,0 +1,1 @@
+{target:1,width:528,height:32,center:{x:434,y:128},angle:3}
