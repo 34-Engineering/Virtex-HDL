@@ -125,29 +125,132 @@ module VisionProcessor(
     wire trainDone = trainGrowingIndex == (makerGrowingIndex+2); //+2 because the train needs to finish the last index
     reg trainPartion = '0;
     reg trainInitDone = '0;
+    
+    wire BlobData trainBlob = bramPorts[trainPartion].dout;
+    wire trainBlobGood = doesBlobMatchCriteria(trainBlob);
 
     //Target Selector
     initial target = '0; //"best" target for the last frame
     Target targetCurrent = '0; //"best" target for the current frame
-    BlobData targetBlobA = '0; //cached blob A
-    BlobAngle targetBlobAAngle = HORIZONTAL;
     reg [1:0] targetInitStep = 0; //0-2: init, 3: done
     reg targetPartion = 0; //alterates every cycle
+    
+    reg targetBRAMNumber = 0; //which BRAM to use (0=growing, 1=finished)
+    BlobIndex [0:1] targetBRAMEnds = '{0, 0}; //max index we can go to +1 (5 -> [0:4])
+    wire [1:0] targetBRAMOffset      = targetBRAMNumber ? 2 : 0;
+    wire [1:0] targetBRAMOffsetOther = targetBRAMNumber ? 0 : 2;
+    
+    BlobData targetBlobA = '0; //cached blob A
+    BlobAngle targetBlobAAngle = HORIZONTAL;
     BlobIndex [0:1] targetIndexBs = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX}; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
     reg targetWantsNewA = 1; //wants to get a new A (takes 2 cycles)
     wire targetWillGetNewA = targetWantsNewA && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX && targetInitStep != 2; //we have wanted a new A, but now we are ready
     reg targetGroupBJoined = 0; //whether any Bs joined cur targetA
     reg targetSelectorDone = 0;
-    reg targetBRAMNumber = 0; //which BRAM to use (0=growing, 1=finished)
-    BlobIndex [0:1] targetBRAMEnds = '{0, 0}; //max index we can go to +1 (5 -> [0:4])
-    wire [1:0] targetBRAMOffset      = targetBRAMNumber ? 2 : 0;
-    wire [1:0] targetBRAMOffsetOther = targetBRAMNumber ? 0 : 2;
     `define fixTargetIndex(index, bramNum) (index < targetBRAMEnds[bramNum]) ? index : NULL_BLOB_INDEX
     wire BlobIndex initTargetIndexB = `fixTargetIndex(1, targetBRAMNumber);
     wire BlobIndex [0:1] nextTargetIndexBs = '{
         `fixTargetIndex(targetIndexBs[1] + 1, targetBRAMNumber), //targetIndexBs opposite so they will skip ahead of eachother (0,1),(2,3)...
         (targetInitStep == 1) ? initTargetIndexB : `fixTargetIndex(targetIndexBs[0] + 1, targetBRAMNumber)
     };
+
+    wire Math::Vector2d10 targetSingleCenter = '{ //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
+        x: (trainBlob.boundBottomRight.x + trainBlob.boundTopLeft.x) >> 1,
+        y: (trainBlob.boundBottomRight.y + trainBlob.boundTopLeft.y) >> 1
+    };
+    wire [9:0] targetSingleWidth  = trainBlob.boundBottomRight.x - trainBlob.boundTopLeft.x + 1;
+    wire [9:0] targetSingleHeight = trainBlob.boundBottomRight.y - trainBlob.boundTopLeft.y + 1;
+    wire Target targetSingleNewTarget = '{
+        center: targetSingleCenter,
+        width: targetSingleWidth,
+        height: targetSingleHeight,
+        blobCount: 1,
+        angle: calcBlobAngle(trainBlob)
+    };
+    wire targetSingleIsBetterTarget = (
+        inAspectRatioRange(targetSingleWidth, targetSingleHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
+        inBoundAreaRange(targetSingleWidth * targetSingleHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) &&
+        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetSingleCenter) < distSqToTargetCenter(targetCurrent.center))
+    );
+
+    wire BlobData targetReadBlob = bramPorts[targetBRAMOffset+targetPartion].dout;
+    wire BlobAngle targetReadBlobAngle = calcBlobAngle(targetReadBlob);
+    wire BlobData targetBlobB = targetReadBlob;
+    wire BlobAngle targetBlobBAngle = targetReadBlobAngle;
+
+    wire GroupTarget groupTargetA = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
+    wire GroupTarget groupTargetB = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
+    wire Target targetA = groupTargetToTarget(groupTargetA);
+    wire [9:0] groupTargetABoundWidth = (groupTargetA.boundBottomRight.x - groupTargetA.boundTopLeft.x + 1); 
+    wire [9:0] groupTargetABoundHeight = (groupTargetA.boundBottomRight.y - groupTargetA.boundTopLeft.y + 1);
+    wire targetGroupWillJoin = (
+        inBoundAreaRatioRange( //area ratio valid
+            groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
+            virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax
+        ) &&
+        `Math_inRangeInclusive( //gap x valid
+            `Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x),
+            virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax
+        ) &&
+        `Math_inRangeInclusive( //gap y valid
+            `Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y),
+            virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax
+        )
+    );
+    wire targetGroupIsBetterTarget = (
+        inBoundAreaRange(groupTargetABoundWidth * groupTargetABoundHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) &&
+        inAspectRatioRange(groupTargetABoundWidth, groupTargetABoundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
+        `Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax) &&
+        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))
+    );
+    wire Target targetGroupNewTargetA = asBlob(mergeGroupTargets(groupTargetA, groupTargetB));
+    wire targetIsGroupEnd = virtexConfig.targetMode == GROUP && targetBlobA.area != 0;
+
+    wire targetDualBlobALeftOfBlobB = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) < (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x);
+    wire BlobData  targetDualLeftBlob       = targetDualBlobALeftOfBlobB ? targetBlobA : targetBlobB;
+    wire BlobAngle targetDualLeftBlobAngle  = targetDualBlobALeftOfBlobB ? targetBlobAAngle : targetBlobBAngle;
+    wire BlobData  targetDualRightBlob      = targetDualBlobALeftOfBlobB ? targetBlobB : targetBlobA;
+    wire BlobAngle targetDualRightBlobAngle = targetDualBlobALeftOfBlobB ? targetBlobBAngle : targetBlobAAngle;
+    wire Math::Vector2d10 targetDualTopLeft = '{
+        x: `Math_min(targetDualLeftBlob.boundTopLeft.x, targetDualRightBlob.boundTopLeft.x),
+        y: `Math_min(targetDualLeftBlob.boundTopLeft.y, targetDualRightBlob.boundTopLeft.y)
+    };
+    wire Math::Vector2d10 targetDualBottomRight = '{
+        x: `Math_max(targetDualLeftBlob.boundBottomRight.x, targetDualRightBlob.boundBottomRight.x),
+        y: `Math_max(targetDualLeftBlob.boundBottomRight.y, targetDualRightBlob.boundBottomRight.y)
+    };
+    wire Math::Vector2d10 targetDualCenter = '{
+        x: (targetDualTopLeft.x + targetDualBottomRight.x) >> 1,
+        y: (targetDualTopLeft.y + targetDualBottomRight.y) >> 1
+    };
+    wire [9:0] targetDualWidth  = targetDualBottomRight.x - targetDualTopLeft.x + 1;
+    wire [9:0] targetDualHeight = targetDualBottomRight.y - targetDualTopLeft.y + 1;
+    wire targetDualIsBetterTarget = ( //is new target (blobA & blobB) valid & better than targetCurrent
+        (virtexConfig.targetMode == DUAL_UP ?  targetDualLeftBlobAngle == FORWARD  && targetDualRightBlobAngle == BACKWARD : //left & right angles valid
+        virtexConfig.targetMode == DUAL_DOWN ? targetDualLeftBlobAngle == BACKWARD && targetDualRightBlobAngle == FORWARD : 1) &&
+        `Math_inRangeInclusive( //blobs gap x valid
+            `Math_diff(targetDualRightBlob.boundTopLeft.x, targetDualLeftBlob.boundBottomRight.x),
+            virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax
+        ) &&
+        `Math_inRangeInclusive( //blobs gap x valid
+            `Math_diff(targetDualRightBlob.boundTopLeft.y, targetDualLeftBlob.boundBottomRight.y),
+            virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax
+        ) &&
+        inAspectRatioRange( //target aspect ratio valid
+            targetDualWidth, targetDualHeight,
+            virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax
+        ) &&
+        inBoundAreaRange( //target bound area valid
+            targetDualWidth * targetDualHeight,
+            virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax
+        ) &&
+        inBoundAreaRatioRange( //area ratio between blobs valid
+            (targetDualRightBlob.boundBottomRight.x - targetDualRightBlob.boundTopLeft.x + 1) * (targetDualRightBlob.boundBottomRight.y - targetDualRightBlob.boundTopLeft.y + 1),
+            (targetDualLeftBlob.boundBottomRight.x - targetDualLeftBlob.boundTopLeft.x + 1) * (targetDualLeftBlob.boundBottomRight.y - targetDualLeftBlob.boundTopLeft.y + 1),
+            virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax
+        ) &&
+        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetDualCenter) < distSqToTargetCenter(targetCurrent.center))
+    );
 
     //(sim only)
     int fd;
@@ -205,7 +308,7 @@ module VisionProcessor(
 
         //Update Blob Train (Stage 2)
         else if (~trainDone) begin
-            // updateBlobTrain(); //FIXME
+            updateBlobTrain();
         end
 
         //Update Target Selector (Stage 3)
@@ -213,7 +316,7 @@ module VisionProcessor(
             if (virtexConfig.targetMode == SINGLE) begin
                 targetSelectorDone <= 1;
             end
-            // else updateTargetSelectorDualGroup(); //FIXME
+            else updateTargetSelectorDualGroup();
         end
 
         //(sim only)
@@ -390,7 +493,6 @@ module VisionProcessor(
         //finish
         if (makerIsLastRun) begin
             makerState <= DONE;
-            target <= bramPorts[0].dout; //FIXME
         end
 
         //read new run
@@ -400,418 +502,58 @@ module VisionProcessor(
     endtask
 
     //Blob Train ("Growing" BRAM -> "Finished" BRAM) (Note: automatically does target selection for single target mode)
-    // task updateBlobTrain();
-    //     automatic reg blobGood = doesBlobMatchCriteria(bramPorts[trainPartion].dout);
-        
-    //     trainPartion <= ~trainPartion;
+    task updateBlobTrain();
+        trainPartion <= ~trainPartion;
 
-    //     // debug[1] <= 1;
+        if (trainInitDone) begin
+            //(sim only)
+            begin
+                automatic BlobData blob = trainBlob;
+                $fwrite(fd, "{blob:1, topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}, quad:{topLeft:{x:%d,y:%d},topRight:{x:%d,y:%d},bottomRight:{x:%d,y:%d},bottomLeft:{x:%d,y:%d}}}\n",
+                    blob.boundTopLeft.x, blob.boundTopLeft.y,
+                    blob.boundBottomRight.x, blob.boundBottomRight.y,
+                    blob.quad.topLeft.x, blob.quad.topLeft.y,
+                    blob.quad.topRight.x, blob.quad.topRight.y,
+                    blob.quad.bottomRight.x, blob.quad.bottomRight.y,
+                    blob.quad.bottomLeft.x, blob.quad.bottomLeft.y
+                );
+                $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d - GOOD:%d",
+                    blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y,
+                    bramPorts[trainPartion].addr, trainBlobGood
+                );
+            end
 
-    //     if (trainInitDone) begin
-    //         // debug[2] <= 1;
-
-    //         //(sim only)
-    //         begin
-    //             automatic BlobData blob = bramPorts[trainPartion].dout;
-    //             $fwrite(fd, "{blob:1, topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}, quad:{topLeft:{x:%d,y:%d},topRight:{x:%d,y:%d},bottomRight:{x:%d,y:%d},bottomLeft:{x:%d,y:%d}}}\n",
-    //                 blob.boundTopLeft.x, blob.boundTopLeft.y,
-    //                 blob.boundBottomRight.x, blob.boundBottomRight.y,
-    //                 blob.quad.topLeft.x, blob.quad.topLeft.y,
-    //                 blob.quad.topRight.x, blob.quad.topRight.y,
-    //                 blob.quad.bottomRight.x, blob.quad.bottomRight.y,
-    //                 blob.quad.bottomLeft.x, blob.quad.bottomLeft.y
-    //             );
-    //             $display("blob: {topLeft:{x:%d, y:%d}, bottomRight:{x:%d, y:%d}} @ %d - GOOD:%d",
-    //                 blob.boundTopLeft.x, blob.boundTopLeft.y, blob.boundBottomRight.x, blob.boundBottomRight.y,
-    //                 bramPorts[trainPartion].addr, blobGood
-    //             );
-    //         end
-
-    //         //Transfer Good Blobs to "Finished" BRAM
-    //         if (blobGood) begin
-    //             // debug[3] <= 1;
-
-    //             bramPorts[2].addr <= trainFinishedIndex;
-    //             bramPorts[2].din <= bramPorts[trainPartion].dout;
-    //             bramPorts[2].we <= 1;
-    //             trainFinishedIndex <= trainFinishedIndex + 1;
-    //             targetBRAMEnds[1] <= trainFinishedIndex + 1;
-    //         end
+            //Transfer Good Blobs to "Finished" BRAM
+            if (trainBlobGood) begin
+                bramPorts[2].addr <= trainFinishedIndex;
+                bramPorts[2].din <= trainBlob;
+                bramPorts[2].we <= 1;
+                trainFinishedIndex <= trainFinishedIndex + 1;
+                targetBRAMEnds[1] <= trainFinishedIndex + 1;
+            end
             
-    //         //Update Single Mode Target Selector
-    //         if (virtexConfig.targetMode == SINGLE) begin
-    //             updateTargetSelectorSingle(blobGood, bramPorts[trainPartion].dout);
-    //         end
-    //     end
+            //Update Single Mode Target Selector
+            if (virtexConfig.targetMode == SINGLE) begin
+                updateTargetSelectorSingle(trainBlobGood);
+            end
+        end
 
-    //     //Finish Init
-    //     else if (trainPartion) begin
-    //         // debug[4] <= 1;
+        //Finish Init
+        else if (trainPartion) begin
+            // debug[4] <= 1;
 
-    //         trainInitDone <= 1;
-    //     end
+            trainInitDone <= 1;
+        end
 
-    //     //Read Blob from "Growing" BRAM
-    //     bramPorts[trainPartion].addr <= trainGrowingIndex;
-    //     trainGrowingIndex <= trainGrowingIndex + 1;
+        //Read Blob from "Growing" BRAM
+        bramPorts[trainPartion].addr <= trainGrowingIndex;
+        trainGrowingIndex <= trainGrowingIndex + 1;
 
-    //     //(sim only)
-    //     if (trainAlmostDone) begin
-    //         $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && blobGood ? 1 : 0));
-    //     end
-    // endtask
-
-    //Target Selector (blobs => target)
-    // task updateTargetSelectorSingle(reg blobValid, BlobData blob);
-    //     //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
-    //     automatic Math::Vector2d10 center = '{
-    //         x: (blob.boundBottomRight.x + blob.boundTopLeft.x) >> 1,
-    //         y: (blob.boundBottomRight.y + blob.boundTopLeft.y) >> 1
-    //     };
-    //     automatic reg [9:0] width  = blob.boundBottomRight.x - blob.boundTopLeft.x + 1;
-    //     automatic reg [9:0] height = blob.boundBottomRight.y - blob.boundTopLeft.y + 1;
-
-    //     //aspect ratio valid
-    //     automatic reg aspectRatioValid = inAspectRatioRange(width, height,
-    //         virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-
-    //     //bound area valid
-    //     automatic reg boundAreaValid = inBoundAreaRange(width * height,
-    //         virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
-
-    //     // debug[5] <= 1;
-
-    //     //if this target is valid AND this target is better OR we dont have a target yet
-    //     if (blobValid && aspectRatioValid && boundAreaValid &&
-    //         (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
-    //         automatic Target newTarget = '{
-    //             center: center,
-    //             width: width,
-    //             height: height,
-    //             blobCount: 1,
-    //             angle: calcBlobAngle(blob)
-    //         };
-            
-    //         // debug[6] <= 1;
-
-    //         targetCurrent <= newTarget;
-
-    //         if (trainAlmostDone) begin
-    //             // debug[7] <= 1;
-
-    //             target <= newTarget;
-
-    //             //(sim only)
-    //             $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-    //                 newTarget.center.x, newTarget.center.y, newTarget.width, newTarget.height, newTarget.blobCount, newTarget.angle
-    //             );
-    //         end
-    //     end
-    //     else if (trainAlmostDone) begin
-    //         target <= targetCurrent;
-
-    //         //(sim only)
-    //         $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-    //             targetCurrent.center.x, targetCurrent.center.y, targetCurrent.width, targetCurrent.height, targetCurrent.blobCount, targetCurrent.angle
-    //         );
-    //     end
-    // endtask
-    // task updateTargetSelectorDualGroup();
-    //     /*  TS Dual/Group Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
-    //         targetInitStep, targetPartion, commands
-    //         ------------------------------------------------------
-    //         0 - READ New A on 0
-    //         1 +                                 READ New B1 on 1
-    //         2 - SAVE A from 0                   READ New B0 on 0
-    //         3 +                 PROCESS B1 on 1 READ New B1 on 1
-    //         3 -                 PROCESS B0 on 0 READ New B0 on 0
-    //         3 +                 PROCESS B1 on 1 READ New B1 on 1
-    //         3 -                 PROCESS B0 on 0 READ New B0 on 0
-    //         ... for all Bs
-    //         ---- for all As */
-
-    //     //(sim only)
-    //     $write("%d %d", targetInitStep, targetPartion);
-
-    //     //Increment Init Step
-    //     if (targetInitStep != 3) begin
-    //         targetInitStep <= targetInitStep+1;
-    //     end
-
-    //     //Swap Partion
-    //     targetPartion <= ~targetPartion;
-
-    //     //SAVE A from 0
-    //     if (targetInitStep == 2) begin
-    //         targetBlobAAngle <= calcBlobAngle(bramPorts[targetBRAMOffset].dout);
-    //         targetBlobA <= bramPorts[targetBRAMOffset].dout;
-
-    //         //(sim only)
-    //         $write(" SAVE A0 FROM 0");
-    //     end
-
-    //     //PROCESS
-    //     if (targetInitStep == 3 && targetIndexBs[targetPartion] != NULL_BLOB_INDEX) begin
-    //         //Get Blob
-    //         automatic BlobData targetBlobB = bramPorts[targetBRAMOffset+targetPartion].dout;
-    //         automatic BlobAngle targetBlobBAngle = calcBlobAngle(targetBlobB);
-
-    //         //(sim only)
-    //         $write(" PROCESS B%d FROM %d", targetIndexBs[targetPartion], targetPartion);
-
-    //         //GROUP: chain other blobs together starting a Blob A
-    //         if (virtexConfig.targetMode == GROUP) begin
-    //             //gap between
-    //             automatic reg [9:0] gapX = `Math_diff(targetBlobA.boundTopLeft.x, targetBlobB.boundBottomRight.x);
-    //             automatic reg [9:0] gapY = `Math_diff(targetBlobA.boundTopLeft.y, targetBlobB.boundBottomRight.y);
-    //             automatic reg gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-    //                 `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
-                
-    //             //ratio between the bound area of the two blobs (if either is a group target, then it will used the cashed bound area)
-    //             automatic GroupTarget groupTargetA = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
-    //             automatic GroupTarget groupTargetB = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
-    //             automatic reg blobsBoundAreaRatioValid = inBoundAreaRatioRange(groupTargetA.blobBoundArea, groupTargetB.blobBoundArea,
-    //                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
-
-    //             //join B to A
-    //             if (gapValid && blobsBoundAreaRatioValid) begin
-    //                 //make new group target & save
-    //                 targetBlobA <= asBlob(mergeGroupTargets(groupTargetA, groupTargetB));
-
-    //                 //Flag B Joined
-    //                 targetGroupBJoined <= 1;
-    //             end
-
-    //             //copy B over to other BRAM
-    //             else begin
-    //                 //write to newest slot
-    //                 bramPorts[targetBRAMOffsetOther].din <= targetBlobB;
-    //                 bramPorts[targetBRAMOffsetOther].addr <= targetBRAMEnds[~targetBRAMNumber];
-    //                 bramPorts[targetBRAMOffsetOther].we <= 1;
-
-    //                 //increment slot counter
-    //                 targetBRAMEnds[~targetBRAMNumber] <= targetBRAMEnds[~targetBRAMNumber] + 1;
-    //             end
-    //         end
-
-    //         //DUAL: make all combinations of two blobs
-    //         else begin
-    //             //pick left & right
-    //             automatic reg [9:0] targetBlobACenterX = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) >> 1;
-    //             automatic reg [9:0] blobBCenterX       = (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x) >> 1;
-    //             automatic BlobData leftBlob        = targetBlobACenterX < blobBCenterX ? targetBlobA : targetBlobB;
-    //             automatic BlobAngle leftBlobAngle  = targetBlobACenterX < blobBCenterX ? targetBlobAAngle : targetBlobBAngle;
-    //             automatic BlobData rightBlob       = targetBlobACenterX < blobBCenterX ? targetBlobB : targetBlobA;
-    //             automatic BlobAngle rightBlobAngle = targetBlobACenterX < blobBCenterX ? targetBlobBAngle : targetBlobAAngle;
-
-    //             //make enclosing bound
-    //             automatic Math::Vector2d10 topLeft = '{
-    //                 x: `Math_min(leftBlob.boundTopLeft.x, rightBlob.boundTopLeft.x),
-    //                 y: `Math_min(leftBlob.boundTopLeft.y, rightBlob.boundTopLeft.y)
-    //             };
-    //             automatic Math::Vector2d10 bottomRight = '{
-    //                 x: `Math_max(leftBlob.boundBottomRight.x, rightBlob.boundBottomRight.x),
-    //                 y: `Math_max(leftBlob.boundBottomRight.y, rightBlob.boundBottomRight.y)
-    //             };
-    //             automatic Math::Vector2d10 center = '{
-    //                 x: (topLeft.x + bottomRight.x) >> 1,
-    //                 y: (topLeft.y + bottomRight.y) >> 1
-    //             };
-    //             automatic reg [9:0] width  = bottomRight.x - topLeft.x + 1;
-    //             automatic reg [9:0] height = bottomRight.y - topLeft.y + 1;
-
-    //             //if left/right blob angles are valid
-    //             automatic reg angleValid = (virtexConfig.targetMode == DUAL_UP ?
-    //                 leftBlobAngle == FORWARD && rightBlobAngle == BACKWARD :
-    //                 virtexConfig.targetMode == DUAL_DOWN ?
-    //                 leftBlobAngle == BACKWARD && rightBlobAngle == FORWARD : 1);
-
-    //             //gap between target & blobB
-    //             automatic reg [9:0] gapX = `Math_diff(rightBlob.boundTopLeft.x, leftBlob.boundBottomRight.x);
-    //             automatic reg [9:0] gapY = `Math_diff(rightBlob.boundTopLeft.y, leftBlob.boundBottomRight.y);
-    //             automatic reg gapValid = `Math_inRangeInclusive(gapX, virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
-    //                 `Math_inRangeInclusive(gapY, virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax);
-
-    //             //aspect ratio of new target
-    //             automatic reg aspectRatioValid = inAspectRatioRange(width, height,
-    //                 virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-
-    //             //bound area of new target
-    //             automatic reg boundAreaValid = inBoundAreaRange(width * height,
-    //                 virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
-
-    //             //area ratio between two blobs
-    //             automatic BlobArea boundAreaLeft = (leftBlob.boundBottomRight.x - leftBlob.boundTopLeft.x + 1) * (leftBlob.boundBottomRight.y - leftBlob.boundTopLeft.y + 1);
-    //             automatic BlobArea boundAreaRight = (rightBlob.boundBottomRight.x - rightBlob.boundTopLeft.x + 1) * (rightBlob.boundBottomRight.y - rightBlob.boundTopLeft.y + 1);
-    //             automatic reg boundAreaRatioValid = inBoundAreaRatioRange(boundAreaRight, boundAreaLeft,
-    //                 virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax);
-                
-    //             //(sim only)
-    //             $write(" -[leftBlobAngle:%d, rightBlobAngle:%d]-", leftBlobAngle, rightBlobAngle);
-    //             $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrent));
-
-    //             //if this target is valid AND this target is better OR we dont have a target yet
-    //             if (angleValid && gapValid && aspectRatioValid && boundAreaValid && boundAreaRatioValid &&
-    //                 (isTargetNull(targetCurrent) || distSqToTargetCenter(center) < distSqToTargetCenter(targetCurrent.center))) begin
-    //                 //(sim only)
-    //                 $write("=>{TC{cx:%d,cy:%d,w:%d,h:%d,a:%d}}", center.x, center.y, width, height, leftBlobAngle);
-                    
-    //                 targetCurrent <= '{
-    //                     center: center,
-    //                     width: width,
-    //                     height: height,
-    //                     blobCount: 2,
-    //                     angle: leftBlobAngle
-    //                 };
-    //             end
-
-    //             //copy B over to other BRAM
-    //             //write to newest slot
-    //             bramPorts[targetBRAMOffsetOther].din <= targetBlobB;
-    //             bramPorts[targetBRAMOffsetOther].addr <= targetBRAMEnds[~targetBRAMNumber];
-    //             bramPorts[targetBRAMOffsetOther].we <= 1;
-
-    //             //increment slot counter
-    //             targetBRAMEnds[~targetBRAMNumber] <= targetBRAMEnds[~targetBRAMNumber] + 1;
-    //         end
-    //     end
-
-    //     //READ
-    //     if (targetInitStep != 0 && !targetWantsNewA) begin
-    //         //Request New A
-    //         if (nextTargetIndexBs[targetPartion] == NULL_BLOB_INDEX) begin
-    //             //(sim only)
-    //             $write(" WANTS NEW A");
-                
-    //             //Request New A (we must request because we have to wait for last B to finish processing)
-    //             targetWantsNewA <= 1;
-
-    //             //Nullify B0|1
-    //             targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
-    //         end
-
-    //         //READ New B0|1
-    //         else begin
-    //             //(sim only)
-    //             $write(" READ B%d FROM %D", nextTargetIndexBs[targetPartion], targetPartion);
-                
-    //             //READ New B0|1
-    //             bramPorts[targetBRAMOffset+targetPartion].addr <= nextTargetIndexBs[targetPartion];
-
-    //             //Save New B0|1 Index1
-    //             targetIndexBs[targetPartion] <= nextTargetIndexBs[targetPartion];
-    //         end
-    //     end
-
-    //     //Reset for New A OR Finish
-    //     if (targetWillGetNewA) begin
-    //         automatic GroupTarget groupTargetA = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
-    //         automatic Target targetA = groupTargetToTarget(groupTargetA);
-    //         automatic reg justSetTargetCurrent = 0;
-    //         automatic BlobIndex newInvertTargetBRAMEnd = targetBRAMEnds[~targetBRAMNumber];
-
-    //         //Reset
-    //         targetPartion <= 0;
-    //         targetInitStep <= 0;
-    //         targetGroupBJoined <= 0;
-
-    //         //Wrap up Group Mode
-    //         if (virtexConfig.targetMode == GROUP && targetBlobA.area != 0) begin
-    //             automatic reg [9:0] boundWidth = (groupTargetA.boundBottomRight.x - groupTargetA.boundTopLeft.x + 1); 
-    //             automatic reg [9:0] boundHeight = (groupTargetA.boundBottomRight.y - groupTargetA.boundTopLeft.y + 1);
-    //             automatic BlobArea boundArea = boundWidth * boundHeight; //bound area of entire target
-    //             automatic reg boundAreaValid = inBoundAreaRange(boundArea, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax);
-    //             automatic reg aspectRatioValid = inAspectRatioRange(boundWidth, boundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
-    //             automatic reg blobCountValid = `Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax);
-
-    //             //More processing needed on this target -> copy over
-    //             if (targetGroupBJoined && newInvertTargetBRAMEnd != 0) begin
-    //                 //write to newest slot
-    //                 bramPorts[targetBRAMOffsetOther+1].din <= targetBlobA;
-    //                 bramPorts[targetBRAMOffsetOther+1].addr <= newInvertTargetBRAMEnd;
-    //                 bramPorts[targetBRAMOffsetOther+1].we <= 1;
-
-    //                 //(sim only)
-    //                 $write(" CHAIN_NOT_DONE->COPY%b", newInvertTargetBRAMEnd);
-
-    //                 //increment slot counter
-    //                 newInvertTargetBRAMEnd = newInvertTargetBRAMEnd + 1;
-    //                 targetBRAMEnds[~targetBRAMNumber] <= newInvertTargetBRAMEnd;
-    //             end
-
-    //             //Done with this target -> attempt to become targetCurrent
-    //             else if (boundAreaValid && aspectRatioValid && blobCountValid &&
-    //                 (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))) begin
-    //                 //make Best Target
-    //                 targetCurrent <= targetA;
-        
-    //                 //flag
-    //                 justSetTargetCurrent = 1;
-
-    //                 //(sim only)
-    //                 $write(" CHAIN_END->BEST_TARGET");
-    //             end
-
-    //             //(sim only)
-    //             else $write(" CHAIN_END->NOT_BEST_TARGET(boundAreaValid%b, aspectRatioValid%b, blobCountValid%b, nil%b)", boundAreaValid, aspectRatioValid, blobCountValid, isTargetNull(targetCurrent));
-    //         end
-
-    //         //Reset Slot Counter for Next Opposite BRAM Number
-    //         targetBRAMEnds[targetBRAMNumber] <= 0;
-
-    //         //Swap BRAM Number
-    //         targetBRAMNumber <= ~targetBRAMNumber;
-
-    //         //Finish //FIXME finish dual @ 1?
-    //         if (newInvertTargetBRAMEnd == 0) begin
-    //             //transfer best target to target
-    //             target <= justSetTargetCurrent ? targetA : targetCurrent;
-
-    //             //(sim only)
-    //             begin
-    //                 automatic Target newTarget = justSetTargetCurrent ? targetA : targetCurrent;
-    //                 $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-    //                     newTarget.center.x,
-    //                     newTarget.center.y,
-    //                     newTarget.width,
-    //                     newTarget.height,
-    //                     newTarget.blobCount,
-    //                     newTarget.angle
-    //                 );
-    //                 $write(" > Target Selector Done < ");
-    //             end
-
-    //             //flag
-    //             targetSelectorDone <= 1;
-    //         end
-
-    //         //READ New A on 0
-    //         else begin
-    //             //READ New A on 0
-    //             bramPorts[targetBRAMOffsetOther].addr <= 0;
-
-    //             //Update State
-    //             targetWantsNewA <= 0;
-    //             targetPartion <= 1;
-    //             targetInitStep <= 1;
-
-    //             //(sim only)
-    //             $write(" READ NEW A0 FROM 0");
-    //         end
-    //     end
-
-    //     //Nullify B0|1 (to reset for next loop)
-    //     else if (targetWantsNewA) begin
-    //         targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
-    //     end
-
-    //     //(sim only)
-    //     $write("\n");
-    // endtask
-    function automatic logic [19:0] distSqToTargetCenter(Math::Vector2d10 v);
-        //Distance^2 Between Vector and Target Center
-        return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
-    endfunction
+        //(sim only)
+        if (trainAlmostDone) begin
+            $display(" > Blob Train Done < %d", trainFinishedIndex + (trainInitDone && trainBlobGood ? 1 : 0));
+        end
+    endtask
     function automatic logic doesBlobMatchCriteria(BlobData blob);
         reg nonZero = blob.area != 0;
 
@@ -831,6 +573,252 @@ module VisionProcessor(
         reg angleValid = virtexConfig.blobAnglesEnabled[15-calcBlobAngle(blob)];
 
         return nonZero && aspectRatioValid & boundAreaValid & fullnessValid & angleValid;
+    endfunction
+
+    //Target Selector (blobs => target)
+    task updateTargetSelectorSingle(reg blobValid);
+        //if this target is valid AND this target is better OR we dont have a target yet
+        if (blobValid && targetSingleIsBetterTarget) begin
+            targetCurrent <= targetSingleNewTarget;
+
+            if (trainAlmostDone) begin
+                target <= targetSingleNewTarget;
+
+                //(sim only)
+                $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                    targetSingleNewTarget.center.x, targetSingleNewTarget.center.y,
+                    targetSingleNewTarget.width, targetSingleNewTarget.height,
+                    targetSingleNewTarget.blobCount, targetSingleNewTarget.angle
+                );
+            end
+        end
+        else if (trainAlmostDone) begin
+            target <= targetCurrent;
+
+            //(sim only)
+            $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                targetCurrent.center.x, targetCurrent.center.y, targetCurrent.width, targetCurrent.height, targetCurrent.blobCount, targetCurrent.angle
+            );
+        end
+    endtask
+    task updateTargetSelectorDualGroup();
+        /*  TS Dual/Group Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
+            targetInitStep, targetPartion, commands
+            ------------------------------------------------------
+            0 - READ New A on 0
+            1 +                                 READ New B1 on 1
+            2 - SAVE A from 0                   READ New B0 on 0
+            3 +                 PROCESS B1 on 1 READ New B1 on 1
+            3 -                 PROCESS B0 on 0 READ New B0 on 0
+            3 +                 PROCESS B1 on 1 READ New B1 on 1
+            3 -                 PROCESS B0 on 0 READ New B0 on 0
+            ... for all Bs
+            ---- for all As */
+
+        //(sim only)
+        $write("%d %d", targetInitStep, targetPartion);
+
+        //Increment Init Step
+        if (targetInitStep != 3) begin
+            targetInitStep <= targetInitStep+1;
+        end
+
+        //Swap Partion
+        targetPartion <= ~targetPartion;
+
+        //SAVE A from 0
+        if (targetInitStep == 2) begin
+            targetBlobA <= targetReadBlob;
+            targetBlobAAngle <= targetReadBlobAngle;
+
+            //(sim only)
+            $write(" SAVE A0 FROM 0");
+        end
+
+        //PROCESS
+        if (targetInitStep == 3 && targetIndexBs[targetPartion] != NULL_BLOB_INDEX) begin
+            //(sim only)
+            $write(" PROCESS B%d FROM %d", targetIndexBs[targetPartion], targetPartion);
+
+            //GROUP: chain other blobs together starting a Blob A
+            if (virtexConfig.targetMode == GROUP) begin
+                //join B to A
+                if (targetGroupWillJoin) begin
+                    //make new group target & save
+                    targetBlobA <= targetGroupNewTargetA;
+
+                    //Flag B Joined
+                    targetGroupBJoined <= 1;
+                end
+
+                //copy B over to other BRAM
+                else begin
+                    //write to newest slot
+                    bramPorts[targetBRAMOffsetOther].din <= targetBlobB;
+                    bramPorts[targetBRAMOffsetOther].addr <= targetBRAMEnds[~targetBRAMNumber];
+                    bramPorts[targetBRAMOffsetOther].we <= 1;
+
+                    //increment slot counter
+                    targetBRAMEnds[~targetBRAMNumber] <= targetBRAMEnds[~targetBRAMNumber] + 1;
+                end
+            end
+
+            //DUAL: make all combinations of two blobs
+            else begin
+                //(sim only)
+                // $write(" -[targetDualLeftBlobAngle:%d, targetDualRightBlobAngle:%d]-", targetDualLeftBlobAngle, targetDualRightBlobAngle);
+                // $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrent));
+
+                //if this target is valid AND this target is better OR we dont have a target yet
+                if (targetDualIsBetterTarget) begin
+                    //(sim only)
+                    // $write("=>{TC{cx:%d,cy:%d,w:%d,h:%d,a:%d}}", center.x, center.y, width, height, targetDualLeftBlobAngle);
+                    
+                    targetCurrent <= '{
+                        center: targetDualCenter,
+                        width: targetDualWidth,
+                        height: targetDualHeight,
+                        blobCount: 2,
+                        angle: targetDualLeftBlobAngle
+                    };
+                end
+
+                //copy B over to other BRAM
+                //write to newest slot
+                bramPorts[targetBRAMOffsetOther].din <= targetBlobB;
+                bramPorts[targetBRAMOffsetOther].addr <= targetBRAMEnds[~targetBRAMNumber];
+                bramPorts[targetBRAMOffsetOther].we <= 1;
+
+                //increment slot counter
+                targetBRAMEnds[~targetBRAMNumber] <= targetBRAMEnds[~targetBRAMNumber] + 1;
+            end
+        end
+
+        //READ
+        if (targetInitStep != 0 && !targetWantsNewA) begin
+            //Request New A
+            if (nextTargetIndexBs[targetPartion] == NULL_BLOB_INDEX) begin
+                //(sim only)
+                $write(" WANTS NEW A");
+                
+                //Request New A (we must request because we have to wait for last B to finish processing)
+                targetWantsNewA <= 1;
+
+                //Nullify B0|1
+                targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
+            end
+
+            //READ New B0|1
+            else begin
+                //(sim only)
+                $write(" READ B%d FROM %D", nextTargetIndexBs[targetPartion], targetPartion);
+                
+                //READ New B0|1
+                bramPorts[targetBRAMOffset+targetPartion].addr <= nextTargetIndexBs[targetPartion];
+
+                //Save New B0|1 Index1
+                targetIndexBs[targetPartion] <= nextTargetIndexBs[targetPartion];
+            end
+        end
+
+        //Reset for New A OR Finish
+        if (targetWillGetNewA) begin
+            automatic reg justSetTargetCurrent = 0;
+            automatic BlobIndex newInvertTargetBRAMEnd = targetBRAMEnds[~targetBRAMNumber];
+
+            //Reset
+            targetPartion <= 0;
+            targetInitStep <= 0;
+            targetGroupBJoined <= 0;
+
+            //Wrap up Group Mode
+            if (targetIsGroupEnd) begin
+                //More processing needed on this target -> copy over
+                if (targetGroupBJoined && newInvertTargetBRAMEnd != 0) begin
+                    //write to newest slot
+                    bramPorts[targetBRAMOffsetOther+1].din <= targetBlobA;
+                    bramPorts[targetBRAMOffsetOther+1].addr <= newInvertTargetBRAMEnd;
+                    bramPorts[targetBRAMOffsetOther+1].we <= 1;
+
+                    //(sim only)
+                    $write(" CHAIN_NOT_DONE->COPY%b", newInvertTargetBRAMEnd);
+
+                    //increment slot counter
+                    newInvertTargetBRAMEnd = newInvertTargetBRAMEnd + 1;
+                    targetBRAMEnds[~targetBRAMNumber] <= newInvertTargetBRAMEnd;
+                end
+
+                //Done with this target -> attempt to become targetCurrent
+                else if (targetGroupIsBetterTarget) begin
+                    //make Best Target
+                    targetCurrent <= targetA;
+        
+                    //flag
+                    justSetTargetCurrent = 1;
+
+                    //(sim only)
+                    $write(" CHAIN_END->BEST_TARGET");
+                end
+
+                //(sim only)
+                else $write(" CHAIN_END->NOT_BEST_TARGET(boundAreaValid%b, aspectRatioValid%b, blobCountValid%b, nil%b)", boundAreaValid, aspectRatioValid, blobCountValid, isTargetNull(targetCurrent));
+            end
+
+            //Reset Slot Counter for Next Opposite BRAM Number
+            targetBRAMEnds[targetBRAMNumber] <= 0;
+
+            //Swap BRAM Number
+            targetBRAMNumber <= ~targetBRAMNumber;
+
+            //Finish //FIXME finish dual @ 1?
+            if (newInvertTargetBRAMEnd == 0) begin
+                //transfer best target to target
+                target <= justSetTargetCurrent ? targetA : targetCurrent;
+
+                //(sim only)
+                begin
+                    automatic Target newTarget = justSetTargetCurrent ? targetA : targetCurrent;
+                    $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
+                        newTarget.center.x,
+                        newTarget.center.y,
+                        newTarget.width,
+                        newTarget.height,
+                        newTarget.blobCount,
+                        newTarget.angle
+                    );
+                    $write(" > Target Selector Done < ");
+                end
+
+                //flag
+                targetSelectorDone <= 1;
+            end
+
+            //READ New A on 0
+            else begin
+                //READ New A on 0
+                bramPorts[targetBRAMOffsetOther].addr <= 0;
+
+                //Update State
+                targetWantsNewA <= 0;
+                targetPartion <= 1;
+                targetInitStep <= 1;
+
+                //(sim only)
+                $write(" READ NEW A0 FROM 0");
+            end
+        end
+
+        //Nullify B0|1 (to reset for next loop)
+        else if (targetWantsNewA) begin
+            targetIndexBs[targetPartion] <= NULL_BLOB_INDEX;
+        end
+
+        //(sim only)
+        $write("\n");
+    endtask
+    function automatic logic [19:0] distSqToTargetCenter(Math::Vector2d10 v);
+        //Distance^2 Between Vector and Target Center
+        return (v.x - virtexConfig.targetCenterX)**2 + (v.y - virtexConfig.targetCenterY)**2;
     endfunction
 
     //Global Reset for New Frame
