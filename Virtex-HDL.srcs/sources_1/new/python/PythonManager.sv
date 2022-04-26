@@ -73,13 +73,6 @@ module PythonManager(
     //FIXME - Testing Version Static Image Readout
     wire CLK288, CLK72, CLK36;
 
-    BUFR #(.SIM_DEVICE("7SERIES"), .BUFR_DIVIDE("2")) CLK72_DIV_36 ( //dirty clock
-        .I(CLK72),
-        .O(CLK36),
-        .CE(1'b1),
-        .CLR(1'b0)
-    );
-
     Run rleCurrentRun;
     Math::Vector2d10 rleKernelPos;
     wire [7:0] rleKernel = image[rleKernelPos.y * 80 + rleKernelPos.x];
@@ -242,8 +235,12 @@ module PythonManager(
     );
     clk_wiz_python_fix(
         .clk_in1(CLK100),
-        .clk_out1(CLK72),
-        .clk_out2(CLK288)
+        .clk_out1(CLK72)
+    );
+
+    clk_wiz_python_fix_2(
+        .clk_in1(CLK100),
+        .clk_out1(CLK36)
     );
 
 

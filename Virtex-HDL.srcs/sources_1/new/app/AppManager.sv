@@ -77,12 +77,18 @@ module AppManager(
 
     //Loop
     reg [15:0] commandIndex = 0;
-    reg [1:0] getFramePartion = 0;
-    reg [5:0] configAddress = 0;
-    reg [7:0] configDataPartion0 = 0;
     reg lastReadDataValid = 0;
     wire newReadData = readDataValid & ~lastReadDataValid;
+
+    reg [1:0] getFramePartion = 0;
+    wire [7:0] frameBufferReadOutSlice = frameBufferReadOut[((getFramePartion << 3) + 7) -: 8];
+    wire [7:0] targetSlice = target[(47 - (commandIndex << 3)) -: 8];
+
+    reg [5:0] configAddress = 0;
+    reg [7:0] configDataPartion0 = 0;
+    wire [7:0] configSlice = virtexConfig[getConfigAddrIndex(configAddress) - (commandIndex ? 8 : 0) -: 8];
     initial virtexConfigWriteRequest = 0;
+    
     initial enabled = 0;
 
     always_ff @(posedge CLK50) begin
@@ -130,7 +136,7 @@ module AppManager(
 
                     else if (~writeBusy) begin
                         //send kernel to PC (2 pixels at a time)
-                        writeData <= frameBufferReadOut[((getFramePartion << 3) + 7) -: 8];
+                        writeData <= frameBufferReadOutSlice;
                         writeDataValid <= 1;
 
                         if (getFramePartion == 3) begin
@@ -157,18 +163,12 @@ module AppManager(
                         writeDataValid <= 0;
                     end
 
-                    //write second partion
-                    else if (commandIndex & ~writeBusy) begin
-                        writeData <= virtexConfig[getConfigAddrIndex(configAddress) - 8 -: 8];
-                        writeDataValid <= 1;
-                        state <= IDLE;
-                    end
-
-                    //write first partion
+                    //write
                     else if (~writeBusy) begin
-                        writeData <= virtexConfig[getConfigAddrIndex(configAddress) -: 8];
+                        writeData <= configSlice;
                         writeDataValid <= 1;
-                        commandIndex <= 1;
+                        if (commandIndex) state <= IDLE; //second partion -> end
+                        else commandIndex <= 1; //first partion -> second partion
                     end
                 end
 
@@ -194,7 +194,7 @@ module AppManager(
 
                     else if (~writeBusy) begin
                         //send target to PC (in 6 bytes)
-                        writeData <= target[(47 - (commandIndex << 3)) -: 8];
+                        writeData <= targetSlice;
                         writeDataValid <= 1;
 
                         if (commandIndex == 5) begin
