@@ -56,7 +56,7 @@ typedef struct packed { //48-bit
     logic [9:0] width;
     logic [9:0] height;
     logic [5:0] blobCount;
-    BlobAngle angle; //2-bit - angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob, GROUP: angle of chain start blob)
+    BlobAngle angle; //2-bit - angle of blob A (SINGLE: angle of blob, DUAL: angle of left blob? //FIXME, GROUP: HORIZONTAL)
 } Target;
 
 //Target Mode

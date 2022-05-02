@@ -95,22 +95,26 @@ module VisionProcessor(
     
     RunBuffer makerLastLineBuffer = '0;
     RunBuffer makerCurrentLineBuffer = '0;
-    reg [9:0] makermakerCurrentLineBufferX = '0;
-    reg [9:0] makerCurrentRunEnd = makermakerCurrentLineBufferX + runFIFOOut.length - 1;
-    wire BlobData makerCurrentRunAsBlob = runToBlob(makermakerCurrentLineBufferX, runFIFOOut.length, runFIFOOut.line);
+    reg [9:0] makerCurrentLineBufferX = '0;
+    reg [9:0] makerCurrentRunEnd = makerCurrentLineBufferX + runFIFOOut.length - 1;
+    wire BlobData makerCurrentRunAsBlob = runToBlob(makerCurrentLineBufferX, runFIFOOut.length, runFIFOOut.line);
     wire makerIsLastRun = (makerCurrentRunEnd) == (IMAGE_WIDTH-1) & runFIFOOut.line == (IMAGE_HEIGHT-1);
 
-    BlobIndex makerTouchingIndex; //the run from the last line buffer in which the current run is touching
-    always_comb begin
+    wire BlobIndex makerTouchingIndex = getMakerTouchingIndex(); //the run from the last line buffer in which the current run is touching
+    function BlobIndex getMakerTouchingIndex();
         for (int i = 0; i < MAX_RUNS_PER_LINE; i++) begin
-            if (i < makerLastLineBuffer.count & makerLastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX & //if valid index in makerLastLineBuffer
-                runsOverlap(makermakerCurrentLineBufferX, makerCurrentRunEnd, //if this run is touching it
-                    makerLastLineBuffer.runs[i].start, makerLastLineBuffer.runs[i].stop))
-            begin
-                makerTouchingIndex = i;
+            if (i < makerLastLineBuffer.count &
+                makerLastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX & //if valid index in makerLastLineBuffer
+                runsOverlap(
+                    makerCurrentLineBufferX, makerCurrentRunEnd, //if this run is touching it
+                    makerLastLineBuffer.runs[i].start, makerLastLineBuffer.runs[i].stop
+                )
+            ) begin
+                return i;
             end
         end
-    end
+    endfunction
+    
     wire BlobIndex makerTouchingBlobIndex = makerLastLineBuffer.runs[makerTouchingIndex].blobIndex;
     wire BlobIndex makerCurrentBlobIndex = makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count].blobIndex;
     wire makerCurrentRunHasJoinedBlob = makerCurrentBlobIndex != NULL_BLOB_INDEX;
@@ -131,29 +135,13 @@ module VisionProcessor(
 
     //Target Selector
     initial target = '0; //"best" target for the last frame
-    Target targetCurrent = '0; //"best" target for the current frame
+    Target targetCurrentSingle = '0, targetCurrentDual = '0, targetCurrentGroup = '0; //"best" target for the current frame
     reg [1:0] targetInitStep = 0; //0-2: init, 3: done
     reg targetPartion = 0; //alterates every cycle
-    
-    reg targetBRAMNumber = 0; //which BRAM to use (0=growing, 1=finished)
-    BlobIndex [0:1] targetBRAMEnds = '{0, 0}; //max index we can go to +1 (5 -> [0:4])
-    wire [1:0] targetBRAMOffset      = targetBRAMNumber ? 2 : 0;
-    wire [1:0] targetBRAMOffsetOther = targetBRAMNumber ? 0 : 2;
-    
-    BlobData targetBlobA = '0; //cached blob A
-    BlobAngle targetBlobAAngle = HORIZONTAL;
-    BlobIndex [0:1] targetIndexBs = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX}; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
-    reg targetWantsNewA = 1; //wants to get a new A (takes 2 cycles)
-    wire targetWillGetNewA = targetWantsNewA && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX && targetInitStep != 2; //we have wanted a new A, but now we are ready
-    reg targetGroupBJoined = 0; //whether any Bs joined cur targetA
-    reg targetSelectorDone = 0;
-    `define fixTargetIndex(index, bramNum) (index < targetBRAMEnds[bramNum]) ? index : NULL_BLOB_INDEX
-    wire BlobIndex initTargetIndexB = `fixTargetIndex(1, targetBRAMNumber);
-    wire BlobIndex [0:1] nextTargetIndexBs = '{
-        `fixTargetIndex(targetIndexBs[1] + 1, targetBRAMNumber), //targetIndexBs opposite so they will skip ahead of eachother (0,1),(2,3)...
-        (targetInitStep == 1) ? initTargetIndexB : `fixTargetIndex(targetIndexBs[0] + 1, targetBRAMNumber)
-    };
+    wire isTargetSingleMode = virtexConfig.targetMode == SINGLE;
+    wire isTargetGroupMode = virtexConfig.targetMode == GROUP;
 
+    //Target Selector - Single
     wire Math::Vector2d10 targetSingleCenter = '{ //Convert Blob A Bounding Box from TopLeft/BottomRight => Center/Width/Height
         x: (trainBlob.boundBottomRight.x + trainBlob.boundTopLeft.x) >> 1,
         y: (trainBlob.boundBottomRight.y + trainBlob.boundTopLeft.y) >> 1
@@ -170,14 +158,81 @@ module VisionProcessor(
     wire targetSingleIsBetterTarget = (
         inAspectRatioRange(targetSingleWidth, targetSingleHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
         inBoundAreaRange(targetSingleWidth * targetSingleHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) &&
-        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetSingleCenter) < distSqToTargetCenter(targetCurrent.center))
+        (isTargetNull(targetCurrentSingle) || distSqToTargetCenter(targetSingleCenter) < distSqToTargetCenter(targetCurrentSingle.center))
     );
 
+    //Target Selector - Dual & Group
+    reg targetBRAMNumber = 0; //which BRAM to use (0=growing, 1=finished)
+    BlobIndex [0:1] targetBRAMEnds = '{0, 0}; //max index we can go to +1 (5 -> [0:4])
+    wire [1:0] targetBRAMOffset      = targetBRAMNumber ? 2 : 0;
+    wire [1:0] targetBRAMOffsetOther = targetBRAMNumber ? 0 : 2;
+
+    BlobIndex [0:1] targetIndexBs = '{NULL_BLOB_INDEX, NULL_BLOB_INDEX}; //B0|1 (alternates, so one is waiting for read delay & the other is proc)
+    `define fixTargetIndex(index, bramNum) (index < targetBRAMEnds[bramNum]) ? index : NULL_BLOB_INDEX
+    wire BlobIndex initTargetIndexB = `fixTargetIndex(1, targetBRAMNumber);
+    wire BlobIndex [0:1] nextTargetIndexBs = '{
+        `fixTargetIndex(targetIndexBs[1] + 1, targetBRAMNumber), //targetIndexBs opposite so they will skip ahead of eachother (0,1),(2,3)...
+        (targetInitStep == 1) ? initTargetIndexB : `fixTargetIndex(targetIndexBs[0] + 1, targetBRAMNumber)
+    };
+    wire [1:0] nextTargetInitStep = targetInitStep+1;
+
+    reg targetWantsNewA = 1; //wants to get a new A (takes 2 cycles)
+    wire targetWillGetNewA = targetWantsNewA && targetIndexBs[0] == NULL_BLOB_INDEX && targetIndexBs[1] == NULL_BLOB_INDEX && targetInitStep != 2; //we have wanted a new A, but now we are ready
+    wire targetWillProcess = targetInitStep == 3 && targetIndexBs[targetPartion] != NULL_BLOB_INDEX;
+    wire targetWillIncrementInitStep = targetInitStep != 3;
+    wire targetWillRead = targetInitStep != 0 && !targetWantsNewA;
+    wire targetWillRequestNewA = nextTargetIndexBs[targetPartion] == NULL_BLOB_INDEX;
+    reg targetGroupBJoined = 0; //whether any Bs joined cur targetA
+    reg targetSelectorDone = 0;
+
+    BlobData targetBlobA = '0; //cached blob A
+    BlobAngle targetBlobAAngle = HORIZONTAL;
     wire BlobData targetReadBlob = bramPorts[targetBRAMOffset+targetPartion].dout;
     wire BlobAngle targetReadBlobAngle = calcBlobAngle(targetReadBlob);
     wire BlobData targetBlobB = targetReadBlob;
     wire BlobAngle targetBlobBAngle = targetReadBlobAngle;
 
+    //Target Selector - Dual
+    wire targetDualBlobALeftOfBlobB = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) < (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x);
+    wire targetDualBlobAAboveOfBlobB = (targetBlobA.boundTopLeft.y + targetBlobA.boundBottomRight.y) < (targetBlobB.boundTopLeft.y + targetBlobB.boundBottomRight.y);
+    wire BlobAngle targetDualLeftBlobAngle = targetDualBlobALeftOfBlobB ? targetBlobAAngle : targetBlobBAngle;
+    wire BlobAngle targetDualRightBlobAngle = targetDualBlobALeftOfBlobB ? targetBlobBAngle : targetBlobAAngle;
+    wire Math::Vector2d10 targetDualTopLeft = '{
+        x: `Math_min(targetBlobA.boundTopLeft.x, targetBlobB.boundTopLeft.x),
+        y: `Math_min(targetBlobA.boundTopLeft.y, targetBlobB.boundTopLeft.y)
+    };
+    wire Math::Vector2d10 targetDualBottomRight = '{
+        x: `Math_max(targetBlobA.boundBottomRight.x, targetBlobB.boundBottomRight.x),
+        y: `Math_max(targetBlobA.boundBottomRight.y, targetBlobB.boundBottomRight.y)
+    };
+    wire Math::Vector2d10 targetDualCenter = '{
+        x: (targetDualTopLeft.x + targetDualBottomRight.x) >> 1,
+        y: (targetDualTopLeft.y + targetDualBottomRight.y) >> 1
+    };
+    wire [9:0] targetDualWidth  = targetDualBottomRight.x - targetDualTopLeft.x + 1;
+    wire [9:0] targetDualHeight = targetDualBottomRight.y - targetDualTopLeft.y + 1;
+    wire targetDualIsBetterTarget = ( //is new target (blobA & blobB) valid & better than targetCurrent
+        (virtexConfig.targetMode != DUAL_UP   || (targetDualLeftBlobAngle == FORWARD  && targetDualRightBlobAngle == BACKWARD)) && //validate angles of blobs
+        (virtexConfig.targetMode != DUAL_DOWN || (targetDualLeftBlobAngle == BACKWARD && targetDualRightBlobAngle == FORWARD )) &&
+        `Math_inRangeInclusive(`Math_diff(
+            targetDualBlobALeftOfBlobB ? targetBlobB.boundTopLeft.x : targetBlobA.boundTopLeft.x,
+            targetDualBlobALeftOfBlobB ? targetBlobA.boundBottomRight.x : targetBlobB.boundBottomRight.x), //validate x-gap between blobs
+            virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax) &&
+        `Math_inRangeInclusive(`Math_diff( //validate y-gap between blobs
+            targetDualBlobAAboveOfBlobB ? targetBlobB.boundTopLeft.y : targetBlobA.boundTopLeft.y, //find the blob on Top, then compare bottom.y of Top blob to top.y of the Bottom blob
+            targetDualBlobAAboveOfBlobB ? targetBlobA.boundBottomRight.y : targetBlobB.boundBottomRight.y),
+            virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax) &&
+        inBoundAreaRatioRange( //validate the ratio of the area between the two blobs
+            (targetBlobA.boundBottomRight.x - targetBlobA.boundTopLeft.x + 1) * (targetBlobA.boundBottomRight.y - targetBlobA.boundTopLeft.y + 1),
+            (targetBlobB.boundBottomRight.x - targetBlobB.boundTopLeft.x + 1) * (targetBlobB.boundBottomRight.y - targetBlobB.boundTopLeft.y + 1),
+            virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax
+        ) &&
+        inBoundAreaRange(targetDualWidth * targetDualHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) && //validate area of target
+        inAspectRatioRange(targetDualWidth, targetDualHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) && //validate aspect ratio of target
+        (isTargetNull(targetCurrentDual) || distSqToTargetCenter(targetDualCenter) < distSqToTargetCenter(targetCurrentDual.center))
+    );
+
+    //Target Selector - Group
     wire GroupTarget groupTargetA = isGroupTarget(targetBlobA) ? asGroupTarget(targetBlobA) : makeGroupTarget(targetBlobA);
     wire GroupTarget groupTargetB = isGroupTarget(targetBlobB) ? asGroupTarget(targetBlobB) : makeGroupTarget(targetBlobB);
     wire Target targetA = groupTargetToTarget(groupTargetA);
@@ -201,56 +256,10 @@ module VisionProcessor(
         inBoundAreaRange(groupTargetABoundWidth * groupTargetABoundHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) &&
         inAspectRatioRange(groupTargetABoundWidth, groupTargetABoundHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
         `Math_inRangeInclusive(groupTargetA.blobCount, virtexConfig.targetBlobCountMin, virtexConfig.targetBlobCountMax) &&
-        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrent.center))
+        (isTargetNull(targetCurrentGroup) || distSqToTargetCenter(targetA.center) < distSqToTargetCenter(targetCurrentGroup.center))
     );
     wire Target targetGroupNewTargetA = asBlob(mergeGroupTargets(groupTargetA, groupTargetB));
-    wire targetIsGroupEnd = virtexConfig.targetMode == GROUP && targetBlobA.area != 0;
-
-    wire targetDualBlobALeftOfBlobB = (targetBlobA.boundTopLeft.x + targetBlobA.boundBottomRight.x) < (targetBlobB.boundTopLeft.x + targetBlobB.boundBottomRight.x);
-    wire BlobData  targetDualLeftBlob       = targetDualBlobALeftOfBlobB ? targetBlobA : targetBlobB;
-    wire BlobAngle targetDualLeftBlobAngle  = targetDualBlobALeftOfBlobB ? targetBlobAAngle : targetBlobBAngle;
-    wire BlobData  targetDualRightBlob      = targetDualBlobALeftOfBlobB ? targetBlobB : targetBlobA;
-    wire BlobAngle targetDualRightBlobAngle = targetDualBlobALeftOfBlobB ? targetBlobBAngle : targetBlobAAngle;
-    wire Math::Vector2d10 targetDualTopLeft = '{
-        x: `Math_min(targetDualLeftBlob.boundTopLeft.x, targetDualRightBlob.boundTopLeft.x),
-        y: `Math_min(targetDualLeftBlob.boundTopLeft.y, targetDualRightBlob.boundTopLeft.y)
-    };
-    wire Math::Vector2d10 targetDualBottomRight = '{
-        x: `Math_max(targetDualLeftBlob.boundBottomRight.x, targetDualRightBlob.boundBottomRight.x),
-        y: `Math_max(targetDualLeftBlob.boundBottomRight.y, targetDualRightBlob.boundBottomRight.y)
-    };
-    wire Math::Vector2d10 targetDualCenter = '{
-        x: (targetDualTopLeft.x + targetDualBottomRight.x) >> 1,
-        y: (targetDualTopLeft.y + targetDualBottomRight.y) >> 1
-    };
-    wire [9:0] targetDualWidth  = targetDualBottomRight.x - targetDualTopLeft.x + 1;
-    wire [9:0] targetDualHeight = targetDualBottomRight.y - targetDualTopLeft.y + 1;
-    wire targetDualIsBetterTarget = ( //is new target (blobA & blobB) valid & better than targetCurrent
-        (virtexConfig.targetMode == DUAL_UP ?  targetDualLeftBlobAngle == FORWARD  && targetDualRightBlobAngle == BACKWARD : //left & right angles valid
-        virtexConfig.targetMode == DUAL_DOWN ? targetDualLeftBlobAngle == BACKWARD && targetDualRightBlobAngle == FORWARD : 1) &&
-        `Math_inRangeInclusive( //blobs gap x valid
-            `Math_diff(targetDualRightBlob.boundTopLeft.x, targetDualLeftBlob.boundBottomRight.x),
-            virtexConfig.targetBlobXGapMin, virtexConfig.targetBlobXGapMax
-        ) &&
-        `Math_inRangeInclusive( //blobs gap x valid
-            `Math_diff(targetDualRightBlob.boundTopLeft.y, targetDualLeftBlob.boundBottomRight.y),
-            virtexConfig.targetBlobYGapMin, virtexConfig.targetBlobYGapMax
-        ) &&
-        inAspectRatioRange( //target aspect ratio valid
-            targetDualWidth, targetDualHeight,
-            virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax
-        ) &&
-        inBoundAreaRange( //target bound area valid
-            targetDualWidth * targetDualHeight,
-            virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax
-        ) &&
-        inBoundAreaRatioRange( //area ratio between blobs valid
-            (targetDualRightBlob.boundBottomRight.x - targetDualRightBlob.boundTopLeft.x + 1) * (targetDualRightBlob.boundBottomRight.y - targetDualRightBlob.boundTopLeft.y + 1),
-            (targetDualLeftBlob.boundBottomRight.x - targetDualLeftBlob.boundTopLeft.x + 1) * (targetDualLeftBlob.boundBottomRight.y - targetDualLeftBlob.boundTopLeft.y + 1),
-            virtexConfig.targetBoundAreaRatioMin, virtexConfig.targetBoundAreaRatioMax
-        ) &&
-        (isTargetNull(targetCurrent) || distSqToTargetCenter(targetDualCenter) < distSqToTargetCenter(targetCurrent.center))
-    );
+    wire targetIsGroupEnd = isTargetGroupMode && targetBlobA.area != 0;
 
     //(sim only)
     int fd;
@@ -271,7 +280,6 @@ module VisionProcessor(
     // assign debug[5] = makerGrowingIndex > 0;
     // assign debug[6] = trainAlmostDone;
     // assign debug[7] = trainDone;
-
 
     //200MHz Clocked Loop
     always_ff @(negedge CLK_P) begin
@@ -313,7 +321,7 @@ module VisionProcessor(
 
         //Update Target Selector (Stage 3)
         else if (~targetSelectorDone) begin
-            if (virtexConfig.targetMode == SINGLE) begin
+            if (isTargetSingleMode) begin
                 targetSelectorDone <= 1;
             end
             else updateTargetSelectorDualGroup();
@@ -336,7 +344,7 @@ module VisionProcessor(
             end
 
             //reset current line buffer
-            makermakerCurrentLineBufferX <= 0;
+            makerCurrentLineBufferX <= 0;
             makerCurrentLineBuffer.count <= 0;
             makerCurrentLineBuffer.runs[0] <= '{start:0, stop:0, blobIndex:NULL_BLOB_INDEX};
             makerCurrentLineBuffer.line <= runFIFOOut.line;
@@ -350,7 +358,7 @@ module VisionProcessor(
                     //Run is Black => Continue
                     if (runFIFOOut.black) begin
                         makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count] <= '{
-                            start: makermakerCurrentLineBufferX,
+                            start: makerCurrentLineBufferX,
                             stop: makerCurrentRunEnd,
                             blobIndex: NULL_BLOB_INDEX
                         };
@@ -423,7 +431,7 @@ module VisionProcessor(
 
             //save to current line run buffer
             makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count] <= '{
-                start: makermakerCurrentLineBufferX,
+                start: makerCurrentLineBufferX,
                 stop: makerCurrentRunEnd,
                 blobIndex: bramPorts[0].addr
             };
@@ -467,7 +475,7 @@ module VisionProcessor(
 
             //save to current line run buffer
             makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count] <= '{
-                start: makermakerCurrentLineBufferX,
+                start: makerCurrentLineBufferX,
                 stop: makerCurrentRunEnd,
                 blobIndex: makerGrowingIndex
             };
@@ -481,7 +489,7 @@ module VisionProcessor(
     endtask
     task blobFinishRun();
         //prepare for new run
-        makermakerCurrentLineBufferX <= makerCurrentRunEnd + 1;
+        makerCurrentLineBufferX <= makerCurrentRunEnd + 1;
         makerCurrentLineBuffer.count <= makerCurrentLineBuffer.count + 1;
         makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count+1] <= '{start:0, stop:0, blobIndex:NULL_BLOB_INDEX};
 
@@ -533,8 +541,8 @@ module VisionProcessor(
             end
             
             //Update Single Mode Target Selector
-            if (virtexConfig.targetMode == SINGLE) begin
-                updateTargetSelectorSingle(trainBlobGood);
+            if (isTargetSingleMode) begin
+                updateTargetSelectorSingle();
             end
         end
 
@@ -576,10 +584,10 @@ module VisionProcessor(
     endfunction
 
     //Target Selector (blobs => target)
-    task updateTargetSelectorSingle(reg blobValid);
+    task updateTargetSelectorSingle();
         //if this target is valid AND this target is better OR we dont have a target yet
-        if (blobValid && targetSingleIsBetterTarget) begin
-            targetCurrent <= targetSingleNewTarget;
+        if (trainBlobGood && targetSingleIsBetterTarget) begin
+            targetCurrentSingle <= targetSingleNewTarget;
 
             if (trainAlmostDone) begin
                 target <= targetSingleNewTarget;
@@ -593,14 +601,17 @@ module VisionProcessor(
             end
         end
         else if (trainAlmostDone) begin
-            target <= targetCurrent;
+            target <= targetCurrentSingle;
 
             //(sim only)
             $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-                targetCurrent.center.x, targetCurrent.center.y, targetCurrent.width, targetCurrent.height, targetCurrent.blobCount, targetCurrent.angle
+                targetCurrentSingle.center.x, targetCurrentSingle.center.y,
+                targetCurrentSingle.width, targetCurrentSingle.height,
+                targetCurrentSingle.blobCount, targetCurrentSingle.angle
             );
         end
     endtask
+
     task updateTargetSelectorDualGroup();
         /*  TS Dual/Group Breakdown (A = target1/chainStart, B = target2/chainJoiner, 0|1 = BRAM ports)
             targetInitStep, targetPartion, commands
@@ -619,8 +630,8 @@ module VisionProcessor(
         $write("%d %d", targetInitStep, targetPartion);
 
         //Increment Init Step
-        if (targetInitStep != 3) begin
-            targetInitStep <= targetInitStep+1;
+        if (targetWillIncrementInitStep) begin
+            targetInitStep <= nextTargetInitStep;
         end
 
         //Swap Partion
@@ -636,12 +647,12 @@ module VisionProcessor(
         end
 
         //PROCESS
-        if (targetInitStep == 3 && targetIndexBs[targetPartion] != NULL_BLOB_INDEX) begin
+        if (targetWillProcess) begin
             //(sim only)
             $write(" PROCESS B%d FROM %d", targetIndexBs[targetPartion], targetPartion);
 
             //GROUP: chain other blobs together starting a Blob A
-            if (virtexConfig.targetMode == GROUP) begin
+            if (isTargetGroupMode) begin
                 //join B to A
                 if (targetGroupWillJoin) begin
                     //make new group target & save
@@ -667,19 +678,19 @@ module VisionProcessor(
             else begin
                 //(sim only)
                 // $write(" -[targetDualLeftBlobAngle:%d, targetDualRightBlobAngle:%d]-", targetDualLeftBlobAngle, targetDualRightBlobAngle);
-                // $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrent));
+                // $write("(*angV:%b,gapV:%b,aspV:%b,bndV:%b,rtiV:%b,nil:%b*)", angleValid, gapValid, aspectRatioValid, boundAreaValid, boundAreaRatioValid, isTargetNull(targetCurrentDual));
 
                 //if this target is valid AND this target is better OR we dont have a target yet
                 if (targetDualIsBetterTarget) begin
                     //(sim only)
                     // $write("=>{TC{cx:%d,cy:%d,w:%d,h:%d,a:%d}}", center.x, center.y, width, height, targetDualLeftBlobAngle);
                     
-                    targetCurrent <= '{
+                    targetCurrentDual <= '{
                         center: targetDualCenter,
                         width: targetDualWidth,
                         height: targetDualHeight,
                         blobCount: 2,
-                        angle: targetDualLeftBlobAngle
+                        angle: HORIZONTAL //FIXME targetDualLeftBlobAngle
                     };
                 end
 
@@ -695,9 +706,9 @@ module VisionProcessor(
         end
 
         //READ
-        if (targetInitStep != 0 && !targetWantsNewA) begin
+        if (targetWillRead) begin
             //Request New A
-            if (nextTargetIndexBs[targetPartion] == NULL_BLOB_INDEX) begin
+            if (targetWillRequestNewA) begin
                 //(sim only)
                 $write(" WANTS NEW A");
                 
@@ -751,7 +762,7 @@ module VisionProcessor(
                 //Done with this target -> attempt to become targetCurrent
                 else if (targetGroupIsBetterTarget) begin
                     //make Best Target
-                    targetCurrent <= targetA;
+                    targetCurrentGroup <= targetA;
         
                     //flag
                     justSetTargetCurrent = 1;
@@ -773,11 +784,11 @@ module VisionProcessor(
             //Finish //FIXME finish dual @ 1?
             if (newInvertTargetBRAMEnd == 0) begin
                 //transfer best target to target
-                target <= justSetTargetCurrent ? targetA : targetCurrent;
+                target <= justSetTargetCurrent ? targetA : isTargetGroupMode ? targetCurrentGroup : targetCurrentDual;
 
                 //(sim only)
                 begin
-                    automatic Target newTarget = justSetTargetCurrent ? targetA : targetCurrent;
+                    automatic Target newTarget = justSetTargetCurrent ? targetA : isTargetGroupMode ? targetCurrentGroup : targetCurrentDual;
                     $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
                         newTarget.center.x,
                         newTarget.center.y,
@@ -844,7 +855,9 @@ module VisionProcessor(
 
         //Target Selector Reset
         targetBlobA <= '0;
-        targetCurrent <= '0;
+        targetCurrentSingle <= '0;
+        targetCurrentDual <= '0;
+        targetCurrentGroup <= '0;
         targetWantsNewA <= 1;
         targetIndexBs <= '{NULL_BLOB_INDEX, NULL_BLOB_INDEX};
         targetInitStep <= '0;

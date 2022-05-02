@@ -12,8 +12,8 @@ module FastSerial(
     input wire FSDO, //PC->FPGA
     input wire FSCTS, //FPGA clear to send, active low
     input wire enabled,
-    input wire [7:0] writeData,
-    input wire writeDataValid, //active high
+    input wire [7:0] newWriteData,
+    input wire newWriteDataValid, //active high
     output reg writeBusy, //active high
     output reg [7:0] readData,
     output reg readDataValid, //active high
@@ -58,23 +58,18 @@ module FastSerial(
     end
 
     //Write
+    reg [7:0] writeData;
     reg [3:0] writePointer = 0;
-    reg lastWriteDataValid = 0;
     initial writeBusy = 0;
     initial FSDI = 1;
 
     always_ff @(negedge CLK50) begin
-        //new write data
-        if (writeDataValid & ~lastWriteDataValid & ~writeBusy) begin
-            //FIXME remove blocking
-            writeBusy = 1;
-            writePointer = 0;
-        end
-        lastWriteDataValid <= writeDataValid;
+        automatic reg newWriteBusy = writeBusy;
 
         //reset
         if (~reset) begin
             writePointer <= 0;
+            writeBusy <= 0;
             FSDI <= 1;
         end
 
@@ -98,6 +93,7 @@ module FastSerial(
             //reg 10 (END)
             else if (writePointer == 10 & FSCTS) begin
                 writeBusy <= 0;
+                newWriteBusy <= 0;
                 writePointer <= 0;
             end
 
@@ -113,5 +109,12 @@ module FastSerial(
 
         //idle
         else FSDI <= 1;
+
+        //new write data
+        if (newWriteDataValid & ~newWriteBusy) begin
+            writeData <= newWriteData;
+            writeBusy <= 1;
+            writePointer <= 0;
+        end
     end
 endmodule

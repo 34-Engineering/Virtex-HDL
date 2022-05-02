@@ -59,15 +59,15 @@ module AppManager(
     wire writeBusy;
     wire [7:0] readData;
     wire readDataValid;
-    FastSerial fastSerial (//TODO fast serial full sync (every loop dataValid it will write/doesn't care about change)
+    FastSerial fastSerial (
         .CLK50(CLK50),
         .FSDI(FSDI),
         .FSCLK(FSCLK),
         .FSDO(FSDO),
         .FSCTS(FSCTS),
         .enabled(USB_ENABLED),
-        .writeData(writeData),
-        .writeDataValid(writeDataValid),
+        .newWriteData(writeData),
+        .newWriteDataValid(writeDataValid),
         .writeBusy(writeBusy),
         .readData(readData),
         .readDataValid(readDataValid),
@@ -92,6 +92,8 @@ module AppManager(
     initial enabled = 0;
 
     always_ff @(posedge CLK50) begin
+        writeDataValid <= 0;
+
         if (USB_ENABLED) begin
             case (state)
                 IDLE: begin
@@ -129,42 +131,23 @@ module AppManager(
                     //so there relative to this loop there is no read delay
                     //AKA an address is written and next loop data is ready
 
-                    //drop data valid and come back next loop
-                    if (writeDataValid) begin
-                        writeDataValid <= 0;
-                    end
-
-                    else if (~writeBusy) begin
+                    if (~writeBusy) begin
                         //send kernel to PC (2 pixels at a time)
                         writeData <= frameBufferReadOutSlice;
                         writeDataValid <= 1;
-
+                        getFramePartion <= getFramePartion + 1;
                         if (getFramePartion == 3) begin
-                            if (commandIndex == 38400) begin
-                                //finish reading frame
-                                state <= IDLE;
-                            end
+                            if (commandIndex == 38400) state <= IDLE; //finish reading frame
                             else begin
-                                //read next kernel
-                                frameBufferAddrRead <= commandIndex + 1;
-
-                                //increment index
+                                frameBufferAddrRead <= commandIndex + 1; //read next kernel
                                 commandIndex <= commandIndex + 1;
                             end
                         end
-
-                        getFramePartion <= getFramePartion + 1;
                     end
                 end
 
                 GET_CONFIG: begin
-                    //drop data valid and come back next loop
-                    if (writeDataValid) begin
-                        writeDataValid <= 0;
-                    end
-
-                    //write
-                    else if (~writeBusy) begin
+                    if (~writeBusy) begin
                         writeData <= configSlice;
                         writeDataValid <= 1;
                         if (commandIndex) state <= IDLE; //second partion -> end
@@ -188,23 +171,12 @@ module AppManager(
                 end
 
                 GET_TARGET: begin
-                    if (writeDataValid) begin
-                        writeDataValid <= '0;
-                    end
-
-                    else if (~writeBusy) begin
+                    if (~writeBusy) begin
                         //send target to PC (in 6 bytes)
                         writeData <= targetSlice;
                         writeDataValid <= 1;
-
-                        if (commandIndex == 5) begin
-                            //finish reading frame
-                            state <= IDLE;
-                        end
-                        else begin
-                            //increment index
-                            commandIndex <= commandIndex + 1;
-                        end
+                        if (commandIndex == 5) state <= IDLE; //finish reading frame
+                        else commandIndex <= commandIndex + 1; //increment index
                     end
                 end
             endcase

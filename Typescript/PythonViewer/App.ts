@@ -80,24 +80,23 @@ function onData(newData: Buffer) {
         }
 
         //Send to Web
-        if (isTargetRequest) io.emit('target', target);
+        if (isTargetRequest) { io.emit('target', target); console.log(target);}
         else io.emit('frame', frame);
 
-        /*
         //Draw Target
-        if (obj.target) {
-            //bound
-            drawRect(tempImage.data, {
-                x: obj.center.x - (obj.width >> 1),
-                y: obj.center.y - (obj.height >> 1)
-            }, {
-                x: obj.center.x + (obj.width >> 1),
-                y: obj.center.y + (obj.height >> 1)
-            }, [125, 255, 125, 255]);
+        // if (obj.target) {
+            // //bound
+            // drawRect(tempImage.data, {
+            //     x: obj.center.x - (obj.width >> 1),
+            //     y: obj.center.y - (obj.height >> 1)
+            // }, {
+            //     x: obj.center.x + (obj.width >> 1),
+            //     y: obj.center.y + (obj.height >> 1)
+            // }, [125, 255, 125, 255]);
 
-            //center
-            drawCenterFillSquare(tempImage.data, obj.center, 2, [125, 255, 125, 255]);
-        }*/
+            // //center
+            // drawCenterFillSquare(tempImage.data, obj.center, 2, [125, 255, 125, 255]);
+        // }
 
         //Request New
         isTargetRequest = !isTargetRequest;
