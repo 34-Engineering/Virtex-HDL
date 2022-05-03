@@ -131,7 +131,7 @@ module VisionProcessor(
     reg trainInitDone = '0;
     
     wire BlobData trainBlob = bramPorts[trainPartion].dout;
-    wire trainBlobGood = doesBlobMatchCriteria(trainBlob);
+    wire trainBlobGood = 1;//FIXME doesBlobMatchCriteria(trainBlob);
 
     //Target Selector
     initial target = '0; //"best" target for the last frame
@@ -155,9 +155,10 @@ module VisionProcessor(
         blobCount: 1,
         angle: calcBlobAngle(trainBlob)
     };
-    wire targetSingleIsBetterTarget = (
-        inAspectRatioRange(targetSingleWidth, targetSingleHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
-        inBoundAreaRange(targetSingleWidth * targetSingleHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) &&
+    wire targetSingleIsBetterTarget = ( //if this target is valid AND this target is better OR we dont have a target yet
+        trainBlobGood &&
+        // inAspectRatioRange(targetSingleWidth, targetSingleHeight, virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax) &&
+        // inBoundAreaRange(targetSingleWidth * targetSingleHeight, virtexConfig.targetBoundAreaMin, virtexConfig.targetBoundAreaMax) && //FIXME
         (isTargetNull(targetCurrentSingle) || distSqToTargetCenter(targetSingleCenter) < distSqToTargetCenter(targetCurrentSingle.center))
     );
 
@@ -272,14 +273,7 @@ module VisionProcessor(
     initial openFile();
 
     //FIXME
-    // initial debug = '0;
-    assign debug = makerGrowingIndex;
-    // assign debug[2:0] = makerState;
-    // assign debug[3] = runFIFOEmpty;
-    // assign debug[4] = runFIFOFull;
-    // assign debug[5] = makerGrowingIndex > 0;
-    // assign debug[6] = trainAlmostDone;
-    // assign debug[7] = trainDone;
+    assign debug = target.width >> 2;
 
     //200MHz Clocked Loop
     always_ff @(negedge CLK_P) begin
@@ -308,6 +302,7 @@ module VisionProcessor(
         
         //Read from FIFO
         else if (~runFIFOEmpty) begin
+            debug[0] <= 1;
             runFIFORead <= 1;
             if (~targetSelectorDone) begin
                 BLOB_PROCESSOR_SLOW_FAULT <= 1;
@@ -548,8 +543,6 @@ module VisionProcessor(
 
         //Finish Init
         else if (trainPartion) begin
-            // debug[4] <= 1;
-
             trainInitDone <= 1;
         end
 
@@ -585,30 +578,16 @@ module VisionProcessor(
 
     //Target Selector (blobs => target)
     task updateTargetSelectorSingle();
-        //if this target is valid AND this target is better OR we dont have a target yet
-        if (trainBlobGood && targetSingleIsBetterTarget) begin
+        if (targetSingleIsBetterTarget) begin
             targetCurrentSingle <= targetSingleNewTarget;
-
-            if (trainAlmostDone) begin
-                target <= targetSingleNewTarget;
-
-                //(sim only)
-                $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-                    targetSingleNewTarget.center.x, targetSingleNewTarget.center.y,
-                    targetSingleNewTarget.width, targetSingleNewTarget.height,
-                    targetSingleNewTarget.blobCount, targetSingleNewTarget.angle
-                );
-            end
         end
-        else if (trainAlmostDone) begin
-            target <= targetCurrentSingle;
+        
+        if (trainAlmostDone) begin
+            target <= targetSingleIsBetterTarget ? targetSingleNewTarget : targetCurrentSingle;
 
             //(sim only)
-            $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n",
-                targetCurrentSingle.center.x, targetCurrentSingle.center.y,
-                targetCurrentSingle.width, targetCurrentSingle.height,
-                targetCurrentSingle.blobCount, targetCurrentSingle.angle
-            );
+            begin automatic Target newTarget = targetSingleIsBetterTarget ? targetSingleNewTarget : targetCurrentSingle;
+            $fwrite(fd, "{target:1, center:{x:%d, y:%d}, width:%d, height:%d, blobCount:%d, angle:%d}\n", newTarget.center.x, newTarget.center.y, newTarget.width, newTarget.height, newTarget.blobCount, newTarget.angle); end
         end
     endtask
 

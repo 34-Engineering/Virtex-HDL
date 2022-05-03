@@ -61,19 +61,11 @@
         const canvas = document.querySelector('#canvas');
         const ctx = canvas.getContext('2d');
 
-        //Draw Frame
-        let frame;
-
-        function drawFrame() {
-            const img = ctx.createImageData(640, 480);
-            img.data.set(frame);
-            ctx.putImageData(img, 0, 0);
-        }
-
-        //Recieved Frame
+        //Recieve & Draw Frame
         socket.on('frame', (newFrame) => {
-            frame = new Uint8Array(newFrame);
-            drawFrame();
+            const img = ctx.createImageData(640, 480);
+            img.data.set(new Uint8Array(newFrame));
+            ctx.putImageData(img, 0, 0);
         });
 
         // socket.emit('read');

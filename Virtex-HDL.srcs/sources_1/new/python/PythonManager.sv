@@ -94,7 +94,7 @@ module PythonManager(
         frameLength: 41500,
 
         //target params
-        targetMode: DUAL_UP,
+        targetMode: SINGLE,
         targetBlobXGapMin: 0,
         targetBlobXGapMax: 16'hFFFF,//30,
         targetBlobYGapMin: 0,

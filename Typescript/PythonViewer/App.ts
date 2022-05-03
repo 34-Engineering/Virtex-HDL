@@ -3,6 +3,7 @@ import path from 'path';
 import { SerialPort } from 'serialport';
 import { Server } from 'socket.io';
 import * as http from 'http';
+import { drawCenterFillSquare, drawRect } from '../VisionScripting/src/DrawUtil';
 
 //Express (PC->Web)
 const app: express.Application = express();
@@ -41,8 +42,8 @@ io.on('connection', (socket) => {
 
 //Serial (PC->FT2232H->FPGA)
 let serialPort: any | null = null;
-let frame: Buffer = Buffer.alloc(153600);
-let target: Buffer = Buffer.alloc(6);
+let frame: Buffer = Buffer.alloc(640 * 480 << 2);
+let target: string = "";
 let readPointer: number = 0;
 let queue: number[] = [];
 let isTargetRequest: boolean = false;
@@ -63,40 +64,69 @@ async function initSerialPort() {
 function onData(newData: Buffer) {
     //Copy Buffer
     for (let i = 0; i < newData.length; i++) {
-        if (isTargetRequest) target[readPointer] = newData[i];
-        else frame[readPointer] = newData[i];
+        if (isTargetRequest) {
+            let padByte = (str: string) => "0".repeat(8 - str.length) + str;
+            target += padByte(newData[i].toString(2));
+        }
+        else {
+            //split byte into 2 pixels -> covert to 8-bit RGBA
+            const idx = readPointer << 3;
+            const pix1 = (newData[i] & 0xF) * 17;// > 128 ? 255 : 0;
+            const pix2 = (newData[i] >> 4) * 17 ;// > 128 ? 255 : 0;
+
+            frame[idx+0] = pix1;
+            frame[idx+1] = pix1;
+            frame[idx+2] = pix1;
+            frame[idx+3] = 255;
+
+            frame[idx+4] = pix2;
+            frame[idx+5] = pix2;
+            frame[idx+6] = pix2;
+            frame[idx+7] = 255;
+        }
         readPointer++;
     }
 
     //End Read
-    if (isTargetRequest ? readPointer >= 6 : readPointer >= 153600) {
-        //Reset
-        readPointer = 0;
-                
+    if (isTargetRequest ? readPointer >= 6 : readPointer >= (640 * 480 >> 1)) {
         //Write Command Queue
         if (queue.length > 0) {
             serialPort.write(Buffer.from(queue));
             queue = [];
         }
 
-        //Send to Web
-        if (isTargetRequest) { io.emit('target', target); console.log(target);}
-        else io.emit('frame', frame);
+        //Draw Target & Send to Web
+        if (isTargetRequest) {
+            //parse target string => object
+            const obj = {
+                center: {
+                    x: parseInt(target.slice(0, 10), 2),
+                    y: parseInt(target.slice(10, 20), 2)
+                },
+                width: parseInt(target.slice(20, 30), 2),
+                height: parseInt(target.slice(30, 40), 2),
+                blobCount: parseInt(target.slice(40, 46), 2),
+                angle: parseInt(target.slice(46, 48), 2)
+            };
 
-        //Draw Target
-        // if (obj.target) {
-            // //bound
-            // drawRect(tempImage.data, {
-            //     x: obj.center.x - (obj.width >> 1),
-            //     y: obj.center.y - (obj.height >> 1)
-            // }, {
-            //     x: obj.center.x + (obj.width >> 1),
-            //     y: obj.center.y + (obj.height >> 1)
-            // }, [125, 255, 125, 255]);
+            //bound
+            drawRect(frame, {
+                x: Math.max(obj.center.x - (obj.width >> 1), 0),
+                y: Math.max(obj.center.y - (obj.height >> 1), 0)
+            }, {
+                x: Math.min(obj.center.x + (obj.width >> 1), 639),
+                y: Math.min(obj.center.y + (obj.height >> 1), 479)
+            }, [125, 255, 125, 255]);
 
-            // //center
-            // drawCenterFillSquare(tempImage.data, obj.center, 2, [125, 255, 125, 255]);
-        // }
+            //center
+            drawCenterFillSquare(frame, obj.center, 2, [125, 255, 125, 255]);
+
+            io.emit('frame', frame);
+        }
+
+        //Reset
+        readPointer = 0;
+        target = "";
 
         //Request New
         isTargetRequest = !isTargetRequest;

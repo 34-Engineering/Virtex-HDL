@@ -61,62 +61,11 @@
         const canvas = document.querySelector('#canvas');
         const ctx = canvas.getContext('2d');
 
-        //Draw Frame
-        let frame;
-        let target = {
-            center: {x:0, y:0},
-            width: 0,
-            height: 0,
-            blobCount: 0,
-            angle: 0
-        };
-
-        function drawFrame() {
-            const img = ctx.createImageData(640, 480);
-            for (let i = 0; i < frame.length; i++) {
-                const idx = i << 3;
-                const pix1 = (frame[i] & 0xF) * 17 > 128 ? 255 : 0;
-                const pix2 = (frame[i] >> 4) * 17  > 128 ? 255 : 0;
-
-                img.data[idx + 0] = pix1;
-                img.data[idx + 1] = pix1;
-                img.data[idx + 2] = pix1;
-                img.data[idx + 3] = 255;
-                img.data[idx + 4] = pix2;
-                img.data[idx + 5] = pix2;
-                img.data[idx + 6] = pix2;
-                img.data[idx + 7] = 255;
-            }
-            ctx.putImageData(img, 0, 0);
-        }
-
-        //Recieved Frame
+        //Recieve & Draw Frame
         socket.on('frame', (newFrame) => {
-            frame = new Uint8Array(newFrame);
-            drawFrame();
-        });
-        let lastTarget;
-        socket.on('target', (newTarget) => {
-            const bytes = new Uint8Array(newTarget);
-            let str = "";
-            let padByte = (str) => "0".repeat(8 - str.length) + str;
-            for (let i = 0; i < bytes.length; i++) str += padByte(bytes[i].toString(2));
-
-            if (str != lastTarget) {
-                lastTarget = str;
-
-                target = {
-                    center: {
-                        x: parseInt(str.slice(0, 10), 2),
-                        y: parseInt(str.slice(10, 20), 2)
-                    },
-                    width: parseInt(str.slice(20, 30), 2),
-                    height: parseInt(str.slice(30, 40), 2),
-                    blobCount: parseInt(str.slice(40, 46), 2),
-                    angle: parseInt(str.slice(46, 48), 2)
-                };
-                console.log(target);
-            }
+            const img = ctx.createImageData(640, 480);
+            img.data.set(new Uint8Array(newFrame));
+            ctx.putImageData(img, 0, 0);
         });
 
         //Load Settings
@@ -126,8 +75,8 @@
         socket.emit('setting', { addr: 7, value: 2 }); //mult timer
         socket.emit('setting', { addr: 8, value: 39639 }); //frame length
 
-        socket.emit('enable');
-        // socket.emit('disable');
+        // socket.emit('enable');
+        socket.emit('disable');
     </script>
 </body>
 
