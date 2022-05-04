@@ -233,12 +233,12 @@ module PythonManager(
         .RUN_FIFO_FULL_FAULT(RUN_FIFO_FULL_FAULT),
         .debug(debug)
     );
-    clk_wiz_python_fix(
+    clk_wiz_python_fix clk_wiz_python_fix(
         .clk_in1(CLK100),
         .clk_out1(CLK72)
     );
 
-    clk_wiz_python_fix_2(
+    clk_wiz_python_fix_2 clk_wiz_python_fix_2(
         .clk_in1(CLK100),
         .clk_out1(CLK36)
     );

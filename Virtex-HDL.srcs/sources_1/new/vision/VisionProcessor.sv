@@ -96,26 +96,22 @@ module VisionProcessor(
     RunBuffer makerLastLineBuffer = '0;
     RunBuffer makerCurrentLineBuffer = '0;
     reg [9:0] makerCurrentLineBufferX = '0;
-    reg [9:0] makerCurrentRunEnd = makerCurrentLineBufferX + runFIFOOut.length - 1;
+    wire [9:0] makerCurrentRunEnd = makerCurrentLineBufferX + runFIFOOut.length - 1;
     wire BlobData makerCurrentRunAsBlob = runToBlob(makerCurrentLineBufferX, runFIFOOut.length, runFIFOOut.line);
     wire makerIsLastRun = (makerCurrentRunEnd) == (IMAGE_WIDTH-1) & runFIFOOut.line == (IMAGE_HEIGHT-1);
 
-    wire BlobIndex makerTouchingIndex = getMakerTouchingIndex(); //the run from the last line buffer in which the current run is touching
-    function BlobIndex getMakerTouchingIndex();
+    BlobIndex makerTouchingBlobIndex; //the blob index from the run in the last line in which the current run is touching
+    always_comb begin
+        makerTouchingBlobIndex = NULL_BLOB_INDEX;
         for (int i = 0; i < MAX_RUNS_PER_LINE; i++) begin
-            if (i < makerLastLineBuffer.count &
-                makerLastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX & //if valid index in makerLastLineBuffer
-                runsOverlap(
-                    makerCurrentLineBufferX, makerCurrentRunEnd, //if this run is touching it
-                    makerLastLineBuffer.runs[i].start, makerLastLineBuffer.runs[i].stop
-                )
+            if (i < makerLastLineBuffer.count & makerLastLineBuffer.runs[i].blobIndex != NULL_BLOB_INDEX &
+                runsOverlap(makerCurrentLineBufferX, makerCurrentRunEnd, makerLastLineBuffer.runs[i].start, makerLastLineBuffer.runs[i].stop)
             ) begin
-                return i;
+                makerTouchingBlobIndex = makerLastLineBuffer.runs[i].blobIndex;
             end
         end
-    endfunction
+    end
     
-    wire BlobIndex makerTouchingBlobIndex = makerLastLineBuffer.runs[makerTouchingIndex].blobIndex;
     wire BlobIndex makerCurrentBlobIndex = makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count].blobIndex;
     wire makerCurrentRunHasJoinedBlob = makerCurrentBlobIndex != NULL_BLOB_INDEX;
 
@@ -273,9 +269,12 @@ module VisionProcessor(
     initial openFile();
 
     //FIXME
-    assign debug = target.width >> 2;
+    initial debug = 8'b0000_0000;
+    //10000111
+    //10000110
+    //
 
-    //200MHz Clocked Loop
+    //Master Clocked Loop
     always_ff @(negedge CLK_P) begin
         bramPorts[0].we <= 0;
         bramPorts[1].we <= 0;
@@ -287,9 +286,6 @@ module VisionProcessor(
         makerSkipCycle <= 0;
         makerJustResetLine <= 0;
 
-        //FIXME
-        // if (runFIFOFull) debug[7] <= 1;
-        
         //Reset @ New Frame
         if (runFIFOOut.line == 0 && lastLine != 0) begin
             frameReset();
@@ -302,7 +298,6 @@ module VisionProcessor(
         
         //Read from FIFO
         else if (~runFIFOEmpty) begin
-            debug[0] <= 1;
             runFIFORead <= 1;
             if (~targetSelectorDone) begin
                 BLOB_PROCESSOR_SLOW_FAULT <= 1;
@@ -339,8 +334,8 @@ module VisionProcessor(
             end
 
             //reset current line buffer
-            makerCurrentLineBufferX <= 0;
-            makerCurrentLineBuffer.count <= 0;
+            makerCurrentLineBufferX <= '0;
+            makerCurrentLineBuffer.count <= '0;
             makerCurrentLineBuffer.runs[0] <= '{start:0, stop:0, blobIndex:NULL_BLOB_INDEX};
             makerCurrentLineBuffer.line <= runFIFOOut.line;
         end
@@ -385,16 +380,21 @@ module VisionProcessor(
         end
     endtask
     task updateOnMakerState(MakerState ustate);
+        //defaults
+        if (makerCurrentRunHasJoinedBlob) begin
+            makerState <= JOIN_END;
+        end
+        else makerState <= MAKE;
+
         //Search through runs from last line & Check if this run is touching them
         if (ustate == SEARCH) begin
-            //defaults
-            if (makerCurrentRunHasJoinedBlob) begin
-                makerState <= JOIN_END;
-            end
-            else makerState <= MAKE;
+            //Touching => Join|Merge
+            if (makerTouchingBlobIndex != NULL_BLOB_INDEX) begin
 
-            //Touching
-            begin
+                $display("TOUCHING@%d(line:%d) (JOIN:%d, MERGE:%d(%d!=%d))", makerTouchingBlobIndex, runFIFOOut.line,
+                ~makerCurrentRunHasJoinedBlob, makerTouchingBlobIndex != makerCurrentBlobIndex,
+                makerTouchingBlobIndex, makerCurrentBlobIndex);
+
                 //First touching run => Join it's blob
                 if (~makerCurrentRunHasJoinedBlob) begin
                     //set new state
@@ -407,10 +407,10 @@ module VisionProcessor(
 
                 //2nd+ touching run => Merge this blob with master blob
                 else if (makerTouchingBlobIndex != makerCurrentBlobIndex) begin
-                    // set new state
+                    //set new state
                     makerState <= MERGE;
 
-                    // read Blobs from BRAM
+                    //read Blobs from BRAM
                     bramPorts[0].addr <= makerTouchingBlobIndex;
                     bramPorts[1].addr <= makerCurrentBlobIndex;
                     makerSkipCycle <= 1;
@@ -420,6 +420,7 @@ module VisionProcessor(
         
         //Join Blob
         else if (ustate == JOIN) begin
+            $display("JOI NJOI N");
             //write back to BRAM
             bramPorts[0].din <= makerNewJoinedBlob;
             bramPorts[0].we <= 1;
@@ -437,6 +438,8 @@ module VisionProcessor(
 
         //Merge two intersecting Blobs (U/V/W Case)
         else if (ustate == MERGE) begin
+             $display("MERGEEEE");
+
             //update all pointers to slave
             for (int i = 0; i < MAX_RUNS_PER_LINE; i++) begin
                 if (makerLastLineBuffer.runs[i].blobIndex == bramPorts[0].addr) begin
@@ -488,8 +491,6 @@ module VisionProcessor(
         makerCurrentLineBuffer.count <= makerCurrentLineBuffer.count + 1;
         makerCurrentLineBuffer.runs[makerCurrentLineBuffer.count+1] <= '{start:0, stop:0, blobIndex:NULL_BLOB_INDEX};
 
-        // debug[0] <= 1;
-
         //reset state
         makerState <= NONE;
 
@@ -528,12 +529,17 @@ module VisionProcessor(
 
             //Transfer Good Blobs to "Finished" BRAM
             if (trainBlobGood) begin
+                // if (trainFinishedIndex == 0) debug <= trainBlob.boundBottomRight.x >> 2;
+
                 bramPorts[2].addr <= trainFinishedIndex;
                 bramPorts[2].din <= trainBlob;
                 bramPorts[2].we <= 1;
                 trainFinishedIndex <= trainFinishedIndex + 1;
                 targetBRAMEnds[1] <= trainFinishedIndex + 1;
+
+                $display("TRAINING BLOB %d->%d", trainGrowingIndex, trainFinishedIndex);
             end
+            else $display("NOT TRAINING BLOB %d", trainGrowingIndex);
             
             //Update Single Mode Target Selector
             if (isTargetSingleMode) begin
@@ -751,7 +757,8 @@ module VisionProcessor(
                 end
 
                 //(sim only)
-                else $write(" CHAIN_END->NOT_BEST_TARGET(boundAreaValid%b, aspectRatioValid%b, blobCountValid%b, nil%b)", boundAreaValid, aspectRatioValid, blobCountValid, isTargetNull(targetCurrent));
+                else $write(" CHAIN_END->NOT_BEST_TARGET");
+                // else $write(" CHAIN_END->NOT_BEST_TARGET(boundAreaValid%b, aspectRatioValid%b, blobCountValid%b, nil%b)", boundAreaValid, aspectRatioValid, blobCountValid, isTargetNull(targetCurrent));
             end
 
             //Reset Slot Counter for Next Opposite BRAM Number

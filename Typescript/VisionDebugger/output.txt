@@ -1,1 +1,3 @@
-{target:1,width:528,height:32,center:{x:434,y:128},angle:3}
+{blob:1, topLeft:{x: 424, y: 122}, bottomRight:{x: 537, y: 293}, quad:{topLeft:{x: 425,y: 122},topRight:{x: 507,y: 135},bottomRight:{x: 537,y: 291},bottomLeft:{x: 450,y: 292}}}
+{blob:1, topLeft:{x: 115, y: 126}, bottomRight:{x: 275, y: 293}, quad:{topLeft:{x: 198,y: 135},topRight:{x: 275,y: 127},bottomRight:{x: 192,y: 291},bottomLeft:{x: 115,y: 292}}}
+{target:1, center:{x: 195, y: 209}, width: 161, height: 168, blobCount: 1, angle:2}

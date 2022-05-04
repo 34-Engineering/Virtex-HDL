@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
 //Serial (PC->FT2232H->FPGA)
 let serialPort: any | null = null;
 let frame: Buffer = Buffer.alloc(640 * 480 << 2);
-let target: string = "";
+let target: string = "", lastTarget: string = "";
 let readPointer: number = 0;
 let queue: number[] = [];
 let isTargetRequest: boolean = false;
@@ -108,6 +108,10 @@ function onData(newData: Buffer) {
                 blobCount: parseInt(target.slice(40, 46), 2),
                 angle: parseInt(target.slice(46, 48), 2)
             };
+            if (lastTarget != target) {
+                console.log(obj);
+                lastTarget = target;
+            }
 
             //bound
             drawRect(frame, {
