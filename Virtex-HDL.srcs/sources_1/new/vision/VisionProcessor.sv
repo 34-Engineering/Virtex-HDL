@@ -127,7 +127,7 @@ module VisionProcessor(
     reg trainInitDone = '0;
     
     wire BlobData trainBlob = bramPorts[trainPartion].dout;
-    wire trainBlobGood = 1;//FIXME doesBlobMatchCriteria(trainBlob);
+    wire trainBlobGood = doesBlobMatchCriteria(trainBlob);
 
     //Target Selector
     initial target = '0; //"best" target for the last frame
@@ -270,7 +270,12 @@ module VisionProcessor(
 
     //FIXME
     // initial debug = 8'b0000_0000;
-    assign debug = makerGrowingIndex; 
+    assign debug[7] = runFIFOFull;
+    assign debug[6] = runFIFOEmpty;
+    initial debug[5] = '0;
+    assign debug[4:2] = makerState;
+    assign debug[1] = trainDone;
+    assign debug[0] = targetSelectorDone;
 
     //Master Clocked Loop
     always_ff @(negedge CLK_P) begin
@@ -554,17 +559,17 @@ module VisionProcessor(
         reg [9:0] boundWidth  = blob.boundBottomRight.x - blob.boundTopLeft.x;
         reg [9:0] boundHeight = blob.boundBottomRight.y - blob.boundTopLeft.y;
 
-        reg aspectRatioValid = inAspectRatioRange(boundWidth, boundHeight,
-            virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
+        reg aspectRatioValid = 1;//inAspectRatioRange(boundWidth, boundHeight, //FIXME
+        //     virtexConfig.targetAspectRatioMin, virtexConfig.targetAspectRatioMax);
 
         BlobArea boundArea = boundWidth * boundHeight;
         reg boundAreaValid = inBoundAreaRange(boundArea,
             virtexConfig.blobBoundAreaMin, virtexConfig.blobBoundAreaMax);
 
-        reg fullnessValid = inFullnessRange(blob.area, boundArea,
-            virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
+        reg fullnessValid = 1;//inFullnessRange(blob.area, boundArea, //FIXME
+            // virtexConfig.blobFullnessMin, virtexConfig.blobFullnessMax);
 
-        reg angleValid = virtexConfig.blobAnglesEnabled[15-calcBlobAngle(blob)];
+        reg angleValid = 1;//virtexConfig.blobAnglesEnabled[15-calcBlobAngle(blob)]; //FIXME
 
         return nonZero && aspectRatioValid & boundAreaValid & fullnessValid & angleValid;
     endfunction
@@ -808,6 +813,7 @@ module VisionProcessor(
     //Global Reset for New Frame
     task frameReset();
         //(sim only)
+        debug[5] <= 1;//FIXME
         $display(" --- FRAME RESET --- ");
         openFile();
 

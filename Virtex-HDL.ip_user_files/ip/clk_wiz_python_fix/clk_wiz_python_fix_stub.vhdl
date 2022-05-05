@@ -1,7 +1,7 @@
 -- Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2021.1 (win64) Build 3247384 Thu Jun 10 19:36:33 MDT 2021
--- Date        : Fri Apr 29 01:17:06 2022
+-- Date        : Wed May  4 20:24:41 2022
 -- Host        : RISC-IV running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub -rename_top clk_wiz_python_fix -prefix
 --               clk_wiz_python_fix_ clk_wiz_python_fix_stub.vhdl

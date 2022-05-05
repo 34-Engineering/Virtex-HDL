@@ -70,10 +70,18 @@
 
         //Load Settings
         socket.emit('setting', { addr: 1, value: 0x01 }); //LED brightness
+
+        //short exposure
         socket.emit('setting', { addr: 4, value: 0b111100100 }); //analog gain
         socket.emit('setting', { addr: 6, value: 1000 }); //exposure
         socket.emit('setting', { addr: 7, value: 2 }); //mult timer
         socket.emit('setting', { addr: 8, value: 39639 }); //frame length
+        
+        //long exposure
+        // socket.emit('setting', { addr: 4, value: 0b111100100 }); //analog gain
+        // socket.emit('setting', { addr: 6, value: 4000 }); //exposure
+        // socket.emit('setting', { addr: 7, value: 20 }); //mult timer
+        // socket.emit('setting', { addr: 8, value: 41500 }); //frame length
 
         // socket.emit('enable');
         socket.emit('disable');
