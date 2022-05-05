@@ -71,7 +71,7 @@ module PythonManager(
     );
 
     //FIXME - Testing Version Static Image Readout
-    wire CLK288, CLK72, CLK36;
+    wire CLK288, CLK_P, CLK_F;
 
     Run rleCurrentRun;
     Math::Vector2d10 rleKernelPos;
@@ -157,7 +157,7 @@ module PythonManager(
 
     int _wait = 255;
 
-    always_ff @(negedge CLK36) begin
+    always_ff @(negedge CLK_F) begin
         runFIFOWrite <= '0;
 
         //Reset
@@ -221,8 +221,8 @@ module PythonManager(
     end
 
     VisionProcessor VisionProcessor(
-        .CLK_F(CLK36),
-        .CLK_P(CLK72),
+        .CLK_F(CLK_F),
+        .CLK_P(CLK_P),
         .runFIFOIn(runFIFOIn),
         .runFIFOWrite(runFIFOWrite),
         .target(target),
@@ -235,12 +235,12 @@ module PythonManager(
     );
     clk_wiz_python_fix clk_wiz_python_fix(
         .clk_in1(CLK100),
-        .clk_out1(CLK72)
+        .clk_out1(CLK_P)
     );
 
     clk_wiz_python_fix_2 clk_wiz_python_fix_2(
         .clk_in1(CLK100),
-        .clk_out1(CLK36)
+        .clk_out1(CLK_F)
     );
 
 

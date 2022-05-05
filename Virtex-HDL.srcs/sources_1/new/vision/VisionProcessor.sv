@@ -269,10 +269,8 @@ module VisionProcessor(
     initial openFile();
 
     //FIXME
-    initial debug = 8'b0000_0000;
-    //10000111
-    //10000110
-    //
+    // initial debug = 8'b0000_0000;
+    assign debug = makerGrowingIndex; 
 
     //Master Clocked Loop
     always_ff @(negedge CLK_P) begin
@@ -390,11 +388,6 @@ module VisionProcessor(
         if (ustate == SEARCH) begin
             //Touching => Join|Merge
             if (makerTouchingBlobIndex != NULL_BLOB_INDEX) begin
-
-                $display("TOUCHING@%d(line:%d) (JOIN:%d, MERGE:%d(%d!=%d))", makerTouchingBlobIndex, runFIFOOut.line,
-                ~makerCurrentRunHasJoinedBlob, makerTouchingBlobIndex != makerCurrentBlobIndex,
-                makerTouchingBlobIndex, makerCurrentBlobIndex);
-
                 //First touching run => Join it's blob
                 if (~makerCurrentRunHasJoinedBlob) begin
                     //set new state
@@ -420,7 +413,6 @@ module VisionProcessor(
         
         //Join Blob
         else if (ustate == JOIN) begin
-            $display("JOI NJOI N");
             //write back to BRAM
             bramPorts[0].din <= makerNewJoinedBlob;
             bramPorts[0].we <= 1;
@@ -438,8 +430,6 @@ module VisionProcessor(
 
         //Merge two intersecting Blobs (U/V/W Case)
         else if (ustate == MERGE) begin
-             $display("MERGEEEE");
-
             //update all pointers to slave
             for (int i = 0; i < MAX_RUNS_PER_LINE; i++) begin
                 if (makerLastLineBuffer.runs[i].blobIndex == bramPorts[0].addr) begin
@@ -536,10 +526,7 @@ module VisionProcessor(
                 bramPorts[2].we <= 1;
                 trainFinishedIndex <= trainFinishedIndex + 1;
                 targetBRAMEnds[1] <= trainFinishedIndex + 1;
-
-                $display("TRAINING BLOB %d->%d", trainGrowingIndex, trainFinishedIndex);
             end
-            else $display("NOT TRAINING BLOB %d", trainGrowingIndex);
             
             //Update Single Mode Target Selector
             if (isTargetSingleMode) begin
