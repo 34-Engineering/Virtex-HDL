@@ -260,61 +260,57 @@ module PythonManager(
     Math::Vector2d10 rleKernelPos = '0;
     reg [2:0] rleKernelX;
     reg rleInKernel = '0;
-    reg lastKernelDone;
+    reg lastKernelDone = '0;
+    wire rleAtColorChange = ~rleKernel[7-rleKernelX] != rleCurrentRun.black;
+    wire rleAtKernelEnd = rleKernelX == 7;
+    wire rleAtLineEnd = rleAtKernelEnd & rleKernelPos.x == 79;
+    wire rleCurrentRunExists = rleCurrentRun.length != 0;
+    wire rleWillFinishRun = (rleAtColorChange || rleAtLineEnd) & rleCurrentRunExists;
+    wire rleHasNewKernel = kernelDone & ~lastKernelDone;
+    wire rleHasNewLine = kernelPos.y != rleKernelPos.y;
+    wire Run rleExtendedRun = '{ length: rleCurrentRun.length + !rleAtColorChange, line: rleCurrentRun.line, black: rleCurrentRun.black };
+    wire Run rleNextRun = '{ length: 1, line: rleKernelPos.y, black: ~rleKernel[7-rleKernelX] };
+    wire Run rleNextLineRun = '{ length: 0, line: kernelPos.y, black: ~kernelThreshold[7] };
+    wire Run rleEmptyRun = '{ length: 0, line: 0, black: 0 };
+
     always_ff @(negedge CLK288) begin //kernels are output @ 36MHz so we can process each pixel @ (36*8)MHz
         runFIFOWrite <= 0;
         
         //Process each Pixel in Kernel
         if (rleInKernel) begin
-            //New Run @ Color Change
-            if (~rleKernel[7-rleKernelX] != rleCurrentRun.black) begin
-                //end old run
-                if (rleCurrentRun.length != 0) begin
-                    runFIFOIn <= rleCurrentRun;
-                    runFIFOWrite <= 1;
-                end
+            //Extend Current Run OR Start New Run (@ Color Change)
+            rleCurrentRun <= rleAtColorChange ? rleNextRun : (rleAtLineEnd ? rleEmptyRun : rleExtendedRun);
 
-                //start new run
-                rleCurrentRun <= '{
-                    length: 1,
-                    line: rleKernelPos.y,
-                    black: ~rleKernel[7-rleKernelX]
-                };
-            end
-
-            //Extend Run
-            else begin
-                rleCurrentRun.length <= rleCurrentRun.length + 1;
+            //End Run @ End Line OR Color Change
+            if (rleWillFinishRun) begin
+                runFIFOIn <= rleExtendedRun;
+                runFIFOWrite <= 1;
             end
 
             //End Kernel
-            if (rleKernelX == 7) rleInKernel <= 0;
+            if (rleAtKernelEnd) rleInKernel <= 0;
 
             //Move to Next Pixel
             rleKernelX <= rleKernelX + 1;
         end
 
         //New Kernel
-        if (kernelDone & ~lastKernelDone) begin
+        if (rleHasNewKernel) begin
             rleKernel <= kernelThreshold;
             rleKernelPos <= kernelPos;
             rleKernelX <= 0;
             rleInKernel <= 1;
 
             //New Line
-            if (kernelPos.y != rleKernelPos.y) begin
-                //end old run
-                if (rleCurrentRun.length != 0) begin
+            if (rleHasNewLine) begin
+                //end run (only in the case of color change happening at end line, in which case the old run was sent, a new 1-pixel run was started, and we end it here)
+                if (rleCurrentRunExists) begin
                     runFIFOIn <= rleCurrentRun;
                     runFIFOWrite <= 1;
                 end
 
                 //start run
-                rleCurrentRun <= '{
-                    length: 0,
-                    line: kernelPos.y,
-                    black: ~kernel[7]
-                };
+                rleCurrentRun <= rleNextLineRun;
             end
         end
         lastKernelDone <= kernelDone;
