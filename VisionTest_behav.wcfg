@@ -3,94 +3,144 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="VisionTest_behav.wdb" id="1">
+      <db_ref path="PythonTest_behav.wdb" id="1">
          <top_modules>
             <top_module name="Math" />
-            <top_module name="VisionTest" />
+            <top_module name="PythonTest" />
             <top_module name="\$unit_VisionProcessor_sv " />
             <top_module name="glbl" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
-      <ZoomEndTime time="28.800000001 ms"></ZoomEndTime>
-      <Cursor1Time time="0.000000000 ms"></Cursor1Time>
+      <ZoomStartTime time="1,194.750000 us"></ZoomStartTime>
+      <ZoomEndTime time="1,202.250001 us"></ZoomEndTime>
+      <Cursor1Time time="1,201.000000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="252"></NameColumnWidth>
-      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+      <NameColumnWidth column_width="248"></NameColumnWidth>
+      <ValueColumnWidth column_width="120"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="17" />
-   <wvobject fp_name="/VisionTest/CLK100" type="logic">
+   <wvobject fp_name="/PythonTest/CLK10" type="logic">
+      <obj_property name="ElementShortName">CLK10</obj_property>
+      <obj_property name="ObjectShortName">CLK10</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/CLK72" type="logic">
+      <obj_property name="ElementShortName">CLK72</obj_property>
+      <obj_property name="ObjectShortName">CLK72</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/CLK100" type="logic">
       <obj_property name="ElementShortName">CLK100</obj_property>
       <obj_property name="ObjectShortName">CLK100</obj_property>
    </wvobject>
-   <wvobject fp_name="/VisionTest/rleKernelPos" type="array">
+   <wvobject fp_name="/PythonTest/CLK288" type="logic">
+      <obj_property name="ElementShortName">CLK288</obj_property>
+      <obj_property name="ObjectShortName">CLK288</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/kernelDone" type="logic">
+      <obj_property name="ElementShortName">kernelDone</obj_property>
+      <obj_property name="ObjectShortName">kernelDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/kernelPos" type="array">
+      <obj_property name="ElementShortName">kernelPos</obj_property>
+      <obj_property name="ObjectShortName">kernelPos</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/PythonTest/kernelPos.x" type="array">
+         <obj_property name="ElementShortName">.x[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.x[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/kernelPos.y" type="array">
+         <obj_property name="ElementShortName">.y[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.y[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/blab" type="array">
+      <obj_property name="ElementShortName">blab[15:0]</obj_property>
+      <obj_property name="ObjectShortName">blab[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/kernelThreshold" type="array">
+      <obj_property name="ElementShortName">kernelThreshold[7:0]</obj_property>
+      <obj_property name="ObjectShortName">kernelThreshold[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/frameDone" type="logic">
+      <obj_property name="ElementShortName">frameDone</obj_property>
+      <obj_property name="ObjectShortName">frameDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/runFIFOIn" type="array">
+      <obj_property name="ElementShortName">runFIFOIn</obj_property>
+      <obj_property name="ObjectShortName">runFIFOIn</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/PythonTest/runFIFOIn.length" type="array">
+         <obj_property name="ElementShortName">.length[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.length[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/runFIFOIn.line" type="array">
+         <obj_property name="ElementShortName">.line[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.line[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/runFIFOIn.black" type="logic">
+         <obj_property name="ElementShortName">.black</obj_property>
+         <obj_property name="ObjectShortName">.black</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/runFIFOWrite" type="logic">
+      <obj_property name="ElementShortName">runFIFOWrite</obj_property>
+      <obj_property name="ObjectShortName">runFIFOWrite</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/rleCurrentRun" type="array">
+      <obj_property name="ElementShortName">rleCurrentRun</obj_property>
+      <obj_property name="ObjectShortName">rleCurrentRun</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/PythonTest/rleCurrentRun.length" type="array">
+         <obj_property name="ElementShortName">.length[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.length[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/rleCurrentRun.line" type="array">
+         <obj_property name="ElementShortName">.line[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.line[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/rleCurrentRun.black" type="logic">
+         <obj_property name="ElementShortName">.black</obj_property>
+         <obj_property name="ObjectShortName">.black</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/rleKernel" type="array">
+      <obj_property name="ElementShortName">rleKernel[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rleKernel[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/PythonTest/rleKernelPos" type="array">
       <obj_property name="ElementShortName">rleKernelPos</obj_property>
       <obj_property name="ObjectShortName">rleKernelPos</obj_property>
-      <obj_property name="isExpanded"></obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/PythonTest/rleKernelPos.x" type="array">
+         <obj_property name="ElementShortName">.x[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.x[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/PythonTest/rleKernelPos.y" type="array">
+         <obj_property name="ElementShortName">.y[9:0]</obj_property>
+         <obj_property name="ObjectShortName">.y[9:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="/VisionTest/target" type="array">
-      <obj_property name="ElementShortName">target</obj_property>
-      <obj_property name="ObjectShortName">target</obj_property>
-      <obj_property name="isExpanded"></obj_property>
+   <wvobject fp_name="/PythonTest/rleKernelX" type="array">
+      <obj_property name="ElementShortName">rleKernelX[2:0]</obj_property>
+      <obj_property name="ObjectShortName">rleKernelX[2:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFOEmpty" type="logic">
-      <obj_property name="ElementShortName">runFIFOEmpty</obj_property>
-      <obj_property name="ObjectShortName">runFIFOEmpty</obj_property>
+   <wvobject fp_name="/PythonTest/rleInKernel" type="logic">
+      <obj_property name="ElementShortName">rleInKernel</obj_property>
+      <obj_property name="ObjectShortName">rleInKernel</obj_property>
    </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFOFull" type="logic">
-      <obj_property name="ElementShortName">runFIFOFull</obj_property>
-      <obj_property name="ObjectShortName">runFIFOFull</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFORead" type="logic">
-      <obj_property name="ElementShortName">runFIFORead</obj_property>
-      <obj_property name="ObjectShortName">runFIFORead</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerState" type="array">
-      <obj_property name="ElementShortName">makerState[31:0]</obj_property>
-      <obj_property name="ObjectShortName">makerState[31:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerJustResetLine" type="logic">
-      <obj_property name="ElementShortName">makerJustResetLine</obj_property>
-      <obj_property name="ObjectShortName">makerJustResetLine</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/trainAlmostDone" type="logic">
-      <obj_property name="ElementShortName">trainAlmostDone</obj_property>
-      <obj_property name="ObjectShortName">trainAlmostDone</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/trainDone" type="logic">
-      <obj_property name="ElementShortName">trainDone</obj_property>
-      <obj_property name="ObjectShortName">trainDone</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/targetSelectorDone" type="logic">
-      <obj_property name="ElementShortName">targetSelectorDone</obj_property>
-      <obj_property name="ObjectShortName">targetSelectorDone</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerCurrentBlobIndex" type="array">
-      <obj_property name="ElementShortName">makerCurrentBlobIndex[8:0]</obj_property>
-      <obj_property name="ObjectShortName">makerCurrentBlobIndex[8:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerGrowingIndex" type="array">
-      <obj_property name="ElementShortName">makerGrowingIndex[8:0]</obj_property>
-      <obj_property name="ObjectShortName">makerGrowingIndex[8:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/runFIFOOut" type="array">
-      <obj_property name="ElementShortName">runFIFOOut</obj_property>
-      <obj_property name="ObjectShortName">runFIFOOut</obj_property>
-      <obj_property name="isExpanded"></obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerIsLastRun" type="logic">
-      <obj_property name="ElementShortName">makerIsLastRun</obj_property>
-      <obj_property name="ObjectShortName">makerIsLastRun</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerCurrentRunEnd" type="array">
-      <obj_property name="ElementShortName">makerCurrentRunEnd[9:0]</obj_property>
-      <obj_property name="ObjectShortName">makerCurrentRunEnd[9:0]</obj_property>
-   </wvobject>
-   <wvobject fp_name="/VisionTest/VisionProcessor/makerCurrentLineBufferX" type="array">
-      <obj_property name="ElementShortName">makerCurrentLineBufferX[9:0]</obj_property>
-      <obj_property name="ObjectShortName">makerCurrentLineBufferX[9:0]</obj_property>
+   <wvobject fp_name="/PythonTest/lastKernelDone" type="logic">
+      <obj_property name="ElementShortName">lastKernelDone</obj_property>
+      <obj_property name="ObjectShortName">lastKernelDone</obj_property>
    </wvobject>
 </wave_config>

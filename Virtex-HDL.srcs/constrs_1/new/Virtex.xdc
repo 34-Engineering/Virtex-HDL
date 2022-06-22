@@ -7,6 +7,18 @@ set_property PACKAGE_PIN N14 [get_ports CLK100]
 set_property IOSTANDARD LVCMOS33 [get_ports CLK100]
 create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports CLK100]
 
+# Flash Boot Config
+# TODO higher freq? (50Mhz, 66MHz, 80MHz?)
+set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+set_property BITSTREAM.CONFIG.SPI_34BIT_ADDR NO [current_design]
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+set_property BITSTREAM.CONFIG.SPI_FALL_EDGE YES [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+set_property CFGBVS VCCO [current_design]
+set_property BITSTREAM.CONFIG.EXTMASTERCCLK_EN DISABLE [current_design]
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]
+
 # USB
 set_property PACKAGE_PIN F14 [get_ports {USB_FSDI}]
 set_property PULLTYPE PULLUP [get_ports {USB_FSDI}]

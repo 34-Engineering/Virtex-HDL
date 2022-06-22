@@ -2,11 +2,14 @@
 `include "VirtexConfig.sv"
 
 /* ConfigManager
+
+    FIXME FIXME TODO TODO update to new EEPROM CAT93C46BHU4I-GT3
+
     Transfers config from EEPROM to FPGA fabric at boot
     Saves config to FPGA fabric & EEPROM on each external write request
     
     VirtexConfig: 64 x 16-bit (see Util.sv for individual configurations & defaults)
-    EEPROM: AT25010B-MAHL-E (128 x 8-bit); Docs: https://ww1.microchip.com/downloads/en/DeviceDoc/20006251A.pdf
+    EEPROM: CAT93C46BHU4I-GT3 (64 x 16-bit); Docs: https://www.onsemi.com/pdf/datasheet/cat93c46b-d.pdf
     Status Register (8-bits):
      [7:4] Reserved for Future Use (read only)
       - 000 device not in write cycle

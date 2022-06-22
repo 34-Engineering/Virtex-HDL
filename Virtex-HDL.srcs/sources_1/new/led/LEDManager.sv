@@ -19,11 +19,11 @@ module LEDManager(
     input wire [7:0] debug
     );
 
-    localparam brightness = 12'd400;
+    localparam brightness = 12'd4095;
 
     //Make RGB
     reg [7:0] counter255 = 0;
-    reg [11:0] counter255B = 8'h0F; //4096 (x16, << 4)
+    reg [11:0] counter255B = 8'h0F; //4096 (<<4)
     always_ff @(posedge CLK100) begin
         counter255 <= counter255 + 1;
         counter255B <= counter255B + 1; //90° shift
@@ -49,13 +49,13 @@ module LEDManager(
     assign LED_IR = enabled & virtexConfig.ledBrightness[pwmPos]; //~fault//~PWR_12V_EN;
 
     //Status LEDs
-    assign LED_PWR = ~makeRGBA(debug[7]?255:0, debug[6]?255:0, 0, brightness);
-    assign LED_EN  = ~makeRGBA(debug[5]?255:0, debug[4]?255:0, 0, brightness);
-    assign LED_TAR = ~makeRGBA(debug[3]?255:0, debug[2]?255:0, 0, brightness);
-    assign LED_COM = ~makeRGBA(debug[1]?255:0, debug[0]?255:0, 0, brightness);
+    // assign LED_PWR = ~makeRGBA(debug[7]?255:0, debug[6]?255:0, 0, brightness);
+    // assign LED_EN  = ~makeRGBA(debug[5]?255:0, debug[4]?255:0, 0, brightness);
+    // assign LED_TAR = ~makeRGBA(debug[3]?255:0, debug[2]?255:0, 0, brightness);
+    // assign LED_COM = ~makeRGBA(debug[1]?255:0, debug[0]?255:0, 0, brightness);
 
     reg [25:0] enabledToggleCounter = 0;
-    wire enabledToggle = enabled & enabledToggleCounter > 25'd20000000;
+    wire enabledToggle = /*enabled & */enabledToggleCounter > 25'd20000000;
     always_ff @(posedge CLK100) begin
         enabledToggleCounter <= enabledToggleCounter < 26'd40000000 ? (enabledToggleCounter + 1) : 0;
     end
@@ -64,6 +64,11 @@ module LEDManager(
     // assign LED_TAR = 3'b111;
     // assign LED_COM = hasCommunication ? ~makeRGBA(0, 255, 0, brightness) : 3'b111;
     // assign LED_EN = enabledToggle ? ~makeRGBA(255, 165, 0, brightness) : 3'b111;
+
+    assign LED_PWR = enabledToggle ? ~makeRGBA(255, 165, 0, brightness) : 3'b111;
+    assign LED_TAR = 3'b111;
+    assign LED_COM = enabledToggle ? ~makeRGBA(255, 165, 0, brightness) : 3'b111;
+    assign LED_EN = 3'b111;
 
     // LED_USER: blink at ?hz
     assign LED_USER = enabledToggleCounter > 25'd20000000 & counter255 < 8'd2;
