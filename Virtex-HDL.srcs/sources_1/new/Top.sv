@@ -149,16 +149,6 @@ module Top(
     //     .target(target)
     // );
 
-    //FlashManager
-    // FlashManager FlashManager(
-    //     .CLK100(CLK100),
-    //     .SPI_CS(FLASH_CS),
-    //     .SPI_WP(FLASH_WP),
-    //     .SPI_HOLD(FLASH_HOLD),
-    //     .SPI_MOSI(FLASH_MOSI),
-    //     .SPI_MISO(FLASH_MISO)
-    // );
-
     //LEDManager
     assign faults.IR_LED = LED_FAULT;
     LEDManager LEDManager(
